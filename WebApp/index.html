@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="white">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>StyleMorph</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config={darkMode:'class',theme:{extend:{colors:{
+bg:'var(--bg)',sf:'var(--sf)',bd:'var(--bd)',tx:'var(--tx)',mu:'var(--mu)',pr:'var(--pr)',prt:'var(--prt)',
+google:{blue:'var(--pr)',hoverBlue:'var(--pr)',bgLight:'var(--bg)',surfaceLight:'var(--sf)',bgDark:'var(--bg)',surfaceDark:'var(--sf)',borderLight:'var(--bd)',borderDark:'var(--bd)',textLight:'var(--tx)',textDark:'var(--tx)'}}}}}
+</script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<style>
+@import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+:root,[data-theme=white]{--bg:#fff;--sf:#fff;--bd:#e5e5e5;--tx:#171717;--mu:#737373;--pr:#171717;--prt:#fff;--ok:#2e6b47;--okb:#e6f3ea;--wn:#8a6a12;--wnb:#fbf3dc;--in:#2f5d9b;--inb:#e8f0fa;--or:#9a5418;--orb:#fbebdd}
+[data-theme=beige]{--bg:#faf7f2;--sf:#fffdf9;--bd:#e7dfd3;--tx:#2b2118;--mu:#8a7b6b;--pr:#5c4033;--prt:#fffdf9}
+[data-theme=slate]{--bg:#f4f5f6;--sf:#fff;--bd:#dde0e3;--tx:#26292d;--mu:#6b7178;--pr:#2f3438;--prt:#fff}
+.dark[data-theme=white]{--bg:#111;--sf:#1a1a1a;--bd:#2c2c2c;--tx:#f2f2f2;--mu:#9a9a9a;--pr:#f2f2f2;--prt:#111}
+.dark[data-theme=beige]{--bg:#1c1713;--sf:#251f19;--bd:#3a3128;--tx:#f3ebe0;--mu:#a8998a;--pr:#d9b99b;--prt:#1c1713}
+.dark[data-theme=slate]{--bg:#17191b;--sf:#202325;--bd:#33373b;--tx:#e8eaec;--mu:#9aa0a6;--pr:#c9ced3;--prt:#17191b}
+body{font-family:'Vazirmatn',sans-serif;background:var(--bg);color:var(--tx);-webkit-tap-highlight-color:transparent}
+.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{scrollbar-width:none}
+/* نگاشت یکدست رنگ‌های قدیمی به توکن‌های تم */
+.bg-gray-50,.bg-gray-100,.dark .dark\:bg-gray-800{background:var(--bg)!important}
+.text-gray-400,.text-gray-500,.text-gray-300{color:var(--mu)!important}
+.border-gray-200,.border-gray-300,.dark .dark\:border-gray-700{border-color:var(--bd)!important}
+.text-emerald-500{color:var(--ok)}.text-blue-500{color:var(--in)}.text-amber-500,.text-amber-400{color:var(--wn)}.text-red-500{color:var(--or)}
+.bg-emerald-500{background:var(--ok)}.bg-amber-500{background:var(--wn)}
+[class*="bg-gradient"]{background:var(--sf)!important;color:var(--tx)!important;border:1px solid var(--bd)}
+[class*="bg-gradient"] *{color:inherit!important}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:12px}
+.btn{background:var(--pr);color:var(--prt);border-radius:10px;font-weight:700}
+.chip{border:1px solid var(--bd);background:var(--sf);border-radius:999px;padding:4px 12px;font-size:12px;white-space:nowrap}
+.chip.on{background:var(--pr);color:var(--prt);border-color:var(--pr)}
+.dot{width:14px;height:14px;border-radius:999px;border:2px solid var(--bd)}
+input,select{color:var(--tx)}input::placeholder{color:var(--mu)}
+input:focus,select:focus{outline:none;border-color:var(--pr)!important}
+button:focus-visible{outline:2px solid var(--pr);outline-offset:2px}
+[class*="text-[8px]"],[class*="text-[9px]"]{font-size:11px!important}[class*="text-[10px]"]{font-size:12px!important}
+#main-header:not([data-mode=profile]) .pf-only{display:none}
+#main-header[data-mode=profile] .av{width:3rem;height:3rem;border-radius:12px}
+.pf-h{height:calc(100dvh - var(--hh,4rem) - 5.5rem)}
+#support-box{overflow-y:auto}
+html.lock,html.lock body{overflow:hidden;height:100dvh;overscroll-behavior:none}
+#p-identity,#tab-profile .overflow-y-auto{overscroll-behavior:contain}
+.pf-wrap{--sbc:color-mix(in srgb,var(--tx) 5%,var(--sf))}
+.pf-side{background:var(--sbc)}
+.pf-tab{position:relative;border-start-start-radius:12px;border-end-start-radius:12px;transition:background .2s,color .2s}
+.pf-tab.pf-on{background:var(--sf);color:var(--tx)!important;font-weight:700;z-index:2}
+.pf-tab.pf-on::before,.pf-tab.pf-on::after{content:'';position:absolute;inset-inline-end:0;width:12px;height:12px;pointer-events:none}
+.pf-tab.pf-on::before{top:-12px}.pf-tab.pf-on::after{bottom:-12px}
+html[dir=rtl] .pf-tab.pf-on::before{background:radial-gradient(circle at 100% 0,var(--sbc) 12px,var(--sf) 12.5px)}
+html[dir=rtl] .pf-tab.pf-on::after{background:radial-gradient(circle at 100% 100%,var(--sbc) 12px,var(--sf) 12.5px)}
+html[dir=ltr] .pf-tab.pf-on::before{background:radial-gradient(circle at 0 0,var(--sbc) 12px,var(--sf) 12.5px)}
+html[dir=ltr] .pf-tab.pf-on::after{background:radial-gradient(circle at 0 100%,var(--sbc) 12px,var(--sf) 12.5px)}
+#drawer{visibility:hidden;transition:visibility 0s .28s}#drawer.open{visibility:visible;transition-delay:0s}
+.dr-ov{background:rgba(0,0,0,.4);opacity:0;transition:opacity .28s}#drawer.open .dr-ov{opacity:1}
+.dr-panel{transform:translateX(-100%);transition:transform .28s cubic-bezier(.25,1,.5,1)}
+html[dir=rtl] .dr-panel{transform:translateX(100%)}#drawer.open .dr-panel{transform:none!important}
+#drawer-menu button:not(:disabled):hover,#drawer-menu button:not(:disabled):active{background:var(--bg)}
+.th{width:22px;height:22px;border-radius:999px;border:1px solid var(--bd)}
+html[data-theme=white] .th-white,html[data-theme=beige] .th-beige,html[data-theme=slate] .th-slate{box-shadow:0 0 0 2px var(--sf),0 0 0 3.5px var(--pr)}
+#main-header[data-mode=profile] .ring{background:none!important;padding:0}#main-header[data-mode=profile] .av{border:1px solid var(--bd)}
+.menu-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;pointer-events:none;transition:opacity .3s;z-index:50}.menu-overlay.on{opacity:1;pointer-events:auto}.menu{position:fixed;top:0;bottom:0;inset-inline-start:-100%;width:280px;border-inline-end:1px solid var(--bd);transition:inset-inline-start .3s ease;overflow-y:auto;z-index:51}.menu.on{inset-inline-start:0}.menu-logo{text-align:center;padding:2rem 1rem 1.5rem;border-bottom:1px solid var(--bd)}.menu-logo i{font-size:2rem;color:var(--pr);margin-bottom:.5rem;display:block}.menu-logo b{font-size:.875rem;font-weight:700}.menu-item{display:flex;align-items:center;gap:1rem;padding:.75rem 1rem;color:var(--tx);font-size:.875rem;border:none;background:none;cursor:pointer;width:100%;transition:background .2s}.menu-item:hover{background:var(--bg)}.menu-item i{width:1.25rem;text-align:center}.menu-divider{height:1px;background:var(--bd);margin:1rem 0}.menu-close{position:absolute;top:1rem;inset-inline-end:1rem;background:none;border:none;cursor:pointer;color:var(--mu);font-size:1rem;padding:.5rem}#support-widget{transition:transform .25s cubic-bezier(.25,1,.5,1)}#support-widget.dragging{transition:none!important}
+</style>
+</head>
+<body class="min-h-screen flex flex-col overflow-x-hidden select-none">
+
+<header id="main-header" class="hidden fixed top-0 inset-x-0 z-40 max-w-md md:max-w-2xl mx-auto px-4 py-2.5 border-b border-bd" style="background:var(--sf)">
+<div class="flex justify-between items-center">
+<div id="header-user-info" class="flex items-center gap-2.5 cursor-pointer min-w-0" onclick="openDrawer()">
+<div class="relative shrink-0"><div class="ring rounded-full p-0.5" style="background:conic-gradient(var(--pr) var(--pp,40%),var(--bd) 0)"><div class="av w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold" style="background:var(--sf)">SA</div></div><span class="pf-only absolute -bottom-1 -end-1 text-[11px] font-bold px-1.5 rounded-full border" style="background:var(--wnb);color:var(--wn);border-color:var(--sf)">LVL 1</span></div>
+<div class="min-w-0"><h1 class="text-sm font-bold leading-tight truncate">سارا احمدی <i class="fa-solid fa-circle-check text-[11px]" style="color:var(--in)"></i></h1>
+<span class="text-[11px] text-mu"><span data-i18n="verif"></span><span class="pf-only"> | @sara_ahmadi</span></span></div></div>
+<div class="flex items-center gap-1.5">
+<div id="header-coins" class="chip flex items-center gap-1.5 cursor-pointer" onclick="switchTab('profile').then(()=>switchProfileTab('p-wallet'))">
+<i class="fa-solid fa-coins text-xs" style="color:var(--wn)"></i><b>۳۵۰</b><span class="text-mu" data-i18n="coin"></span><span class="font-bold">+</span></div>
+<button class="p-2 relative" aria-label="notifications"><i class="fa-regular fa-bell text-sm"></i><span class="absolute top-1.5 end-1.5 w-2 h-2 rounded-full" style="background:var(--or)"></span></button>
+</div></div>
+<div class="pf-only mt-2.5 space-y-1.5">
+<div class="flex items-center justify-between gap-2 text-xs"><div class="flex items-center gap-2"><b data-i18n="pcT"></b><span class="chip text-[11px]"><i class="fa-solid fa-crown" style="color:var(--wn)"></i> <span data-i18n="hPlan"></span></span></div>
+<button onclick="goNextStep()" class="btn px-2.5 py-0.5 text-[11px]" data-i18n="hFin"></button></div>
+<div class="flex items-center gap-2.5"><div class="relative flex-1 h-2 rounded-full overflow-hidden" style="background:var(--bd)"><div id="pf-fill" class="h-full rounded-full" style="width:0;background:var(--pr);transition:width .6s ease"></div><i class="absolute inset-y-0 w-0.5" style="inset-inline-start:20%;background:var(--sf)"></i><i class="absolute inset-y-0 w-0.5" style="inset-inline-start:40%;background:var(--sf)"></i><i class="absolute inset-y-0 w-0.5" style="inset-inline-start:60%;background:var(--sf)"></i><i class="absolute inset-y-0 w-0.5" style="inset-inline-start:80%;background:var(--sf)"></i></div><b id="pf-pct" class="text-xs text-end" style="min-width:2.5rem"></b></div></div>
+</header>
+<div class="menu-overlay" id="menu-overlay" onclick="toggleMenu()"></div>
+<div class="menu" id="menu" style="background:var(--sf);color:var(--tx)">
+<button class="menu-close" onclick="toggleMenu()"><i class="fa-solid fa-xmark"></i></button>
+<div class="menu-logo"><i class="fa-solid fa-shirt"></i><b>StyleMorph</b></div>
+<button class="menu-item" onclick="switchTab('shop');toggleMenu()"><i class="fa-solid fa-user"></i><span data-i18n="nProf"></span></button>
+<button class="menu-item" onclick="switchTab('shop');toggleMenu()"><i class="fa-solid fa-wallet"></i><span data-i18n="mWal"></span></button>
+<button class="menu-item" onclick="switchTab('wardrobe');toggleMenu()"><i class="fa-solid fa-heart"></i><span data-i18n="mFav"></span></button>
+<button class="menu-item" onclick="switchTab('profile');toggleMenu()"><i class="fa-solid fa-gift"></i><span data-i18n="mRef"></span></button>
+<button class="menu-item" onclick="switchTab('profile');switchProfileTab('p-settings');toggleMenu()"><i class="fa-solid fa-sliders"></i><span data-i18n="mSet"></span></button>
+<div class="menu-divider"></div>
+<button class="menu-item"><i class="fa-solid fa-circle-info"></i><span data-i18n="mAbout"></span></button>
+<button class="menu-item"><i class="fa-solid fa-headset"></i><span data-i18n="mHelp"></span></button>
+<div class="menu-divider"></div>
+<button class="menu-item" onclick="logout()"><i class="fa-solid fa-sign-out-alt"></i><span data-i18n="mOut"></span></button>
+</div>
+
+<div id="landing-container" class="w-full max-w-md md:max-w-lg mx-auto flex-1 flex flex-col justify-between p-4">
+<div class="flex justify-between items-center">
+<div id="back-btn-container" class="opacity-0 pointer-events-none"><button onclick="goBackToWelcome()" class="chip flex items-center gap-1"><i class="fa-solid fa-arrow-right rtl-flip"></i><span data-i18n="back"></span></button></div>
+<div class="flex items-center gap-2">
+<select id="lang-select" onchange="changeLanguage(this.value)" class="chip bg-sf cursor-pointer">
+<option value="fa">فارسی</option><option value="en">English</option><option value="ar">العربية</option><option value="tr">Türkçe</option></select>
+<button onclick="cycleTheme()" class="chip" aria-label="theme"><i class="fa-solid fa-palette"></i></button>
+<button onclick="toggleDark()" class="chip" aria-label="dark"><i class="fa-solid fa-circle-half-stroke"></i></button>
+</div></div>
+
+<section id="page-welcome" class="space-y-6 my-auto text-center py-4">
+<div class="card h-40 flex items-center justify-center"><div class="w-20 h-20" data-logo></div></div>
+<div class="space-y-2"><h1 class="text-3xl font-black">StyleMorph</h1>
+<p class="text-sm font-bold" data-i18n="sub"></p>
+<p class="text-xs text-mu leading-relaxed px-4" data-i18n="desc"></p></div>
+<div class="space-y-2.5">
+<button onclick="goToAuth('personal')" class="btn w-full py-3.5 text-sm flex items-center justify-center gap-2"><i class="fa-solid fa-user"></i><span data-i18n="pers"></span></button>
+<button onclick="goToAuth('business')" class="card w-full py-3.5 text-sm font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-store"></i><span data-i18n="biz"></span></button>
+</div></section>
+
+<section id="page-auth" class="hidden my-auto py-4">
+<div class="card p-6 space-y-4">
+<div class="space-y-1"><h2 id="auth-title" class="text-xl font-bold"></h2><p id="auth-subtitle" class="text-xs text-mu"></p></div>
+<div class="space-y-3">
+<div><label class="block text-xs mb-1" data-i18n="acc"></label><input type="text" value="sara.ahmadi@gmail.com" class="w-full px-3 py-2.5 text-sm rounded-lg border border-bd bg-transparent"></div>
+<div><label class="block text-xs mb-1" data-i18n="pw"></label><input type="password" value="••••••••" class="w-full px-3 py-2.5 text-sm rounded-lg border border-bd bg-transparent"></div>
+<div id="business-extra-field" class="hidden"><label class="block text-xs mb-1" data-i18n="bid"></label><input type="text" placeholder="10-digit ID" class="w-full px-3 py-2.5 text-sm rounded-lg border border-bd bg-transparent"></div>
+<button onclick="loginSuccess()" class="btn w-full py-2.5 text-sm" data-i18n="go"></button>
+<div id="social-login-box" class="space-y-3">
+<div class="relative text-center"><span class="px-3 text-xs text-mu relative z-10" style="background:var(--sf)" data-i18n="or"></span><div class="absolute inset-0 flex items-center"><div class="w-full border-t border-bd"></div></div></div>
+<div class="grid grid-cols-2 gap-2">
+<button onclick="loginSuccess()" class="card py-2 text-xs font-medium"><i class="fa-brands fa-google"></i> Google</button>
+<button onclick="loginSuccess()" class="card py-2 text-xs font-medium"><i class="fa-brands fa-apple"></i> Apple ID</button></div></div></div>
+<div class="flex justify-between text-xs"><a href="#" class="font-bold" data-i18n="reg"></a><a href="#" class="text-mu" data-i18n="forgot"></a></div>
+</div></section>
+<div class="text-center text-xs text-mu">© 2026 StyleMorph</div>
+</div>
+
+<main id="app-main-content" class="hidden flex-1 w-full max-w-md md:max-w-2xl mx-auto pb-20 px-3" style="padding-top:calc(var(--hh,4rem) + .5rem)">
+<section id="tab-shop" class="tab-panel space-y-3" data-src="shop.html"></section>
+<section id="tab-wardrobe" class="tab-panel hidden space-y-3" data-src="wardrobe.html"></section>
+<section id="tab-stylist" class="tab-panel hidden space-y-3" data-src="stylist.html"></section>
+<section id="tab-atelier" class="tab-panel hidden space-y-3" data-src="atelier.html"></section>
+<section id="tab-wellness" class="tab-panel hidden space-y-3" data-src="wellness.html"></section>
+<section id="tab-profile" class="tab-panel hidden flex flex-col pf-h overflow-hidden gap-2.5" data-src="profile.html"></section>
+</main>
+
+<div id="support-widget" class="hidden fixed bottom-20 end-3 z-50 touch-none">
+<button id="support-btn" onclick="toggleSupportChat()" class="btn w-12 h-12 rounded-full flex items-center justify-center text-lg relative" aria-label="support">
+<i class="fa-solid fa-headset"></i><span class="absolute top-0 end-0 w-3 h-3 rounded-full border-2" style="background:var(--ok);border-color:var(--sf)"></span></button>
+<div id="support-box" class="hidden absolute card shadow-none p-3 space-y-2.5 z-50" style="width:288px">
+<div class="flex justify-between items-center border-b border-bd pb-2"><span class="text-xs font-bold" data-i18n="supT"></span><button onclick="toggleSupportChat()" class="text-mu text-xs"><i class="fa-solid fa-xmark"></i></button></div>
+<div class="h-32 overflow-y-auto text-xs no-scrollbar"><div class="p-2.5 rounded-lg leading-relaxed" style="background:var(--bg)" data-i18n="supHi"></div></div>
+<div class="flex gap-1.5"><input type="text" data-i18n-ph="supPh" class="flex-1 px-3 py-1.5 text-xs rounded-lg border border-bd bg-transparent"><button class="btn px-3 text-xs"><i class="fa-solid fa-paper-plane rtl-flip"></i></button></div>
+</div></div>
+
+<div id="drawer" style="position:fixed;inset:0;z-index:60">
+<div class="dr-ov absolute inset-0" onclick="closeDrawer()"></div>
+<aside class="dr-panel absolute top-0 bottom-0 start-0 flex flex-col" style="width:18rem;max-width:84vw;background:var(--sf);border-inline-end:1px solid var(--bd)">
+<div class="px-5 pt-8 flex flex-col items-start gap-2.5"><div class="w-14 h-14" data-logo></div><h2 class="text-xl font-black tracking-tight" dir="ltr">StyleMorph</h2></div>
+<nav id="drawer-menu" class="flex-1 overflow-y-auto no-scrollbar px-3 mt-8 space-y-0.5"></nav>
+<div class="p-3 border-t border-bd space-y-2.5">
+<div class="flex items-center justify-between gap-2 px-1"><div class="flex items-center gap-3"><button onclick="setTheme('white')" class="th th-white" aria-label="white" style="background:#ffffff"></button><button onclick="setTheme('beige')" class="th th-beige" aria-label="beige" style="background:#d9c3a5"></button><button onclick="setTheme('slate')" class="th th-slate" aria-label="slate" style="background:#4a5056"></button></div><div class="flex items-center gap-2"><button onclick="toggleDark()" class="chip" aria-label="dark"><i class="fa-solid fa-circle-half-stroke"></i></button><select id="drawer-lang" onchange="changeLanguage(this.value)" class="chip cursor-pointer"><option value="fa">فارسی</option><option value="en">English</option><option value="ar">العربية</option><option value="tr">Türkçe</option></select></div></div>
+<button onclick="signOut()" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm" style="color:var(--or)"><i class="fa-solid fa-right-from-bracket w-5 text-center"></i><span id="drawer-out"></span></button>
+</div></aside></div>
+
+<nav id="app-nav" class="hidden fixed bottom-0 inset-x-0 z-40 max-w-md md:max-w-2xl mx-auto border-t border-bd" style="background:var(--sf)">
+<div class="flex justify-around items-center py-2 text-mu">
+<button onclick="switchTab('wardrobe')" id="nav-wardrobe" class="flex flex-col items-center gap-1 px-1"><i class="fa-solid fa-shirt"></i><span class="text-[11px]" data-i18n="nWard"></span></button>
+<button onclick="switchTab('wellness')" id="nav-wellness" class="flex flex-col items-center gap-1 px-1"><i class="fa-solid fa-heart-pulse"></i><span class="text-[11px]" data-i18n="nWell"></span></button>
+<button onclick="switchTab('stylist')" id="nav-stylist" class="flex flex-col items-center gap-1 px-1"><i class="fa-solid fa-wand-magic-sparkles"></i><span class="text-[11px]" data-i18n="nSty"></span></button>
+<button onclick="switchTab('atelier')" id="nav-atelier" class="flex flex-col items-center gap-1 px-1"><i class="fa-solid fa-camera-retro"></i><span class="text-[11px]" data-i18n="nAtel"></span></button>
+<button onclick="switchTab('shop')" id="nav-shop" class="flex flex-col items-center gap-1 px-1"><i class="fa-solid fa-store"></i><span class="text-[11px]" data-i18n="nShop"></span></button>
+</div></nav>
+
+<script>
+const T={
+fa:{dir:'rtl',loc:'fa-IR',back:'بازگشت',sub:'پرو مجازی و پیشنهاد استایل',desc:'قبل از خرید، لباس را روی تصویر خود امتحان کنید و ست‌های مناسب‌تان را پیدا کنید.',pers:'استفاده شخصی',biz:'ورود شرکتی (فروشگاه‌ها)',pT:'ورود کاربر شخصی',pS:'برای استفاده از پرو مجازی وارد شوید',bT:'ورود شرکتی و فروشگاهی',bS:'مدیریت ویترین و پرو مجازی محصولات',acc:'ایمیل یا شماره موبایل',pw:'رمز عبور',bid:'شناسه ثبت / کد کسب‌وکار',go:'ادامه و ورود',or:'یا',reg:'ثبت‌نام حساب جدید',forgot:'فراموشی رمز؟',nShop:'فروشگاه',nWard:'کمد',nSty:'استایلیست',nWell:'تندرستی',nProf:'پروفایل',coin:'سکه',verif:'احراز هویت پایه',supT:'پشتیبانی آنلاین',supHi:'سلام! چطور می‌تونم کمکتون کنم؟',supPh:'پیام شما...',search:'جستجوی لباس، کفش، اکسسوری...',filter:'فیلتر',all:'همه',men:'مردانه',women:'زنانه',shoes:'کفش',acc2:'اکسسوری',cap:'کپ زمستانه',zara:'فروشگاه زارا',shoe:'کفش ورزشی نایک',nike:'نمایندگی نایک',cur:'تومان',wT:'کمد مجازی من',upl:'آپلود آیتم',cloth:'لباس',shoeL:'کفش',watch:'ساعت',sT:'مشاور هوشمند استایل',sOn:'آنلاین',sHi:'سلام سارا! امروز چه سبکی مد نظرته؟ می‌خوای بر اساس کمدت یک ست پیشنهاد بدم؟',sPh:'از دستیار استایل بپرسید...',wlT:'تحلیل آناتومی و فیزیک بدن',form:'فرم بدنی تخمینی',hg:'ساعت شنی',bmiT:'تناسب قد و وزن',bmiV:'محدوده نرمال (BMI 21.4)',err:'خطا در بارگذاری. اتصال یا مسیر فایل را بررسی کنید.'},
+en:{dir:'ltr',loc:'en-US',back:'Back',sub:'Virtual try-on & style advice',desc:'Try clothes on your photo before you buy and find outfits that suit you.',pers:'Personal use',biz:'Business / Stores',pT:'Personal sign in',pS:'Sign in to use virtual try-on',bT:'Business sign in',bS:'Manage your storefront and try-on',acc:'Email or mobile',pw:'Password',bid:'Business registration ID',go:'Continue',or:'or',reg:'Create account',forgot:'Forgot password?',nShop:'Shop',nWard:'Wardrobe',nSty:'Stylist',nWell:'Wellness',nProf:'Profile',coin:'coins',verif:'Basic verification',supT:'Live support',supHi:'Hi! How can I help you?',supPh:'Your message...',search:'Search clothes, shoes, accessories...',filter:'Filter',all:'All',men:'Men',women:'Women',shoes:'Shoes',acc2:'Accessories',cap:'Winter cap',zara:'Zara store',shoe:'Nike running shoes',nike:'Nike dealer',cur:'Toman',wT:'My wardrobe',upl:'Add item',cloth:'Clothing',shoeL:'Shoes',watch:'Watch',sT:'Smart style advisor',sOn:'Online',sHi:"Hi Sara! What style are you after today? Want an outfit from your wardrobe?",sPh:'Ask the style assistant...',wlT:'Body analysis',form:'Estimated body shape',hg:'Hourglass',bmiT:'Height-to-weight',bmiV:'Normal range (BMI 21.4)',err:'Failed to load. Check your connection or file path.'},
+ar:{dir:'rtl',loc:'ar',back:'رجوع',sub:'القياس الافتراضي واقتراحات الأسلوب',desc:'جرّب الملابس على صورتك قبل الشراء واعثر على الإطلالات المناسبة لك.',pers:'استخدام شخصي',biz:'دخول الشركات / المتاجر',pT:'دخول المستخدم',pS:'سجّل الدخول لاستخدام القياس الافتراضي',bT:'دخول الشركات',bS:'إدارة واجهة المتجر والقياس الافتراضي',acc:'البريد أو رقم الجوال',pw:'كلمة المرور',bid:'رقم تسجيل النشاط',go:'متابعة',or:'أو',reg:'إنشاء حساب جديد',forgot:'نسيت كلمة المرور؟',nShop:'المتجر',nWard:'الخزانة',nSty:'المنسّق',nWell:'الصحة',nProf:'الملف',coin:'عملة',verif:'توثيق أساسي',supT:'الدعم المباشر',supHi:'مرحباً! كيف أساعدك؟',supPh:'رسالتك...',search:'ابحث عن ملابس، أحذية، إكسسوارات...',filter:'تصفية',all:'الكل',men:'رجالي',women:'نسائي',shoes:'أحذية',acc2:'إكسسوارات',cap:'قبعة شتوية',zara:'متجر زارا',shoe:'حذاء نايك الرياضي',nike:'وكيل نايك',cur:'تومان',wT:'خزانتي',upl:'إضافة قطعة',cloth:'ملابس',shoeL:'حذاء',watch:'ساعة',sT:'مستشار الأسلوب الذكي',sOn:'متصل',sHi:'مرحباً سارة! أي أسلوب تريدين اليوم؟ هل أقترح إطلالة من خزانتك؟',sPh:'اسأل مساعد الأسلوب...',wlT:'تحليل الجسم',form:'شكل الجسم التقديري',hg:'الساعة الرملية',bmiT:'نسبة الطول إلى الوزن',bmiV:'ضمن النطاق الطبيعي (BMI 21.4)',err:'تعذّر التحميل. تحقق من الاتصال أو مسار الملف.'},
+tr:{dir:'ltr',loc:'tr-TR',back:'Geri',sub:'Sanal deneme ve stil önerileri',desc:'Satın almadan önce kıyafetleri fotoğrafınızda deneyin, size uygun kombinleri bulun.',pers:'Kişisel kullanım',biz:'Kurumsal / Mağazalar',pT:'Kullanıcı girişi',pS:'Sanal deneme için giriş yapın',bT:'Kurumsal giriş',bS:'Vitrin ve sanal denemeyi yönetin',acc:'E-posta veya telefon',pw:'Şifre',bid:'İşletme kayıt no',go:'Devam',or:'veya',reg:'Yeni hesap oluştur',forgot:'Şifreni mi unuttun?',nShop:'Mağaza',nWard:'Gardırop',nSty:'Stilist',nWell:'Sağlık',nProf:'Profil',coin:'jeton',verif:'Temel doğrulama',supT:'Canlı destek',supHi:'Merhaba! Nasıl yardımcı olabilirim?',supPh:'Mesajınız...',search:'Kıyafet, ayakkabı, aksesuar ara...',filter:'Filtre',all:'Tümü',men:'Erkek',women:'Kadın',shoes:'Ayakkabı',acc2:'Aksesuar',cap:'Kışlık bere',zara:'Zara mağazası',shoe:'Nike spor ayakkabı',nike:'Nike bayisi',cur:'Toman',wT:'Gardırobum',upl:'Ürün ekle',cloth:'Giysi',shoeL:'Ayakkabı',watch:'Saat',sT:'Akıllı stil danışmanı',sOn:'Çevrimiçi',sHi:'Merhaba Sara! Bugün hangi stili istersin? Gardırobundan kombin önereyim mi?',sPh:'Stil asistanına sor...',wlT:'Vücut analizi',form:'Tahmini vücut tipi',hg:'Kum saati',bmiT:'Boy-kilo oranı',bmiV:'Normal aralık (BMI 21.4)',err:'Yüklenemedi. Bağlantıyı veya dosya yolunu kontrol edin.'}};
+const PT={"fa": {"pFirst": "نام", "pLast": "نام خانوادگی", "pNick": "نام کوتاه / مستعار", "pNid": "کد ملی / شناسه هویت", "pMob": "شماره موبایل", "pMail": "ایمیل حساب", "pVer": "تایید شده", "pSend": "ارسال کد تایید", "pCountry": "کشور", "pProv": "استان", "pCity": "شهر", "pAddr": "آدرس پستی دقیق", "pZip": "کد پستی", "tIdent": "هویتی", "tGal": "آلبوم", "tAi": "آناتومی AI", "tWal": "مالی و پلن", "tRef": "پاداش", "tSet": "تنظیمات", "hUser": "کاربر تاییدشده", "hPlan": "عادی", "hStat": "احراز ۵۰٪", "hFin": "تکمیل مدارک", "hIdent": "اطلاعات کاربری و هویتی", "gT": "آلبوم تصاویر و ویدیو", "gVid": "ویدیوی ۳۶۰ درجه بدن", "gUp": "آپلود شده", "gFr": "فریم‌های پایه (ظرفیت پلن: ۳ عکس)", "gUsed": "۲ از ۳ استفاده شده", "gAdd": "آپلود فریم ۳", "gFull": "تمام‌قد", "gSide": "نیم‌رخ", "aT": "آناتومی و اندازه‌های خیاطی", "aEd": "قابل ویرایش", "aNote": "ابعاد را AI استخراج کرده؛ با تغییر هر فیلد، برچسب آن به USER تبدیل می‌شود.", "aGen": "جنسیت", "aF": "زنانه", "aM": "مردانه", "aO": "سایر", "aH": "قد", "aW": "وزن", "aSkin": "رنگ پوست", "aShape": "فرم بدن", "aFace": "فرم صورت", "aHair": "رنگ و مدل مو", "aTail": "ابعاد خیاطی", "aSh": "عرض شانه", "aCh": "دور سینه", "aCup": "سایز سینه / کاپ", "aUb": "دور زیر سینه", "aWa": "دور کمر", "aAb": "دور شکم", "aHip": "دور باسن", "aTh": "دور ران / فاق", "aSz": "سایز کفش (EU)", "wT": "امور مالی، اشتراک و سکه", "wPlan": "پلن فعال: عادی", "wFeat": "۳ عکس پایه، پرو استاندارد", "wFree": "رایگان", "wPlus": "پلاس", "wPro": "پرو", "wUlt": "اولترا", "wMo": "/ ماه", "wBuy": "خرید بسته سکه", "wPk1": "۵۰ سکه", "wPk2": "۲۰۰ سکه (+۲۰ هدیه)", "wPromo": "کد هدیه یا تخفیف...", "wApply": "اعمال", "wTx": "آخرین تراکنش‌ها", "wTx1": "احراز هویت پایه", "wTx2": "پرو مجازی AI", "rT": "پاداش و شبکه دعوت", "rInv": "دعوت‌شده", "rBon": "بونوس دریافتی", "rLvl": "سطح شبکه", "rGold": "طلایی", "rLink": "لینک دعوت اختصاصی شما", "rCopy": "کپی", "rJoined": "آخرین دوستان ملحق‌شده", "rP": "نفر", "sT": "تنظیمات برنامه", "sMode": "حالت نمایش", "sSys": "مطابق سیستم", "sLight": "روشن", "sDark": "تاریک", "sPal": "تم رنگی", "sWhite": "سفید", "sBeige": "بژ و قهوه‌ای", "sSlate": "خاکستری و نوک‌مدادی", "sLang": "زبان برنامه", "sWid": "نمایش ویجت پشتیبانی", "sCoins": "نمایش سکه در هدر", "sBak": "بک‌آپ داده‌ها به ایمیل", "sWk": "هفتگی", "sMo": "ماهانه", "sOff": "غیرفعال"}, "en": {"pFirst": "First name", "pLast": "Last name", "pNick": "Nickname", "pNid": "National / ID number", "pMob": "Mobile", "pMail": "Account email", "pVer": "Verified", "pSend": "Send code", "pCountry": "Country", "pProv": "Province", "pCity": "City", "pAddr": "Full address", "pZip": "Postal code", "tIdent": "Identity", "tGal": "Album", "tAi": "AI body", "tWal": "Wallet", "tRef": "Rewards", "tSet": "Settings", "hUser": "Verified user", "hPlan": "Normal", "hStat": "Verification 50%", "hFin": "Complete", "hIdent": "Account & identity", "gT": "Photos & video", "gVid": "360° body video", "gUp": "Uploaded", "gFr": "Base frames (plan limit: 3)", "gUsed": "2 of 3 used", "gAdd": "Add frame 3", "gFull": "Full body", "gSide": "Side", "aT": "Body & tailoring sizes", "aEd": "Editable", "aNote": "Sizes are AI-estimated. Editing a field changes its badge to USER.", "aGen": "Gender", "aF": "Female", "aM": "Male", "aO": "Other", "aH": "Height", "aW": "Weight", "aSkin": "Skin tone", "aShape": "Body shape", "aFace": "Face shape", "aHair": "Hair", "aTail": "Tailoring sizes", "aSh": "Shoulder", "aCh": "Chest", "aCup": "Bra / cup", "aUb": "Under bust", "aWa": "Waist", "aAb": "Abdomen", "aHip": "Hips", "aTh": "Thigh / rise", "aSz": "Shoe size (EU)", "wT": "Billing, plan & coins", "wPlan": "Active plan: Normal", "wFeat": "3 base photos, standard try-on", "wFree": "Free", "wPlus": "Plus", "wPro": "Pro", "wUlt": "Ultra", "wMo": "/ mo", "wBuy": "Buy coin packs", "wPk1": "50 coins", "wPk2": "200 coins (+20 bonus)", "wPromo": "Gift or discount code...", "wApply": "Apply", "wTx": "Recent transactions", "wTx1": "Basic verification", "wTx2": "AI try-on", "rT": "Rewards & referrals", "rInv": "Invited", "rBon": "Bonus earned", "rLvl": "Level", "rGold": "Gold", "rLink": "Your invite link", "rCopy": "Copy", "rJoined": "Recently joined", "rP": "people", "sT": "App settings", "sMode": "Appearance", "sSys": "System", "sLight": "Light", "sDark": "Dark", "sPal": "Color theme", "sWhite": "White", "sBeige": "Beige & brown", "sSlate": "Grey & graphite", "sLang": "Language", "sWid": "Show support widget", "sCoins": "Show coins in header", "sBak": "Email data backup", "sWk": "Weekly", "sMo": "Monthly", "sOff": "Off"}, "ar": {"pFirst": "الاسم", "pLast": "اللقب", "pNick": "الاسم المختصر", "pNid": "رقم الهوية", "pMob": "رقم الجوال", "pMail": "بريد الحساب", "pVer": "موثّق", "pSend": "إرسال الرمز", "pCountry": "الدولة", "pProv": "المحافظة", "pCity": "المدينة", "pAddr": "العنوان التفصيلي", "pZip": "الرمز البريدي", "tIdent": "الهوية", "tGal": "الألبوم", "tAi": "جسم AI", "tWal": "المحفظة", "tRef": "المكافآت", "tSet": "الإعدادات", "hUser": "مستخدم موثّق", "hPlan": "عادي", "hStat": "التوثيق ٥٠٪", "hFin": "إكمال", "hIdent": "بيانات الحساب والهوية", "gT": "الصور والفيديو", "gVid": "فيديو الجسم 360°", "gUp": "تم الرفع", "gFr": "الصور الأساسية (الحد: 3)", "gUsed": "2 من 3 مستخدمة", "gAdd": "إضافة صورة 3", "gFull": "كامل الجسم", "gSide": "جانبي", "aT": "القياسات وأبعاد الخياطة", "aEd": "قابل للتعديل", "aNote": "القياسات مقدّرة بالذكاء الاصطناعي. عند تعديل أي حقل تتحول شارته إلى USER.", "aGen": "الجنس", "aF": "أنثى", "aM": "ذكر", "aO": "آخر", "aH": "الطول", "aW": "الوزن", "aSkin": "لون البشرة", "aShape": "شكل الجسم", "aFace": "شكل الوجه", "aHair": "الشعر", "aTail": "أبعاد الخياطة", "aSh": "عرض الكتف", "aCh": "الصدر", "aCup": "المقاس / الكأس", "aUb": "أسفل الصدر", "aWa": "الخصر", "aAb": "البطن", "aHip": "الورك", "aTh": "الفخذ / الحوض", "aSz": "مقاس الحذاء (EU)", "wT": "المال والاشتراك والعملات", "wPlan": "الخطة الحالية: عادي", "wFeat": "٣ صور أساسية، قياس عادي", "wFree": "مجاني", "wPlus": "بلس", "wPro": "برو", "wUlt": "ألترا", "wMo": "/ شهر", "wBuy": "شراء حزم العملات", "wPk1": "50 عملة", "wPk2": "200 عملة (+20 هدية)", "wPromo": "رمز الهدية أو الخصم...", "wApply": "تطبيق", "wTx": "آخر المعاملات", "wTx1": "التوثيق الأساسي", "wTx2": "القياس الافتراضي AI", "rT": "المكافآت والدعوات", "rInv": "المدعوون", "rBon": "المكافآت المحصّلة", "rLvl": "المستوى", "rGold": "ذهبي", "rLink": "رابط دعوتك", "rCopy": "نسخ", "rJoined": "انضموا مؤخراً", "rP": "شخص", "sT": "إعدادات التطبيق", "sMode": "المظهر", "sSys": "حسب النظام", "sLight": "فاتح", "sDark": "داكن", "sPal": "سمة الألوان", "sWhite": "أبيض", "sBeige": "بيج وبني", "sSlate": "رمادي وفحمي", "sLang": "اللغة", "sWid": "إظهار أداة الدعم", "sCoins": "إظهار العملات في الأعلى", "sBak": "نسخ احتياطي بالبريد", "sWk": "أسبوعي", "sMo": "شهري", "sOff": "معطّل"}, "tr": {"pFirst": "Ad", "pLast": "Soyad", "pNick": "Takma ad", "pNid": "Kimlik no", "pMob": "Telefon", "pMail": "Hesap e-postası", "pVer": "Doğrulandı", "pSend": "Kod gönder", "pCountry": "Ülke", "pProv": "İl", "pCity": "Şehir", "pAddr": "Açık adres", "pZip": "Posta kodu", "tIdent": "Kimlik", "tGal": "Albüm", "tAi": "AI vücut", "tWal": "Cüzdan", "tRef": "Ödüller", "tSet": "Ayarlar", "hUser": "Doğrulanmış kullanıcı", "hPlan": "Normal", "hStat": "Doğrulama %50", "hFin": "Tamamla", "hIdent": "Hesap ve kimlik", "gT": "Fotoğraf ve video", "gVid": "360° vücut videosu", "gUp": "Yüklendi", "gFr": "Temel kareler (limit: 3)", "gUsed": "3'ten 2 kullanıldı", "gAdd": "3. kareyi ekle", "gFull": "Boydan", "gSide": "Profil", "aT": "Vücut ve terzi ölçüleri", "aEd": "Düzenlenebilir", "aNote": "Ölçüler AI tahminidir. Bir alanı düzenlerseniz rozeti USER olur.", "aGen": "Cinsiyet", "aF": "Kadın", "aM": "Erkek", "aO": "Diğer", "aH": "Boy", "aW": "Kilo", "aSkin": "Ten rengi", "aShape": "Vücut tipi", "aFace": "Yüz şekli", "aHair": "Saç", "aTail": "Terzi ölçüleri", "aSh": "Omuz", "aCh": "Göğüs", "aCup": "Sütyen / kap", "aUb": "Göğüs altı", "aWa": "Bel", "aAb": "Karın", "aHip": "Kalça", "aTh": "Uyluk / basen", "aSz": "Ayakkabı (EU)", "wT": "Ödeme, plan ve jeton", "wPlan": "Aktif plan: Normal", "wFeat": "3 temel foto, standart deneme", "wFree": "Ücretsiz", "wPlus": "Plus", "wPro": "Pro", "wUlt": "Ultra", "wMo": "/ ay", "wBuy": "Jeton paketi al", "wPk1": "50 jeton", "wPk2": "200 jeton (+20 hediye)", "wPromo": "Hediye veya indirim kodu...", "wApply": "Uygula", "wTx": "Son işlemler", "wTx1": "Temel doğrulama", "wTx2": "AI deneme", "rT": "Ödüller ve davetler", "rInv": "Davet edilen", "rBon": "Kazanılan bonus", "rLvl": "Seviye", "rGold": "Altın", "rLink": "Davet bağlantınız", "rCopy": "Kopyala", "rJoined": "Yeni katılanlar", "rP": "kişi", "sT": "Uygulama ayarları", "sMode": "Görünüm", "sSys": "Sistem", "sLight": "Açık", "sDark": "Koyu", "sPal": "Renk teması", "sWhite": "Beyaz", "sBeige": "Bej ve kahve", "sSlate": "Gri ve kurşun", "sLang": "Dil", "sWid": "Destek simgesini göster", "sCoins": "Üstte jetonları göster", "sBak": "E-posta yedeği", "sWk": "Haftalık", "sMo": "Aylık", "sOff": "Kapalı"}};for(const l in PT)Object.assign(T[l],PT[l]);
+Object.assign(T.fa,{pcT:'تکمیل پروفایل'});Object.assign(T.fa,{mWal:'مالی و پلن',mFav:'علاقه‌های من',mRef:'دعوت و پاداش',mSet:'تنظیمات',mAbout:'درباره ما',mHelp:'راهنمایی و پشتیبانی',mOut:'خروج'});
+Object.assign(T.en,{mWal:'Billing & Plan',mFav:'Favorites',mRef:'Rewards & Invite',mSet:'Settings',mAbout:'About us',mHelp:'Help & Support',mOut:'Sign out'});
+Object.assign(T.ar,{mWal:'الفواتير والخطة',mFav:'المفضلة',mRef:'المكافآت والدعوات',mSet:'الإعدادات',mAbout:'معلومات عنا',mHelp:'المساعدة والدعم',mOut:'تسجيل الخروج'});
+Object.assign(T.tr,{mWal:'Faturalama ve Plan',mFav:'Favoriler',mRef:'Ödüller ve Davet',mSet:'Ayarlar',mAbout:'Hakkımızda',mHelp:'Yardım ve Destek',mOut:'Çıkış Yap'});
+Object.assign(T.fa,{nAtel:'آتلیه',soon:'به‌زودی'});Object.assign(T.en,{nAtel:'Studio',soon:'Coming soon'});Object.assign(T.ar,{nAtel:'الأتيليه',soon:'قريباً'});Object.assign(T.tr,{nAtel:'Atölye',soon:'Çok yakında'});
+Object.assign(T.fa,{mHist:'تاریخچه پرو مجازی',mSaved:'ست‌های ذخیره‌شده',mOrders:'سفارش‌ها',mSupport:'پشتیبانی و راهنما',mOut:'خروج از حساب'});
+Object.assign(T.en,{mHist:'Try-on history',mSaved:'Saved outfits',mOrders:'Orders',mSupport:'Help & support',mOut:'Sign out'});
+Object.assign(T.ar,{mHist:'سجل القياس',mSaved:'الإطلالات المحفوظة',mOrders:'الطلبات',mSupport:'الدعم والمساعدة',mOut:'تسجيل الخروج'});
+Object.assign(T.tr,{mHist:'Deneme geçmişi',mSaved:'Kayıtlı kombinler',mOrders:'Siparişler',mSupport:'Yardım ve destek',mOut:'Çıkış yap'});Object.assign(T.en,{pcT:'Profile completion'});Object.assign(T.ar,{pcT:'اكتمال الملف'});Object.assign(T.tr,{pcT:'Profil tamamlama'});
+const ls=(k,v)=>{try{return v===undefined?localStorage.getItem(k):localStorage.setItem(k,v)}catch(e){return null}};
+let currentType='personal',lang='fa';
+const THEMES=['white','beige','slate'];
+function applyI18n(root=document){const t=T[lang];
+ root.querySelectorAll('[data-i18n]').forEach(e=>{if(t[e.dataset.i18n]!==undefined)e.textContent=t[e.dataset.i18n]});
+ root.querySelectorAll('[data-i18n-ph]').forEach(e=>e.placeholder=t[e.dataset.i18nPh]||'');
+ root.querySelectorAll('[data-num]').forEach(e=>e.textContent=new Intl.NumberFormat(t.loc).format(e.dataset.num)+' '+t.cur);
+ root.querySelectorAll('[data-coin]').forEach(e=>e.textContent=new Intl.NumberFormat(t.loc,{signDisplay:'always'}).format(e.dataset.coin)+' '+t.coin);
+ root.querySelectorAll('[data-cnt]').forEach(e=>e.textContent=new Intl.NumberFormat(t.loc).format(e.dataset.cnt)+' '+t.rP);
+ const a=document.getElementById('auth-title');if(a){const p=currentType==='personal';a.textContent=t[p?'pT':'bT'];document.getElementById('auth-subtitle').textContent=t[p?'pS':'bS']}}
+function changeLanguage(l){lang=T[l]?l:'fa';const t=T[lang];document.documentElement.dir=t.dir;document.documentElement.lang=lang;
+ document.querySelectorAll('.rtl-flip').forEach(e=>e.style.transform=t.dir==='rtl'?'':'scaleX(-1)');
+ document.getElementById('lang-select').value=lang;ls('sm-lang',lang);applyI18n();updateProgress()}
+function setTheme(n){document.documentElement.dataset.theme=n;ls('sm-theme',n)}
+function cycleTheme(){const c=document.documentElement.dataset.theme;setTheme(THEMES[(THEMES.indexOf(c)+1)%3])}
+function toggleDark(){const d=document.documentElement.classList.toggle('dark');ls('sm-dark',d?'1':'0')}
+function setMode(v){if(v==='system'){ls('sm-dark',null);document.documentElement.classList.toggle('dark',matchMedia('(prefers-color-scheme: dark)').matches)}else{document.documentElement.classList.toggle('dark',v==='dark');ls('sm-dark',v==='dark'?'1':'0')}}
+function toggleTheme(){toggleDark()}
+function initDeviceSettings(){
+ document.querySelectorAll('[data-logo]').forEach(e=>e.innerHTML=LOGO);
+ setTheme(ls('sm-theme')||'white');
+ const d=ls('sm-dark');if(d==='1'||(d===null&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark');
+ const nl=(navigator.language||'fa').slice(0,2).toLowerCase();changeLanguage(ls('sm-lang')||(T[nl]?nl:'fa'));
+ makeSupportWidgetSnapToEdges()}
+function goToAuth(type){currentType=type;page('page-welcome',0);page('page-auth',1);
+ document.getElementById('back-btn-container').classList.remove('opacity-0','pointer-events-none');
+ document.getElementById('business-extra-field').classList.toggle('hidden',type==='personal');
+ document.getElementById('social-login-box').classList.toggle('hidden',type!=='personal');applyI18n()}
+function page(id,show){document.getElementById(id).classList.toggle('hidden',!show)}
+function goBackToWelcome(){page('page-auth',0);page('page-welcome',1);document.getElementById('back-btn-container').classList.add('opacity-0','pointer-events-none')}
+function loginSuccess(){page('landing-container',0);['main-header','app-nav','app-main-content','support-widget'].forEach(i=>page(i,1));switchTab('shop')}
+const loadedTabs={};
+async function loadTabContent(id){if(loadedTabs[id])return;const p=document.getElementById('tab-'+id);
+ try{const r=await fetch(p.dataset.src+'?v='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const d=document.createElement('div');d.innerHTML=(await r.text()).trim();
+  const s=d.querySelector('section');p.innerHTML=s?s.innerHTML:d.innerHTML;loadedTabs[id]=true;applyI18n(p);if(id==='profile'){switchProfileTab('p-identity');updateProgress()}}
+ catch(e){p.innerHTML='<p class="text-center text-xs py-8" style="color:var(--or)">'+T[lang].err+'</p>'}}
+async function switchTab(id){
+ ['shop','wardrobe','stylist','wellness','atelier','profile'].forEach(t=>{const on=t===id;
+  document.getElementById('tab-'+t).classList.toggle('hidden',!on);
+  const b=document.getElementById('nav-'+t)||{style:{}};b.style.color=on?'var(--pr)':'';b.style.fontWeight=on?'700':'';
+  b.style.borderBottom=on?'2px solid var(--pr)':'2px solid transparent'});
+ document.getElementById('main-header').dataset.mode=id==='profile'?'profile':'';document.documentElement.classList.toggle('lock',id==='profile');closeMenu();scrollTo(0,0);
+ document.getElementById('app-main-content').classList.toggle('overflow-hidden',id==='profile');
+ await loadTabContent(id)}
+async function switchProfileTab(id){await loadTabContent('profile');
+ ['p-identity','p-gallery','p-ai','p-wallet','p-referral','p-settings'].forEach(t=>{const p=document.getElementById(t),b=document.getElementById('btn-'+t);if(!p||!b)return;const on=t===id;
+  p.classList.toggle('hidden',!on);b.classList.toggle('pf-on',on)})}
+function markAsEdited(el){const b=el.parentElement.querySelector('.badge-status');if(b){b.innerText='USER';b.className='badge-status font-bold';b.style.color='var(--ok)'}}
+function toggleWidgetVisibility(s){page('support-widget',s)}
+function toggleHeaderCoins(s){page('header-coins',s)}
+function placeSupportBox(){return true}
+function toggleMenu(){const m=document.getElementById('menu'),o=document.getElementById('menu-overlay');m.classList.toggle('on');o.classList.toggle('on')}
+function closeMenu(){document.getElementById('menu').classList.remove('on');document.getElementById('menu-overlay').classList.remove('on')}
+function logout(){if(confirm('Are you sure?')){ls('sm-lang',null);ls('sm-theme',null);ls('sm-dark',null);ls('sm-steps',null);location.reload()}}
+function toggleSupportChat(){document.getElementById('support-box').classList.toggle('hidden');placeSupportBox()}
+function makeSupportWidgetSnapToEdges(){
+ const w=document.getElementById('support-widget');let drag=false,moved=false,sx,sy,cx=0,cy=0,px,py;
+ const pt=e=>e.touches?e.touches[0]:e;
+ w.addEventListener('touchstart',ds,{passive:true});w.addEventListener('mousedown',ds);
+ addEventListener('touchmove',mv,{passive:false});addEventListener('mousemove',mv);
+ addEventListener('touchend',de);addEventListener('mouseup',de);
+ w.addEventListener('click',e=>{if(moved){e.stopPropagation();e.preventDefault();moved=false}},true);
+ function ds(e){if(!e.target.closest('#support-btn'))return;drag=true;moved=false;const p=pt(e);px=p.clientX;py=p.clientY;sx=p.clientX-cx;sy=p.clientY-cy;w.classList.add('dragging')}
+ function mv(e){if(!drag)return;const p=pt(e);if(Math.abs(p.clientX-px)+Math.abs(p.clientY-py)>6)moved=true;if(!moved)return;e.cancelable&&e.preventDefault();cx=p.clientX-sx;cy=p.clientY-sy;w.style.transform=`translate3d(${cx}px,${cy}px,0)`;placeSupportBox()}
+ function de(){if(!drag)return;drag=false;w.classList.remove('dragging');if(!moved)return;
+  const r=w.getBoundingClientRect(),W=innerWidth,rtl=document.dir==='rtl',dx=(r.left+r.width/2<W/2)?-(r.left-12):(W-r.right-12);
+  cx+=dx;if(r.top<60)cy+=60-r.top;else if(r.top>innerHeight-120)cy-=r.top-(innerHeight-120);
+  w.style.transform=`translate3d(${cx}px,${cy}px,0)`;placeSupportBox()}}
+function placeSupportBox(){const b=document.getElementById('support-box');if(b.classList.contains('hidden'))return;
+ const w=document.getElementById('support-widget'),W=innerWidth,H=innerHeight,m=8,hh=(document.getElementById('main-header').offsetHeight||0)+m,nb=76;
+ const bw=Math.min(288,W-2*m);b.style.width=bw+'px';b.style.maxHeight=(H-hh-nb)+'px';
+ const r=w.getBoundingClientRect(),bh=b.offsetHeight;
+ const L=Math.min(Math.max(r.right-bw,m),W-bw-m);
+ let T=r.top-bh-8;if(T<hh)T=r.bottom+8;if(T+bh>H-nb)T=Math.max(hh,Math.min(r.top-bh-8,H-nb-bh));
+ b.style.left=(L-r.left)+'px';b.style.top=(T-r.top)+'px';b.style.right='auto';b.style.bottom='auto'}
+addEventListener('resize',placeSupportBox);
+const LOGO='<svg viewBox="0 0 48 48" width="100%" height="100%"><rect width="48" height="48" rx="12" fill="var(--pr)"/><g fill="none" stroke="var(--prt)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M24 15.5V14a3.2 3.2 0 1 1 3.2 3.2"/><path d="M24 17.5 10.5 28.5c-1.6 1.3-.7 3.9 1.4 3.9h24.2c2.1 0 3-2.6 1.4-3.9z"/><path stroke-width="2" d="M15 37c3-2.4 5.4 2.4 9 0s6-2.4 9 0"/></g></svg>';
+function openDrawer(){renderDrawer();document.getElementById('drawer').classList.add('open')}
+function closeDrawer(){document.getElementById('drawer').classList.remove('open')}
+function openProfile(t){closeDrawer();switchTab('profile').then(()=>switchProfileTab(t))}
+function openSupport(){closeDrawer();page('support-widget',1);if(document.getElementById('support-box').classList.contains('hidden'))toggleSupportChat()}
+function signOut(){closeDrawer();['main-header','app-nav','app-main-content','support-widget'].forEach(i=>page(i,0));document.documentElement.classList.remove('lock');page('landing-container',1);goBackToWelcome()}
+const MENU=[['fa-user','nProf',"openProfile('p-identity')",1],['fa-wallet','tWal',"openProfile('p-wallet')"],['fa-gift','tRef',"openProfile('p-referral')"],0,['fa-clock-rotate-left','mHist'],['fa-bookmark','mSaved'],['fa-bag-shopping','mOrders'],0,['fa-sliders','tSet',"openProfile('p-settings')"],['fa-headset','mSupport','openSupport()']];
+function renderDrawer(){const t=T[lang],p=new Intl.NumberFormat(t.loc,{style:'percent'}).format(getDone().filter(Boolean).length/5);
+ document.getElementById('drawer-menu').innerHTML=MENU.map(m=>!m?'<div class="my-2 border-t border-bd"></div>':`<button ${m[2]?`onclick="${m[2]}"`:'disabled'} class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-start${m[2]?'':' opacity-60'}"><i class="fa-solid ${m[0]} w-5 text-center text-mu"></i><span class="flex-1">${t[m[1]]}</span>${m[3]?`<b class="text-xs text-mu">${p}</b>`:''}${m[2]?'':`<span class="chip text-[11px]">${t.soon}</span>`}</button>`).join('');
+ document.getElementById('drawer-out').textContent=t.mOut;document.getElementById('drawer-lang').value=lang}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer()});
+const STEPS=['identity','gallery','ai','wallet','referral'],SL=['tIdent','tGal','tAi','tWal','tRef'];
+let steps={};try{steps=JSON.parse(ls('sm-steps')||'{}')}catch(e){}
+function filled(id){const p=document.getElementById(id);if(!p)return true;const i=[...p.querySelectorAll('input[type=text],input[type=email]')];return i.length>0&&i.every(x=>x.value.trim())}
+function getDone(){return STEPS.map(s=>s==='identity'?filled('p-identity'):s==='ai'?filled('p-ai'):!!steps[s])}
+function markStep(s){steps[s]=true;ls('sm-steps',JSON.stringify(steps));updateProgress()}
+function goNextStep(){const i=getDone().indexOf(false);if(i>-1)switchProfileTab('p-'+STEPS[i])}
+function updateProgress(){const t=T[lang],n=getDone().filter(Boolean).length,pct=document.getElementById('pf-pct');if(!pct)return;
+ pct.textContent=new Intl.NumberFormat(t.loc,{style:'percent'}).format(n/5);document.getElementById('pf-fill').style.width=n*20+'%';document.documentElement.style.setProperty('--pp',n*20+'%');renderDrawer()}
+document.addEventListener('input',e=>{if(e.target.closest('#p-identity,#p-ai'))updateProgress()});
+addEventListener('DOMContentLoaded',()=>{const h=document.getElementById('main-header');new ResizeObserver(()=>document.documentElement.style.setProperty('--hh',h.offsetHeight+'px')).observe(h)});
+addEventListener('DOMContentLoaded',initDeviceSettings);
+</script>
+</body></html>

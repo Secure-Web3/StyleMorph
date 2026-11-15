@@ -1,0 +1,277 @@
+<!-- ===== پنل ۱: فروشگاه ===== -->
+<section id="tab-shop" class="tab-panel flex flex-col pf-h overflow-hidden gap-2.5">
+<div class="shrink-0 flex items-center gap-2"><div class="flex-1 min-w-0"><h3 class="font-bold text-sm">فروشگاه</h3><span class="text-[11px] text-mu">قیمت‌ها را مقایسه کن؛ از اپ بخر یا به سایت فروشنده برو</span></div><span class="shrink-0 chip flex items-center gap-1"><i class="fa-solid fa-coins"></i><b id="s-bal"></b></span></div>
+<div class="shrink-0 relative z-20"><div class="flex gap-1.5"><div class="relative flex-1 min-w-0"><i class="fa-solid fa-magnifying-glass absolute top-1/2 -translate-y-1/2 start-3 text-xs text-mu pointer-events-none"></i><input id="s-q" type="text" autocomplete="off" placeholder="جستجوی کالا یا برند..." oninput="smS.qs(this.value)" onfocus="smS.qf()" onblur="smS.qb()" class="w-full h-10 ps-8 pe-14 rounded-xl border border-bd text-xs outline-none" style="background:var(--sf);color:var(--tx)"><button type="button" id="s-qx" onclick="smS.qc()" aria-label="پاک کردن" class="hidden absolute top-1/2 -translate-y-1/2 end-9 w-6 h-6 rounded-full items-center justify-center text-mu text-xs"><i class="fa-solid fa-xmark"></i></button><button type="button" onclick="smS.is()" aria-label="جستجوی تصویری" class="absolute top-1/2 -translate-y-1/2 end-1.5 w-7 h-7 rounded-lg flex items-center justify-center text-xs" style="color:var(--pr)"><i class="fa-solid fa-camera"></i></button></div><button type="button" onclick="smS.fo()" class="relative shrink-0 w-10 h-10 rounded-xl border border-bd flex items-center justify-center text-xs" style="background:var(--sf)" aria-label="فیلتر"><i class="fa-solid fa-sliders"></i><span id="s-fb" class="hidden absolute -top-1 -end-1 min-w-[16px] h-4 px-1 rounded-full items-center justify-center text-[11px] font-bold leading-none text-white" style="background:#d97706"></span></button><button type="button" onclick="smS.so()" class="shrink-0 w-10 h-10 rounded-xl border border-bd flex items-center justify-center text-xs" style="background:var(--sf)" aria-label="مرتب‌سازی"><i class="fa-solid fa-arrow-down-wide-short"></i></button></div><div id="s-sg" class="hidden absolute inset-x-0 top-11 card p-1.5 shadow-lg max-h-56 overflow-y-auto no-scrollbar"></div></div>
+<div class="shrink-0 flex gap-1.5 overflow-x-auto no-scrollbar"><button type="button" data-c="all" onclick="smS.fc('all',this)" class="chip shrink-0 on">همه</button><button type="button" data-c="cloth" onclick="smS.fc('cloth',this)" class="chip shrink-0">پوشاک</button><button type="button" data-c="shoe" onclick="smS.fc('shoe',this)" class="chip shrink-0">کفش</button><button type="button" data-c="bag" onclick="smS.fc('bag',this)" class="chip shrink-0">کیف</button><button type="button" data-c="acc" onclick="smS.fc('acc',this)" class="chip shrink-0">اکسسوری</button><button type="button" data-c="beauty" onclick="smS.fc('beauty',this)" class="chip shrink-0">زیبایی</button><button type="button" data-t="ds" onclick="smS.tf('ds')" class="chip shrink-0">تخفیف‌دار</button><button type="button" data-t="av" onclick="smS.tf('av')" class="chip shrink-0">موجود</button><button type="button" data-c="fav" onclick="smS.fc('fav',this)" class="chip shrink-0"><i class="fa-solid fa-heart"></i> علاقه‌مندی‌ها</button></div>
+<div id="s-box" class="card flex-1 min-h-0 overflow-y-auto no-scrollbar p-3"><div class="space-y-2.5">
+<div class="flex items-center gap-2 rounded-xl border border-bd p-2 text-[11px]"><i class="fa-solid fa-user-check" style="color:var(--pr)"></i><span class="flex-1 min-w-0"><b>مناسب تو</b> · سایز M · کفش ۴۲ <span class="text-mu">(از پروفایل)</span></span><button type="button" id="s-fit" onclick="smS.ft()" role="switch" aria-label="فیلتر مناسب من" class="shrink-0 w-10 h-6 rounded-full relative" style="background:var(--pr)"><span class="absolute top-0.5 w-5 h-5 rounded-full bg-white" style="inset-inline-start:calc(100% - 22px)"></span></button></div>
+<div id="s-rec" class="hidden"><div class="text-[11px] text-mu mb-1.5"><i class="fa-solid fa-clock-rotate-left"></i> اخیراً دیدی</div><div id="s-recl" class="flex gap-2 overflow-x-auto no-scrollbar"></div></div>
+<div class="flex items-center text-[11px] text-mu"><span id="s-cnt"></span><span id="s-sort" class="ms-auto"></span></div>
+<div id="s-grid" class="grid grid-cols-2 gap-2"></div>
+<div id="s-empty" class="hidden text-center text-xs text-mu py-8"><i class="fa-regular fa-face-frown text-2xl block mb-2"></i>کالایی با این فیلترها پیدا نشد<button type="button" onclick="smS.rs()" class="block mx-auto mt-2 underline">حذف فیلترها</button></div>
+<p class="text-[11px] text-mu flex gap-1.5"><i class="fa-solid fa-circle-info mt-0.5"></i><span>قیمت‌ها و موجودی نمایشی است. هر کالا فروشنده‌ی مشخص دارد؛ کالاهای StyleMorph و نماینده‌های تأییدشده با ضمانت اپ فروخته می‌شوند و در خرید از سایت فروشنده، مسئولیت با خود فروشنده است.</span></p>
+</div>
+<div id="s-cb" class="hidden sticky bottom-0 -mx-3 -mb-3 mt-2 px-3 py-2 border-t border-bd flex items-center gap-2" style="background:var(--sf)"><span id="s-cbt" class="text-xs flex-1"></span><button type="button" onclick="smS.cx()" class="chip shrink-0">پاک</button><button type="button" id="s-cbb" onclick="smS.cm()" class="btn px-4 py-2 text-xs shrink-0">مقایسه</button></div></div>
+<div id="s-ov" class="hidden fixed inset-0 z-[60] flex items-end justify-center" style="background:rgba(0,0,0,.45)" onclick="if(event.target===this)smS.cl()"><div class="w-full max-w-md md:max-w-2xl card flex flex-col max-h-[92dvh]" style="border-end-start-radius:0;border-end-end-radius:0;border-bottom:0"><div class="shrink-0 flex items-center gap-2 px-4 py-3 border-b border-bd"><button type="button" onclick="smS.cl()" aria-label="بستن" class="w-8 h-8 rounded-full flex items-center justify-center text-mu"><i class="fa-solid fa-xmark"></i></button><b id="s-ot" class="text-sm flex-1 min-w-0 truncate"></b><button type="button" id="s-hh" onclick="smS.hh()" aria-label="علاقه‌مندی" class="w-8 h-8 rounded-full flex items-center justify-center"><i class="fa-regular fa-heart"></i></button></div><div id="s-ob" class="flex-1 min-h-0 overflow-y-auto no-scrollbar p-4 space-y-3"></div><div id="s-of" class="shrink-0 p-3 border-t border-bd"></div></div></div><div id="s-toast" class="hidden fixed bottom-28 inset-x-0 z-[70] flex justify-center pointer-events-none"><span class="card px-3 py-2 text-xs font-bold"></span></div>
+<script type="text/plain" id="s-js">
+window.smS=(function(){
+var R=document.getElementById('tab-shop'),LK=false;
+var COL={'سفید':'#e9e6df','مشکی':'#2b2b2b','آبی':'#4a79b0','قرمز':'#c0392b','سبز':'#4f7a5a','بژ':'#cdb89a','صورتی':'#d98aa6','قهوه‌ای':'#7a5436','طلایی':'#c9a227','نقره‌ای':'#aeb4ba'};
+var CAT={cloth:'پوشاک',shoe:'کفش',bag:'کیف',acc:'اکسسوری',beauty:'زیبایی'};
+var GN={w:'زنانه',m:'مردانه',u:'یونیسکس'};
+var TY={app:'کالای StyleMorph',agent:'نماینده تأییدشده',ind:'فروشگاه مستقل'};
+var ME={top:'M',shoe:'42',cl:['بژ','قهوه‌ای','سبز']};
+var BAL=350;
+function O(s,t,p,m,r,d,st,old){return {s:s,t:t,p:p,m:m,r:r,d:d,st:st!==0,o:old||0}}
+var P=[
+{id:1,n:'پیراهن کتان آستین‌بلند',c:'cloth',g:'w',b:'زارا',ic:'fa-shirt',h:'#6b8fb5',sz:['S','M','L'],cl:['آبی','سفید'],rt:4.4,rv:128,m:'کتان ۱۰۰٪',se:'بهار و تابستان',fit:['شلوار جین آبی','کیف دوشی بژ'],o:[O('فروشگاه زارا','agent',480000,'app',4.6,'۲ تا ۳ روز'),O('بوتیک آرمان','ind',520000,'site',4.2,'۳ تا ۵ روز'),O('دیجی‌استایل','ind',495000,'site',4.4,'۱ تا ۲ روز',1,560000)]},
+{id:2,n:'کفش ورزشی ایر',c:'shoe',g:'u',b:'نایک',ic:'fa-shoe-prints',h:'#c0563b',sz:['40','41','42','43'],cl:['سفید','مشکی'],rt:4.7,rv:342,m:'پارچه مش و رویه‌ی مصنوعی',se:'همه فصل',fit:['ست ورزشی مشکی'],o:[O('نمایندگی نایک','agent',1250000,'app',4.8,'۲ تا ۳ روز'),O('StyleMorph','app',1230000,'app',4.7,'۱ تا ۲ روز'),O('اسپرت‌لند','ind',1190000,'site',4.1,'۴ تا ۶ روز')]},
+{id:3,n:'کاپشن زمستانه گوگلی',c:'cloth',g:'u',b:'استایل‌مورف',ic:'fa-vest',h:'#4a79b0',sz:['S','M','L','XL'],cl:['آبی','مشکی'],rt:4.5,rv:76,m:'پلی‌استر با پر مصنوعی',se:'پاییز و زمستان',fit:['شلوار جین آبی','کفش ورزشی سفید'],o:[O('StyleMorph','app',890000,'app',4.7,'۱ تا ۲ روز',1,1050000)]},
+{id:4,n:'کیف دوشی چرم',c:'bag',g:'w',b:'رز',ic:'fa-bag-shopping',h:'#7a5436',sz:[],cl:['قهوه‌ای','مشکی','بژ'],rt:4.6,rv:94,m:'چرم طبیعی',se:'همه فصل',fit:['پیراهن کتان','شال نخی'],o:[O('گالری چرم رز','agent',1650000,'app',4.8,'۲ تا ۳ روز'),O('بوتیک آرمان','ind',1720000,'site',4.2,'۳ تا ۵ روز')]},
+{id:5,n:'کوله‌پشتی روزمره',c:'bag',g:'u',b:'نورث',ic:'fa-briefcase',h:'#4f7a5a',sz:[],cl:['سبز','مشکی'],rt:4.3,rv:210,m:'پارچه ضدآب',se:'همه فصل',fit:[],o:[O('StyleMorph','app',760000,'app',4.6,'۱ تا ۲ روز'),O('دیجی‌استایل','ind',790000,'site',4.4,'۱ تا ۲ روز')]},
+{id:6,n:'ساعت مچی کلاسیک',c:'acc',g:'m',b:'اورینت',ic:'fa-clock',h:'#8a8f94',sz:[],cl:['نقره‌ای','طلایی'],rt:4.8,rv:57,m:'استیل ضدزنگ',se:'همه فصل',fit:['کت اسپرت'],o:[O('زمان‌سنج','agent',3900000,'app',4.9,'۲ تا ۳ روز'),O('ساعت‌پلاس','ind',3750000,'site',4.0,'۴ تا ۷ روز'),O('دیجی‌استایل','ind',3980000,'site',4.4,'۱ تا ۲ روز',0)]},
+{id:7,n:'گردنبند آبکاری طلا',c:'acc',g:'w',b:'ژوپیتر',ic:'fa-gem',h:'#c9a227',sz:[],cl:['طلایی'],rt:4.2,rv:41,m:'مس با آبکاری طلا',se:'همه فصل',fit:['پیراهن کتان'],o:[O('StyleMorph','app',340000,'app',4.6,'۱ تا ۲ روز',1,400000)]},
+{id:8,n:'شال نخی ساده',c:'acc',g:'w',b:'سارا',ic:'fa-mitten',h:'#d98aa6',sz:[],cl:['صورتی','بژ','سفید'],rt:4.1,rv:63,m:'نخ ۱۰۰٪',se:'بهار و پاییز',fit:['کیف دوشی'],o:[O('مد و مانتو سارا','agent',290000,'app',4.5,'۲ تا ۳ روز'),O('بوتیک آرمان','ind',275000,'site',4.2,'۳ تا ۵ روز')]},
+{id:9,n:'شلوار جین راسته',c:'cloth',g:'m',b:'ال‌سی',ic:'fa-person',h:'#3b6ea5',sz:['S','M','L','XL'],cl:['آبی','مشکی'],rt:4.4,rv:188,m:'جین ۹۸٪ پنبه',se:'همه فصل',fit:['پیراهن کتان','سویشرت کلاه‌دار'],o:[O('فروشگاه زارا','agent',690000,'app',4.6,'۲ تا ۳ روز',1,780000),O('دیجی‌استایل','ind',720000,'site',4.4,'۱ تا ۲ روز'),O('اسپرت‌لند','ind',665000,'site',4.1,'۴ تا ۶ روز')]},
+{id:10,n:'کفش پاشنه‌دار مجلسی',c:'shoe',g:'w',b:'رز',ic:'fa-shoe-prints',h:'#c0392b',sz:['36','37','38','39'],cl:['قرمز','مشکی'],rt:4.3,rv:52,m:'چرم مصنوعی',se:'همه فصل',fit:[],o:[O('گالری چرم رز','agent',980000,'app',4.8,'۲ تا ۳ روز'),O('بوتیک آرمان','ind',940000,'site',4.2,'۳ تا ۵ روز')]},
+{id:11,n:'رژلب مات ماندگار',c:'beauty',g:'w',b:'نگار',ic:'fa-palette',h:'#c2547a',sz:[],cl:['قرمز','صورتی'],rt:4.5,rv:402,m:'فرمول مات ضدلک',se:'همه فصل',fit:[],o:[O('StyleMorph','app',225000,'app',4.7,'۱ تا ۲ روز'),O('آرایشی نگار','agent',210000,'app',4.6,'۲ تا ۳ روز'),O('دیجی‌استایل','ind',232000,'site',4.4,'۱ تا ۲ روز')]},
+{id:12,n:'پالت سایه ۱۲ رنگ',c:'beauty',g:'w',b:'نگار',ic:'fa-wand-magic-sparkles',h:'#a86b9c',sz:[],cl:['قهوه‌ای','صورتی'],rt:4.4,rv:155,m:'پودری پیگمنت بالا',se:'همه فصل',fit:[],o:[O('آرایشی نگار','agent',360000,'app',4.6,'۲ تا ۳ روز',1,420000)]},
+{id:13,n:'کت اسپرت مردانه',c:'cloth',g:'m',b:'ماوی',ic:'fa-user-tie',h:'#5b6475',sz:['M','L','XL'],cl:['مشکی','آبی'],rt:4.5,rv:71,m:'ترکیب پشم و پلی‌استر',se:'پاییز و زمستان',fit:['شلوار جین','ساعت کلاسیک'],o:[O('بوتیک آرمان','ind',2450000,'site',4.2,'۳ تا ۵ روز'),O('نمایندگی ماوی','agent',2590000,'app',4.7,'۲ تا ۳ روز')]},
+{id:14,n:'عینک آفتابی خلبانی',c:'acc',g:'u',b:'ری‌بن',ic:'fa-glasses',h:'#2b2b2b',sz:[],cl:['مشکی','طلایی'],rt:4.6,rv:119,m:'فریم فلزی، لنز پلاریزه',se:'بهار و تابستان',fit:[],o:[O('گالری اپتیک','agent',1750000,'app',4.7,'۲ تا ۳ روز',0),O('دیجی‌استایل','ind',1690000,'site',4.4,'۱ تا ۲ روز',0)]},
+{id:15,n:'سویشرت کلاه‌دار',c:'cloth',g:'u',b:'استایل‌مورف',ic:'fa-shirt',h:'#7a8f6b',sz:['S','M','L','XL'],cl:['سبز','مشکی','بژ'],rt:4.6,rv:233,m:'نخ و پلی‌استر',se:'پاییز و زمستان',fit:['شلوار جین','کفش ورزشی سفید'],o:[O('StyleMorph','app',540000,'app',4.7,'۱ تا ۲ روز',1,600000)]},
+{id:16,n:'کتانی سفید ساده',c:'shoe',g:'u',b:'آدیداس',ic:'fa-shoe-prints',h:'#8a8f94',sz:['40','41','42','43'],cl:['سفید'],rt:4.6,rv:276,m:'چرم مصنوعی',se:'همه فصل',fit:['شلوار جین','سویشرت کلاه‌دار'],o:[O('StyleMorph','app',1090000,'app',4.7,'۱ تا ۲ روز'),O('اسپرت‌لند','ind',1040000,'site',4.1,'۴ تا ۶ روز'),O('نمایندگی آدیداس','agent',1150000,'app',4.8,'۲ تا ۳ روز',1,1290000)]}
+];
+var F={cat:'all',q:'',max:0,br:[],sz:[],cl:[],g:'all',av:false,ds:false,ag:false,sale:'all'};
+var S={fit:true,sort:'rel',sel:null,view:'',rec:[2,4],rs:['کفش ورزشی','کیف چرم'],b:null,cmp:[]},FAV={},AL={},BOUGHT={};
+var SORT={rel:'مرتبط‌ترین',lo:'ارزان‌ترین',hi:'گران‌ترین',rt:'پرامتیازترین',dc:'بیشترین تخفیف'};
+function $(s){return R.querySelector(s)}
+function $$(s){return Array.prototype.slice.call(R.querySelectorAll(s))}
+function fa(n){return Number(n).toLocaleString('fa-IR')}
+function pr(n){return fa(n)+' تومان'}
+function PP(id){for(var i=0;i<P.length;i++)if(P[i].id===id)return P[i]}
+function toast(m){var e=$('#s-toast');e.firstChild.textContent=m;e.classList.remove('hidden');setTimeout(function(){e.classList.add('hidden')},1900)}
+function low(p){var a=p.o.filter(function(o){return o.st});if(!a.length)a=p.o;return Math.min.apply(null,a.map(function(o){return o.p}))}
+function disc(p){var m=0;p.o.forEach(function(o){if(o.o){var d=Math.round((o.o-o.p)/o.o*100);if(d>m)m=d}});return m}
+function avail(p){return p.o.some(function(o){return o.st})}
+function isOwn(p){return p.o.length===1&&p.o[0].t==='app'}
+function cash(o){return o.m==='app'?Math.max(1,Math.round(o.p*(o.t==='app'?0.03:0.02)/1000)):0}
+function sizeFit(p){if(!p.sz.length)return null;if(p.c==='shoe')return p.sz.indexOf(ME.shoe)>=0;if(p.c==='cloth')return p.sz.indexOf(ME.top)>=0;return null}
+function nf(){return (F.max?1:0)+F.br.length+F.sz.length+F.cl.length+(F.g!=='all'?1:0)+(F.av?1:0)+(F.ds?1:0)+(F.ag?1:0)+(F.sale!=='all'?1:0)}
+function inter(a,b){return a.some(function(x){return b.indexOf(x)>=0})}
+function filt(){
+ var l=P.filter(function(p){
+  if(F.cat==='fav'&&!FAV[p.id])return false;
+  if(F.cat!=='all'&&F.cat!=='fav'&&p.c!==F.cat)return false;
+  if(F.q&&(p.n+' '+p.b+' '+CAT[p.c]).indexOf(F.q)<0)return false;
+  if(F.max&&low(p)>F.max)return false;
+  if(F.br.length&&F.br.indexOf(p.b)<0)return false;
+  if(F.sz.length&&!(p.sz.length&&inter(p.sz,F.sz)))return false;
+  if(F.cl.length&&!inter(p.cl,F.cl))return false;
+  if(F.g!=='all'&&p.g!==F.g&&p.g!=='u')return false;
+  if(F.av&&!avail(p))return false;
+  if(F.ds&&!disc(p))return false;
+  if(F.ag&&!p.o.some(function(o){return o.t!=='ind'}))return false;
+  if(F.sale!=='all'&&!p.o.some(function(o){return o.m===F.sale}))return false;
+  if(S.fit&&sizeFit(p)===false)return false;
+  return true});
+ var k=S.sort;
+ if(k==='lo')l.sort(function(a,b){return low(a)-low(b)});
+ if(k==='hi')l.sort(function(a,b){return low(b)-low(a)});
+ if(k==='rt')l.sort(function(a,b){return b.rt-a.rt});
+ if(k==='dc')l.sort(function(a,b){return disc(b)-disc(a)});
+ return l}
+function sync(){
+ $$('[data-c]').forEach(function(c){c.classList.toggle('on',c.getAttribute('data-c')===F.cat)});
+ $$('[data-t]').forEach(function(c){c.classList.toggle('on',!!F[c.getAttribute('data-t')])});
+ var b=$('#s-fb'),n=nf();b.textContent=fa(n);b.classList.toggle('hidden',!n);b.classList.toggle('flex',!!n);
+ var sw=$('#s-fit');sw.style.background=S.fit?'var(--pr)':'var(--bd)';sw.firstChild.style.insetInlineStart=S.fit?'calc(100% - 22px)':'2px';sw.setAttribute('aria-checked',S.fit);
+ $('#s-qx').classList.toggle('hidden',!F.q);$('#s-qx').classList.toggle('flex',!!F.q)}
+function tile(p){
+ var d=disc(p),own=isOwn(p),sf=sizeFit(p),on=S.cmp.indexOf(p.id)>=0,hv=FAV[p.id],ok=avail(p);
+ var tags='';if(own)tags+='<span class="text-[11px] px-1.5 py-0.5 rounded-md border border-bd flex items-center gap-1" style="background:var(--sf)"><i class="fa-solid fa-circle-check" style="color:var(--ok)"></i>اپ</span>';
+ if(d)tags+='<span class="text-[11px] px-1.5 py-0.5 rounded-md font-bold text-white" style="background:#d1456b">'+fa(d)+'٪</span>';
+ return '<div class="rounded-xl border border-bd overflow-hidden cursor-pointer" onclick="smS.od('+p.id+')"><div class="relative flex items-center justify-center" style="aspect-ratio:1/1;background:color-mix(in srgb,'+p.h+' 22%,var(--sf))'+(ok?'':';opacity:.6')+'"><i class="fa-solid '+p.ic+' text-4xl" style="color:'+p.h+'"></i>'
+ +'<span class="absolute top-1.5 start-1.5 flex flex-col items-start gap-1">'+tags+'</span>'
+ +'<button type="button" onclick="smS.fv('+p.id+',event)" aria-label="علاقه‌مندی" class="absolute top-1.5 end-1.5 w-7 h-7 rounded-full flex items-center justify-center text-xs" style="background:var(--sf);'+(hv?'color:#d1456b':'')+'"><i class="'+(hv?'fa-solid':'fa-regular')+' fa-heart"></i></button>'
+ +'<button type="button" onclick="smS.cp('+p.id+',event)" aria-label="مقایسه" class="absolute bottom-1.5 start-1.5 w-7 h-7 rounded-full flex items-center justify-center text-xs border border-bd" style="'+(on?'background:var(--pr);color:var(--prt)':'background:var(--sf)')+'"><i class="fa-solid fa-scale-balanced"></i></button>'
+ +'<button type="button" onclick="smS.tr('+p.id+',event)" aria-label="امتحانش کن" class="absolute bottom-1.5 end-1.5 w-7 h-7 rounded-full flex items-center justify-center text-xs border border-bd" style="background:var(--sf);color:var(--pr)"><i class="fa-solid fa-wand-magic-sparkles"></i></button></div>'
+ +'<div class="p-2 space-y-1"><b class="text-xs block truncate">'+p.n+'</b><span class="text-[11px] text-mu block truncate">'+p.b+(sf===true?' · سایز تو موجود':'')+'</span>'
+ +'<div class="text-xs">'+(ok?(p.o.length>1?'<span class="text-mu text-[11px]">از </span>':'')+'<b>'+pr(low(p))+'</b>':'<b class="text-mu">ناموجود</b>')+'</div>'
+ +'<div class="flex items-center justify-between text-[11px] text-mu"><span>'+(own?'فروشنده: StyleMorph':'در '+fa(p.o.length)+' فروشگاه')+'</span><span><i class="fa-solid fa-star" style="color:#d9a406"></i> '+fa(p.rt)+'</span></div>'
+ +(p.fit.length?'<span class="text-[11px] flex items-center gap-1" style="color:var(--pr)"><i class="fa-solid fa-shirt"></i>با کمدت ست است</span>':'')+'</div></div>'}
+function renderGrid(){
+ var l=filt();
+ $('#s-cnt').textContent=fa(l.length)+' کالا';
+ $('#s-sort').textContent='مرتب‌سازی: '+SORT[S.sort];
+ $('#s-empty').classList.toggle('hidden',l.length>0);
+ $('#s-grid').innerHTML=l.map(tile).join('');
+ var rc=S.rec.length&&F.cat!=='fav'&&!F.q;
+ $('#s-rec').classList.toggle('hidden',!rc);
+ $('#s-recl').innerHTML=S.rec.map(function(id){var p=PP(id);return '<button type="button" onclick="smS.od('+id+')" class="shrink-0 w-16 text-center"><span class="block w-16 h-16 rounded-xl border border-bd flex items-center justify-center" style="background:color-mix(in srgb,'+p.h+' 22%,var(--sf))"><i class="fa-solid '+p.ic+' text-xl" style="color:'+p.h+'"></i></span><span class="text-[11px] block truncate mt-0.5">'+p.n+'</span></button>'}).join('');
+ var n=S.cmp.length,cb=$('#s-cb');cb.classList.toggle('hidden',!n);
+ $('#s-cbt').textContent=fa(n)+' کالا برای مقایسه';
+ var bb=$('#s-cbb');bb.disabled=n<2;bb.style.opacity=n<2?'.5':'';
+ sync()}
+function fc(k,b){F.cat=k;renderGrid()}
+function tf(k){F[k]=!F[k];renderGrid()}
+function ft(){S.fit=!S.fit;renderGrid();toast(S.fit?'فقط کالاهای مناسب سایز تو':'همه‌ی سایزها نمایش داده می‌شود')}
+function fv(id,e){if(e)e.stopPropagation();FAV[id]=!FAV[id];renderGrid();hhUI();toast(FAV[id]?'به علاقه‌مندی‌ها اضافه شد':'از علاقه‌مندی‌ها برداشته شد')}
+function cp(id,e){if(e)e.stopPropagation();var i=S.cmp.indexOf(id);if(i>=0)S.cmp.splice(i,1);else if(S.cmp.length>=3){toast('حداکثر ۳ کالا را می‌شود مقایسه کرد');return}else S.cmp.push(id);renderGrid();if(S.view==='d')det(true)}
+function cx(){S.cmp=[];renderGrid()}
+function rs(){F={cat:'all',q:'',max:0,br:[],sz:[],cl:[],g:'all',av:false,ds:false,ag:false,sale:'all'};$('#s-q').value='';renderGrid();if(S.view==='f')fsh()}
+/* جستجو */
+function sg(v){
+ var b=$('#s-sg'),h='';v=(v||'').trim();
+ function it(ic,t,k){return '<button type="button" onclick="smS.qp(\''+k+'\')" class="w-full flex items-center gap-2 px-2 py-2 text-xs text-start rounded-lg"><i class="fa-solid '+ic+' text-mu w-4 text-center"></i><span class="flex-1 truncate">'+t+'</span></button>'}
+ if(!v){h='<div class="text-[11px] text-mu px-2 py-1">جستجوهای اخیر</div>'+S.rs.map(function(t){return it('fa-clock-rotate-left',t,t)}).join('')}
+ else{var m=P.filter(function(p){return (p.n+' '+p.b).indexOf(v)>=0}).slice(0,5);h=m.map(function(p){return it('fa-magnifying-glass',p.n+' <span class="text-mu">در '+CAT[p.c]+'</span>',p.n)}).join('');if(!h)h='<div class="text-[11px] text-mu px-2 py-2">پیشنهادی نیست؛ برای دیدن همه‌ی نتایج جستجو کن</div>'}
+ b.innerHTML=h;b.classList.remove('hidden')}
+function qs(v){F.q=(v||'').trim();renderGrid();sg(v)}
+function qf(){sg($('#s-q').value)}
+function qb(){setTimeout(function(){$('#s-sg').classList.add('hidden')},180)}
+function qp(t){$('#s-q').value=t;F.q=t;if(S.rs.indexOf(t)<0)S.rs.unshift(t);S.rs=S.rs.slice(0,5);$('#s-sg').classList.add('hidden');renderGrid()}
+function qc(){$('#s-q').value='';F.q='';renderGrid();$('#s-sg').classList.add('hidden')}
+/* شیت */
+function foot(h){$('#s-of').innerHTML=h;$('#s-of').classList.toggle('hidden',!h)}
+function btn(label,fn,dis,cls){return '<button type="button" '+(dis?'disabled':'onclick="'+fn+'"')+' class="'+(cls||'btn')+' w-full py-2.5 text-xs" style="'+(dis?'opacity:.5':'')+'">'+label+'</button>'}
+function hhUI(){var b=$('#s-hh');if(S.view!=='d'||!S.sel){b.classList.add('hidden');return}b.classList.remove('hidden');var on=FAV[S.sel];b.firstChild.className=(on?'fa-solid':'fa-regular')+' fa-heart';b.style.color=on?'#d1456b':''}
+function hh(){fv(S.sel)}
+function show(title,body,f,sc){$('#s-ot').textContent=title;$('#s-ob').innerHTML=body;foot(f);hhUI();$('#s-ob').scrollTop=sc||0;$('#s-ov').classList.remove('hidden')}
+function cl(){$('#s-ov').classList.add('hidden');S.view=''}
+function sec(t,b){return '<div class="space-y-1.5"><b class="text-xs block">'+t+'</b>'+b+'</div>'}
+function row(a,b){return '<div class="flex items-center justify-between text-xs py-1.5 border-b border-bd"><span class="text-mu">'+a+'</span><span>'+b+'</span></div>'}
+function chips(list,sel,fn,lab){return '<div class="flex flex-wrap gap-1.5">'+list.map(function(x){var on=sel.indexOf(x)>=0;return '<button type="button" onclick="smS.'+fn+'(\''+x+'\')" class="chip'+(on?' on':'')+'">'+(lab?lab(x):x)+'</button>'}).join('')+'</div>'}
+function tog(t,k){var on=F[k];return '<button type="button" onclick="smS.ftg(\''+k+'\')" role="switch" aria-checked="'+on+'" class="w-full flex items-center gap-2 text-xs py-1.5"><span class="flex-1 text-start">'+t+'</span><span class="shrink-0 w-10 h-6 rounded-full relative" style="background:'+(on?'var(--pr)':'var(--bd)')+'"><span class="absolute top-0.5 w-5 h-5 rounded-full bg-white" style="inset-inline-start:'+(on?'calc(100% - 22px)':'2px')+'"></span></span></button>'}
+/* فیلتر */
+function fo(){S.view='f';fsh(0)}
+function fsh(sc){
+ var y=sc===undefined?$('#s-ob').scrollTop:sc;
+ var brs=[],szs=['S','M','L','XL','36','37','38','39','40','41','42','43'];P.forEach(function(p){if(brs.indexOf(p.b)<0)brs.push(p.b)});
+ var mx=3000000;
+ var body=sec('نوع فروش',chips(['all','app','site'],[F.sale],'fsl',function(x){return x==='all'?'همه':(x==='app'?'خرید داخل اپ':'هدایت به سایت فروشنده')}))
+ +sec('جنسیت',chips(['all','w','m','u'],[F.g],'fg',function(x){return x==='all'?'همه':GN[x]}))
+ +sec('حداکثر قیمت: <span style="color:var(--pr)">'+(F.max?pr(F.max):'بدون محدودیت')+'</span>','<input type="range" min="100000" max="'+mx+'" step="100000" value="'+(F.max||mx)+'" oninput="smS.fm(this.value)" class="w-full" style="accent-color:var(--pr)"><div class="flex justify-between text-[11px] text-mu"><span>'+pr(100000)+'</span><span>'+pr(mx)+'</span></div>')
+ +sec('برند',chips(brs,F.br,'fbr'))
+ +sec('سایز',chips(szs,F.sz,'fsz',function(x){return fa(x)}))
+ +sec('رنگ',chips(Object.keys(COL),F.cl,'fcl',function(x){return '<span class="inline-block w-3 h-3 rounded-full border border-bd align-middle me-1" style="background:'+COL[x]+'"></span>'+x}))
+ +'<div class="border-t border-bd pt-1">'+tog('فقط کالاهای موجود','av')+tog('فقط کالاهای تخفیف‌دار','ds')+tog('فقط فروشندگان تأییدشده و کالای اپ','ag')+'</div>';
+ var n=filt().length;
+ show('فیلتر',body,'<div class="flex gap-2"><button type="button" onclick="smS.rs()" class="card px-4 py-2.5 text-xs shrink-0">حذف فیلترها</button>'+btn('نمایش '+fa(n)+' کالا','smS.cl()')+'</div>',y);
+ renderGrid()}
+function arr(a,x){var i=a.indexOf(x);if(i>=0)a.splice(i,1);else a.push(x)}
+function fsl(x){F.sale=x;fsh()}
+function fg(x){F.g=x;fsh()}
+function fm(v){v=+v;F.max=v>=3000000?0:v;fsh()}
+function fbr(x){arr(F.br,x);fsh()}
+function fsz(x){arr(F.sz,x);fsh()}
+function fcl(x){arr(F.cl,x);fsh()}
+function ftg(k){F[k]=!F[k];fsh()}
+/* مرتب‌سازی */
+function so(){S.view='s';show('مرتب‌سازی',Object.keys(SORT).map(function(k){var on=S.sort===k;return '<button type="button" onclick="smS.sp(\''+k+'\')" class="w-full flex items-center gap-2 text-xs py-2.5 border-b border-bd"><span class="flex-1 text-start">'+SORT[k]+'</span><i class="fa-solid '+(on?'fa-circle-dot':'fa-circle')+'" style="color:'+(on?'var(--pr)':'var(--bd)')+'"></i></button>'}).join(''),'')}
+function sp(k){S.sort=k;cl();renderGrid()}
+/* جزئیات کالا */
+function od(id){S.sel=id;S.view='d';var i=S.rec.indexOf(id);if(i>=0)S.rec.splice(i,1);S.rec.unshift(id);S.rec=S.rec.slice(0,8);renderGrid();det(false)}
+function sortedO(p){return p.o.map(function(o,i){return {o:o,i:i}}).sort(function(a,b){if(a.o.st!==b.o.st)return a.o.st?-1:1;return a.o.p-b.o.p})}
+function hist(p){var a=[],b=low(p)*1.06;for(var i=0;i<30;i++){var v=b*(1+0.07*Math.sin(i/4+p.id)+0.025*Math.cos(i*1.3));a.push(Math.round(v/1000)*1000)}a[29]=low(p);return a}
+function spark(a){
+ var mn=Math.min.apply(null,a),mx=Math.max.apply(null,a),w=300,h=70,pts=a.map(function(v,i){return (i*(w/29)).toFixed(1)+','+(h-6-((v-mn)/(mx-mn||1))*(h-14)).toFixed(1)}).join(' ');
+ var avg=Math.round(a.reduce(function(s,v){return s+v},0)/a.length),cur=a[a.length-1],df=Math.round((avg-cur)/avg*100);
+ return '<svg viewBox="0 0 '+w+' '+h+'" class="w-full" style="height:70px" role="img" aria-label="نمودار قیمت ۳۰ روز اخیر"><polyline points="'+pts+'" fill="none" stroke="var(--pr)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>'
+ +'<div class="grid grid-cols-3 gap-1.5 text-center text-[11px]"><div class="rounded-lg border border-bd p-1.5"><span class="text-mu block">کمترین</span><b>'+fa(mn/1000)+' هزار</b></div><div class="rounded-lg border border-bd p-1.5"><span class="text-mu block">میانگین</span><b>'+fa(Math.round(avg/1000))+' هزار</b></div><div class="rounded-lg border border-bd p-1.5"><span class="text-mu block">بیشترین</span><b>'+fa(mx/1000)+' هزار</b></div></div>'
+ +'<p class="text-[11px] '+(df>=0?'':'text-mu')+'" style="'+(df>=0?'color:var(--ok)':'')+'">'+(df>0?'قیمت فعلی '+fa(df)+'٪ کمتر از میانگین ۳۰ روز اخیر است.':(df<0?'قیمت فعلی '+fa(-df)+'٪ بالاتر از میانگین ۳۰ روز اخیر است.':'قیمت فعلی برابر میانگین ۳۰ روز اخیر است.'))+'</p>'}
+function offer(p,x,first){
+ var o=x.o,app=o.m==='app',nm=o.t==='app'?'StyleMorph':o.s,cs=cash(o);
+ var act=!o.st?'<button type="button" disabled class="chip shrink-0" style="opacity:.6">ناموجود</button>':(app?'<button type="button" onclick="smS.by('+p.id+','+x.i+')" class="btn px-4 py-2 text-xs shrink-0">خرید</button>':'<button type="button" onclick="smS.st('+p.id+','+x.i+')" class="card px-3 py-2 text-xs shrink-0 flex items-center gap-1.5">رفتن به فروشگاه<i class="fa-solid fa-arrow-up-right-from-square"></i></button>');
+ return '<div class="rounded-xl border border-bd p-3 space-y-2'+(o.st?'':' opacity-70')+'"'+(first&&o.st?' style="border-color:var(--pr)"':'')+'>'
+ +'<div class="flex items-center gap-1.5"><b class="text-xs truncate">'+nm+'</b>'+(first&&o.st?'<span class="text-[11px] px-1.5 rounded-md text-white shrink-0" style="background:var(--pr)">ارزان‌ترین</span>':'')+'<span class="ms-auto text-[11px] shrink-0"><i class="fa-solid fa-star" style="color:#d9a406"></i> '+fa(o.r)+'</span></div>'
+ +'<div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-mu"><span class="flex items-center gap-1"><i class="fa-solid '+(o.t==='ind'?'fa-store':'fa-circle-check')+'" style="'+(o.t==='ind'?'':'color:var(--ok)')+'"></i>'+TY[o.t]+'</span><span class="flex items-center gap-1"><i class="fa-solid fa-truck-fast"></i>'+o.d+'</span><span class="flex items-center gap-1"><i class="fa-solid '+(app?'fa-bag-shopping':'fa-arrow-up-right-from-square')+'"></i>'+(app?'خرید داخل اپ':'هدایت به سایت فروشنده')+'</span></div>'
+ +'<div class="flex items-center gap-2"><div class="flex-1 min-w-0"><b class="text-sm">'+pr(o.p)+'</b>'+(o.o?' <span class="text-[11px] text-mu line-through">'+fa(o.o)+'</span>':'')+(cs?'<span class="block text-[11px]" style="color:var(--ok)"><i class="fa-solid fa-coins"></i> +'+fa(cs)+' سکه بعد از خرید</span>':'')+'</div>'+act+'</div></div>'}
+function det(keep){
+ var p=PP(S.sel),y=keep?$('#s-ob').scrollTop:0,so2=sortedO(p),d=disc(p),sf=sizeFit(p),al=AL[p.id],cm=S.cmp.indexOf(p.id)>=0;
+ var tints=[p.h,'#8a8f94',p.h];
+ var sl='<div class="relative"><div id="s-sl" onscroll="smS.sc(this)" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar rounded-xl border border-bd">'+tints.map(function(h,i){return '<div class="w-full shrink-0 snap-center flex items-center justify-center" style="aspect-ratio:4/3;background:color-mix(in srgb,'+h+' '+(i===1?14:24)+'%,var(--sf))"><i class="fa-solid '+p.ic+' text-6xl" style="color:'+h+'"></i></div>'}).join('')+'</div>'
+ +'<span class="absolute bottom-2 inset-x-0 flex justify-center gap-1.5" id="s-dots">'+tints.map(function(h,i){return '<span class="w-1.5 h-1.5 rounded-full" style="background:'+(i?'var(--bd)':'var(--pr)')+'"></span>'}).join('')+'</span>'
+ +(d?'<span class="absolute top-2 start-2 text-[11px] px-1.5 py-0.5 rounded-md font-bold text-white" style="background:#d1456b">'+fa(d)+'٪ تخفیف</span>':'')+'</div>';
+ var own=isOwn(p),head='<div class="space-y-1"><b class="text-sm block">'+p.n+'</b><div class="flex items-center flex-wrap gap-x-3 gap-y-1 text-[11px] text-mu"><span>'+p.b+'</span><span><i class="fa-solid fa-star" style="color:#d9a406"></i> '+fa(p.rt)+' ('+fa(p.rv)+' نظر)</span><span>'+CAT[p.c]+' · '+GN[p.g]+'</span></div>'
+ +'<div class="text-xs rounded-lg border border-bd p-2 flex items-center gap-2"><i class="fa-solid '+(own?'fa-circle-check':'fa-store')+'" style="'+(own?'color:var(--ok)':'')+'"></i><span>'+(own?'فروشنده: <b>StyleMorph</b> — کالای خود اپ با ضمانت اپ':'فروشنده‌ها: <b>'+fa(p.o.length)+'</b> فروشگاه؛ نام و نوع هر فروشنده پایین‌تر مشخص است')+'</span></div></div>';
+ var acts='<div class="grid grid-cols-3 gap-1.5"><button type="button" onclick="smS.tr('+p.id+')" class="card py-2 text-[11px] flex flex-col items-center gap-1" style="color:var(--pr)"><i class="fa-solid fa-wand-magic-sparkles"></i>امتحانش کن</button><button type="button" onclick="smS.al('+p.id+')" class="card py-2 text-[11px] flex flex-col items-center gap-1" style="'+(al?'color:#d97706':'')+'"><i class="fa-'+(al?'solid':'regular')+' fa-bell"></i>'+(al?'هشدار فعال':'هشدار قیمت')+'</button><button type="button" onclick="smS.cp('+p.id+')" class="card py-2 text-[11px] flex flex-col items-center gap-1" style="'+(cm?'color:var(--pr)':'')+'"><i class="fa-solid fa-scale-balanced"></i>'+(cm?'در مقایسه':'مقایسه')+'</button></div>'
+ +(al?'<div class="rounded-xl border border-bd p-2 space-y-1.5"><span class="text-[11px] text-mu block">وقتی قیمت چقدر کمتر شد خبرم کن؟</span><div class="flex gap-1.5">'+[0,5,10,20].map(function(x){return '<button type="button" onclick="smS.ap('+p.id+','+x+')" class="chip'+(al.pct===x?' on':'')+'">'+(x?fa(x)+'٪ ارزان‌تر':'هر کاهشی')+'</button>'}).join('')+'</div>'+(al.pct?'<span class="text-[11px] text-mu block">یعنی وقتی قیمت به '+pr(Math.round(low(p)*(100-al.pct)/100/1000)*1000)+' یا کمتر رسید.</span>':'')+'</div>':'');
+ var fit='';
+ var szl=sf===true?'سایز تو ('+fa(p.c==='shoe'?ME.shoe:ME.top)+') موجود است':(sf===false?'سایز تو ('+fa(p.c==='shoe'?ME.shoe:ME.top)+') موجود نیست':'سایز آزاد');
+ var cc=p.cl.filter(function(c){return ME.cl.indexOf(c)>=0});
+ fit=sec('مناسب تو','<div class="space-y-1.5">'+'<div class="flex items-center gap-2 text-xs"><i class="fa-solid '+(sf===false?'fa-triangle-exclamation':'fa-circle-check')+'" style="color:'+(sf===false?'#d97706':'var(--ok)')+'"></i>'+szl+'</div><div class="flex items-center gap-2 text-xs"><i class="fa-solid fa-palette" style="color:var(--pr)"></i>'+(cc.length?'رنگ‌های مناسب پوست تو: '+cc.join('، '):'رنگ‌های مناسب‌تر برای تو در این کالا نیست')+'</div></div>');
+ var set=p.fit.length?sec('با کمد تو ست می‌شود','<div class="flex flex-wrap gap-1.5">'+p.fit.map(function(x){return '<span class="chip"><i class="fa-solid fa-shirt"></i> '+x+'</span>'}).join('')+'</div><button type="button" onclick="smS.toast2(\'درخواست ساخت ست به استایلیست رفت (نمایشی)\')" class="text-[11px] underline text-mu">ساخت ست کامل با استایلیست</button>'):'';
+ var of=sec('فروشنده‌ها و قیمت‌ها','<div class="space-y-2">'+so2.map(function(x,i){return offer(p,x,i===0)}).join('')+'</div>');
+ var hs=sec('تاریخچه‌ی قیمت (۳۰ روز)',spark(hist(p)));
+ var sp2=sec('مشخصات','<div>'+row('برند',p.b)+row('دسته',CAT[p.c])+row('جنس',p.m)+row('فصل',p.se)+row('رنگ‌ها',p.cl.join('، '))+(p.sz.length?row('سایزها',p.sz.map(fa).join('، ')):'')+'</div>');
+ var sim=P.filter(function(q){return q.c===p.c&&q.id!==p.id}).slice(0,4);
+ var sm=sim.length?sec('کالاهای مشابه','<div class="flex gap-2 overflow-x-auto no-scrollbar">'+sim.map(function(q){return '<button type="button" onclick="smS.od('+q.id+')" class="shrink-0 w-28 text-start"><span class="block w-28 h-28 rounded-xl border border-bd flex items-center justify-center" style="background:color-mix(in srgb,'+q.h+' 22%,var(--sf))"><i class="fa-solid '+q.ic+' text-3xl" style="color:'+q.h+'"></i></span><b class="text-[11px] block truncate mt-1">'+q.n+'</b><span class="text-[11px] text-mu">از '+pr(low(q))+'</span></button>'}).join('')+'</div>'):'';
+ var c0=so2[0],f;
+ if(!c0.o.st)f=btn('ناموجود — هشدار موجود شدن را روشن کن','smS.al('+p.id+')',false,'card');
+ else if(c0.o.m==='app')f=btn('خرید از '+(c0.o.t==='app'?'StyleMorph':c0.o.s)+' · '+pr(c0.o.p),'smS.by('+p.id+','+c0.i+')');
+ else f=btn('رفتن به '+c0.o.s+' · '+pr(c0.o.p),'smS.st('+p.id+','+c0.i+')');
+ show(p.n,sl+head+acts+fit+set+of+hs+sp2+sm,f,y)}
+function sc(el){var i=Math.round(Math.abs(el.scrollLeft)/(el.clientWidth||1)),d=$('#s-dots');if(!d)return;Array.prototype.forEach.call(d.children,function(x,k){x.style.background=k===i?'var(--pr)':'var(--bd)'})}
+function al(id){if(AL[id]){delete AL[id];toast('هشدار قیمت خاموش شد')}else{AL[id]={pct:10};toast('هشدار قیمت روشن شد')}det(true)}
+function ap(id,x){AL[id]={pct:x};det(true)}
+/* امتحانش کن */
+function tr(id,e){if(e)e.stopPropagation();var p=PP(id);S.sel=id;S.view='t';
+ show('امتحانش کن','<div class="text-center space-y-2 py-2"><span class="inline-flex w-20 h-20 rounded-2xl items-center justify-center" style="background:color-mix(in srgb,'+p.h+' 22%,var(--sf))"><i class="fa-solid '+p.ic+' text-4xl" style="color:'+p.h+'"></i></span><b class="text-sm block">'+p.n+'</b><p class="text-xs text-mu">این کالا به اتاق پرو هوش مصنوعی فرستاده می‌شود و روی عکس‌های پروفایل خودت امتحان می‌شود.</p></div><div class="rounded-xl border border-bd p-2.5 text-xs flex items-center gap-2"><i class="fa-solid fa-coins"></i><span class="flex-1">هزینه: ۵ سکه</span><span class="text-mu">موجودی: '+fa(BAL)+'</span></div><p class="text-[11px] text-mu">نتیجه تقریبی است و ممکن است با کالای واقعی کمی فرق کند. فقط با چهره‌ی خودت و برای بزرگسالان.</p>',btn('فرستادن به اتاق پرو','smS.trg()'))}
+function trg(){BAL-=5;$('#s-bal').textContent=fa(BAL);cl();toast('به اتاق پرو فرستاده شد (نمایشی)')}
+/* خرید داخل اپ */
+function by(id,i){var p=PP(id),o=p.o[i];S.view='b';S.b={id:id,i:i,sz:sizeFit(p)?(p.c==='shoe'?ME.shoe:ME.top):(p.sz[0]||''),cl:p.cl[0],pay:'full',ok:false};bsh(0)}
+function ship(o){return o.p>=1000000?0:60000}
+function bsh(sc){
+ var b=S.b,p=PP(b.id),o=p.o[b.i],nm=o.t==='app'?'StyleMorph':o.s,sh=ship(o),coin=b.pay==='coin'?Math.min(BAL,Math.ceil(o.p*0.3/1000)):0,tot=o.p+sh-coin*1000,cs=cash(o);
+ var body='<div class="flex items-center gap-3"><span class="shrink-0 w-14 h-14 rounded-xl border border-bd flex items-center justify-center" style="background:color-mix(in srgb,'+p.h+' 22%,var(--sf))"><i class="fa-solid '+p.ic+' text-xl" style="color:'+p.h+'"></i></span><div class="min-w-0"><b class="text-xs block truncate">'+p.n+'</b><span class="text-[11px] text-mu block">فروشنده: <b style="color:var(--tx)">'+nm+'</b> · '+TY[o.t]+'</span></div></div>'
+ +(p.sz.length?sec('سایز',chips(p.sz,[b.sz],'bz',function(x){return fa(x)})):'')+sec('رنگ',chips(p.cl,[b.cl],'bc'))
+ +sec('روش پرداخت','<button type="button" onclick="smS.bp(\'full\')" class="w-full flex items-center gap-2 text-xs rounded-xl border p-2.5" style="border-color:'+(b.pay==='full'?'var(--pr)':'var(--bd)')+'"><i class="fa-solid '+(b.pay==='full'?'fa-circle-dot':'fa-circle')+'" style="color:var(--pr)"></i><span class="flex-1 text-start">پرداخت کامل از درگاه</span></button><button type="button" onclick="smS.bp(\'coin\')" class="w-full flex items-center gap-2 text-xs rounded-xl border p-2.5" style="border-color:'+(b.pay==='coin'?'var(--pr)':'var(--bd)')+'"><i class="fa-solid '+(b.pay==='coin'?'fa-circle-dot':'fa-circle')+'" style="color:var(--pr)"></i><span class="flex-1 text-start">۳۰٪ با استایل‌کوین <span class="text-mu">('+fa(Math.min(BAL,Math.ceil(o.p*0.3/1000)))+' سکه)</span></span></button>')
+ +'<div class="rounded-xl border border-bd p-2.5 text-xs space-y-1"><div class="flex justify-between"><span class="text-mu">قیمت کالا</span><span>'+pr(o.p)+'</span></div><div class="flex justify-between"><span class="text-mu">ارسال ('+o.d+')</span><span>'+(sh?pr(sh):'رایگان')+'</span></div>'+(coin?'<div class="flex justify-between"><span class="text-mu">کسر با سکه</span><span>−'+pr(coin*1000)+'</span></div>':'')+'<div class="flex justify-between font-bold pt-1 border-t border-bd"><span>مبلغ قابل پرداخت</span><span>'+pr(tot)+'</span></div>'+(cs?'<div class="text-[11px]" style="color:var(--ok)"><i class="fa-solid fa-coins"></i> بعد از خرید '+fa(cs)+' سکه هدیه می‌گیری</div>':'')+'</div>'
+ +'<div class="flex items-center gap-2 text-[11px] text-mu"><i class="fa-solid fa-location-dot"></i><span class="flex-1">ارسال به آدرس پیش‌فرض پروفایل</span></div>'
+ +'<label class="flex items-start gap-2 text-[11px] text-mu"><input type="checkbox" '+(b.ok?'checked':'')+' onchange="smS.bk(this)" class="mt-0.5"><span>ارسال و پشتیبانی این سفارش با «'+nm+'» است و شرایط بازگشت کالا را خواندم.</span></label>';
+ show('خرید از '+nm,body,btn('پرداخت · '+pr(tot),'smS.pay()',!b.ok),sc===undefined?$('#s-ob').scrollTop:sc)}
+function bz(x){S.b.sz=x;bsh()}
+function bc(x){S.b.cl=x;bsh()}
+function bp(x){S.b.pay=x;bsh()}
+function bk(el){S.b.ok=el.checked;bsh()}
+function pay(){
+ var b=S.b,p=PP(b.id),o=p.o[b.i],cs=cash(o),coin=b.pay==='coin'?Math.min(BAL,Math.ceil(o.p*0.3/1000)):0;
+ BAL=BAL-coin+cs;$('#s-bal').textContent=fa(BAL);BOUGHT[p.id]=true;S.view='';
+ show('سفارش ثبت شد','<div class="text-center space-y-2 py-4"><span class="inline-flex w-14 h-14 rounded-full items-center justify-center text-2xl" style="background:var(--okb);color:var(--ok)"><i class="fa-solid fa-check"></i></span><b class="text-sm block">سفارش شما ثبت شد</b><p class="text-xs text-mu">'+p.n+' از «'+(o.t==='app'?'StyleMorph':o.s)+'» · ارسال '+o.d+'</p>'+(cs?'<p class="text-xs" style="color:var(--ok)">+'+fa(cs)+' سکه به حسابت اضافه شد</p>':'')+'</div>','<div class="flex gap-2"><button type="button" onclick="smS.aw()" class="card px-3 py-2.5 text-xs shrink-0"><i class="fa-solid fa-shirt"></i> به کمدم اضافه کن</button>'+btn('بستن','smS.cl()')+'</div>')}
+function aw(){toast('به کمد مجازی اضافه شد (نمایشی)');cl()}
+/* هدایت به سایت */
+function st(id,i){var p=PP(id),o=p.o[i];S.view='w';
+ show('رفتن به '+o.s,'<div class="text-center space-y-2 py-2"><span class="inline-flex w-14 h-14 rounded-full items-center justify-center text-2xl" style="background:color-mix(in srgb,var(--pr) 18%,var(--sf));color:var(--pr)"><i class="fa-solid fa-arrow-up-right-from-square"></i></span><b class="text-sm block">'+o.s+'</b><span class="text-[11px] text-mu block">'+TY[o.t]+' · امتیاز '+fa(o.r)+'</span></div><ul class="text-xs space-y-1.5 rounded-xl border border-bd p-3"><li class="flex gap-2"><i class="fa-solid fa-circle-info mt-0.5 text-mu"></i><span>پرداخت، ارسال و پشتیبانی روی سایت خود فروشنده انجام می‌شود.</span></li><li class="flex gap-2"><i class="fa-solid fa-tag mt-0.5 text-mu"></i><span>قیمت و موجودی را در سایت دوباره بررسی کن؛ ممکن است کمی فرق کند.</span></li><li class="flex gap-2"><i class="fa-solid fa-coins mt-0.5 text-mu"></i><span>خرید از سایت فروشنده سکه‌ی هدیه ندارد.</span></li></ul>','<div class="flex gap-2"><button type="button" onclick="smS.cl()" class="card px-4 py-2.5 text-xs shrink-0">بازگشت</button>'+btn('ادامه به سایت','smS.go2()')+'</div>')}
+function go2(){cl();toast('در نسخه‌ی واقعی سایت فروشنده باز می‌شود')}
+/* مقایسه */
+function cm(){
+ var l=S.cmp.map(PP),n=l.length,g='grid-template-columns:4.5rem repeat('+n+',1fr)',mn=Math.min.apply(null,l.map(low));
+ function r(t,fn){return '<div class="grid gap-1.5 items-start py-2 border-b border-bd text-[11px]" style="'+g+'"><span class="text-mu">'+t+'</span>'+l.map(function(p){return '<span class="min-w-0 break-words">'+fn(p)+'</span>'}).join('')+'</div>'}
+ var head='<div class="grid gap-1.5" style="'+g+'"><span></span>'+l.map(function(p){return '<button type="button" onclick="smS.od('+p.id+')" class="text-center min-w-0"><span class="block rounded-xl border border-bd py-3" style="background:color-mix(in srgb,'+p.h+' 22%,var(--sf))"><i class="fa-solid '+p.ic+' text-2xl" style="color:'+p.h+'"></i></span><b class="text-[11px] block mt-1">'+p.n+'</b></button>'}).join('')+'</div>';
+ var body=head+r('قیمت از',function(p){return '<b'+(low(p)===mn?' style="color:var(--ok)"':'')+'>'+fa(low(p)/1000)+' هزار</b>'})
+ +r('برند',function(p){return p.b})+r('امتیاز',function(p){return fa(p.rt)+' ('+fa(p.rv)+')'})+r('فروشنده',function(p){return isOwn(p)?'StyleMorph':fa(p.o.length)+' فروشگاه'})
+ +r('خرید داخل اپ',function(p){return p.o.some(function(o){return o.m==='app'&&o.st})?'<i class="fa-solid fa-check" style="color:var(--ok)"></i>':'<i class="fa-solid fa-minus text-mu"></i>'})
+ +r('تخفیف',function(p){return disc(p)?fa(disc(p))+'٪':'—'})+r('جنس',function(p){return p.m})+r('فصل',function(p){return p.se})
+ +r('سایزها',function(p){return p.sz.length?p.sz.map(fa).join('، '):'آزاد'});
+ S.view='c';show('مقایسه‌ی '+fa(n)+' کالا',body,btn('بستن','smS.cl()',false,'card'))}
+/* جستجوی تصویری */
+function is(){S.view='i';
+ show('جستجوی تصویری','<div class="text-center space-y-3 py-2"><span class="inline-flex w-16 h-16 rounded-full items-center justify-center text-2xl border border-dashed border-bd" style="color:var(--pr)"><i class="fa-solid fa-camera"></i></span><p class="text-xs text-mu">عکس لباس یا کفشی را که دیدی بده تا کالای مشابهش را در فروشگاه پیدا کنم.</p></div><div class="grid grid-cols-2 gap-2"><button type="button" onclick="smS.isr()" class="card py-2.5 text-xs"><i class="fa-solid fa-camera"></i> گرفتن عکس</button><button type="button" onclick="smS.isr()" class="card py-2.5 text-xs"><i class="fa-solid fa-image"></i> انتخاب از گالری</button></div><p class="text-[11px] text-mu flex gap-1.5"><i class="fa-solid fa-coins mt-0.5"></i><span>هر جستجوی تصویری ۲ سکه است. عکس فقط برای جستجو استفاده می‌شود.</span></p>','')}
+function isr(){BAL-=2;$('#s-bal').textContent=fa(BAL);
+ var l=[P[0],P[8],P[2],P[14]],sim=[94,89,85,81];
+ show('نتیجه‌ی جستجوی تصویری','<p class="text-[11px] text-mu">نزدیک‌ترین کالاها به عکس تو:</p><div class="grid grid-cols-2 gap-2">'+l.map(function(p,i){return '<button type="button" onclick="smS.od('+p.id+')" class="rounded-xl border border-bd overflow-hidden text-start"><span class="relative block py-6 text-center" style="background:color-mix(in srgb,'+p.h+' 22%,var(--sf))"><i class="fa-solid '+p.ic+' text-3xl" style="color:'+p.h+'"></i><span class="absolute top-1.5 start-1.5 text-[11px] px-1.5 py-0.5 rounded-md border border-bd" style="background:var(--sf)">شباهت '+fa(sim[i])+'٪</span></span><span class="block p-2"><b class="text-xs block truncate">'+p.n+'</b><span class="text-[11px] text-mu">از '+pr(low(p))+'</span></span></button>'}).join('')+'</div>',btn('جستجوی دوباره','smS.is()',false,'card'))}
+function toast2(m){toast(m)}
+R.className=R.className.replace(/(^|\s)space-y-\S+/g,' ');
+['flex','flex-col','pf-h','overflow-hidden','gap-2.5'].forEach(function(c){R.classList.add(c)});
+function lock(){
+ var h=document.documentElement,m=document.getElementById('app-main-content'),vis=!R.classList.contains('hidden');
+ if(vis){h.classList.add('lock');if(m)m.classList.add('overflow-hidden');LK=true;window.scrollTo(0,0)}
+ else if(LK){LK=false;var pr2=document.getElementById('tab-profile');if(!pr2||pr2.classList.contains('hidden')){h.classList.remove('lock');if(m)m.classList.remove('overflow-hidden')}}
+}
+new MutationObserver(lock).observe(R,{attributes:true,attributeFilter:['class']});lock();
+$('#s-bal').textContent=fa(BAL);
+renderGrid();
+return {fc:fc,tf:tf,ft:ft,fv:fv,cp:cp,cx:cx,cm:cm,rs:rs,qs:qs,qf:qf,qb:qb,qp:qp,qc:qc,fo:fo,fsl:fsl,fg:fg,fm:fm,fbr:fbr,fsz:fsz,fcl:fcl,ftg:ftg,so:so,sp:sp,od:od,sc:sc,al:al,ap:ap,tr:tr,trg:trg,by:by,bz:bz,bc:bc,bp:bp,bk:bk,pay:pay,aw:aw,st:st,go2:go2,is:is,isr:isr,cl:cl,hh:hh,toast2:toast2};
+})();
+</script><img src="data:," alt="" class="hidden" onerror="(0,eval)(document.getElementById('s-js').textContent);this.remove()">
+</section>

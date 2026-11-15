@@ -1,0 +1,144 @@
+<!-- ===== پنل ۵: آتلیه ===== -->
+<section id="tab-atelier" class="tab-panel hidden flex flex-col pf-h overflow-hidden gap-2.5">
+<div class="shrink-0"><h3 class="font-bold text-sm">آتلیه</h3><span class="text-[11px] text-mu">عکس و ویدیوی ساخته‌شده با AI، از خود شما</span></div><div class="shrink-0 card p-1 grid grid-cols-2 gap-1"><button type="button" id="a-sw-s" onclick="smA.sw('s')" class="h-9 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5" style="background:var(--pr);color:var(--prt)"><i class="fa-solid fa-store"></i>ویترین</button><button type="button" id="a-sw-m" onclick="smA.sw('m')" class="h-9 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5" style="color:var(--mu)"><i class="fa-solid fa-images"></i>ساخته‌های من<span id="a-bd" class="hidden min-w-[18px] h-[18px] px-1 rounded-full items-center justify-center text-[11px] font-bold leading-none text-white" style="background:#d97706"></span></button></div><div id="a-box" class="card flex-1 min-h-0 overflow-y-auto no-scrollbar p-3"><div id="a-ps" class="space-y-2.5"><div class="flex gap-1.5 overflow-x-auto no-scrollbar"><button type="button" data-k="all" onclick="smA.fc('all',this)" class="chip shrink-0 on">همه</button><button type="button" data-k="portrait" onclick="smA.fc('portrait',this)" class="chip shrink-0">پرتره</button><button type="button" data-k="fashion" onclick="smA.fc('fashion',this)" class="chip shrink-0">مد</button><button type="button" data-k="seasonal" onclick="smA.fc('seasonal',this)" class="chip shrink-0">فصلی</button><button type="button" data-k="travel" onclick="smA.fc('travel',this)" class="chip shrink-0">سفر</button><button type="button" data-k="fav" onclick="smA.fc('fav',this)" class="chip shrink-0">علاقه‌مندی‌ها</button></div><div class="flex items-center gap-1.5"><button type="button" data-k="all" onclick="smA.ft('all',this)" class="chip shrink-0 on">همه</button><button type="button" data-k="p" onclick="smA.ft('p',this)" class="chip shrink-0">عکس</button><button type="button" data-k="v" onclick="smA.ft('v',this)" class="chip shrink-0">ویدیو</button><span id="a-cnt" class="ms-auto text-[11px] text-mu"></span></div><div class="flex items-center gap-3 text-[11px] text-mu"><span><i class="fa-solid fa-thumbs-up"></i> محبوبیت</span><span><i class="fa-solid fa-users"></i> درصد استفاده</span><span><i class="fa-solid fa-coins"></i> قیمت</span></div><div id="a-grid" class="grid grid-cols-2 gap-2"></div><div id="a-empty" class="hidden text-center text-xs text-mu py-8"><i class="fa-regular fa-folder-open text-2xl block mb-2"></i>قالبی پیدا نشد</div><p class="text-[11px] text-mu flex gap-1.5"><i class="fa-solid fa-circle-info mt-0.5"></i><span>تصویر قالب‌ها نمونه است؛ نتیجه شما با چهره و اندام خودتان ساخته می‌شود. ساخت فقط برای بزرگسالان و فقط با چهره خود شماست.</span></p><div class="flex gap-4 justify-center"><button type="button" onclick="smA.tg('pro')" class="text-[11px] text-mu underline">حالت حساب پرو</button><button type="button" onclick="smA.tg('inc')" class="text-[11px] text-mu underline">حالت پروفایل ناقص</button></div></div><div id="a-pm" class="hidden space-y-2.5"><div class="flex items-center gap-2 text-[11px] text-mu"><span class="shrink-0">ظرفیت پلن عادی</span><div class="flex-1 h-1.5 rounded-full overflow-hidden" style="background:var(--bd)"><div id="a-capb" class="h-full rounded-full" style="background:var(--pr)"></div></div><b id="a-cap"></b></div><div class="flex gap-1.5 overflow-x-auto no-scrollbar"><button type="button" data-k="all" onclick="smA.fm('all',this)" class="chip shrink-0 on">همه</button><button type="button" data-k="r" onclick="smA.fm('r',this)" class="chip shrink-0">آماده</button><button type="button" data-k="p" onclick="smA.fm('p',this)" class="chip shrink-0">در جریان</button><button type="button" data-k="f" onclick="smA.fm('f',this)" class="chip shrink-0">ناموفق</button></div><div id="a-list" class="space-y-2"></div><div id="a-mempty" class="hidden text-center text-xs text-mu py-8"><i class="fa-regular fa-images text-2xl block mb-2"></i>هنوز چیزی نساخته‌اید<br><button type="button" onclick="smA.sw('s')" class="btn px-3 py-1.5 text-xs mt-3">رفتن به ویترین</button></div><p class="text-[11px] text-mu flex gap-1.5"><i class="fa-solid fa-lock mt-0.5"></i><span>ساخته‌ها به‌صورت پیش‌فرض خصوصی‌اند و فقط شما می‌بینید.</span></p></div></div><div id="a-ov" class="hidden fixed inset-0 z-[60] flex items-end justify-center" style="background:rgba(0,0,0,.45)" onclick="if(event.target===this)smA.cl()"><div class="w-full max-w-md md:max-w-2xl card flex flex-col max-h-[92dvh]" style="border-end-start-radius:0;border-end-end-radius:0;border-bottom:0"><div class="shrink-0 flex items-center gap-2 px-4 py-3 border-b border-bd"><button type="button" onclick="smA.cl()" aria-label="بستن" class="w-8 h-8 rounded-full flex items-center justify-center text-mu"><i class="fa-solid fa-xmark"></i></button><b id="a-ot" class="text-sm flex-1 min-w-0 truncate"></b><button type="button" id="a-hh" onclick="smA.hh()" aria-label="علاقه‌مندی" class="w-8 h-8 rounded-full flex items-center justify-center"><i class="fa-regular fa-heart"></i></button></div><div id="a-ob" class="flex-1 min-h-0 overflow-y-auto no-scrollbar p-4 space-y-3"></div><div id="a-of" class="shrink-0 p-3 border-t border-bd"></div></div></div><div id="a-toast" class="hidden fixed bottom-28 inset-x-0 z-[70] flex justify-center pointer-events-none"><span class="card px-3 py-2 text-xs font-bold"></span></div><script type="text/plain" id="a-js">
+window.smA=(function(){
+var R=document.getElementById('tab-atelier'),LK=false,D=[{"id": 1, "n": "پرتره استودیویی کلاسیک", "c": "portrait", "t": "p", "k": 1, "pr": 15, "po": 94, "us": 18, "h": ["#8a8f94"], "ic": ["fa-user"], "d": "پرتره ساده و تمیز با نور استودیو، مناسب عکس پروفایل.", "pp": ["bg", "light", "ratio"], "o": "۱ عکس · کیفیت بالا", "tm": "حدود ۱۰ دقیقه"}, {"id": 2, "n": "هدشات حرفه‌ای", "c": "portrait", "t": "p", "k": 2, "pr": 20, "po": 91, "us": 22, "h": ["#3b6ea5", "#1f2f56"], "ic": ["fa-user-tie", "fa-user"], "d": "دو قاب رسمی برای رزومه و شبکه‌های حرفه‌ای.", "pp": ["bg", "light", "outfit", "ratio"], "o": "۲ عکس · کیفیت بالا", "tm": "حدود ۱۰ دقیقه"}, {"id": 3, "n": "مجموعه نوروزی", "c": "seasonal", "t": "p", "k": 4, "pr": 40, "po": 89, "us": 9, "h": ["#4f7a5a", "#c9a227", "#c0392b", "#e29bb0"], "ic": ["fa-seedling", "fa-gift", "fa-heart", "fa-star"], "d": "چهار قاب با سفره هفت‌سین، گل و رنگ‌های بهاری.", "pp": ["bg", "light", "outfit", "pose", "ratio"], "o": "۴ عکس · کیفیت بالا", "tm": "حدود ۱۰ دقیقه"}, {"id": 4, "n": "ست مد خیابانی", "c": "fashion", "t": "p", "k": 3, "pr": 30, "po": 86, "us": 14, "h": ["#222222", "#7a5230", "#d6bf9b"], "ic": ["fa-person-walking", "fa-shirt", "fa-shoe-prints"], "d": "سه قاب شهری با استایل روزمره و حال‌وهوای مجله.", "pp": ["bg", "light", "outfit", "pose", "ratio"], "o": "۳ عکس · کیفیت بالا", "tm": "حدود ۱۰ دقیقه"}, {"id": 5, "n": "پرتره سینمایی", "c": "portrait", "t": "v", "k": 1, "pr": 60, "po": 92, "us": 7, "h": ["#6b5fb5"], "ic": ["fa-film"], "d": "ویدیوی کوتاه با نور و حرکت دوربین سینمایی.", "pp": ["light", "ratio"], "o": "۸ ثانیه · ۱۰۸۰p", "tm": "حدود ۲۵ دقیقه"}, {"id": 6, "n": "چرخش ۳۶۰ درجه مد", "c": "fashion", "t": "v", "k": 2, "pr": 75, "po": 88, "us": 5, "h": ["#c2547a", "#2f3438"], "ic": ["fa-person-dress", "fa-rotate"], "d": "ویدیوی چرخشی که ست شما را از همه زاویه‌ها نشان می‌دهد.", "pp": ["bg", "outfit", "ratio"], "o": "۸ ثانیه · ۱۰۸۰p", "tm": "حدود ۲۵ دقیقه"}, {"id": 7, "n": "سفر به پاریس", "c": "travel", "t": "p", "k": 4, "pr": 45, "po": 90, "us": 11, "h": ["#3b6ea5", "#d6bf9b", "#c0392b", "#8a8f94"], "ic": ["fa-landmark", "fa-camera", "fa-bag-shopping", "fa-sun"], "d": "چهار قاب در خیابان‌ها و کافه‌های پاریس.", "pp": ["bg", "light", "outfit", "pose", "ratio"], "o": "۴ عکس · کیفیت بالا", "tm": "حدود ۱۰ دقیقه"}, {"id": 8, "n": "شب یلدا", "c": "seasonal", "t": "p", "k": 3, "pr": 35, "po": 93, "us": 13, "h": ["#c0392b", "#4f7a5a", "#222222"], "ic": ["fa-moon", "fa-apple-whole", "fa-book-open"], "d": "سه قاب گرم با انار، هندوانه و نور شمع.", "pp": ["light", "outfit", "pose", "ratio"], "o": "۳ عکس · کیفیت بالا", "tm": "حدود ۱۰ دقیقه"}, {"id": 9, "n": "ورزشی و پرانرژی", "c": "portrait", "t": "p", "k": 2, "pr": 25, "po": 84, "us": 10, "h": ["#d98324", "#3b6ea5"], "ic": ["fa-dumbbell", "fa-person-running"], "d": "دو قاب پویا با لباس و فضای ورزشی.", "pp": ["bg", "light", "outfit", "ratio"], "o": "۲ عکس · کیفیت بالا", "tm": "حدود ۱۰ دقیقه"}, {"id": 10, "n": "ریلز کوتاه استایل", "c": "fashion", "t": "v", "k": 1, "pr": 55, "po": 87, "us": 6, "h": ["#4f7a5a"], "ic": ["fa-clapperboard"], "d": "ریلز عمودی با تغییر ست و موسیقی‌پذیر.", "pp": ["outfit", "ratio"], "o": "۸ ثانیه · ۱۰۸۰p", "tm": "حدود ۲۵ دقیقه"}],MY=[{"id": 1, "tid": 1, "st": "r", "pg": 100, "d": "۲ روز پیش", "rate": 0, "rf": false, "sh": false, "dc": false}, {"id": 2, "tid": 7, "st": "b", "pg": 60, "d": "امروز", "rate": 0, "rf": false, "sh": false, "dc": false}, {"id": 3, "tid": 3, "st": "q", "pg": 0, "d": "امروز", "rate": 0, "rf": false, "sh": false, "dc": false}, {"id": 4, "tid": 10, "st": "f", "pg": 0, "d": "دیروز", "rate": 0, "rf": false, "sh": false, "dc": false}, {"id": 5, "tid": 2, "st": "r", "pg": 100, "d": "هفته پیش", "rate": 1, "rf": true, "sh": false, "dc": false}],nid=100;
+var S={cat:'all',typ:'all',mf:'all',tab:'s',pro:false,inc:false,sel:null,my:null,view:'d',opt:{},acc:false},FAV={};
+var OP={bg:['پس‌زمینه',['استودیو','طبیعت','شهر','ساده']],light:['نور',['نرم','طلایی','نمایشی']],outfit:['لباس',['پیش‌فرض قالب','از کمد من']],pose:['حالت',['ایستاده','نشسته','نیم‌رخ']],ratio:['نسبت تصویر',['۴:۵','۱:۱','۹:۱۶']]};
+var BAL=350,CAP=20;
+function $(s){return R.querySelector(s)}
+function $$(s){return Array.prototype.slice.call(R.querySelectorAll(s))}
+function fa(n){return Number(n).toLocaleString('fa-IR')}
+function T(id){for(var i=0;i<D.length;i++)if(D[i].id===id)return D[i]}
+function I(id){for(var i=0;i<MY.length;i++)if(MY[i].id===id)return MY[i]}
+function toast(m){var e=$('#a-toast');e.firstChild.textContent=m;e.classList.remove('hidden');setTimeout(function(){e.classList.add('hidden')},1900)}
+function one(b){Array.prototype.forEach.call(b.parentNode.querySelectorAll('.chip'),function(c){c.classList.toggle('on',c===b)})}
+function sz(m,k,i){if(m==='s')return 'text-sm';if(m==='m')return k===1?'text-4xl':(k===3&&i===0?'text-3xl':'text-xl');return k===1?'text-6xl':(k===3&&i===0?'text-5xl':'text-3xl')}
+function cell(t,i,m){var h=t.h[i%t.h.length],c=t.ic[i%t.ic.length],g=(t.k===3&&i===0)?'grid-row:span 2;':'';return '<div class="flex items-center justify-center" style="'+g+'min-width:0;min-height:0;background:color-mix(in srgb,'+h+' 22%,var(--sf))"><i class="fa-solid '+c+' '+sz(m,t.k,i)+'" style="color:'+h+'"></i></div>'}
+function collage(t,m){var k=t.k,s='<div style="display:grid;gap:2px;position:absolute;inset:0;grid-template-columns:'+(k===1?'1fr':'1fr 1fr')+';grid-template-rows:'+(k>2?'1fr 1fr':'1fr')+'">';for(var i=0;i<k;i++)s+=cell(t,i,m);return s+'</div>'}
+function play(){return '<span class="absolute inset-0 flex items-center justify-center pointer-events-none"><span class="w-9 h-9 rounded-full flex items-center justify-center" style="background:var(--sf);border:1px solid var(--bd)"><i class="fa-solid fa-play text-xs"></i></span></span>'}
+function badge(t){return '<span class="absolute top-1.5 start-1.5 text-[11px] px-1.5 py-0.5 rounded-md border border-bd" style="background:var(--sf)">'+(t.t==='v'?'ویدیو':(t.k>1?fa(t.k)+' عکس':'عکس'))+'</span>'}
+function heart(id){var on=FAV[id];return '<button type="button" onclick="smA.fv('+id+',event)" aria-label="علاقه‌مندی" class="absolute top-1.5 end-1.5 w-7 h-7 rounded-full flex items-center justify-center text-xs" style="background:var(--sf);'+(on?'color:#d1456b':'')+'"><i class="'+(on?'fa-solid':'fa-regular')+' fa-heart"></i></button>'}
+ 
+function renderShow(){
+ var l=D.filter(function(t){return (S.cat==='all'||(S.cat==='fav'?FAV[t.id]:t.c===S.cat))&&(S.typ==='all'||t.t===S.typ)});
+ $('#a-cnt').textContent=fa(l.length)+' قالب';
+ $('#a-empty').classList.toggle('hidden',l.length>0);
+ $('#a-grid').innerHTML=l.map(function(t){
+  return '<div class="rounded-xl border border-bd overflow-hidden cursor-pointer" onclick="smA.od('+t.id+')"><div class="relative" style="aspect-ratio:4/5">'+collage(t,'m')+badge(t)+heart(t.id)+(t.t==='v'?play():'')+'</div>'
+  +'<div class="p-2 space-y-1"><b class="text-xs block truncate">'+t.n+'</b><div class="flex items-center justify-between text-[11px] text-mu"><span class="flex items-center gap-1"><i class="fa-solid fa-coins"></i>'+fa(t.pr)+'</span><span class="flex items-center gap-2"><span class="flex items-center gap-1"><i class="fa-solid fa-thumbs-up"></i>'+fa(t.po)+'٪</span><span class="flex items-center gap-1"><i class="fa-solid fa-users"></i>'+fa(t.us)+'٪</span></span></div></div></div>'}).join('');
+}
+function fc(k,b){S.cat=k;one(b);renderShow()}
+function ft(k,b){S.typ=k;one(b);renderShow()}
+function fv(id,e){if(e)e.stopPropagation();FAV[id]=!FAV[id];renderShow();hhUI()}
+ 
+/* ساخته‌های من */
+var SC={q:['در صف','var(--bg)','var(--tx)'],b:['در حال ساخت','var(--bg)','var(--tx)'],r:['آماده','var(--okb)','var(--ok)'],f:['ناموفق','#fde8e8','#dc2626']};
+function badgeUp(){var n=MY.filter(function(i){return i.st==='q'||i.st==='b'}).length,e=$('#a-bd');e.textContent=fa(n);e.classList.toggle('hidden',n===0);e.classList.toggle('inline-flex',n>0)}
+function renderMine(){
+ var l=MY.filter(function(i){return S.mf==='all'||(S.mf==='r'&&i.st==='r')||(S.mf==='p'&&(i.st==='q'||i.st==='b'))||(S.mf==='f'&&i.st==='f')});
+ $('#a-cap').textContent=fa(MY.length)+' از '+fa(CAP);$('#a-capb').style.width=Math.min(100,MY.length/CAP*100)+'%';
+ $('#a-mempty').classList.toggle('hidden',l.length>0);badgeUp();
+ $('#a-list').innerHTML=l.map(function(i){
+  var t=T(i.tid),c=SC[i.st],x='';
+  if(i.st==='b')x='<div class="h-1.5 rounded-full overflow-hidden" style="background:var(--bd)"><div class="h-full" style="width:'+i.pg+'%;background:var(--pr)"></div></div><span class="text-[11px] text-mu">حدود '+fa(Math.max(1,Math.round((100-i.pg)/12)))+' دقیقه دیگر</span>';
+  else if(i.st==='q')x='<span class="text-[11px] text-mu">به‌زودی ساخت شروع می‌شود.</span>';
+  else if(i.st==='f')x='<p class="text-[11px] flex gap-1.5"><i class="fa-solid fa-rotate-left mt-0.5 text-mu"></i><span>ساخت ناموفق بود و '+fa(t.pr)+' سکه به شما برگشت.</span></p><button type="button" onclick="smA.rt('+i.id+')" class="btn px-3 py-1.5 text-xs">تلاش دوباره</button>';
+  else if(!i.rate)x='<div class="flex items-center gap-2"><span class="text-[11px] text-mu flex-1">نتیجه چطور بود؟</span><button type="button" onclick="smA.rate('+i.id+',1)" aria-label="خوب بود" class="w-9 h-9 rounded-lg border border-bd flex items-center justify-center"><i class="fa-regular fa-thumbs-up"></i></button><button type="button" onclick="smA.rate('+i.id+',-1)" aria-label="خوب نبود" class="w-9 h-9 rounded-lg border border-bd flex items-center justify-center"><i class="fa-regular fa-thumbs-down"></i></button></div>';
+  else x='<span class="text-[11px] text-mu"><i class="fa-solid '+(i.rate>0?'fa-thumbs-up':'fa-thumbs-down')+' me-1"></i>ممنون از نظرتان</span>';
+  var go=i.st==='r'?' cursor-pointer" onclick="smA.om('+i.id+')':'';
+  return '<div class="rounded-xl border border-bd p-2.5 space-y-2"><div class="flex items-center gap-3'+go+'"><div class="relative w-16 shrink-0 rounded-lg overflow-hidden border border-bd" style="aspect-ratio:4/5">'+collage(t,'s')+(i.st==='r'&&t.t==='v'?play():'')+'</div><div class="min-w-0 flex-1 space-y-1"><b class="text-xs block truncate">'+t.n+'</b><span class="text-[11px] text-mu block">'+i.d+' · '+(t.t==='v'?'ویدیو':'عکس')+'</span><span class="inline-block text-[11px] px-2 py-0.5 rounded-md font-bold" style="background:'+c[1]+';color:'+c[2]+'">'+c[0]+'</span></div>'+(i.st==='r'?'<i class="fa-solid fa-chevron-left text-[11px] text-mu"></i>':'')+'</div>'+x+'</div>'}).join('');
+}
+function fm(k,b){S.mf=k;one(b);renderMine()}
+function rate(id,v){I(id).rate=v;renderMine();toast('ممنون از نظرتان')}
+function sync(it){if(MY.indexOf(it)<0)return;renderMine()}
+function run(it){
+ it.st='q';it.pg=0;
+ setTimeout(function(){it.st='b';it.pg=35;sync(it)},2500);
+ setTimeout(function(){it.pg=75;sync(it)},5200);
+ setTimeout(function(){it.st='r';it.pg=100;sync(it)},7800);
+}
+function rt(id){var it=I(id);run(it);renderMine();toast('ساخت دوباره شروع شد')}
+function sw(k){
+ S.tab=k;$('#a-ps').classList.toggle('hidden',k!=='s');$('#a-pm').classList.toggle('hidden',k!=='m');
+ [['s','a-sw-s'],['m','a-sw-m']].forEach(function(p){var b=document.getElementById(p[1]),on=p[0]===k;b.style.background=on?'var(--pr)':'';b.style.color=on?'var(--prt)':'var(--mu)'});
+ $('#a-box').scrollTop=0;if(k==='m')renderMine();
+}
+function tg(k){S[k]=!S[k];toast(k==='pro'?(S.pro?'حالت حساب پرو فعال شد':'حالت حساب عادی'):(S.inc?'حالت پروفایل ناقص فعال شد':'حالت پروفایل کامل'))}
+ 
+/* پنجره */
+function foot(h){$('#a-of').innerHTML=h;$('#a-of').classList.toggle('hidden',!h)}
+function btn(label,fn,dis,cls){return '<button type="button" '+(dis?'disabled':'onclick="'+fn+'"')+' class="'+(cls||'btn')+' w-full py-2.5 text-xs" style="'+(dis?'opacity:.5':'')+'">'+label+'</button>'}
+function hhUI(){var b=$('#a-hh');if(S.view!=='d'||!S.sel){b.classList.add('hidden');return}b.classList.remove('hidden');var on=FAV[S.sel];b.firstChild.className=(on?'fa-solid':'fa-regular')+' fa-heart';b.style.color=on?'#d1456b':''}
+function hh(){fv(S.sel)}
+function show(title,body,f){$('#a-ot').textContent=title;$('#a-ob').innerHTML=body;foot(f);hhUI();$('#a-ob').scrollTop=0;$('#a-ov').classList.remove('hidden')}
+function st3(a,b){return '<div class="rounded-lg border border-bd p-2 text-center"><span class="text-[11px] text-mu block">'+a+'</span><b class="text-xs">'+b+'</b></div>'}
+function req(ok,t,x){return '<div class="flex items-center gap-2 text-xs"><i class="fa-solid '+(ok?'fa-circle-check':'fa-triangle-exclamation')+'" style="color:'+(ok?'var(--ok)':'#d97706')+'"></i><span class="flex-1">'+t+'</span>'+(x||'')+'</div>'}
+function od(id){
+ var t=T(id);S.sel=id;S.view='d';S.opt={};
+ var sl='';for(var i=0;i<t.k;i++)sl+='<div class="w-full shrink-0 snap-center relative rounded-xl overflow-hidden border border-bd" style="aspect-ratio:4/5">'+collage({k:1,h:[t.h[i%t.h.length]],ic:[t.ic[i%t.ic.length]]},'l')+(t.t==='v'?play():'')+(t.k>1?'<span class="absolute bottom-1.5 start-1.5 text-[11px] px-1.5 py-0.5 rounded-md border border-bd" style="background:var(--sf)">نمونه '+fa(i+1)+' از '+fa(t.k)+'</span>':'')+'</div>';
+ var dots='';if(t.k>1){dots='<div id="a-dots" class="flex justify-center gap-1.5">';for(var j=0;j<t.k;j++)dots+='<span class="w-1.5 h-1.5 rounded-full" style="background:'+(j===0?'var(--pr)':'var(--bd)')+'"></span>';dots+='</div>'}
+ var po='';t.pp.forEach(function(k){po+='<div><span class="text-[11px] text-mu block mb-1">'+OP[k][0]+'</span><div class="flex flex-wrap gap-1.5">'+OP[k][1].map(function(v,i){return '<button type="button" onclick="smA.po(\''+k+'\','+i+',this)" class="chip'+(i===0?' on':'')+'">'+v+'</button>'}).join('')+'</div></div>'});
+ var lock=S.pro?'':'<div class="flex items-center gap-2 text-[11px] rounded-lg border border-bd p-2" style="background:var(--bg)"><i class="fa-solid fa-lock"></i><span class="flex-1">این گزینه‌ها ویژه حساب پرو است.</span><button type="button" onclick="smA.toast2()" class="btn px-2.5 py-1 text-[11px]">ارتقا</button></div>';
+ var body='<div id="a-car" class="flex overflow-x-auto snap-x snap-mandatory no-scrollbar gap-2">'+sl+'</div>'+dots
+ +'<p class="text-[11px] text-mu flex gap-1.5"><i class="fa-solid fa-circle-info mt-0.5"></i><span>این‌ها نمونه قالب‌اند؛ نتیجه شما با چهره و اندام خودتان ساخته می‌شود.</span></p>'
+ +'<div><b class="text-sm block">'+t.n+'</b><p class="text-xs text-mu mt-1 leading-relaxed">'+t.d+'</p></div>'
+ +'<div class="grid grid-cols-3 gap-2">'+st3('محبوبیت',fa(t.po)+'٪')+st3('استفاده',fa(t.us)+'٪')+st3('زمان',t.tm.replace('حدود ',''))+'</div>'
+ +'<div class="flex items-center gap-2 text-xs rounded-lg border border-bd p-2.5"><i class="fa-solid '+(t.t==='v'?'fa-film':'fa-image')+' text-mu"></i><span class="flex-1">خروجی</span><b>'+t.o+'</b></div>'
+ +'<div class="rounded-lg border border-bd p-3 space-y-2.5"><b class="text-xs flex items-center gap-1.5"><i class="fa-solid fa-crown" style="color:#d99a06"></i>گزینه‌های پرو</b>'+lock+'<div class="space-y-2.5" style="'+(S.pro?'':'opacity:.5;pointer-events:none')+'">'+po+'</div></div>'
+ +'<div class="rounded-lg border border-bd p-3 space-y-2"><b class="text-xs">پیش‌نیازها</b>'+req(1,'عکس‌های آلبوم پروفایل کامل است')+req(1,'ابعاد بدن ثبت شده است')+(S.inc?req(0,'تأیید چهره انجام نشده','<button type="button" onclick="smA.toast2()" class="text-[11px] underline text-mu">تکمیل در پروفایل</button>'):req(1,'چهره شما تأیید شده است'))+'</div>'
+ +'<div class="rounded-lg border border-bd p-3 flex gap-2 text-[11px] leading-relaxed"><i class="fa-solid fa-shield-halved mt-0.5" style="color:var(--ok)"></i><span>اگر ساخت ناموفق باشد، سکه به شما برمی‌گردد و یک‌بار بازسازی رایگان دارید. نتیجه با برچسب «ساخته‌شده با AI» تحویل می‌شود.</span></div>';
+ show(t.n,body,btn('ساخت · '+fa(t.pr)+' سکه',"smA.go('c')",S.inc));
+ var car=$('#a-car'),ds=$$('#a-dots span');
+ if(ds.length)car.addEventListener('scroll',function(){var i=Math.round(Math.abs(car.scrollLeft)/car.clientWidth);ds.forEach(function(d,k){d.style.background=k===i?'var(--pr)':'var(--bd)'})});
+}
+function toast2(){toast('نمایشی')}
+function po(k,i,b){S.opt[k]=OP[k][1][i];one(b)}
+function go(v){
+ var t=T(S.sel);S.view=v;
+ if(v==='c'){
+  var ex='';Object.keys(S.opt).forEach(function(k){if(S.pro)ex+=row(OP[k][0],S.opt[k])});
+  var bad=BAL<t.pr;
+  S.acc=false;
+  show('تأیید و پرداخت','<div class="rounded-lg border border-bd p-3 space-y-2 text-xs">'+row('قالب',t.n)+row('خروجی',t.o)+ex+row('بهای ساخت',fa(t.pr)+' سکه')+row('موجودی شما',fa(BAL)+' سکه')+row('پس از پرداخت','<b>'+fa(BAL-t.pr)+' سکه</b>')+'</div>'
+   +(bad?'<p class="text-xs" style="color:#dc2626">موجودی کافی نیست.</p>':'<label class="flex items-start gap-2 text-[11px] leading-relaxed cursor-pointer"><input type="checkbox" onchange="smA.ac(this)" class="w-4 h-4 mt-0.5 shrink-0" style="accent-color:var(--pr)"><span>می‌پذیرم که نتیجه تقریبی است، فقط با چهره خودم ساخته می‌شود و با نمونه کاملاً یکسان نیست.</span></label>')
+   +'<button type="button" onclick="smA.od('+t.id+')" class="text-[11px] underline text-mu">بازگشت به جزئیات</button>',
+   bad?btn('افزودن سکه',"smA.toast2()",0):'<div id="a-pay">'+btn('تأیید و پرداخت',"smA.pay()",1)+'</div>');
+ }
+}
+function row(a,b){return '<div class="flex justify-between gap-2"><span class="text-mu">'+a+'</span><span>'+b+'</span></div>'}
+function ac(el){S.acc=el.checked;$('#a-pay').innerHTML=btn('تأیید و پرداخت',"smA.pay()",!el.checked)}
+function pay(){
+ var t=T(S.sel),it={id:nid++,tid:t.id,st:'q',pg:0,d:'همین حالا',rate:0,rf:false,sh:false,dc:false};
+ MY.unshift(it);run(it);S.view='y';badgeUp();
+ show('ساخت شروع شد','<div class="text-center py-6 space-y-3"><span class="w-14 h-14 rounded-full inline-flex items-center justify-center text-2xl" style="background:var(--okb);color:var(--ok)"><i class="fa-solid fa-check"></i></span><b class="text-sm block">درخواست شما ثبت شد</b><p class="text-xs text-mu leading-relaxed">نتیجه در «ساخته‌های من» می‌آید. وقتی آماده شد خبر می‌دهیم.</p></div>',btn('رفتن به ساخته‌های من',"smA.cl();smA.sw('m')"));
+}
+function om(id){
+ var it=I(id),t=T(it.tid);S.my=id;S.view='r';
+ var body='<div class="relative rounded-xl overflow-hidden border border-bd" style="aspect-ratio:4/5">'+collage(t,'l')+(t.t==='v'?play():'')+'<span class="absolute bottom-1.5 start-1.5 text-[11px] px-1.5 py-0.5 rounded-md border border-bd" style="background:var(--sf)">ساخته‌شده با AI</span></div>'
+ +'<div class="text-xs text-mu">'+t.n+' · '+it.d+'</div>'
+ +'<div class="grid grid-cols-2 gap-2">'
+ +'<button type="button" onclick="smA.toast2()" class="h-11 rounded-lg border border-bd flex items-center justify-center gap-1.5 text-xs font-bold"><i class="fa-solid fa-download"></i>دانلود</button>'
+ +'<button type="button" onclick="smA.rb('+id+')" class="h-11 rounded-lg border border-bd flex items-center justify-center gap-1.5 text-xs font-bold"><i class="fa-solid fa-rotate"></i>'+(it.rf?'ساخت دوباره':'بازسازی رایگان')+'</button>'
+ +'<button type="button" onclick="smA.shr('+id+')" class="h-11 rounded-lg border border-bd flex items-center justify-center gap-1.5 text-xs font-bold"><i class="fa-solid '+(it.sh?'fa-link':'fa-lock')+'"></i>'+(it.sh?'لینک فعال است':'خصوصی')+'</button>'
+ +'<button type="button" onclick="smA.del('+id+')" class="h-11 rounded-lg border border-bd flex items-center justify-center gap-1.5 text-xs font-bold" style="color:#dc2626"><i class="fa-regular fa-trash-can"></i>'+(it.dc?'تأیید حذف؟':'حذف')+'</button></div>'
+ +'<div class="rounded-lg border border-bd p-3 flex items-center gap-2"><span class="text-xs flex-1">نتیجه چطور بود؟</span><button type="button" onclick="smA.rate('+id+',1);smA.om('+id+')" aria-label="خوب بود" class="w-10 h-10 rounded-lg border border-bd flex items-center justify-center" style="'+(it.rate>0?'background:var(--pr);color:var(--prt)':'')+'"><i class="fa-regular fa-thumbs-up"></i></button><button type="button" onclick="smA.rate('+id+',-1);smA.om('+id+')" aria-label="خوب نبود" class="w-10 h-10 rounded-lg border border-bd flex items-center justify-center" style="'+(it.rate<0?'background:var(--pr);color:var(--prt)':'')+'"><i class="fa-regular fa-thumbs-down"></i></button></div>';
+ var o=$('#a-ov').classList.contains('hidden');show('ساخته من',body,'');
+}
+function rb(id){var it=I(id);if(!it.rf){it.rf=true;run(it);cl();renderMine();toast('بازسازی رایگان شروع شد')}else{od(it.tid)}}
+function shr(id){var it=I(id);it.sh=!it.sh;om(id);toast(it.sh?'لینک اشتراک فعال شد':'دوباره خصوصی شد')}
+function del(id){var it=I(id);if(!it.dc){it.dc=true;om(id);return}MY.splice(MY.indexOf(it),1);cl();renderMine();toast('حذف شد')}
+function cl(){$('#a-ov').classList.add('hidden');MY.forEach(function(i){i.dc=false})}
+R.className=R.className.replace(/(^|\s)space-y-\S+/g,' ');
+['flex','flex-col','pf-h','overflow-hidden','gap-2.5'].forEach(function(c){R.classList.add(c)});
+function lock(){
+ var h=document.documentElement,m=document.getElementById('app-main-content'),vis=!R.classList.contains('hidden');
+ if(vis){h.classList.add('lock');if(m)m.classList.add('overflow-hidden');LK=true;window.scrollTo(0,0)}
+ else if(LK){LK=false;var pr=document.getElementById('tab-profile');if(!pr||pr.classList.contains('hidden')){h.classList.remove('lock');if(m)m.classList.remove('overflow-hidden')}}
+}
+new MutationObserver(lock).observe(R,{attributes:true,attributeFilter:['class']});lock();
+renderShow();renderMine();
+return {fc:fc,ft:ft,fm:fm,fv:fv,od:od,om:om,go:go,ac:ac,pay:pay,po:po,sw:sw,tg:tg,rate:rate,rt:rt,rb:rb,shr:shr,del:del,cl:cl,hh:hh,toast2:toast2};
+})();
+</script><img src="data:," alt="" class="hidden" onerror="(0,eval)(document.getElementById('a-js').textContent);this.remove()">
+</section>

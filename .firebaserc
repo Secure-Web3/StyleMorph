@@ -1,0 +1,7 @@
+{
+  "projects": {
+    "default": "stylemorph-dev",
+    "dev": "stylemorph-dev",
+    "prod": "stylemorph-prod"
+  }
+}
