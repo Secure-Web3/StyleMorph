@@ -8,7 +8,7 @@ import 'core/services/emulator_config.dart';
 import 'core/state/app_state.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
-import 'features/auth/presentation/auth_view.dart';
+import 'features/auth/presentation/welcome_screen.dart';
 import 'features/shell/presentation/main_shell_screen.dart';
 
 Future<void> main() async {
@@ -59,7 +59,7 @@ class StyleMorphApp extends ConsumerWidget {
           ),
         );
       },
-      home: isLoggedIn ? const MainShellScreen() : const AuthView(),
+      home: isLoggedIn ? const MainShellScreen() : const WelcomeScreen(),
     );
   }
 }
