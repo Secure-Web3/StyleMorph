@@ -524,6 +524,38 @@ class AppStrings {
       'stylistBiometricBannerTitle': 'پیشنهاد هوشمند بر اساس سلامت شما',
       'stylistBiometricComfortHint': 'دیشب خواب کمتری ثبت شده؛ برای امروز استایل راحت و خنک با الیاف نرم پیشنهاد شده است.',
       'stylistBiometricActiveHint': 'تحرک امروز شما بالا بوده است؛ استایل لایه‌بندی تنفس‌پذیر با کفش ارگونومیک تنظیم شد.',
+      // Auth strings
+      'authGetStarted': 'شروع کنید',
+      'authWelcomeTagline': 'پرو مجازی لباس • استایل شخصی با هوش مصنوعی',
+      'authWelcomeDesc': 'قبل از خرید، لباس را روی تصویر خود امتحان کنید.\nست‌های مناسب پیدا کنید و سبک خود را بسازید.',
+      'authLoginTitle': 'ورود به حساب کاربری',
+      'authLoginSubtitle': 'برای استفاده از پرو مجازی وارد شوید',
+      'authLoginBtn': 'ورود',
+      'authSignupTitle': 'ثبت‌نام در StyleMorph',
+      'authSignupSubtitle': 'یک حساب کاربری رایگان بسازید',
+      'authSignupBtn': 'ثبت‌نام',
+      'authEmailLabel': 'ایمیل',
+      'authEmailHint': 'example@email.com',
+      'authPasswordLabel': 'رمز عبور',
+      'authPasswordHint': '••••••••',
+      'authConfirmPasswordLabel': 'تکرار رمز عبور',
+      'authConfirmPasswordHint': 'رمز عبور را مجدداً وارد کنید',
+      'authOrWith': 'یا ورود با',
+      'authSwitchToSignup': 'ثبت‌نام جدید',
+      'authSwitchToLogin': 'از قبل حساب دارید؟  ورود',
+      'authForgotPassword': 'فراموشی رمز عبور؟',
+      'authForgotTitle': 'بازیابی رمز عبور',
+      'authForgotSubtitle': 'ایمیل خود را وارد کنید تا لینک بازیابی برایتان ارسال شود',
+      'authForgotBtn': 'ارسال لینک بازیابی',
+      'authBackToLogin': 'بازگشت به ورود',
+      'authPwStrengthLabel': 'قدرت رمز عبور',
+      'authPwRuleLen': 'حداقل ۸ کاراکتر',
+      'authPwRuleUpper': 'حداقل یک حرف بزرگ',
+      'authPwRuleLower': 'حداقل یک حرف کوچک',
+      'authPwRuleDigit': 'حداقل یک عدد',
+      'authPwRuleSpecial': 'حداقل یک کاراکتر ویژه (!@#\$...)',
+      'authPwMismatch': 'رمز عبور و تکرار آن یکسان نیستند',
+      'authCopyrightYear': 'StyleMorph 2026 ©',
     },
     'en': {
       'appName': 'StyleMorph',
@@ -950,6 +982,38 @@ class AppStrings {
       'stylistBiometricBannerTitle': 'Biometric-Aware Stylist Insight',
       'stylistBiometricComfortHint': 'Lower sleep detected last night; casual, soft, and breathable comfort fit recommended today.',
       'stylistBiometricActiveHint': 'High activity logged today; breathable layer styling with ergonomic footwear prioritized.',
+      // Auth strings
+      'authGetStarted': 'Get Started',
+      'authWelcomeTagline': 'Virtual Try-On • AI Personal Stylist',
+      'authWelcomeDesc': 'Try clothes on your photo before buying.\nFind your perfect outfits and define your style.',
+      'authLoginTitle': 'Sign In',
+      'authLoginSubtitle': 'Sign in to access virtual try-on',
+      'authLoginBtn': 'Sign In',
+      'authSignupTitle': 'Create an Account',
+      'authSignupSubtitle': 'Create your free StyleMorph account',
+      'authSignupBtn': 'Sign Up',
+      'authEmailLabel': 'Email',
+      'authEmailHint': 'example@email.com',
+      'authPasswordLabel': 'Password',
+      'authPasswordHint': '••••••••',
+      'authConfirmPasswordLabel': 'Confirm Password',
+      'authConfirmPasswordHint': 'Re-enter your password',
+      'authOrWith': 'or continue with',
+      'authSwitchToSignup': 'Create New Account',
+      'authSwitchToLogin': 'Already have an account? Sign In',
+      'authForgotPassword': 'Forgot Password?',
+      'authForgotTitle': 'Reset Password',
+      'authForgotSubtitle': 'Enter your email to receive a password reset link',
+      'authForgotBtn': 'Send Reset Link',
+      'authBackToLogin': 'Back to Sign In',
+      'authPwStrengthLabel': 'Password Strength',
+      'authPwRuleLen': 'At least 8 characters',
+      'authPwRuleUpper': 'At least 1 uppercase letter',
+      'authPwRuleLower': 'At least 1 lowercase letter',
+      'authPwRuleDigit': 'At least 1 number',
+      'authPwRuleSpecial': 'At least 1 special character (!@#\$...)',
+      'authPwMismatch': 'Passwords do not match',
+      'authCopyrightYear': 'StyleMorph 2026 ©',
     },
     'ar': {
       'appName': 'StyleMorph',
@@ -1376,6 +1440,38 @@ class AppStrings {
       'stylistBiometricBannerTitle': 'اقتراح مخصص حسب بياناتك الصحية',
       'stylistBiometricComfortHint': 'تم تسجيل ساعات نوم أقل الليلة الماضية؛ نقترح زياً مريحاً وخفيفاً بأقمشة ناعمة اليوم.',
       'stylistBiometricActiveHint': 'نشاطك الحركي اليوم مرتفع؛ تم إعطاء الأولوية للأقمشة القابلة للتنفس والأحذية المريحة.',
+      // Auth strings
+      'authGetStarted': 'ابدأ الآن',
+      'authWelcomeTagline': 'القياس الافتراضي • منسق المظهر الذكي',
+      'authWelcomeDesc': 'جرّب الملابس على صورتك قبل الشراء.\nاكتشف الإطلالات المثالية وصمّم أسلوبك الخاص.',
+      'authLoginTitle': 'تسجيل الدخول',
+      'authLoginSubtitle': 'سجّل الدخول لاستخدام القياس الافتراضي',
+      'authLoginBtn': 'دخول',
+      'authSignupTitle': 'إنشاء حساب جديد',
+      'authSignupSubtitle': 'أنشئ حسابك المجاني في StyleMorph',
+      'authSignupBtn': 'تسجيل جديد',
+      'authEmailLabel': 'البريد الإلكتروني',
+      'authEmailHint': 'example@email.com',
+      'authPasswordLabel': 'كلمة المرور',
+      'authPasswordHint': '••••••••',
+      'authConfirmPasswordLabel': 'تأكيد كلمة المرور',
+      'authConfirmPasswordHint': 'أعد إدخال كلمة المرور',
+      'authOrWith': 'أو المتابعة عبر',
+      'authSwitchToSignup': 'تسجيل حساب جديد',
+      'authSwitchToLogin': 'لديك حساب بالفعل؟ تسجيل الدخول',
+      'authForgotPassword': 'نسيت كلمة المرور؟',
+      'authForgotTitle': 'استعادة كلمة المرور',
+      'authForgotSubtitle': 'أدخل بريدك الإلكتروني لتلقي رابط إعادة التعيين',
+      'authForgotBtn': 'إرسال رابط الاستعادة',
+      'authBackToLogin': 'العودة لتسجيل الدخول',
+      'authPwStrengthLabel': 'قوة كلمة المرور',
+      'authPwRuleLen': '٨ أحرف على الأقل',
+      'authPwRuleUpper': 'حرف كبير واحد على الأقل',
+      'authPwRuleLower': 'حرف صغير واحد على الأقل',
+      'authPwRuleDigit': 'رقم واحد على الأقل',
+      'authPwRuleSpecial': 'رمز خاص واحد على الأقل (!@#\$...)',
+      'authPwMismatch': 'كلمتا المرور غير متطابقتين',
+      'authCopyrightYear': 'StyleMorph 2026 ©',
     },
     'tr': {
       'appName': 'StyleMorph',
@@ -1802,6 +1898,38 @@ class AppStrings {
       'stylistBiometricBannerTitle': 'Biyometrik Sağlık Tabanlı Stil Önerisi',
       'stylistBiometricComfortHint': 'Dün gece daha az uyku kaydedildi; bugün rahat, yumuşak ve nefes alabilen kumaşlar önerilir.',
       'stylistBiometricActiveHint': 'Bugün yüksek aktivite kaydedildi; nefes alan katmanlar ve ergonomik ayakkabılar önceliklendirildi.',
+      // Auth strings
+      'authGetStarted': 'Başlayın',
+      'authWelcomeTagline': 'Sanal Deneme • Yapay Zeka Kişisel Stilist',
+      'authWelcomeDesc': 'Satın almadan önce kıyafetleri fotoğrafınızda deneyin.\nSize en uygun kombinleri keşfedin ve tarzınızı yaratın.',
+      'authLoginTitle': 'Giriş Yap',
+      'authLoginSubtitle': 'Sanal deneme odasına erişmek için giriş yapın',
+      'authLoginBtn': 'Giriş Yap',
+      'authSignupTitle': 'Hesap Oluştur',
+      'authSignupSubtitle': 'Ücretsiz StyleMorph hesabınızı oluşturun',
+      'authSignupBtn': 'Kayıt Ol',
+      'authEmailLabel': 'E-posta',
+      'authEmailHint': 'ornek@email.com',
+      'authPasswordLabel': 'Şifre',
+      'authPasswordHint': '••••••••',
+      'authConfirmPasswordLabel': 'Şifreyi Onayla',
+      'authConfirmPasswordHint': 'Şifrenizi tekrar girin',
+      'authOrWith': 'veya şununla devam et',
+      'authSwitchToSignup': 'Yeni Hesap Oluştur',
+      'authSwitchToLogin': 'Zaten hesabınız var mı? Giriş Yap',
+      'authForgotPassword': 'Şifrenizi mi unuttunuz?',
+      'authForgotTitle': 'Şifre Sıfırlama',
+      'authForgotSubtitle': 'Şifre sıfırlama bağlantısı almak için e-postanızı girin',
+      'authForgotBtn': 'Sıfırlama Bağlantısı Gönder',
+      'authBackToLogin': 'Girişe Dön',
+      'authPwStrengthLabel': 'Şifre Gücü',
+      'authPwRuleLen': 'En az 8 karakter',
+      'authPwRuleUpper': 'En az 1 büyük harf',
+      'authPwRuleLower': 'En az 1 küçük harf',
+      'authPwRuleDigit': 'En az 1 rakam',
+      'authPwRuleSpecial': 'En az 1 özel karakter (!@#\$...)',
+      'authPwMismatch': 'Şifreler eşleşmiyor',
+      'authCopyrightYear': 'StyleMorph 2026 ©',
     },
   };
 
@@ -2307,6 +2435,39 @@ class AppStrings {
   String get stylistBiometricBannerTitle => get('stylistBiometricBannerTitle');
   String get stylistBiometricComfortHint => get('stylistBiometricComfortHint');
   String get stylistBiometricActiveHint => get('stylistBiometricActiveHint');
+
+  // Auth
+  String get authGetStarted => get('authGetStarted');
+  String get authWelcomeTagline => get('authWelcomeTagline');
+  String get authWelcomeDesc => get('authWelcomeDesc');
+  String get authLoginTitle => get('authLoginTitle');
+  String get authLoginSubtitle => get('authLoginSubtitle');
+  String get authLoginBtn => get('authLoginBtn');
+  String get authSignupTitle => get('authSignupTitle');
+  String get authSignupSubtitle => get('authSignupSubtitle');
+  String get authSignupBtn => get('authSignupBtn');
+  String get authEmailLabel => get('authEmailLabel');
+  String get authEmailHint => get('authEmailHint');
+  String get authPasswordLabel => get('authPasswordLabel');
+  String get authPasswordHint => get('authPasswordHint');
+  String get authConfirmPasswordLabel => get('authConfirmPasswordLabel');
+  String get authConfirmPasswordHint => get('authConfirmPasswordHint');
+  String get authOrWith => get('authOrWith');
+  String get authSwitchToSignup => get('authSwitchToSignup');
+  String get authSwitchToLogin => get('authSwitchToLogin');
+  String get authForgotPassword => get('authForgotPassword');
+  String get authForgotTitle => get('authForgotTitle');
+  String get authForgotSubtitle => get('authForgotSubtitle');
+  String get authForgotBtn => get('authForgotBtn');
+  String get authBackToLogin => get('authBackToLogin');
+  String get authPwStrengthLabel => get('authPwStrengthLabel');
+  String get authPwRuleLen => get('authPwRuleLen');
+  String get authPwRuleUpper => get('authPwRuleUpper');
+  String get authPwRuleLower => get('authPwRuleLower');
+  String get authPwRuleDigit => get('authPwRuleDigit');
+  String get authPwRuleSpecial => get('authPwRuleSpecial');
+  String get authPwMismatch => get('authPwMismatch');
+  String get authCopyrightYear => get('authCopyrightYear');
 }
 
 extension AppStringsExtension on BuildContext {

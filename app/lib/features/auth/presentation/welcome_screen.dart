@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -7,6 +8,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_logo.dart';
 import 'auth_provider.dart';
 import 'auth_screen.dart';
+import 'widgets/auth_top_bar.dart';
 
 class WelcomeScreen extends ConsumerWidget {
   const WelcomeScreen({super.key});
@@ -14,7 +16,9 @@ class WelcomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
+    final strings = context.strings;
     final backgroundUrl = ref.watch(welcomeBackgroundUrlProvider);
+    final hasBackground = backgroundUrl != null;
 
     return Scaffold(
       backgroundColor: colors.bg,
@@ -24,31 +28,26 @@ class WelcomeScreen extends ConsumerWidget {
           // ── Layer 1: Dynamic background ───────────────────────────────
           _BackgroundLayer(imageUrl: backgroundUrl, colors: colors),
 
-          // ── Layer 2: Content ──────────────────────────────────────────
+          // ── Layer 2: Main Layout ──────────────────────────────────────
           SafeArea(
             child: Column(
               children: [
-                // Top logo area
+                // ── Universal Top Header (Theme, Palette, Language) ──────
+                AuthTopBar(isTransparent: hasBackground),
+
+                // ── Central branding & Logo ─────────────────────────────
                 Expanded(
-                  child: Align(
-                    alignment: AlignmentDirectional.topCenter,
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.only(
-                        top: AppSpacing.xxxl,
-                      ),
+                  child: Center(
+                    child: SingleChildScrollView(
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          AppLogo(
-                            size: 72,
-                          ),
+                          const AppLogo(size: 80),
                           const SizedBox(height: AppSpacing.lg),
                           Text(
-                            'StyleMorph',
+                            strings.appName,
                             style: AppTypography.displayLarge(
-                              color: backgroundUrl != null
-                                  ? Colors.white
-                                  : colors.tx,
+                              color: hasBackground ? Colors.white : colors.tx,
                             ),
                           ),
                         ],
@@ -57,10 +56,11 @@ class WelcomeScreen extends ConsumerWidget {
                   ),
                 ),
 
-                // Bottom content card with gradient overlay
+                // ── Bottom Content Card ─────────────────────────────────
                 _BottomContentSection(
                   colors: colors,
-                  hasBackground: backgroundUrl != null,
+                  strings: strings,
+                  hasBackground: hasBackground,
                 ),
               ],
             ),
@@ -99,11 +99,11 @@ class _BackgroundLayer extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                stops: [0.3, 0.7, 1.0],
+                stops: [0.15, 0.65, 1.0],
                 colors: [
-                  Colors.transparent,
+                  Color(0x33000000),
                   Color(0x88000000),
-                  Color(0xDD000000),
+                  Color(0xEE000000),
                 ],
               ),
             ),
@@ -145,10 +145,12 @@ class _PlaceholderBackground extends StatelessWidget {
 
 class _BottomContentSection extends StatelessWidget {
   final AppColors colors;
+  final AppStrings strings;
   final bool hasBackground;
 
   const _BottomContentSection({
     required this.colors,
+    required this.strings,
     required this.hasBackground,
   });
 
@@ -156,15 +158,15 @@ class _BottomContentSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final textColor = hasBackground ? Colors.white : colors.tx;
     final subtitleColor =
-        hasBackground ? Colors.white.withValues(alpha: 0.75) : colors.mu;
+        hasBackground ? Colors.white.withValues(alpha: 0.8) : colors.mu;
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsetsDirectional.fromSTEB(
         AppSpacing.xl,
-        AppSpacing.xxxl,
         AppSpacing.xl,
-        AppSpacing.xxxl,
+        AppSpacing.xl,
+        AppSpacing.xxl,
       ),
       decoration: hasBackground
           ? null
@@ -175,27 +177,26 @@ class _BottomContentSection extends StatelessWidget {
             ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Persian tagline
+          // Localized tagline
           Text(
-            'پرو مجازی لباس • استایل شخصی با هوش مصنوعی',
+            strings.authWelcomeTagline,
             style: AppTypography.titleMedium(color: textColor),
             textAlign: TextAlign.start,
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'قبل از خرید، لباس را روی تصویر خود امتحان کنید.\n'
-            'ست‌های مناسب پیدا کنید و سبک خود را بسازید.',
+            strings.authWelcomeDesc,
             style: AppTypography.bodySmall(color: subtitleColor),
             textAlign: TextAlign.start,
           ),
           const SizedBox(height: AppSpacing.xxl),
 
-          // Single CTA button
+          // Single dynamic localized CTA button
           AppButton(
             isFullWidth: true,
-            text: 'شروع  ·  Get Started',
+            text: strings.authGetStarted,
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(builder: (_) => const AuthScreen()),
@@ -203,12 +204,12 @@ class _BottomContentSection extends StatelessWidget {
             },
           ),
 
-          const SizedBox(height: AppSpacing.lg),
+          const SizedBox(height: AppSpacing.xl),
 
-          // Footer note
+          // Pinned Footer
           Center(
             child: Text(
-              '© 2026 StyleMorph',
+              strings.authCopyrightYear,
               style: AppTypography.caption(color: subtitleColor),
             ),
           ),

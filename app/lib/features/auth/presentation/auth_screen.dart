@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import '../../../../core/localization/locale_provider.dart';
-import '../../../../core/localization/app_language.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import 'auth_provider.dart';
+import 'widgets/auth_top_bar.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -24,33 +23,65 @@ class AuthScreen extends ConsumerStatefulWidget {
 
 class _AuthScreenState extends ConsumerState<AuthScreen>
     with SingleTickerProviderStateMixin {
-  // Controllers — not wired to Firebase yet (UI phase only)
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _fullNameController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _forgotEmailController = TextEditingController();
 
   late final AnimationController _animController;
   late final Animation<double> _fadeAnim;
+
+  PasswordValidationState _passwordValidation = const PasswordValidationState();
+  bool _passwordsMatch = true;
 
   @override
   void initState() {
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 280),
+      duration: const Duration(milliseconds: 260),
     );
     _fadeAnim = CurvedAnimation(
       parent: _animController,
       curve: Curves.easeInOut,
     );
     _animController.forward();
+
+    _passwordController.addListener(_onPasswordChanged);
+    _confirmPasswordController.addListener(_onConfirmPasswordChanged);
+  }
+
+  void _onPasswordChanged() {
+    final text = _passwordController.text;
+    setState(() {
+      _passwordValidation = PasswordValidationState.validate(text);
+      if (_confirmPasswordController.text.isNotEmpty) {
+        _passwordsMatch = text == _confirmPasswordController.text;
+      } else {
+        _passwordsMatch = true;
+      }
+    });
+  }
+
+  void _onConfirmPasswordChanged() {
+    final confirm = _confirmPasswordController.text;
+    setState(() {
+      if (confirm.isEmpty) {
+        _passwordsMatch = true;
+      } else {
+        _passwordsMatch = confirm == _passwordController.text;
+      }
+    });
   }
 
   @override
   void dispose() {
+    _passwordController.removeListener(_onPasswordChanged);
+    _confirmPasswordController.removeListener(_onConfirmPasswordChanged);
     _emailController.dispose();
     _passwordController.dispose();
-    _fullNameController.dispose();
+    _confirmPasswordController.dispose();
+    _forgotEmailController.dispose();
     _animController.dispose();
     super.dispose();
   }
@@ -58,255 +89,137 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   void _switchMode(AuthMode mode) {
     ref.read(authModeProvider.notifier).state = mode;
     ref.read(authPasswordVisibleProvider.notifier).state = false;
+    ref.read(authConfirmPasswordVisibleProvider.notifier).state = false;
     _animController
       ..reset()
       ..forward();
   }
 
   void _handleLogin() {
-    // UI-only: delegates to AppState mock login
+    // UI-only phase: triggers mock login state
     ref.read(appStateProvider.notifier).login();
   }
 
   void _handleSignup() {
-    // UI-only: same mock login for now
+    // UI-only phase: triggers mock login state
     ref.read(appStateProvider.notifier).login();
+  }
+
+  void _handleResetPassword() {
+    // UI-only phase: feedback toast or return to login
+    _switchMode(AuthMode.login);
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final strings = context.strings;
     final mode = ref.watch(authModeProvider);
-    final currentLang = ref.watch(localeProvider);
 
     return Scaffold(
       backgroundColor: colors.bg,
       body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 480),
-            child: SingleChildScrollView(
-              padding: const EdgeInsetsDirectional.symmetric(
-                horizontal: AppSpacing.xl,
-                vertical: AppSpacing.lg,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // ── Top bar ───────────────────────────────────────────
-                  _TopBar(
-                    onBack: () => Navigator.of(context).maybePop(),
-                    currentLang: currentLang,
-                  ),
+        child: Column(
+          children: [
+            // ── 1. Universal Top Header (Theme, Palette, Language) ───────
+            const AuthTopBar(isTransparent: false),
 
-                  const SizedBox(height: AppSpacing.xxl),
+            // ── 2. Scrollable Body (Form card) ───────────────────────────
+            Expanded(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 480),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: AppSpacing.xl,
+                      vertical: AppSpacing.md,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        // App Logo & title
+                        _BrandingHeader(colors: colors, strings: strings),
 
-                  // ── Logo + branding ───────────────────────────────────
-                  _BrandingHeader(colors: colors),
+                        const SizedBox(height: AppSpacing.xl),
 
-                  const SizedBox(height: AppSpacing.xxl),
-
-                  // ── Form card (animated fade on mode switch) ──────────
-                  FadeTransition(
-                    opacity: _fadeAnim,
-                    child: mode == AuthMode.login
-                        ? _LoginForm(
-                            emailController: _emailController,
-                            passwordController: _passwordController,
-                            onLogin: _handleLogin,
-                            onSwitchToSignup: () =>
-                                _switchMode(AuthMode.signup),
-                          )
-                        : _SignupForm(
-                            fullNameController: _fullNameController,
-                            emailController: _emailController,
-                            passwordController: _passwordController,
-                            onSignup: _handleSignup,
-                            onSwitchToLogin: () =>
-                                _switchMode(AuthMode.login),
-                          ),
-                  ),
-
-                  const SizedBox(height: AppSpacing.xl),
-
-                  // ── Footer ────────────────────────────────────────────
-                  Center(
-                    child: Text(
-                      '© 2026 StyleMorph',
-                      style: AppTypography.caption(color: colors.mu),
+                        // Animated form switch
+                        FadeTransition(
+                          opacity: _fadeAnim,
+                          child: _buildForm(mode, colors, strings),
+                        ),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Top Bar
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _TopBar extends ConsumerWidget {
-  final VoidCallback onBack;
-  final AppLanguage currentLang;
-
-  const _TopBar({required this.onBack, required this.currentLang});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
-
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        // Back button
-        _PillButton(
-          onTap: onBack,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.arrow_back_ios_new_rounded,
-                  size: 13, color: colors.tx),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                'بازگشت',
-                style: AppTypography.inputLabel(color: colors.tx),
-              ),
-            ],
-          ),
-        ),
-
-        // Right-side controls
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Language selector
-            _LanguageDropdown(currentLang: currentLang),
-            const SizedBox(width: AppSpacing.xs),
-
-            // Theme palette cycle
-            _CircleIconButton(
-              onTap: () =>
-                  ref.read(themeProvider.notifier).cyclePalette(),
-              child: FaIcon(FontAwesomeIcons.palette,
-                  size: 13, color: colors.tx),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-
-            // Dark/light toggle
-            _CircleIconButton(
-              onTap: () =>
-                  ref.read(themeProvider.notifier).toggleDark(),
-              child: FaIcon(FontAwesomeIcons.circleHalfStroke,
-                  size: 13, color: colors.tx),
-            ),
+            // ── 3. Pinned Footer (Always pinned at the bottom) ────────────
+            _PinnedFooter(colors: colors, strings: strings),
           ],
         ),
-      ],
+      ),
     );
+  }
+
+  Widget _buildForm(AuthMode mode, AppColors colors, AppStrings strings) {
+    switch (mode) {
+      case AuthMode.login:
+        return _LoginForm(
+          emailController: _emailController,
+          passwordController: _passwordController,
+          onLogin: _handleLogin,
+          onSwitchToSignup: () => _switchMode(AuthMode.signup),
+          onForgotPassword: () => _switchMode(AuthMode.forgotPassword),
+        );
+      case AuthMode.signup:
+        return _SignupForm(
+          emailController: _emailController,
+          passwordController: _passwordController,
+          confirmPasswordController: _confirmPasswordController,
+          validationState: _passwordValidation,
+          passwordsMatch: _passwordsMatch,
+          onSignup: _handleSignup,
+          onSwitchToLogin: () => _switchMode(AuthMode.login),
+        );
+      case AuthMode.forgotPassword:
+        return _ForgotPasswordForm(
+          emailController: _forgotEmailController,
+          onResetPassword: _handleResetPassword,
+          onBackToLogin: () => _switchMode(AuthMode.login),
+        );
+    }
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Shared small widgets
+// Pinned Bottom Footer
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _PillButton extends StatelessWidget {
-  final VoidCallback onTap;
-  final Widget child;
+class _PinnedFooter extends StatelessWidget {
+  final AppColors colors;
+  final AppStrings strings;
 
-  const _PillButton({required this.onTap, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: AppRadius.rFull,
-      child: Container(
-        padding: const EdgeInsetsDirectional.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.xs,
-        ),
-        decoration: BoxDecoration(
-          color: colors.sf,
-          borderRadius: AppRadius.rFull,
-          border: Border.all(color: colors.bd),
-        ),
-        child: child,
-      ),
-    );
-  }
-}
-
-class _CircleIconButton extends StatelessWidget {
-  final VoidCallback onTap;
-  final Widget child;
-
-  const _CircleIconButton({required this.onTap, required this.child});
+  const _PinnedFooter({required this.colors, required this.strings});
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: AppRadius.rFull,
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.sm),
-        decoration: BoxDecoration(
-          color: colors.sf,
-          shape: BoxShape.circle,
-          border: Border.all(color: colors.bd),
-        ),
-        child: child,
-      ),
-    );
-  }
-}
-
-class _LanguageDropdown extends ConsumerWidget {
-  final AppLanguage currentLang;
-
-  const _LanguageDropdown({required this.currentLang});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final colors = context.colors;
     return Container(
+      width: double.infinity,
       padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: 2,
+        horizontal: AppSpacing.xl,
+        vertical: AppSpacing.md,
       ),
       decoration: BoxDecoration(
-        color: colors.sf,
-        borderRadius: AppRadius.rFull,
-        border: Border.all(color: colors.bd),
+        color: colors.bg,
+        border: Border(
+          top: BorderSide(color: colors.bd.withValues(alpha: 0.5), width: 1.0),
+        ),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: currentLang.code,
-          isDense: true,
-          icon: Icon(Icons.arrow_drop_down_rounded,
-              size: 16, color: colors.mu),
-          dropdownColor: colors.sf,
-          items: AppLanguage.supportedLanguages.map((l) {
-            return DropdownMenuItem<String>(
-              value: l.code,
-              child: Text(
-                l.nativeName,
-                style: AppTypography.inputLabel(color: colors.tx),
-              ),
-            );
-          }).toList(),
-          onChanged: (code) {
-            if (code != null) {
-              ref.read(localeProvider.notifier).setLanguage(code);
-            }
-          },
+      child: Center(
+        child: Text(
+          strings.authCopyrightYear,
+          style: AppTypography.caption(color: colors.mu),
         ),
       ),
     );
@@ -314,28 +227,29 @@ class _LanguageDropdown extends ConsumerWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Branding Header (Logo + App name)
+// Branding Header (Logo + Title)
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _BrandingHeader extends StatelessWidget {
   final AppColors colors;
+  final AppStrings strings;
 
-  const _BrandingHeader({required this.colors});
+  const _BrandingHeader({required this.colors, required this.strings});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const AppLogo(size: 56),
-        const SizedBox(height: AppSpacing.md),
+        const AppLogo(size: 52),
+        const SizedBox(height: AppSpacing.sm),
         Text(
-          'StyleMorph',
+          strings.appName,
           style: AppTypography.headlineMedium(color: colors.tx),
         ),
-        const SizedBox(height: AppSpacing.xs),
+        const SizedBox(height: AppSpacing.xxs),
         Text(
-          'پرو مجازی و پیشنهاد استایل هوشمند',
+          strings.sub,
           style: AppTypography.bodySmall(color: colors.mu),
           textAlign: TextAlign.center,
         ),
@@ -375,7 +289,7 @@ class _LabelDivider extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// AppTextButton (inline text-style tap target)
+// Inline Text Button
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _AppTextButton extends StatelessWidget {
@@ -392,21 +306,28 @@ class _AppTextButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
-      child: Text(
-        text,
-        style: AppTypography.inputLabel(
-          color: isPrimary ? colors.pr : colors.mu,
+      borderRadius: AppRadius.rSm,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.xs,
+          vertical: AppSpacing.xxs,
         ),
-        textAlign: TextAlign.center,
+        child: Text(
+          text,
+          style: AppTypography.inputLabel(
+            color: isPrimary ? colors.pr : colors.mu,
+          ),
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Login Form
+// 1. LOGIN FORM
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _LoginForm extends ConsumerWidget {
@@ -414,17 +335,20 @@ class _LoginForm extends ConsumerWidget {
   final TextEditingController passwordController;
   final VoidCallback onLogin;
   final VoidCallback onSwitchToSignup;
+  final VoidCallback onForgotPassword;
 
   const _LoginForm({
     required this.emailController,
     required this.passwordController,
     required this.onLogin,
     required this.onSwitchToSignup,
+    required this.onForgotPassword,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
+    final strings = context.strings;
     final isPasswordVisible = ref.watch(authPasswordVisibleProvider);
 
     return AppCard(
@@ -433,37 +357,37 @@ class _LoginForm extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Form title ────────────────────────────────────────────────
+          // Header
           Text(
-            'ورود به حساب کاربری',
+            strings.authLoginTitle,
             style: AppTypography.titleMedium(color: colors.tx),
           ),
           const SizedBox(height: AppSpacing.xxs),
           Text(
-            'برای استفاده از پرو مجازی وارد شوید',
+            strings.authLoginSubtitle,
             style: AppTypography.bodySmall(color: colors.mu),
           ),
 
           const SizedBox(height: AppSpacing.xl),
 
-          // ── Email field ───────────────────────────────────────────────
+          // Email Field
           AppTextField(
-            label: 'ایمیل',
-            placeholder: 'example@email.com',
+            label: strings.authEmailLabel,
+            placeholder: strings.authEmailHint,
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
-            prefix: Icon(Icons.email_outlined,
-                size: 16, color: colors.mu),
+            prefix: Icon(Icons.email_outlined, size: 16, color: colors.mu),
           ),
 
           const SizedBox(height: AppSpacing.md),
 
-          // ── Password field ────────────────────────────────────────────
+          // Password Field
           AppTextField(
-            label: 'رمز عبور',
-            placeholder: '••••••••',
+            label: strings.authPasswordLabel,
+            placeholder: strings.authPasswordHint,
             controller: passwordController,
             obscureText: !isPasswordVisible,
+            prefix: Icon(Icons.lock_outline_rounded, size: 16, color: colors.mu),
             suffix: GestureDetector(
               onTap: () {
                 ref.read(authPasswordVisibleProvider.notifier).state =
@@ -481,28 +405,31 @@ class _LoginForm extends ConsumerWidget {
 
           const SizedBox(height: AppSpacing.xl),
 
-          // ── Primary login button ──────────────────────────────────────
+          // Primary Login Button (Localized text)
           AppButton(
             isFullWidth: true,
-            text: 'ورود  ·  Login',
+            text: strings.authLoginBtn,
             onPressed: onLogin,
           ),
 
           const SizedBox(height: AppSpacing.xl),
 
-          // ── Social divider ────────────────────────────────────────────
-          const _LabelDivider(label: 'یا ورود با'),
+          // Social divider
+          _LabelDivider(label: strings.authOrWith),
 
           const SizedBox(height: AppSpacing.md),
 
-          // ── Social login buttons ──────────────────────────────────────
+          // Social login buttons
           Row(
             children: [
               Expanded(
                 child: AppButton(
                   variant: AppButtonVariant.secondary,
-                  icon: FaIcon(FontAwesomeIcons.google,
-                      size: 14, color: colors.tx),
+                  icon: FaIcon(
+                    FontAwesomeIcons.google,
+                    size: 14,
+                    color: colors.tx,
+                  ),
                   text: 'Google',
                   onPressed: onLogin,
                 ),
@@ -511,8 +438,11 @@ class _LoginForm extends ConsumerWidget {
               Expanded(
                 child: AppButton(
                   variant: AppButtonVariant.secondary,
-                  icon: FaIcon(FontAwesomeIcons.apple,
-                      size: 16, color: colors.tx),
+                  icon: FaIcon(
+                    FontAwesomeIcons.apple,
+                    size: 16,
+                    color: colors.tx,
+                  ),
                   text: 'Apple',
                   onPressed: onLogin,
                 ),
@@ -522,20 +452,19 @@ class _LoginForm extends ConsumerWidget {
 
           const SizedBox(height: AppSpacing.xl),
 
-          // ── Secondary text buttons ────────────────────────────────────
+          // Secondary actions: Sign Up & Forgot Password
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _AppTextButton(
-                text: 'ثبت‌نام جدید',
+                text: strings.authSwitchToSignup,
                 onTap: onSwitchToSignup,
                 isPrimary: true,
               ),
               _AppTextButton(
-                text: 'فراموشی رمز عبور؟',
-                onTap: () {
-                  // Feature Flag: forgot password — not yet wired
-                },
+                text: strings.authForgotPassword,
+                onTap: onForgotPassword,
+                isPrimary: false,
               ),
             ],
           ),
@@ -546,20 +475,24 @@ class _LoginForm extends ConsumerWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Signup Form
+// 2. SIGNUP FORM
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _SignupForm extends ConsumerWidget {
-  final TextEditingController fullNameController;
   final TextEditingController emailController;
   final TextEditingController passwordController;
+  final TextEditingController confirmPasswordController;
+  final PasswordValidationState validationState;
+  final bool passwordsMatch;
   final VoidCallback onSignup;
   final VoidCallback onSwitchToLogin;
 
   const _SignupForm({
-    required this.fullNameController,
     required this.emailController,
     required this.passwordController,
+    required this.confirmPasswordController,
+    required this.validationState,
+    required this.passwordsMatch,
     required this.onSignup,
     required this.onSwitchToLogin,
   });
@@ -567,7 +500,12 @@ class _SignupForm extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
+    final strings = context.strings;
     final isPasswordVisible = ref.watch(authPasswordVisibleProvider);
+    final isConfirmPasswordVisible =
+        ref.watch(authConfirmPasswordVisibleProvider);
+
+    final isPasswordEmpty = passwordController.text.isEmpty;
 
     return AppCard(
       padding: const EdgeInsetsDirectional.all(AppSpacing.xl),
@@ -575,49 +513,37 @@ class _SignupForm extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // ── Form title ────────────────────────────────────────────────
+          // Header
           Text(
-            'ثبت‌نام در StyleMorph',
+            strings.authSignupTitle,
             style: AppTypography.titleMedium(color: colors.tx),
           ),
           const SizedBox(height: AppSpacing.xxs),
           Text(
-            'یک حساب کاربری رایگان بسازید',
+            strings.authSignupSubtitle,
             style: AppTypography.bodySmall(color: colors.mu),
           ),
 
           const SizedBox(height: AppSpacing.xl),
 
-          // ── Full name field ───────────────────────────────────────────
+          // 1. Email Field
           AppTextField(
-            label: 'نام و نام خانوادگی',
-            placeholder: 'مثلاً: سارا احمدی',
-            controller: fullNameController,
-            keyboardType: TextInputType.name,
-            prefix: Icon(Icons.person_outline_rounded,
-                size: 16, color: colors.mu),
-          ),
-
-          const SizedBox(height: AppSpacing.md),
-
-          // ── Email field ───────────────────────────────────────────────
-          AppTextField(
-            label: 'ایمیل',
-            placeholder: 'example@email.com',
+            label: strings.authEmailLabel,
+            placeholder: strings.authEmailHint,
             controller: emailController,
             keyboardType: TextInputType.emailAddress,
-            prefix: Icon(Icons.email_outlined,
-                size: 16, color: colors.mu),
+            prefix: Icon(Icons.email_outlined, size: 16, color: colors.mu),
           ),
 
           const SizedBox(height: AppSpacing.md),
 
-          // ── Password field ────────────────────────────────────────────
+          // 2. Password Field
           AppTextField(
-            label: 'رمز عبور',
-            placeholder: 'حداقل ۸ کاراکتر',
+            label: strings.authPasswordLabel,
+            placeholder: strings.authPasswordHint,
             controller: passwordController,
             obscureText: !isPasswordVisible,
+            prefix: Icon(Icons.lock_outline_rounded, size: 16, color: colors.mu),
             suffix: GestureDetector(
               onTap: () {
                 ref.read(authPasswordVisibleProvider.notifier).state =
@@ -633,22 +559,319 @@ class _SignupForm extends ConsumerWidget {
             ),
           ),
 
+          // Visual Password Strength Indicator
+          if (!isPasswordEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            _PasswordStrengthIndicator(
+              state: validationState,
+              strings: strings,
+              colors: colors,
+            ),
+          ],
+
+          const SizedBox(height: AppSpacing.md),
+
+          // 3. Confirm Password Field
+          AppTextField(
+            label: strings.authConfirmPasswordLabel,
+            placeholder: strings.authConfirmPasswordHint,
+            controller: confirmPasswordController,
+            obscureText: !isConfirmPasswordVisible,
+            prefix: Icon(Icons.lock_reset_rounded, size: 16, color: colors.mu),
+            suffix: GestureDetector(
+              onTap: () {
+                ref.read(authConfirmPasswordVisibleProvider.notifier).state =
+                    !isConfirmPasswordVisible;
+              },
+              child: Icon(
+                isConfirmPasswordVisible
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                size: 18,
+                color: colors.mu,
+              ),
+            ),
+          ),
+
+          // Password mismatch warning
+          if (!passwordsMatch && confirmPasswordController.text.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Row(
+              children: [
+                Icon(Icons.error_outline_rounded,
+                    size: 14, color: colors.orColor),
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(
+                  child: Text(
+                    strings.authPwMismatch,
+                    style: AppTypography.caption(color: colors.orColor),
+                  ),
+                ),
+              ],
+            ),
+          ],
+
           const SizedBox(height: AppSpacing.xl),
 
-          // ── Primary signup button ─────────────────────────────────────
+          // Primary Signup Button
           AppButton(
             isFullWidth: true,
-            text: 'ثبت‌نام  ·  Sign Up',
-            onPressed: onSignup,
+            text: strings.authSignupBtn,
+            onPressed: (validationState.isValid && passwordsMatch)
+                ? onSignup
+                : onSignup, // Enabled for testing UX
           ),
 
           const SizedBox(height: AppSpacing.xl),
 
-          // ── Back to login ─────────────────────────────────────────────
+          // Social divider
+          _LabelDivider(label: strings.authOrWith),
+
+          const SizedBox(height: AppSpacing.md),
+
+          // Social signup buttons
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  variant: AppButtonVariant.secondary,
+                  icon: FaIcon(
+                    FontAwesomeIcons.google,
+                    size: 14,
+                    color: colors.tx,
+                  ),
+                  text: 'Google',
+                  onPressed: onSignup,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: AppButton(
+                  variant: AppButtonVariant.secondary,
+                  icon: FaIcon(
+                    FontAwesomeIcons.apple,
+                    size: 16,
+                    color: colors.tx,
+                  ),
+                  text: 'Apple',
+                  onPressed: onSignup,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: AppSpacing.xl),
+
+          // Back to login toggle
           Center(
             child: _AppTextButton(
-              text: 'از قبل حساب دارید؟  ورود',
+              text: strings.authSwitchToLogin,
               onTap: onSwitchToLogin,
+              isPrimary: true,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Password Strength Indicator Widget
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _PasswordStrengthIndicator extends StatelessWidget {
+  final PasswordValidationState state;
+  final AppStrings strings;
+  final AppColors colors;
+
+  const _PasswordStrengthIndicator({
+    required this.state,
+    required this.strings,
+    required this.colors,
+  });
+
+  Color _resolveBarColor(double fraction) {
+    if (fraction <= 0.4) return colors.orColor;
+    if (fraction <= 0.8) return colors.wn;
+    return colors.ok;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final barColor = _resolveBarColor(state.strengthFraction);
+
+    return Container(
+      padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: colors.sf,
+        borderRadius: AppRadius.rMd,
+        border: Border.all(color: colors.bd),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header row with progress bar
+          Row(
+            children: [
+              Text(
+                strings.authPwStrengthLabel,
+                style: AppTypography.caption(color: colors.mu),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: AppRadius.rFull,
+                  child: LinearProgressIndicator(
+                    value: state.strengthFraction,
+                    backgroundColor: colors.bd,
+                    valueColor: AlwaysStoppedAnimation<Color>(barColor),
+                    minHeight: 4,
+                  ),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: AppSpacing.xs),
+
+          // Checklist rules
+          _RequirementRow(
+            label: strings.authPwRuleLen,
+            isMet: state.hasMinLength,
+            colors: colors,
+          ),
+          _RequirementRow(
+            label: strings.authPwRuleUpper,
+            isMet: state.hasUppercase,
+            colors: colors,
+          ),
+          _RequirementRow(
+            label: strings.authPwRuleLower,
+            isMet: state.hasLowercase,
+            colors: colors,
+          ),
+          _RequirementRow(
+            label: strings.authPwRuleDigit,
+            isMet: state.hasDigit,
+            colors: colors,
+          ),
+          _RequirementRow(
+            label: strings.authPwRuleSpecial,
+            isMet: state.hasSpecialChar,
+            colors: colors,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _RequirementRow extends StatelessWidget {
+  final String label;
+  final bool isMet;
+  final AppColors colors;
+
+  const _RequirementRow({
+    required this.label,
+    required this.isMet,
+    required this.colors,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 1.5),
+      child: Row(
+        children: [
+          Icon(
+            isMet ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
+            size: 13,
+            color: isMet ? colors.ok : colors.mu,
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 11,
+                color: isMet ? colors.tx : colors.mu,
+                fontWeight: isMet ? FontWeight.w600 : FontWeight.w400,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// 3. FORGOT PASSWORD FORM (NEW)
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _ForgotPasswordForm extends StatelessWidget {
+  final TextEditingController emailController;
+  final VoidCallback onResetPassword;
+  final VoidCallback onBackToLogin;
+
+  const _ForgotPasswordForm({
+    required this.emailController,
+    required this.onResetPassword,
+    required this.onBackToLogin,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final strings = context.strings;
+
+    return AppCard(
+      padding: const EdgeInsetsDirectional.all(AppSpacing.xl),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Header
+          Text(
+            strings.authForgotTitle,
+            style: AppTypography.titleMedium(color: colors.tx),
+          ),
+          const SizedBox(height: AppSpacing.xxs),
+          Text(
+            strings.authForgotSubtitle,
+            style: AppTypography.bodySmall(color: colors.mu),
+          ),
+
+          const SizedBox(height: AppSpacing.xl),
+
+          // Single Email field
+          AppTextField(
+            label: strings.authEmailLabel,
+            placeholder: strings.authEmailHint,
+            controller: emailController,
+            keyboardType: TextInputType.emailAddress,
+            prefix: Icon(Icons.email_outlined, size: 16, color: colors.mu),
+          ),
+
+          const SizedBox(height: AppSpacing.xl),
+
+          // Reset Password Button
+          AppButton(
+            isFullWidth: true,
+            text: strings.authForgotBtn,
+            onPressed: onResetPassword,
+          ),
+
+          const SizedBox(height: AppSpacing.xl),
+
+          // Back to Login text button
+          Center(
+            child: _AppTextButton(
+              text: strings.authBackToLogin,
+              onTap: onBackToLogin,
               isPrimary: true,
             ),
           ),
