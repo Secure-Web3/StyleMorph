@@ -1,21 +1,36 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../data/firebase_auth_repository.dart';
+import '../domain/auth_repository.dart';
 
 /// Auth UI mode: toggling between Login, Signup, and Forgot Password views.
-/// Purely local UI state provider — no Firebase connection yet.
 enum AuthMode { login, signup, forgotPassword }
 
-final authModeProvider = StateProvider<AuthMode>((ref) => AuthMode.login);
-
-/// Password visibility toggle for the auth form.
-final authPasswordVisibleProvider = StateProvider<bool>((ref) => false);
-
-/// Confirm password visibility toggle.
-final authConfirmPasswordVisibleProvider = StateProvider<bool>((ref) => false);
-
 /// Background image URL — structured for future Remote Config injection.
-/// When null, the WelcomeScreen renders a gradient placeholder.
 final welcomeBackgroundUrlProvider = StateProvider<String?>((ref) => null);
+
+/// Clean Architecture provider for [AuthRepository].
+final authRepositoryProvider = Provider<AuthRepository>((ref) {
+  return FirebaseAuthRepository();
+});
+
+/// Real-time stream of the authenticated user's state.
+final authStateChangesProvider = StreamProvider<User?>((ref) {
+  final repo = ref.watch(authRepositoryProvider);
+  return repo.authStateChanges;
+});
+
+/// Currently authenticated Firebase [User] or null.
+final currentAuthUserProvider = Provider<User?>((ref) {
+  return ref.watch(authStateChangesProvider).value;
+});
+
+/// Helper boolean to check whether a session is actively authenticated.
+final isUserAuthenticatedProvider = Provider<bool>((ref) {
+  final authUser = ref.watch(currentAuthUserProvider);
+  return authUser != null;
+});
 
 @immutable
 class PasswordValidationState {
@@ -57,3 +72,273 @@ class PasswordValidationState {
 
   bool get isValid => metRulesCount == 5;
 }
+
+@immutable
+class AuthFormState {
+  final AuthMode mode;
+  final bool isPasswordVisible;
+  final bool isConfirmPasswordVisible;
+  final String email;
+  final String password;
+  final String confirmPassword;
+  final String forgotEmail;
+  final PasswordValidationState passwordValidation;
+  final bool passwordsMatch;
+  final bool isSubmitting;
+  final String? errorCode;
+  final String? successMessageKey;
+
+  const AuthFormState({
+    this.mode = AuthMode.login,
+    this.isPasswordVisible = false,
+    this.isConfirmPasswordVisible = false,
+    this.email = '',
+    this.password = '',
+    this.confirmPassword = '',
+    this.forgotEmail = '',
+    this.passwordValidation = const PasswordValidationState(),
+    this.passwordsMatch = true,
+    this.isSubmitting = false,
+    this.errorCode,
+    this.successMessageKey,
+  });
+
+  AuthFormState copyWith({
+    AuthMode? mode,
+    bool? isPasswordVisible,
+    bool? isConfirmPasswordVisible,
+    String? email,
+    String? password,
+    String? confirmPassword,
+    String? forgotEmail,
+    PasswordValidationState? passwordValidation,
+    bool? passwordsMatch,
+    bool? isSubmitting,
+    String? errorCode,
+    bool clearError = false,
+    String? successMessageKey,
+    bool clearSuccess = false,
+  }) {
+    return AuthFormState(
+      mode: mode ?? this.mode,
+      isPasswordVisible: isPasswordVisible ?? this.isPasswordVisible,
+      isConfirmPasswordVisible:
+          isConfirmPasswordVisible ?? this.isConfirmPasswordVisible,
+      email: email ?? this.email,
+      password: password ?? this.password,
+      confirmPassword: confirmPassword ?? this.confirmPassword,
+      forgotEmail: forgotEmail ?? this.forgotEmail,
+      passwordValidation: passwordValidation ?? this.passwordValidation,
+      passwordsMatch: passwordsMatch ?? this.passwordsMatch,
+      isSubmitting: isSubmitting ?? this.isSubmitting,
+      errorCode: clearError ? null : (errorCode ?? this.errorCode),
+      successMessageKey:
+          clearSuccess ? null : (successMessageKey ?? this.successMessageKey),
+    );
+  }
+}
+
+class AuthFormNotifier extends StateNotifier<AuthFormState> {
+  final AuthRepository _repository;
+
+  AuthFormNotifier(this._repository) : super(const AuthFormState());
+
+  void setMode(AuthMode mode) {
+    state = state.copyWith(
+      mode: mode,
+      isPasswordVisible: false,
+      isConfirmPasswordVisible: false,
+      clearError: true,
+      clearSuccess: true,
+    );
+  }
+
+  void togglePasswordVisibility() {
+    state = state.copyWith(isPasswordVisible: !state.isPasswordVisible);
+  }
+
+  void toggleConfirmPasswordVisibility() {
+    state = state.copyWith(
+      isConfirmPasswordVisible: !state.isConfirmPasswordVisible,
+    );
+  }
+
+  void setEmail(String value) {
+    state = state.copyWith(email: value.trim(), clearError: true);
+  }
+
+  void setPassword(String value) {
+    final validation = PasswordValidationState.validate(value);
+    final match = state.confirmPassword.isEmpty || value == state.confirmPassword;
+    state = state.copyWith(
+      password: value,
+      passwordValidation: validation,
+      passwordsMatch: match,
+      clearError: true,
+    );
+  }
+
+  void setConfirmPassword(String value) {
+    final match = value.isEmpty || value == state.password;
+    state = state.copyWith(
+      confirmPassword: value,
+      passwordsMatch: match,
+      clearError: true,
+    );
+  }
+
+  void setForgotEmail(String value) {
+    state = state.copyWith(forgotEmail: value.trim(), clearError: true);
+  }
+
+  void clearMessages() {
+    state = state.copyWith(clearError: true, clearSuccess: true);
+  }
+
+  /// Submits email and password for login.
+  Future<bool> login() async {
+    if (state.email.isEmpty || state.password.isEmpty) {
+      state = state.copyWith(errorCode: 'invalid-credential');
+      return false;
+    }
+
+    state = state.copyWith(isSubmitting: true, clearError: true);
+    try {
+      await _repository.signInWithEmailAndPassword(
+        email: state.email,
+        password: state.password,
+      );
+      state = state.copyWith(isSubmitting: false);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      state = state.copyWith(isSubmitting: false, errorCode: e.code);
+      return false;
+    } catch (_) {
+      state = state.copyWith(isSubmitting: false, errorCode: 'generic');
+      return false;
+    }
+  }
+
+  /// Submits email and password for registration and Firestore provisioning.
+  Future<bool> signup() async {
+    if (state.email.isEmpty || state.password.isEmpty) {
+      state = state.copyWith(errorCode: 'invalid-credential');
+      return false;
+    }
+
+    if (!state.passwordValidation.isValid) {
+      state = state.copyWith(errorCode: 'weak-password');
+      return false;
+    }
+
+    if (state.password != state.confirmPassword) {
+      state = state.copyWith(errorCode: 'password-mismatch');
+      return false;
+    }
+
+    state = state.copyWith(isSubmitting: true, clearError: true);
+    try {
+      await _repository.createUserWithEmailAndPassword(
+        email: state.email,
+        password: state.password,
+      );
+      state = state.copyWith(isSubmitting: false);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      state = state.copyWith(isSubmitting: false, errorCode: e.code);
+      return false;
+    } catch (_) {
+      state = state.copyWith(isSubmitting: false, errorCode: 'generic');
+      return false;
+    }
+  }
+
+  /// Authenticates using Google Sign-In and provisions Firestore record.
+  Future<bool> signInWithGoogle() async {
+    state = state.copyWith(isSubmitting: true, clearError: true);
+    try {
+      final credential = await _repository.signInWithGoogle();
+      if (credential == null) {
+        state = state.copyWith(isSubmitting: false, errorCode: 'google-cancelled');
+        return false;
+      }
+      state = state.copyWith(isSubmitting: false);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      state = state.copyWith(isSubmitting: false, errorCode: e.code);
+      return false;
+    } catch (_) {
+      state = state.copyWith(isSubmitting: false, errorCode: 'generic');
+      return false;
+    }
+  }
+
+  /// Authenticates using Apple Sign-In and provisions Firestore record.
+  Future<bool> signInWithApple() async {
+    state = state.copyWith(isSubmitting: true, clearError: true);
+    try {
+      final credential = await _repository.signInWithApple();
+      if (credential == null) {
+        state = state.copyWith(isSubmitting: false, errorCode: 'apple-cancelled');
+        return false;
+      }
+      state = state.copyWith(isSubmitting: false);
+      return true;
+    } on FirebaseAuthException catch (e) {
+      state = state.copyWith(isSubmitting: false, errorCode: e.code);
+      return false;
+    } catch (_) {
+      state = state.copyWith(isSubmitting: false, errorCode: 'generic');
+      return false;
+    }
+  }
+
+  /// Sends a password reset email via Firebase Auth.
+  Future<bool> sendPasswordResetEmail() async {
+    final email = state.forgotEmail.isNotEmpty ? state.forgotEmail : state.email;
+    if (email.isEmpty) {
+      state = state.copyWith(errorCode: 'invalid-email');
+      return false;
+    }
+
+    state = state.copyWith(isSubmitting: true, clearError: true);
+    try {
+      await _repository.sendPasswordResetEmail(email: email);
+      state = state.copyWith(
+        isSubmitting: false,
+        successMessageKey: 'authResetEmailSent',
+      );
+      return true;
+    } on FirebaseAuthException catch (e) {
+      state = state.copyWith(isSubmitting: false, errorCode: e.code);
+      return false;
+    } catch (_) {
+      state = state.copyWith(isSubmitting: false, errorCode: 'generic');
+      return false;
+    }
+  }
+}
+
+/// Main StateNotifier provider for authentication form state & operations.
+final authFormProvider =
+    StateNotifierProvider<AuthFormNotifier, AuthFormState>((ref) {
+  final repo = ref.watch(authRepositoryProvider);
+  return AuthFormNotifier(repo);
+});
+
+/// Granular selectors
+final authModeProvider = Provider<AuthMode>((ref) {
+  return ref.watch(authFormProvider.select((s) => s.mode));
+});
+
+final authPasswordVisibleProvider = Provider<bool>((ref) {
+  return ref.watch(authFormProvider.select((s) => s.isPasswordVisible));
+});
+
+final authConfirmPasswordVisibleProvider = Provider<bool>((ref) {
+  return ref.watch(authFormProvider.select((s) => s.isConfirmPasswordVisible));
+});
+
+final authIsSubmittingProvider = Provider<bool>((ref) {
+  return ref.watch(authFormProvider.select((s) => s.isSubmitting));
+});

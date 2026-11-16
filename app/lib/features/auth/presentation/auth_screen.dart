@@ -9,9 +9,12 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/app_logo.dart';
+import '../../../../core/widgets/app_text_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import 'auth_provider.dart';
+import 'widgets/auth_footer.dart';
 import 'widgets/auth_top_bar.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -23,61 +26,38 @@ class AuthScreen extends ConsumerStatefulWidget {
 
 class _AuthScreenState extends ConsumerState<AuthScreen>
     with SingleTickerProviderStateMixin {
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  final _forgotEmailController = TextEditingController();
+  late final TextEditingController _emailController;
+  late final TextEditingController _passwordController;
+  late final TextEditingController _confirmPasswordController;
+  late final TextEditingController _forgotEmailController;
 
   late final AnimationController _animController;
   late final Animation<double> _fadeAnim;
 
-  PasswordValidationState _passwordValidation = const PasswordValidationState();
-  bool _passwordsMatch = true;
-
   @override
   void initState() {
     super.initState();
+    final initialState = ref.read(authFormProvider);
+    _emailController = TextEditingController(text: initialState.email);
+    _passwordController = TextEditingController(text: initialState.password);
+    _confirmPasswordController =
+        TextEditingController(text: initialState.confirmPassword);
+    _forgotEmailController =
+        TextEditingController(text: initialState.forgotEmail);
+
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 260),
+      duration: const Duration(milliseconds: 250),
     );
     _fadeAnim = CurvedAnimation(
       parent: _animController,
       curve: Curves.easeInOut,
     );
     _animController.forward();
-
-    _passwordController.addListener(_onPasswordChanged);
-    _confirmPasswordController.addListener(_onConfirmPasswordChanged);
-  }
-
-  void _onPasswordChanged() {
-    final text = _passwordController.text;
-    setState(() {
-      _passwordValidation = PasswordValidationState.validate(text);
-      if (_confirmPasswordController.text.isNotEmpty) {
-        _passwordsMatch = text == _confirmPasswordController.text;
-      } else {
-        _passwordsMatch = true;
-      }
-    });
-  }
-
-  void _onConfirmPasswordChanged() {
-    final confirm = _confirmPasswordController.text;
-    setState(() {
-      if (confirm.isEmpty) {
-        _passwordsMatch = true;
-      } else {
-        _passwordsMatch = confirm == _passwordController.text;
-      }
-    });
   }
 
   @override
   void dispose() {
-    _passwordController.removeListener(_onPasswordChanged);
-    _confirmPasswordController.removeListener(_onConfirmPasswordChanged);
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -87,44 +67,117 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   }
 
   void _switchMode(AuthMode mode) {
-    ref.read(authModeProvider.notifier).state = mode;
-    ref.read(authPasswordVisibleProvider.notifier).state = false;
-    ref.read(authConfirmPasswordVisibleProvider.notifier).state = false;
+    ref.read(authFormProvider.notifier).setMode(mode);
     _animController
       ..reset()
       ..forward();
   }
 
-  void _handleLogin() {
-    // UI-only phase: triggers mock login state
-    ref.read(appStateProvider.notifier).login();
+  Future<void> _handleLogin() async {
+    final success = await ref.read(authFormProvider.notifier).login();
+    if (!mounted) return;
+    if (success) {
+      ref.read(appStateProvider.notifier).login();
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else {
+      final code = ref.read(authFormProvider).errorCode;
+      if (code != null) {
+        AppFeedback.showError(
+          context,
+          context.strings.authErrorMessage(code),
+        );
+      }
+    }
   }
 
-  void _handleSignup() {
-    // UI-only phase: triggers mock login state
-    ref.read(appStateProvider.notifier).login();
+  Future<void> _handleSignup() async {
+    final success = await ref.read(authFormProvider.notifier).signup();
+    if (!mounted) return;
+    if (success) {
+      ref.read(appStateProvider.notifier).login();
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else {
+      final code = ref.read(authFormProvider).errorCode;
+      if (code != null) {
+        AppFeedback.showError(
+          context,
+          context.strings.authErrorMessage(code),
+        );
+      }
+    }
   }
 
-  void _handleResetPassword() {
-    // UI-only phase: feedback toast or return to login
-    _switchMode(AuthMode.login);
+  Future<void> _handleGoogleSignIn() async {
+    final success =
+        await ref.read(authFormProvider.notifier).signInWithGoogle();
+    if (!mounted) return;
+    if (success) {
+      ref.read(appStateProvider.notifier).login();
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else {
+      final code = ref.read(authFormProvider).errorCode;
+      if (code != null && code != 'google-cancelled') {
+        AppFeedback.showError(
+          context,
+          context.strings.authErrorMessage(code),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleAppleSignIn() async {
+    final success = await ref.read(authFormProvider.notifier).signInWithApple();
+    if (!mounted) return;
+    if (success) {
+      ref.read(appStateProvider.notifier).login();
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } else {
+      final code = ref.read(authFormProvider).errorCode;
+      if (code != null && code != 'apple-cancelled') {
+        AppFeedback.showError(
+          context,
+          context.strings.authErrorMessage(code),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleResetPassword() async {
+    final success =
+        await ref.read(authFormProvider.notifier).sendPasswordResetEmail();
+    if (!mounted) return;
+    if (success) {
+      AppFeedback.showSuccess(
+        context,
+        context.strings.authResetEmailSent,
+      );
+      _switchMode(AuthMode.login);
+    } else {
+      final code = ref.read(authFormProvider).errorCode;
+      if (code != null) {
+        AppFeedback.showError(
+          context,
+          context.strings.authErrorMessage(code),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
-    final mode = ref.watch(authModeProvider);
+    final formState = ref.watch(authFormProvider);
 
     return Scaffold(
       backgroundColor: colors.bg,
       body: SafeArea(
         child: Column(
           children: [
-            // ── 1. Universal Top Header (Theme, Palette, Language) ───────
+            // ── 1. Universal Top Header (Pinned at top) ─────────────
             const AuthTopBar(isTransparent: false),
 
-            // ── 2. Scrollable Body (Form card) ───────────────────────────
+            // ── 2. Scrollable Body ───────────────────────────────────
             Expanded(
               child: Center(
                 child: ConstrainedBox(
@@ -137,15 +190,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // App Logo & title
+                        // Branding Header (Logo + App Title)
                         _BrandingHeader(colors: colors, strings: strings),
 
                         const SizedBox(height: AppSpacing.xl),
 
-                        // Animated form switch
+                        // Animated Form Switch
                         FadeTransition(
                           opacity: _fadeAnim,
-                          child: _buildForm(mode, colors, strings),
+                          child: _buildForm(formState, colors, strings),
                         ),
                       ],
                     ),
@@ -154,21 +207,36 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
               ),
             ),
 
-            // ── 3. Pinned Footer (Always pinned at the bottom) ────────────
-            _PinnedFooter(colors: colors, strings: strings),
+            // ── 3. Universal Footer (Pinned at bottom) ───────────────
+            const AuthFooter(isTransparent: false),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildForm(AuthMode mode, AppColors colors, AppStrings strings) {
-    switch (mode) {
+  Widget _buildForm(
+    AuthFormState state,
+    AppColors colors,
+    AppStrings strings,
+  ) {
+    switch (state.mode) {
       case AuthMode.login:
         return _LoginForm(
           emailController: _emailController,
           passwordController: _passwordController,
+          isPasswordVisible: state.isPasswordVisible,
+          isSubmitting: state.isSubmitting,
+          onEmailChanged: (val) =>
+              ref.read(authFormProvider.notifier).setEmail(val),
+          onPasswordChanged: (val) =>
+              ref.read(authFormProvider.notifier).setPassword(val),
+          onTogglePasswordVisibility: () => ref
+              .read(authFormProvider.notifier)
+              .togglePasswordVisibility(),
           onLogin: _handleLogin,
+          onGoogleLogin: _handleGoogleSignIn,
+          onAppleLogin: _handleAppleSignIn,
           onSwitchToSignup: () => _switchMode(AuthMode.signup),
           onForgotPassword: () => _switchMode(AuthMode.forgotPassword),
         );
@@ -177,52 +245,38 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           emailController: _emailController,
           passwordController: _passwordController,
           confirmPasswordController: _confirmPasswordController,
-          validationState: _passwordValidation,
-          passwordsMatch: _passwordsMatch,
+          isPasswordVisible: state.isPasswordVisible,
+          isConfirmPasswordVisible: state.isConfirmPasswordVisible,
+          validationState: state.passwordValidation,
+          passwordsMatch: state.passwordsMatch,
+          isSubmitting: state.isSubmitting,
+          onEmailChanged: (val) =>
+              ref.read(authFormProvider.notifier).setEmail(val),
+          onPasswordChanged: (val) =>
+              ref.read(authFormProvider.notifier).setPassword(val),
+          onConfirmPasswordChanged: (val) =>
+              ref.read(authFormProvider.notifier).setConfirmPassword(val),
+          onTogglePasswordVisibility: () => ref
+              .read(authFormProvider.notifier)
+              .togglePasswordVisibility(),
+          onToggleConfirmPasswordVisibility: () => ref
+              .read(authFormProvider.notifier)
+              .toggleConfirmPasswordVisibility(),
           onSignup: _handleSignup,
+          onGoogleSignup: _handleGoogleSignIn,
+          onAppleSignup: _handleAppleSignIn,
           onSwitchToLogin: () => _switchMode(AuthMode.login),
         );
       case AuthMode.forgotPassword:
         return _ForgotPasswordForm(
           emailController: _forgotEmailController,
+          isSubmitting: state.isSubmitting,
+          onEmailChanged: (val) =>
+              ref.read(authFormProvider.notifier).setForgotEmail(val),
           onResetPassword: _handleResetPassword,
           onBackToLogin: () => _switchMode(AuthMode.login),
         );
     }
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Pinned Bottom Footer
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _PinnedFooter extends StatelessWidget {
-  final AppColors colors;
-  final AppStrings strings;
-
-  const _PinnedFooter({required this.colors, required this.strings});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.xl,
-        vertical: AppSpacing.md,
-      ),
-      decoration: BoxDecoration(
-        color: colors.bg,
-        border: Border(
-          top: BorderSide(color: colors.bd.withValues(alpha: 0.5), width: 1.0),
-        ),
-      ),
-      child: Center(
-        child: Text(
-          strings.authCopyrightYear,
-          style: AppTypography.caption(color: colors.mu),
-        ),
-      ),
-    );
   }
 }
 
@@ -289,67 +343,42 @@ class _LabelDivider extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Inline Text Button
-// ─────────────────────────────────────────────────────────────────────────────
-
-class _AppTextButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onTap;
-  final bool isPrimary;
-
-  const _AppTextButton({
-    required this.text,
-    required this.onTap,
-    this.isPrimary = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: AppRadius.rSm,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.xs,
-          vertical: AppSpacing.xxs,
-        ),
-        child: Text(
-          text,
-          style: AppTypography.inputLabel(
-            color: isPrimary ? colors.pr : colors.mu,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
 // 1. LOGIN FORM
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _LoginForm extends ConsumerWidget {
+class _LoginForm extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
+  final bool isPasswordVisible;
+  final bool isSubmitting;
+  final ValueChanged<String> onEmailChanged;
+  final ValueChanged<String> onPasswordChanged;
+  final VoidCallback onTogglePasswordVisibility;
   final VoidCallback onLogin;
+  final VoidCallback onGoogleLogin;
+  final VoidCallback onAppleLogin;
   final VoidCallback onSwitchToSignup;
   final VoidCallback onForgotPassword;
 
   const _LoginForm({
     required this.emailController,
     required this.passwordController,
+    required this.isPasswordVisible,
+    required this.isSubmitting,
+    required this.onEmailChanged,
+    required this.onPasswordChanged,
+    required this.onTogglePasswordVisibility,
     required this.onLogin,
+    required this.onGoogleLogin,
+    required this.onAppleLogin,
     required this.onSwitchToSignup,
     required this.onForgotPassword,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
-    final isPasswordVisible = ref.watch(authPasswordVisibleProvider);
 
     return AppCard(
       padding: const EdgeInsetsDirectional.all(AppSpacing.xl),
@@ -375,6 +404,7 @@ class _LoginForm extends ConsumerWidget {
             label: strings.authEmailLabel,
             placeholder: strings.authEmailHint,
             controller: emailController,
+            onChanged: onEmailChanged,
             keyboardType: TextInputType.emailAddress,
             prefix: Icon(Icons.email_outlined, size: 16, color: colors.mu),
           ),
@@ -386,13 +416,12 @@ class _LoginForm extends ConsumerWidget {
             label: strings.authPasswordLabel,
             placeholder: strings.authPasswordHint,
             controller: passwordController,
+            onChanged: onPasswordChanged,
             obscureText: !isPasswordVisible,
-            prefix: Icon(Icons.lock_outline_rounded, size: 16, color: colors.mu),
+            prefix:
+                Icon(Icons.lock_outline_rounded, size: 16, color: colors.mu),
             suffix: GestureDetector(
-              onTap: () {
-                ref.read(authPasswordVisibleProvider.notifier).state =
-                    !isPasswordVisible;
-              },
+              onTap: onTogglePasswordVisibility,
               child: Icon(
                 isPasswordVisible
                     ? Icons.visibility_off_outlined
@@ -405,11 +434,21 @@ class _LoginForm extends ConsumerWidget {
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Primary Login Button (Localized text)
+          // Primary Login Button (With loading spinner state)
           AppButton(
             isFullWidth: true,
-            text: strings.authLoginBtn,
-            onPressed: onLogin,
+            text: isSubmitting ? null : strings.authLoginBtn,
+            onPressed: isSubmitting ? null : onLogin,
+            child: isSubmitting
+                ? SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colors.prt,
+                    ),
+                  )
+                : null,
           ),
 
           const SizedBox(height: AppSpacing.xl),
@@ -431,7 +470,7 @@ class _LoginForm extends ConsumerWidget {
                     color: colors.tx,
                   ),
                   text: 'Google',
-                  onPressed: onLogin,
+                  onPressed: isSubmitting ? null : onGoogleLogin,
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -444,7 +483,7 @@ class _LoginForm extends ConsumerWidget {
                     color: colors.tx,
                   ),
                   text: 'Apple',
-                  onPressed: onLogin,
+                  onPressed: isSubmitting ? null : onAppleLogin,
                 ),
               ),
             ],
@@ -456,14 +495,14 @@ class _LoginForm extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _AppTextButton(
+              AppTextButton(
                 text: strings.authSwitchToSignup,
-                onTap: onSwitchToSignup,
+                onPressed: isSubmitting ? null : onSwitchToSignup,
                 isPrimary: true,
               ),
-              _AppTextButton(
+              AppTextButton(
                 text: strings.authForgotPassword,
-                onTap: onForgotPassword,
+                onPressed: isSubmitting ? null : onForgotPassword,
                 isPrimary: false,
               ),
             ],
@@ -478,33 +517,49 @@ class _LoginForm extends ConsumerWidget {
 // 2. SIGNUP FORM
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _SignupForm extends ConsumerWidget {
+class _SignupForm extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
+  final bool isPasswordVisible;
+  final bool isConfirmPasswordVisible;
   final PasswordValidationState validationState;
   final bool passwordsMatch;
+  final bool isSubmitting;
+  final ValueChanged<String> onEmailChanged;
+  final ValueChanged<String> onPasswordChanged;
+  final ValueChanged<String> onConfirmPasswordChanged;
+  final VoidCallback onTogglePasswordVisibility;
+  final VoidCallback onToggleConfirmPasswordVisibility;
   final VoidCallback onSignup;
+  final VoidCallback onGoogleSignup;
+  final VoidCallback onAppleSignup;
   final VoidCallback onSwitchToLogin;
 
   const _SignupForm({
     required this.emailController,
     required this.passwordController,
     required this.confirmPasswordController,
+    required this.isPasswordVisible,
+    required this.isConfirmPasswordVisible,
     required this.validationState,
     required this.passwordsMatch,
+    required this.isSubmitting,
+    required this.onEmailChanged,
+    required this.onPasswordChanged,
+    required this.onConfirmPasswordChanged,
+    required this.onTogglePasswordVisibility,
+    required this.onToggleConfirmPasswordVisibility,
     required this.onSignup,
+    required this.onGoogleSignup,
+    required this.onAppleSignup,
     required this.onSwitchToLogin,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
-    final isPasswordVisible = ref.watch(authPasswordVisibleProvider);
-    final isConfirmPasswordVisible =
-        ref.watch(authConfirmPasswordVisibleProvider);
-
     final isPasswordEmpty = passwordController.text.isEmpty;
 
     return AppCard(
@@ -531,6 +586,7 @@ class _SignupForm extends ConsumerWidget {
             label: strings.authEmailLabel,
             placeholder: strings.authEmailHint,
             controller: emailController,
+            onChanged: onEmailChanged,
             keyboardType: TextInputType.emailAddress,
             prefix: Icon(Icons.email_outlined, size: 16, color: colors.mu),
           ),
@@ -542,13 +598,12 @@ class _SignupForm extends ConsumerWidget {
             label: strings.authPasswordLabel,
             placeholder: strings.authPasswordHint,
             controller: passwordController,
+            onChanged: onPasswordChanged,
             obscureText: !isPasswordVisible,
-            prefix: Icon(Icons.lock_outline_rounded, size: 16, color: colors.mu),
+            prefix:
+                Icon(Icons.lock_outline_rounded, size: 16, color: colors.mu),
             suffix: GestureDetector(
-              onTap: () {
-                ref.read(authPasswordVisibleProvider.notifier).state =
-                    !isPasswordVisible;
-              },
+              onTap: onTogglePasswordVisibility,
               child: Icon(
                 isPasswordVisible
                     ? Icons.visibility_off_outlined
@@ -559,7 +614,7 @@ class _SignupForm extends ConsumerWidget {
             ),
           ),
 
-          // Visual Password Strength Indicator
+          // Real-Time Visual Password Strength Indicator
           if (!isPasswordEmpty) ...[
             const SizedBox(height: AppSpacing.sm),
             _PasswordStrengthIndicator(
@@ -576,13 +631,11 @@ class _SignupForm extends ConsumerWidget {
             label: strings.authConfirmPasswordLabel,
             placeholder: strings.authConfirmPasswordHint,
             controller: confirmPasswordController,
+            onChanged: onConfirmPasswordChanged,
             obscureText: !isConfirmPasswordVisible,
             prefix: Icon(Icons.lock_reset_rounded, size: 16, color: colors.mu),
             suffix: GestureDetector(
-              onTap: () {
-                ref.read(authConfirmPasswordVisibleProvider.notifier).state =
-                    !isConfirmPasswordVisible;
-              },
+              onTap: onToggleConfirmPasswordVisibility,
               child: Icon(
                 isConfirmPasswordVisible
                     ? Icons.visibility_off_outlined
@@ -613,13 +666,21 @@ class _SignupForm extends ConsumerWidget {
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Primary Signup Button
+          // Primary Signup Button (With loading spinner state)
           AppButton(
             isFullWidth: true,
-            text: strings.authSignupBtn,
-            onPressed: (validationState.isValid && passwordsMatch)
-                ? onSignup
-                : onSignup, // Enabled for testing UX
+            text: isSubmitting ? null : strings.authSignupBtn,
+            onPressed: isSubmitting ? null : onSignup,
+            child: isSubmitting
+                ? SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colors.prt,
+                    ),
+                  )
+                : null,
           ),
 
           const SizedBox(height: AppSpacing.xl),
@@ -641,7 +702,7 @@ class _SignupForm extends ConsumerWidget {
                     color: colors.tx,
                   ),
                   text: 'Google',
-                  onPressed: onSignup,
+                  onPressed: isSubmitting ? null : onGoogleSignup,
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -654,7 +715,7 @@ class _SignupForm extends ConsumerWidget {
                     color: colors.tx,
                   ),
                   text: 'Apple',
-                  onPressed: onSignup,
+                  onPressed: isSubmitting ? null : onAppleSignup,
                 ),
               ),
             ],
@@ -664,9 +725,9 @@ class _SignupForm extends ConsumerWidget {
 
           // Back to login toggle
           Center(
-            child: _AppTextButton(
+            child: AppTextButton(
               text: strings.authSwitchToLogin,
-              onTap: onSwitchToLogin,
+              onPressed: isSubmitting ? null : onSwitchToLogin,
               isPrimary: true,
             ),
           ),
@@ -677,7 +738,7 @@ class _SignupForm extends ConsumerWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Password Strength Indicator Widget
+// Real-Time Password Strength Indicator Widget
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _PasswordStrengthIndicator extends StatelessWidget {
@@ -814,11 +875,15 @@ class _RequirementRow extends StatelessWidget {
 
 class _ForgotPasswordForm extends StatelessWidget {
   final TextEditingController emailController;
+  final bool isSubmitting;
+  final ValueChanged<String> onEmailChanged;
   final VoidCallback onResetPassword;
   final VoidCallback onBackToLogin;
 
   const _ForgotPasswordForm({
     required this.emailController,
+    required this.isSubmitting,
+    required this.onEmailChanged,
     required this.onResetPassword,
     required this.onBackToLogin,
   });
@@ -852,26 +917,37 @@ class _ForgotPasswordForm extends StatelessWidget {
             label: strings.authEmailLabel,
             placeholder: strings.authEmailHint,
             controller: emailController,
+            onChanged: onEmailChanged,
             keyboardType: TextInputType.emailAddress,
             prefix: Icon(Icons.email_outlined, size: 16, color: colors.mu),
           ),
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Reset Password Button
+          // Reset Password Button (With loading spinner state)
           AppButton(
             isFullWidth: true,
-            text: strings.authForgotBtn,
-            onPressed: onResetPassword,
+            text: isSubmitting ? null : strings.authForgotBtn,
+            onPressed: isSubmitting ? null : onResetPassword,
+            child: isSubmitting
+                ? SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colors.prt,
+                    ),
+                  )
+                : null,
           ),
 
           const SizedBox(height: AppSpacing.xl),
 
           // Back to Login text button
           Center(
-            child: _AppTextButton(
+            child: AppTextButton(
               text: strings.authBackToLogin,
-              onTap: onBackToLogin,
+              onPressed: isSubmitting ? null : onBackToLogin,
               isPrimary: true,
             ),
           ),

@@ -556,6 +556,20 @@ class AppStrings {
       'authPwRuleSpecial': 'حداقل یک کاراکتر ویژه (!@#\$...)',
       'authPwMismatch': 'رمز عبور و تکرار آن یکسان نیستند',
       'authCopyrightYear': 'StyleMorph 2026 ©',
+      // Auth Error & Feedback strings
+      'authErrEmailAlreadyInUse': 'این ایمیل قبلاً در سیستم ثبت شده است.',
+      'authErrWrongPassword': 'رمز عبور وارد شده نادرست است.',
+      'authErrUserNotFound': 'حساب کاربری با این ایمیل یافت نشد.',
+      'authErrInvalidEmail': 'فرمت آدرس ایمیل معتبر نیست.',
+      'authErrUserDisabled': 'این حساب کاربری غیرفعال شده است.',
+      'authErrWeakPassword': 'رمز عبور انتخابی بسیار ضعیف است.',
+      'authErrNetwork': 'خطا در برقراری ارتباط با سرور. لطفاً اتصال اینترنت را بررسی کنید.',
+      'authErrTooManyRequests': 'تعداد تلاش‌های ناموفق بیش از حد مجاز است. لطفاً کمی بعد تلاش کنید.',
+      'authErrInvalidCredential': 'ایمیل یا رمز عبور نامعتبر است.',
+      'authErrGoogleCancelled': 'ورود با حساب گوگل لغو شد.',
+      'authErrAppleCancelled': 'ورود با حساب اپل لغو شد.',
+      'authErrGeneric': 'خطایی در احراز هویت رخ داد. لطفاً مجدداً تلاش کنید.',
+      'authResetEmailSent': 'لینک بازیابی رمز عبور به ایمیل شما ارسال شد.',
     },
     'en': {
       'appName': 'StyleMorph',
@@ -1014,6 +1028,20 @@ class AppStrings {
       'authPwRuleSpecial': 'At least 1 special character (!@#\$...)',
       'authPwMismatch': 'Passwords do not match',
       'authCopyrightYear': 'StyleMorph 2026 ©',
+      // Auth Error & Feedback strings
+      'authErrEmailAlreadyInUse': 'This email address is already in use.',
+      'authErrWrongPassword': 'The password entered is incorrect.',
+      'authErrUserNotFound': 'No user account found for this email address.',
+      'authErrInvalidEmail': 'The email address format is not valid.',
+      'authErrUserDisabled': 'This user account has been disabled.',
+      'authErrWeakPassword': 'The chosen password is too weak.',
+      'authErrNetwork': 'Network error. Please check your internet connection.',
+      'authErrTooManyRequests': 'Too many failed attempts. Please try again later.',
+      'authErrInvalidCredential': 'Invalid email or password credential.',
+      'authErrGoogleCancelled': 'Google sign in was cancelled.',
+      'authErrAppleCancelled': 'Apple sign in was cancelled.',
+      'authErrGeneric': 'Authentication failed. Please try again.',
+      'authResetEmailSent': 'Password reset link has been sent to your email.',
     },
     'ar': {
       'appName': 'StyleMorph',
@@ -1472,6 +1500,20 @@ class AppStrings {
       'authPwRuleSpecial': 'رمز خاص واحد على الأقل (!@#\$...)',
       'authPwMismatch': 'كلمتا المرور غير متطابقتين',
       'authCopyrightYear': 'StyleMorph 2026 ©',
+      // Auth Error & Feedback strings
+      'authErrEmailAlreadyInUse': 'عنوان البريد الإلكتروني هذا مستخدم بالفعل.',
+      'authErrWrongPassword': 'كلمة المرور المدخلة غير صحيحة.',
+      'authErrUserNotFound': 'لم يتم العثور على حساب بهذا البريد الإلكتروني.',
+      'authErrInvalidEmail': 'صيغة البريد الإلكتروني غير صالحة.',
+      'authErrUserDisabled': 'تم تعطيل هذا الحساب.',
+      'authErrWeakPassword': 'كلمة المرور ضعيفة جداً.',
+      'authErrNetwork': 'خطأ في الشبكة. يرجى التحقق من اتصالك بالإنترنت.',
+      'authErrTooManyRequests': 'محاولات كثيرة غير ناجحة. يرجى المحاولة لاحقاً.',
+      'authErrInvalidCredential': 'بيانات الاعتماد غير صالحة.',
+      'authErrGoogleCancelled': 'تم إلغاء تسجيل الدخول عبر Google.',
+      'authErrAppleCancelled': 'تم إلغاء تسجيل الدخول عبر Apple.',
+      'authErrGeneric': 'حدث خطأ في المصادقة. يرجى إعادة المحاولة.',
+      'authResetEmailSent': 'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك.',
     },
     'tr': {
       'appName': 'StyleMorph',
@@ -1930,6 +1972,20 @@ class AppStrings {
       'authPwRuleSpecial': 'En az 1 özel karakter (!@#\$...)',
       'authPwMismatch': 'Şifreler eşleşmiyor',
       'authCopyrightYear': 'StyleMorph 2026 ©',
+      // Auth Error & Feedback strings
+      'authErrEmailAlreadyInUse': 'Bu e-posta adresi zaten kullanımda.',
+      'authErrWrongPassword': 'Girdiğiniz şifre hatalı.',
+      'authErrUserNotFound': 'Bu e-posta ile kayıtlı bir hesap bulunamadı.',
+      'authErrInvalidEmail': 'E-posta adresi biçimi geçersiz.',
+      'authErrUserDisabled': 'Bu kullanıcı hesabı devre dışı bırakılmış.',
+      'authErrWeakPassword': 'Seçilen şifre çok zayıf.',
+      'authErrNetwork': 'Ağ hatası. Lütfen internet bağlantınızı kontrol edin.',
+      'authErrTooManyRequests': 'Çok fazla başarısız deneme. Lütfen daha sonra tekrar deneyin.',
+      'authErrInvalidCredential': 'Geçersiz e-posta veya şifre.',
+      'authErrGoogleCancelled': 'Google ile giriş iptal edildi.',
+      'authErrAppleCancelled': 'Apple ile giriş iptal edildi.',
+      'authErrGeneric': 'Kimlik doğrulama başarısız oldu. Lütfen tekrar deneyin.',
+      'authResetEmailSent': 'Şifre sıfırlama bağlantısı e-postanıza gönderildi.',
     },
   };
 
@@ -2468,6 +2524,50 @@ class AppStrings {
   String get authPwRuleSpecial => get('authPwRuleSpecial');
   String get authPwMismatch => get('authPwMismatch');
   String get authCopyrightYear => get('authCopyrightYear');
+
+  // Auth Error & Feedback Getters
+  String get authErrEmailAlreadyInUse => get('authErrEmailAlreadyInUse');
+  String get authErrWrongPassword => get('authErrWrongPassword');
+  String get authErrUserNotFound => get('authErrUserNotFound');
+  String get authErrInvalidEmail => get('authErrInvalidEmail');
+  String get authErrUserDisabled => get('authErrUserDisabled');
+  String get authErrWeakPassword => get('authErrWeakPassword');
+  String get authErrNetwork => get('authErrNetwork');
+  String get authErrTooManyRequests => get('authErrTooManyRequests');
+  String get authErrInvalidCredential => get('authErrInvalidCredential');
+  String get authErrGoogleCancelled => get('authErrGoogleCancelled');
+  String get authErrAppleCancelled => get('authErrAppleCancelled');
+  String get authErrGeneric => get('authErrGeneric');
+  String get authResetEmailSent => get('authResetEmailSent');
+
+  String authErrorMessage(String code) {
+    switch (code) {
+      case 'email-already-in-use':
+        return authErrEmailAlreadyInUse;
+      case 'wrong-password':
+        return authErrWrongPassword;
+      case 'user-not-found':
+        return authErrUserNotFound;
+      case 'invalid-email':
+        return authErrInvalidEmail;
+      case 'user-disabled':
+        return authErrUserDisabled;
+      case 'weak-password':
+        return authErrWeakPassword;
+      case 'network-request-failed':
+        return authErrNetwork;
+      case 'too-many-requests':
+        return authErrTooManyRequests;
+      case 'invalid-credential':
+        return authErrInvalidCredential;
+      case 'google-cancelled':
+        return authErrGoogleCancelled;
+      case 'apple-cancelled':
+        return authErrAppleCancelled;
+      default:
+        return authErrGeneric;
+    }
+  }
 }
 
 extension AppStringsExtension on BuildContext {
