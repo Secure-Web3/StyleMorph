@@ -127,11 +127,20 @@ class _LanguageSelector extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
+    final themeState = ref.watch(themeProvider);
     final bg = isTransparent ? Colors.black.withValues(alpha: 0.45) : colors.sf;
     final border = isTransparent
         ? Colors.white.withValues(alpha: 0.25)
         : colors.bd;
-    final fg = isTransparent ? Colors.white : colors.tx;
+    final buttonTextColor = isTransparent ? Colors.white : colors.tx;
+
+    // Dropdown menu background must always have high contrast with text.
+    // In dark mode: use a crisp dark surface with light text.
+    // In light mode: use a crisp white surface with dark text.
+    final isDark = themeState.resolveIsDark(context);
+    final dropdownBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final dropdownTextColor =
+        isDark ? const Color(0xFFF2F2F2) : const Color(0xFF171717);
 
     return Container(
       padding: const EdgeInsetsDirectional.symmetric(
@@ -152,14 +161,27 @@ class _LanguageSelector extends ConsumerWidget {
             size: 16,
             color: isTransparent ? Colors.white70 : colors.mu,
           ),
-          dropdownColor: colors.sf,
+          dropdownColor: dropdownBg,
+          selectedItemBuilder: (BuildContext context) {
+            return AppLanguage.supportedLanguages.map((l) {
+              return Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  l.nativeName,
+                  style: AppTypography.inputLabel(
+                    color: buttonTextColor,
+                  ),
+                ),
+              );
+            }).toList();
+          },
           items: AppLanguage.supportedLanguages.map((l) {
             return DropdownMenuItem<String>(
               value: l.code,
               child: Text(
                 l.nativeName,
                 style: AppTypography.inputLabel(
-                  color: fg,
+                  color: dropdownTextColor,
                 ),
               ),
             );

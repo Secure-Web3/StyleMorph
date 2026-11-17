@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -13,6 +14,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_dropdown.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_switch.dart';
+import '../../../auth/presentation/auth_provider.dart';
 
 class SettingsSubTab extends ConsumerStatefulWidget {
   const SettingsSubTab({super.key});
@@ -196,7 +198,13 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
               color: colors.orColor,
             ),
             text: strings.setLogoutBtn,
-            onPressed: () {
+            onPressed: () async {
+              try {
+                await ref.read(authRepositoryProvider).signOut();
+              } catch (_) {}
+              try {
+                await FirebaseAuth.instance.signOut();
+              } catch (_) {}
               ref.read(appStateProvider.notifier).logout();
             },
           ),

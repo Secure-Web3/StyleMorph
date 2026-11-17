@@ -78,7 +78,11 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   }
 
   void toggleDark() {
-    cycleThemeMode();
+    if (state.isDark) {
+      setThemeMode(ThemeMode.light);
+    } else {
+      setThemeMode(ThemeMode.dark);
+    }
   }
 
   void setThemeMode(ThemeMode mode) {

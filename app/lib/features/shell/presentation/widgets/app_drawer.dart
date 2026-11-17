@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -11,6 +12,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_logo.dart';
+import '../../../auth/presentation/auth_provider.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -330,8 +332,14 @@ class AppDrawer extends ConsumerWidget {
 
                   // Sign-out button
                   InkWell(
-                    onTap: () {
+                    onTap: () async {
                       Navigator.of(context).pop();
+                      try {
+                        await ref.read(authRepositoryProvider).signOut();
+                      } catch (_) {}
+                      try {
+                        await FirebaseAuth.instance.signOut();
+                      } catch (_) {}
                       ref.read(appStateProvider.notifier).logout();
                     },
                     borderRadius: AppRadius.rMd,
