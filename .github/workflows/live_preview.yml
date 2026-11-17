@@ -24,6 +24,13 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Inject Secure Firebase Options
+        env:
+          FIREBASE_OPTIONS: '${{ secrets.FIREBASE_OPTIONS_DART_CONTENT }}'
+        run: |
+          mkdir -p app/lib/core/services
+          echo "$FIREBASE_OPTIONS" > app/lib/core/services/firebase_options.dart
+
       - name: Build Flutter Web App
         run: |
           cd app
