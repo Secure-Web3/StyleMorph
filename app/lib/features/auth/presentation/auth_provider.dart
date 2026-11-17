@@ -211,10 +211,12 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
+      debugPrint('[AuthFormNotifier] login FirebaseAuthException: ${e.code} — ${e.message}');
       state = state.copyWith(isSubmitting: false, errorCode: e.code);
       return false;
-    } catch (_) {
-      state = state.copyWith(isSubmitting: false, errorCode: 'generic');
+    } catch (e) {
+      debugPrint('[AuthFormNotifier] login unexpected error: $e');
+      state = state.copyWith(isSubmitting: false, errorCode: 'generic:$e');
       return false;
     }
   }
@@ -245,10 +247,12 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
+      debugPrint('[AuthFormNotifier] signup FirebaseAuthException: ${e.code} — ${e.message}');
       state = state.copyWith(isSubmitting: false, errorCode: e.code);
       return false;
-    } catch (_) {
-      state = state.copyWith(isSubmitting: false, errorCode: 'generic');
+    } catch (e) {
+      debugPrint('[AuthFormNotifier] signup unexpected error: $e');
+      state = state.copyWith(isSubmitting: false, errorCode: 'generic:$e');
       return false;
     }
   }
@@ -265,10 +269,12 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
+      debugPrint('[AuthFormNotifier] signInWithGoogle FirebaseAuthException: ${e.code} — ${e.message}');
       state = state.copyWith(isSubmitting: false, errorCode: e.code);
       return false;
-    } catch (_) {
-      state = state.copyWith(isSubmitting: false, errorCode: 'generic');
+    } catch (e) {
+      debugPrint('[AuthFormNotifier] signInWithGoogle unexpected error: $e');
+      state = state.copyWith(isSubmitting: false, errorCode: 'generic:$e');
       return false;
     }
   }
@@ -285,10 +291,12 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
+      debugPrint('[AuthFormNotifier] signInWithApple FirebaseAuthException: ${e.code} — ${e.message}');
       state = state.copyWith(isSubmitting: false, errorCode: e.code);
       return false;
-    } catch (_) {
-      state = state.copyWith(isSubmitting: false, errorCode: 'generic');
+    } catch (e) {
+      debugPrint('[AuthFormNotifier] signInWithApple unexpected error: $e');
+      state = state.copyWith(isSubmitting: false, errorCode: 'generic:$e');
       return false;
     }
   }
@@ -310,10 +318,12 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       );
       return true;
     } on FirebaseAuthException catch (e) {
+      debugPrint('[AuthFormNotifier] sendPasswordResetEmail FirebaseAuthException: ${e.code} — ${e.message}');
       state = state.copyWith(isSubmitting: false, errorCode: e.code);
       return false;
-    } catch (_) {
-      state = state.copyWith(isSubmitting: false, errorCode: 'generic');
+    } catch (e) {
+      debugPrint('[AuthFormNotifier] sendPasswordResetEmail unexpected error: $e');
+      state = state.copyWith(isSubmitting: false, errorCode: 'generic:$e');
       return false;
     }
   }

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../domain/auth_repository.dart';
@@ -84,66 +85,76 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<UserCredential?> signInWithGoogle() async {
-    try {
-      final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-      if (googleUser == null) {
-        // User canceled the sign-in flow
-        return null;
-      }
-
-      final GoogleSignInAuthentication googleAuth =
-          await googleUser.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      final userCredential = await _auth.signInWithCredential(credential);
+    // On Web, use the Firebase-native popup flow — the google_sign_in package
+    // redirect flow requires additional OAuth client configuration and does not
+    // work reliably on hosted web apps without a google-signin-client_id meta tag.
+    if (kIsWeb) {
+      final provider = GoogleAuthProvider();
+      provider.addScope('email');
+      provider.addScope('profile');
+      final userCredential = await _auth.signInWithPopup(provider);
       if (userCredential.user != null) {
         await provisionFirestoreUser(
           userCredential.user!,
           authProvider: 'google',
         );
       }
-
       return userCredential;
-    } catch (_) {
-      rethrow;
     }
+
+    // Native mobile flow via google_sign_in package.
+    final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
+    if (googleUser == null) {
+      // User cancelled the sign-in flow.
+      return null;
+    }
+
+    final GoogleSignInAuthentication googleAuth =
+        await googleUser.authentication;
+    final AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth.accessToken,
+      idToken: googleAuth.idToken,
+    );
+
+    final userCredential = await _auth.signInWithCredential(credential);
+    if (userCredential.user != null) {
+      await provisionFirestoreUser(
+        userCredential.user!,
+        authProvider: 'google',
+      );
+    }
+
+    return userCredential;
   }
 
   @override
   Future<UserCredential?> signInWithApple() async {
-    try {
-      final rawNonce = _generateNonce();
-      final nonce = _sha256ofString(rawNonce);
+    final rawNonce = _generateNonce();
+    final nonce = _sha256ofString(rawNonce);
 
-      final appleCredential = await SignInWithApple.getAppleIDCredential(
-        scopes: [
-          AppleIDAuthorizationScopes.email,
-          AppleIDAuthorizationScopes.fullName,
-        ],
-        nonce: nonce,
+    final appleCredential = await SignInWithApple.getAppleIDCredential(
+      scopes: [
+        AppleIDAuthorizationScopes.email,
+        AppleIDAuthorizationScopes.fullName,
+      ],
+      nonce: nonce,
+    );
+
+    final OAuthProvider oauthProvider = OAuthProvider('apple.com');
+    final AuthCredential credential = oauthProvider.credential(
+      idToken: appleCredential.identityToken,
+      rawNonce: rawNonce,
+    );
+
+    final userCredential = await _auth.signInWithCredential(credential);
+    if (userCredential.user != null) {
+      await provisionFirestoreUser(
+        userCredential.user!,
+        authProvider: 'apple',
       );
-
-      final OAuthProvider oauthProvider = OAuthProvider('apple.com');
-      final AuthCredential credential = oauthProvider.credential(
-        idToken: appleCredential.identityToken,
-        rawNonce: rawNonce,
-      );
-
-      final userCredential = await _auth.signInWithCredential(credential);
-      if (userCredential.user != null) {
-        await provisionFirestoreUser(
-          userCredential.user!,
-          authProvider: 'apple',
-        );
-      }
-
-      return userCredential;
-    } catch (_) {
-      rethrow;
     }
+
+    return userCredential;
   }
 
   @override
@@ -151,6 +162,11 @@ class FirebaseAuthRepository implements AuthRepository {
     await _auth.sendPasswordResetEmail(email: email.trim());
   }
 
+  /// Creates or merges a Firestore user document for [user].
+  ///
+  /// Errors here are logged but intentionally NOT re-thrown so that a
+  /// Firestore permission issue (e.g. rules not yet deployed) never surfaces
+  /// as an authentication failure to the end user.
   @override
   Future<void> provisionFirestoreUser(
     User user, {
@@ -168,9 +184,9 @@ class FirebaseAuthRepository implements AuthRepository {
           'authProvider': authProvider,
         }, SetOptions(merge: true));
       }
-    } catch (_) {
-      // Allow downstream flow if network/offline
-      rethrow;
+    } catch (e) {
+      // Log the exact Firestore error without blocking the auth flow.
+      debugPrint('[FirebaseAuthRepository] provisionFirestoreUser error: $e');
     }
   }
 
