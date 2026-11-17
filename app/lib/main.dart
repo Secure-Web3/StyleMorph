@@ -8,13 +8,12 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'core/localization/app_language.dart';
 import 'core/localization/locale_provider.dart';
 import 'core/services/emulator_config.dart';
-import 'firebase_options.dart';
-import 'core/state/app_state.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'features/auth/presentation/auth_provider.dart';
 import 'features/auth/presentation/welcome_screen.dart';
 import 'features/shell/presentation/main_shell_screen.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -43,10 +42,6 @@ class StyleMorphApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeState = ref.watch(themeProvider);
     final currentLang = ref.watch(localeProvider);
-    final authUser = ref.watch(currentAuthUserProvider);
-    final appStateLoggedIn =
-        ref.watch(appStateProvider.select((s) => s.isLoggedIn));
-    final isLoggedIn = authUser != null || appStateLoggedIn;
 
     return MaterialApp(
       title: 'StyleMorph',
@@ -81,7 +76,38 @@ class StyleMorphApp extends ConsumerWidget {
           ),
         );
       },
-      home: isLoggedIn ? const MainShellScreen() : const WelcomeScreen(),
+      home: const _AuthGate(),
+    );
+  }
+}
+
+/// Routes to [MainShellScreen] or [WelcomeScreen] based solely on the real
+/// Firebase Auth stream. Shows a neutral splash while the stream is resolving.
+class _AuthGate extends ConsumerWidget {
+  const _AuthGate();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authAsync = ref.watch(authStateChangesProvider);
+
+    return authAsync.when(
+      loading: () => const _Splash(),
+      error: (_, s) => const WelcomeScreen(),
+      data: (user) =>
+          user != null ? const MainShellScreen() : const WelcomeScreen(),
+    );
+  }
+}
+
+class _Splash extends StatelessWidget {
+  const _Splash();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(
+        child: CircularProgressIndicator.adaptive(),
+      ),
     );
   }
 }
