@@ -8,7 +8,7 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'core/localization/app_language.dart';
 import 'core/localization/locale_provider.dart';
 import 'core/services/emulator_config.dart';
-import 'core/services/firebase_options.dart';
+import 'firebase_options.dart';
 import 'core/state/app_state.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
