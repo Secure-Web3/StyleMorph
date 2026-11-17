@@ -14,9 +14,14 @@ import 'widgets/referral_sub_tab.dart';
 import 'widgets/settings_sub_tab.dart';
 import 'widgets/wallet_sub_tab.dart';
 
-class ProfileTab extends ConsumerWidget {
+class ProfileTab extends ConsumerStatefulWidget {
   const ProfileTab({super.key});
 
+  @override
+  ConsumerState<ProfileTab> createState() => _ProfileTabState();
+}
+
+class _ProfileTabState extends ConsumerState<ProfileTab> {
   static const Set<String> _editableTabs = {
     'p-identity',
     'p-ai',
@@ -25,7 +30,15 @@ class ProfileTab extends ConsumerWidget {
   };
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
     final appState = ref.watch(appStateProvider);
@@ -141,19 +154,39 @@ class ProfileTab extends ConsumerWidget {
                           colors: colors,
                           strings: strings,
                           hasChanges: appState.hasUnsavedProfileChanges,
-                          onSave: () {
-                            ref
+                          isSaving: appState.isSavingProfile,
+                          onSave: () async {
+                            final success = await ref
                                 .read(appStateProvider.notifier)
-                                .saveProfileChanges();
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  strings.profileSavedToast,
-                                  style: const TextStyle(fontFamily: 'Vazirmatn'),
+                                .saveProfileToFirestore();
+                            if (!context.mounted) return;
+                            if (success) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    strings.profileSavedToast,
+                                    style: const TextStyle(
+                                      fontFamily: 'Vazirmatn',
+                                    ),
+                                  ),
+                                  backgroundColor: colors.ok,
+                                  duration: const Duration(seconds: 2),
                                 ),
-                                duration: const Duration(seconds: 2),
-                              ),
-                            );
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text(
+                                    'خطا در ذخیره تغییرات در سرور. لطفا مجددا تلاش کنید.',
+                                    style: TextStyle(
+                                      fontFamily: 'Vazirmatn',
+                                    ),
+                                  ),
+                                  backgroundColor: colors.orColor,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
                           },
                         ),
                     ],
@@ -235,12 +268,14 @@ class _StickySaveBar extends StatelessWidget {
   final AppColors colors;
   final AppStrings strings;
   final bool hasChanges;
+  final bool isSaving;
   final VoidCallback onSave;
 
   const _StickySaveBar({
     required this.colors,
     required this.strings,
     required this.hasChanges,
+    required this.isSaving,
     required this.onSave,
   });
 
@@ -261,13 +296,27 @@ class _StickySaveBar extends StatelessWidget {
         isFullWidth: true,
         variant: AppButtonVariant.primary,
         size: AppButtonSize.md,
-        icon: FaIcon(
-          hasChanges ? FontAwesomeIcons.floppyDisk : FontAwesomeIcons.check,
-          size: 14,
-          color: hasChanges ? colors.prt : colors.mu,
-        ),
-        text: hasChanges ? strings.saveChanges : strings.noChangesYet,
-        onPressed: hasChanges ? onSave : null,
+        icon: isSaving
+            ? null
+            : FaIcon(
+                hasChanges ? FontAwesomeIcons.floppyDisk : FontAwesomeIcons.check,
+                size: 14,
+                color: hasChanges ? colors.prt : colors.mu,
+              ),
+        text: isSaving
+            ? null
+            : (hasChanges ? strings.saveChanges : strings.noChangesYet),
+        onPressed: (hasChanges && !isSaving) ? onSave : null,
+        child: isSaving
+            ? SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: colors.prt,
+                ),
+              )
+            : null,
       ),
     );
   }

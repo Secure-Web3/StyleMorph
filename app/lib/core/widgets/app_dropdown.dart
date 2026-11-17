@@ -9,7 +9,8 @@ import '../theme/app_typography.dart';
 class AppDropdown<T> extends StatelessWidget {
   final String? label;
   final Widget? labelTrailing;
-  final T value;
+  final T? value;
+  final String? placeholder;
   final List<DropdownMenuItem<T>> items;
   final ValueChanged<T?>? onChanged;
 
@@ -18,6 +19,7 @@ class AppDropdown<T> extends StatelessWidget {
     this.label,
     this.labelTrailing,
     required this.value,
+    this.placeholder,
     required this.items,
     required this.onChanged,
   });
@@ -63,6 +65,16 @@ class AppDropdown<T> extends StatelessWidget {
           child: DropdownButtonHideUnderline(
             child: DropdownButton<T>(
               value: value,
+              hint: placeholder != null
+                  ? Text(
+                      placeholder!,
+                      style: TextStyle(
+                        fontFamily: AppTypography.fontFamily,
+                        fontSize: 12,
+                        color: colors.mu,
+                      ),
+                    )
+                  : null,
               isExpanded: true,
               isDense: true,
               dropdownColor: colors.sf,

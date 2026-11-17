@@ -1,8 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -14,10 +16,9 @@ import '../../../../core/widgets/app_section_header.dart';
 class ReferralSubTab extends ConsumerWidget {
   const ReferralSubTab({super.key});
 
-  static const String _referralLink = 'https://stylemorph.app/r/sara88';
-
-  void _copyLink(BuildContext context, AppStrings strings) {
-    Clipboard.setData(const ClipboardData(text: _referralLink));
+  void _copyLink(BuildContext context, String link, AppStrings strings) {
+    if (link.isEmpty) return;
+    Clipboard.setData(ClipboardData(text: link));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
@@ -33,6 +34,16 @@ class ReferralSubTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final strings = context.strings;
+    final user = FirebaseAuth.instance.currentUser;
+    final uid = user?.uid ?? '';
+    final handle = ref
+        .watch(appStateProvider.select((s) => s.userHandle))
+        .replaceAll('@', '')
+        .trim();
+    final refCode =
+        handle.isNotEmpty ? handle : (uid.length >= 8 ? uid.substring(0, 8) : uid);
+    final referralLink =
+        refCode.isNotEmpty ? 'https://stylemorph.app/r/$refCode' : '';
 
     return Padding(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -48,29 +59,29 @@ class ReferralSubTab extends ConsumerWidget {
           // 3-Column Stats Grid
           Row(
             children: [
-              // Invited Count
+              // Invited Count (Real default: 0)
               Expanded(
                 child: _buildStatCard(
                   label: strings.refInvited,
-                  value: strings.countWithUnit(12, strings.refMembersUnit),
+                  value: strings.countWithUnit(0, strings.refMembersUnit),
                   colors: colors,
                 ),
               ),
               const SizedBox(width: 6),
-              // Bonus Earned
+              // Bonus Earned (Real default: 0)
               Expanded(
                 child: _buildStatCard(
                   label: strings.refBonus,
-                  value: '${strings.formatNumber('1,200')} ${strings.coin}',
+                  value: '۰ ${strings.coin}',
                   colors: colors,
                 ),
               ),
               const SizedBox(width: 6),
-              // Network Tier
+              // Network Tier (Default starter tier)
               Expanded(
                 child: _buildStatCard(
                   label: strings.refTier,
-                  value: strings.tr('طلایی'),
+                  value: strings.tr('پایه'),
                   valueColor: colors.wn,
                   colors: colors,
                 ),
@@ -100,7 +111,9 @@ class ReferralSubTab extends ConsumerWidget {
                     border: Border.all(color: colors.bd),
                   ),
                   child: Text(
-                    _referralLink,
+                    referralLink.isNotEmpty
+                        ? referralLink
+                        : 'https://stylemorph.app/r/...',
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 12,
@@ -118,7 +131,9 @@ class ReferralSubTab extends ConsumerWidget {
                 height: 40,
                 icon: FaIcon(FontAwesomeIcons.copy, size: 12, color: colors.prt),
                 text: strings.refCopy,
-                onPressed: () => _copyLink(context, strings),
+                onPressed: referralLink.isNotEmpty
+                    ? () => _copyLink(context, referralLink, strings)
+                    : null,
               ),
             ],
           ),
@@ -136,20 +151,34 @@ class ReferralSubTab extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
 
-          // Friend Item 1
-          _buildFriendItem(
-            name: strings.tr('مریم کاظمی'),
-            handle: '@maryam',
-            reward: '+${strings.coinsText(100)}',
-            colors: colors,
-          ),
-          const SizedBox(height: 4),
-          // Friend Item 2
-          _buildFriendItem(
-            name: strings.tr('علی رضاپور'),
-            handle: '@ali_r',
-            reward: '+${strings.coinsText(100)}',
-            colors: colors,
+          // Clean Empty State for Friends List (Purged fake members)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+            decoration: BoxDecoration(
+              color: colors.sf,
+              borderRadius: AppRadius.rMd,
+              border: Border.all(color: colors.bd),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FaIcon(
+                  FontAwesomeIcons.userGroup,
+                  size: 20,
+                  color: colors.mu,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'هنوز دوستی با کد شما ثبت‌نام نکرده است',
+                  style: TextStyle(
+                    fontFamily: 'Vazirmatn',
+                    fontSize: 11,
+                    color: colors.mu,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -209,70 +238,6 @@ class ReferralSubTab extends ConsumerWidget {
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: valueColor ?? colors.tx,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildFriendItem({
-    required String name,
-    required String handle,
-    required String reward,
-    required AppColors colors,
-  }) {
-    return AppCard(
-      variant: AppCardVariant.subtle,
-      borderRadius: AppRadius.rLg,
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: colors.sf,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: colors.bd),
-                  ),
-                  child: Center(
-                    child: FaIcon(FontAwesomeIcons.userCheck,
-                        size: 10, color: colors.mu),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Flexible(
-                  child: Text(
-                    '$name ($handle)',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: 'Vazirmatn',
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: colors.tx,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            reward,
-            style: TextStyle(
-              fontFamily: 'Vazirmatn',
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: colors.ok,
             ),
           ),
         ],

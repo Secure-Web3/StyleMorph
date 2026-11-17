@@ -23,6 +23,7 @@ class AppDrawer extends ConsumerWidget {
     final strings = context.strings;
     final themeState = ref.watch(themeProvider);
     final currentLang = ref.watch(localeProvider);
+    final appState = ref.watch(appStateProvider);
 
     // Drawer width: min(288, 84% of screen width).
     final drawerWidth =
@@ -81,7 +82,7 @@ class AppDrawer extends ConsumerWidget {
                     icon: FontAwesomeIcons.solidUser,
                     title: strings.nProf,
                     trailing: Text(
-                      strings.formatPercent(40),
+                      strings.formatPercent((appState.profileProgress * 100).round()),
                       style: TextStyle(
                         fontFamily: 'Vazirmatn',
                         fontSize: 12,

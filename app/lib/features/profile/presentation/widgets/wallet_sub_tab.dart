@@ -29,25 +29,6 @@ class _WalletSubTabState extends ConsumerState<WalletSubTab> {
     super.dispose();
   }
 
-  void _applyPromo() {
-    final code = _promoController.text.trim();
-    if (code.isEmpty) return;
-
-    // Award bonus coins for promo code
-    ref.read(appStateProvider.notifier).addCoins(50);
-    _promoController.clear();
-    final strings = context.strings;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          strings.walPromoApplied(code),
-          style: const TextStyle(fontFamily: 'Vazirmatn'),
-        ),
-        backgroundColor: Colors.green[800],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -200,7 +181,7 @@ class _WalletSubTabState extends ConsumerState<WalletSubTab> {
                 size: AppButtonSize.sm,
                 height: 40,
                 text: strings.walApply,
-                onPressed: _applyPromo,
+                onPressed: null, // Disabled: promo / payment gateways not connected
               ),
             ],
           ),
@@ -218,23 +199,34 @@ class _WalletSubTabState extends ConsumerState<WalletSubTab> {
           ),
           const SizedBox(height: AppSpacing.xs),
 
-          // Transaction Items
-          _buildTransactionItem(
-            title: strings.walTxTopup,
-            time: strings.walTxTopupTime,
-            coinChange: '+${strings.formatNumber(150)}',
-            isPositive: true,
-            colors: colors,
-            strings: strings,
-          ),
-          const SizedBox(height: 4),
-          _buildTransactionItem(
-            title: strings.walTxTryon,
-            time: strings.walTxTryonTime,
-            coinChange: '-${strings.formatNumber(10)}',
-            isPositive: false,
-            colors: colors,
-            strings: strings,
+          // Empty Transactions List
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+            decoration: BoxDecoration(
+              color: colors.sf,
+              borderRadius: AppRadius.rMd,
+              border: Border.all(color: colors.bd),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FaIcon(
+                  FontAwesomeIcons.clockRotateLeft,
+                  size: 20,
+                  color: colors.mu,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'هنوز تراکنشی ثبت نشده است',
+                  style: TextStyle(
+                    fontFamily: 'Vazirmatn',
+                    fontSize: 11,
+                    color: colors.mu,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -249,17 +241,7 @@ class _WalletSubTabState extends ConsumerState<WalletSubTab> {
     required AppStrings strings,
   }) {
     return InkWell(
-      onTap: () {
-        ref.read(appStateProvider.notifier).setPlan('پلن $planName');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              strings.walPlanChanged(planName),
-              style: const TextStyle(fontFamily: 'Vazirmatn'),
-            ),
-          ),
-        );
-      },
+      onTap: null, // Disabled: payment gateway not connected
       borderRadius: AppRadius.rMd,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
@@ -336,79 +318,7 @@ class _WalletSubTabState extends ConsumerState<WalletSubTab> {
             size: AppButtonSize.sm,
             isFullWidth: true,
             text: price,
-            onPressed: () {
-              ref.read(appStateProvider.notifier).addCoins(coinsToAdd);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    strings.walCoinsAdded(coinsToAdd),
-                    style: const TextStyle(fontFamily: 'Vazirmatn'),
-                  ),
-                  backgroundColor: Colors.green[800],
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTransactionItem({
-    required String title,
-    required String time,
-    required String coinChange,
-    required bool isPositive,
-    required AppColors colors,
-    required AppStrings strings,
-  }) {
-    return AppCard(
-      variant: AppCardVariant.subtle,
-      borderRadius: AppRadius.rLg,
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.md,
-        vertical: AppSpacing.sm,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: 'Vazirmatn',
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: colors.tx,
-                  ),
-                ),
-                Text(
-                  time,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: 'Vazirmatn',
-                    fontSize: 9,
-                    color: colors.mu,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 6),
-          Text(
-            '$coinChange ${strings.coin}',
-            style: TextStyle(
-              fontFamily: 'Vazirmatn',
-              fontSize: 11,
-              fontWeight: FontWeight.w700,
-              color: isPositive ? colors.ok : colors.orColor,
-            ),
+            onPressed: null, // Disabled: payment gateway not connected
           ),
         ],
       ),

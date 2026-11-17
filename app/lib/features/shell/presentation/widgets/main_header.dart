@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -67,47 +68,67 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                               _buildAvatar(colors, strings, appState),
                               const SizedBox(width: AppSpacing.md),
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    // Name + verified icon
-                                    Row(
+                                child: Builder(
+                                  builder: (context) {
+                                    final user = FirebaseAuth.instance.currentUser;
+                                    final isVerified = user?.emailVerified ?? false;
+                                    final displayName = appState.userName.isNotEmpty
+                                        ? strings.tr(appState.userName)
+                                        : (user?.displayName ??
+                                            (user?.email?.split('@').first ??
+                                                'کاربر جدید'));
+                                    final subtitleHandle =
+                                        appState.userHandle.isNotEmpty
+                                            ? appState.userHandle
+                                            : (user?.email ?? '');
+
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        Flexible(
-                                          child: Text(
-                                            strings.tr(appState.userName),
-                                            style: TextStyle(
-                                              fontFamily: 'Vazirmatn',
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w700,
-                                              color: colors.tx,
+                                        // Name + verified icon
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                displayName,
+                                                style: TextStyle(
+                                                  fontFamily: 'Vazirmatn',
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: colors.tx,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                              ),
                                             ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
+                                            if (isVerified) ...[
+                                              const SizedBox(width: AppSpacing.xs),
+                                              FaIcon(
+                                                FontAwesomeIcons.circleCheck,
+                                                size: 12,
+                                                color: colors.inColor,
+                                              ),
+                                            ],
+                                          ],
                                         ),
-                                        const SizedBox(width: AppSpacing.xs),
-                                        FaIcon(
-                                          FontAwesomeIcons.circleCheck,
-                                          size: 12,
-                                          color: colors.inColor,
+                                        const SizedBox(height: 2),
+                                        // Subtitle: verification | @username
+                                        Text(
+                                          isVerified
+                                              ? '${strings.verif} | $subtitleHandle'
+                                              : subtitleHandle,
+                                          style: TextStyle(
+                                            fontFamily: 'Vazirmatn',
+                                            fontSize: 11,
+                                            color: colors.mu,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
                                         ),
                                       ],
-                                    ),
-                                    const SizedBox(height: 2),
-                                    // Subtitle: verification | @username
-                                    Text(
-                                      '${strings.verif} | ${appState.userHandle}',
-                                      style: TextStyle(
-                                        fontFamily: 'Vazirmatn',
-                                        fontSize: 11,
-                                        color: colors.mu,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
+                                    );
+                                  },
                                 ),
                               ),
                             ],
@@ -164,16 +185,6 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                                       fontFamily: 'Vazirmatn',
                                       fontSize: 11,
                                       color: colors.mu,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 2),
-                                  Text(
-                                    '+',
-                                    style: TextStyle(
-                                      fontFamily: 'Vazirmatn',
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: colors.wn,
                                     ),
                                   ),
                                 ],
@@ -279,20 +290,24 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
             ),
           ),
           child: Container(
+            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: colors.sf,
             ),
-            child: Center(
-              child: Text(
-                'SA',
-                style: TextStyle(
-                  fontFamily: 'Vazirmatn',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: colors.tx,
-                ),
-              ),
+            child: Builder(
+              builder: (context) {
+                final user = FirebaseAuth.instance.currentUser;
+                if (user?.photoURL != null && user!.photoURL!.isNotEmpty) {
+                  return Image.network(
+                    user.photoURL!,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) =>
+                        _buildInitialsWidget(appState, colors),
+                  );
+                }
+                return _buildInitialsWidget(appState, colors);
+              },
             ),
           ),
         ),
@@ -319,6 +334,41 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildInitialsWidget(AppState appState, AppColors colors) {
+    String initials = 'SM';
+    final first = appState.identityValues['firstName']?.trim() ?? '';
+    final last = appState.identityValues['lastName']?.trim() ?? '';
+    if (first.isNotEmpty && last.isNotEmpty) {
+      initials = '${first.characters.first}${last.characters.first}'.toUpperCase();
+    } else if (first.isNotEmpty) {
+      initials = first.characters.take(2).toString().toUpperCase();
+    } else if (appState.userName.isNotEmpty) {
+      final parts = appState.userName.trim().split(RegExp(r'\s+'));
+      if (parts.length >= 2) {
+        initials = '${parts[0].characters.first}${parts[1].characters.first}'.toUpperCase();
+      } else {
+        initials = parts[0].characters.take(2).toString().toUpperCase();
+      }
+    } else {
+      final email = FirebaseAuth.instance.currentUser?.email ?? '';
+      if (email.isNotEmpty) {
+        initials = email.split('@').first.characters.take(2).toString().toUpperCase();
+      }
+    }
+
+    return Center(
+      child: Text(
+        initials,
+        style: TextStyle(
+          fontFamily: 'Vazirmatn',
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+          color: colors.tx,
+        ),
+      ),
     );
   }
 

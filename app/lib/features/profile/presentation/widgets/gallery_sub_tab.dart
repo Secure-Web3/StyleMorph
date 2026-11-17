@@ -5,7 +5,6 @@ import '../../../../core/localization/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
 
@@ -53,76 +52,67 @@ class _GallerySubTabState extends ConsumerState<GallerySubTab> {
                 ),
               ),
               const SizedBox(width: 6),
-              Row(
-                children: [
-                  Text(
-                    strings.galUploaded,
-                    style: TextStyle(
-                      fontFamily: 'Vazirmatn',
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: colors.ok,
-                    ),
-                  ),
-                  const SizedBox(width: 4),
-                  FaIcon(FontAwesomeIcons.check, size: 10, color: colors.ok),
-                ],
+              Text(
+                'در انتظار بارگذاری',
+                style: TextStyle(
+                  fontFamily: 'Vazirmatn',
+                  fontSize: 11,
+                  color: colors.mu,
+                ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.xs),
 
-          // Video Preview Box
+          // Video Preview Box (Clean empty upload slot)
           AppCard(
             height: 100,
             variant: AppCardVariant.subtle,
             padding: EdgeInsetsDirectional.zero,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                InkWell(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          strings.galPlayToast,
-                          style: const TextStyle(fontFamily: 'Vazirmatn'),
+            child: InkWell(
+              onTap: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      strings.galPlayToast,
+                      style: const TextStyle(fontFamily: 'Vazirmatn'),
+                    ),
+                    duration: const Duration(seconds: 1),
+                  ),
+                );
+              },
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: colors.sf,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: colors.bd),
+                      ),
+                      child: Center(
+                        child: FaIcon(
+                          FontAwesomeIcons.cloudArrowUp,
+                          size: 14,
+                          color: colors.mu,
                         ),
-                        duration: const Duration(seconds: 1),
-                      ),
-                    );
-                  },
-                  borderRadius: AppRadius.rFull,
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: colors.pr,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: FaIcon(
-                        FontAwesomeIcons.play,
-                        size: 13,
-                        color: colors.prt,
                       ),
                     ),
-                  ),
-                ),
-                PositionedDirectional(
-                  bottom: 6,
-                  end: 8,
-                  child: Text(
-                    '360_scan_sara.mp4 (12MB)',
-                    style: TextStyle(
-                      fontFamily: 'Vazirmatn',
-                      fontSize: 10,
-                      color: colors.mu,
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      'برای بارگذاری یا ضبط اسکن ۳۶۰ درجه کلیک کنید',
+                      style: TextStyle(
+                        fontFamily: 'Vazirmatn',
+                        fontSize: 11,
+                        color: colors.mu,
+                      ),
                     ),
-                    textDirection: TextDirection.ltr,
-                  ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -167,7 +157,7 @@ class _GallerySubTabState extends ConsumerState<GallerySubTab> {
                     decoration: BoxDecoration(
                       color: colors.bg,
                       borderRadius: AppRadius.rMd,
-                      border: Border.all(color: colors.pr, width: 1.5),
+                      border: Border.all(color: colors.bd),
                     ),
                     child: Stack(
                       children: [
@@ -175,24 +165,7 @@ class _GallerySubTabState extends ConsumerState<GallerySubTab> {
                           child: FaIcon(
                             FontAwesomeIcons.user,
                             size: 32,
-                            color: colors.mu.withValues(alpha: 0.5),
-                          ),
-                        ),
-                        PositionedDirectional(
-                          top: 6,
-                          start: 6,
-                          child: AppBadge(
-                            variant: AppBadgeVariant.success,
-                            size: AppBadgeSize.sm,
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                FaIcon(FontAwesomeIcons.check,
-                                    size: 8, color: colors.ok),
-                                const SizedBox(width: 3),
-                                Text(strings.galApproved),
-                              ],
-                            ),
+                            color: colors.mu.withValues(alpha: 0.35),
                           ),
                         ),
                         Positioned(

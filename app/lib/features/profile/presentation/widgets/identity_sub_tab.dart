@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -34,29 +35,55 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
   @override
   void initState() {
     super.initState();
+    final user = FirebaseAuth.instance.currentUser;
     final values = ref.read(appStateProvider).identityValues;
-    _firstNameController =
-        TextEditingController(text: values['firstName'] ?? 'سارا');
-    _lastNameController =
-        TextEditingController(text: values['lastName'] ?? 'احمدی');
-    _nickController =
-        TextEditingController(text: values['nick'] ?? '@sara_ahmadi');
-    _nidController =
-        TextEditingController(text: values['nid'] ?? '0012345678');
-    _mobileController =
-        TextEditingController(text: values['mobile'] ?? '09123456789');
-    _emailController =
-        TextEditingController(text: values['email'] ?? 'sara.ahmadi@gmail.com');
-    _countryController =
-        TextEditingController(text: values['country'] ?? 'ایران');
-    _provinceController =
-        TextEditingController(text: values['province'] ?? 'تهران');
-    _cityController = TextEditingController(text: values['city'] ?? 'تهران');
-    _addressController = TextEditingController(
-      text: values['address'] ?? 'خیابان ولیعصر، بالاتر از ونک، پلاک ۲۴',
-    );
-    _zipController =
-        TextEditingController(text: values['zip'] ?? '1994512345');
+    String initialFirst = values['firstName'] ?? '';
+    String initialLast = values['lastName'] ?? '';
+    if (initialFirst.isEmpty &&
+        initialLast.isEmpty &&
+        user?.displayName != null &&
+        user!.displayName!.isNotEmpty) {
+      final parts = user.displayName!.trim().split(RegExp(r'\s+'));
+      if (parts.isNotEmpty) initialFirst = parts.first;
+      if (parts.length > 1) initialLast = parts.sublist(1).join(' ');
+    }
+    final initialEmail = values['email']?.isNotEmpty == true
+        ? values['email']!
+        : (user?.email ?? '');
+
+    _firstNameController = TextEditingController(text: initialFirst);
+    _lastNameController = TextEditingController(text: initialLast);
+    _nickController = TextEditingController(text: values['nick'] ?? '');
+    _nidController = TextEditingController(text: values['nid'] ?? '');
+    _mobileController = TextEditingController(text: values['mobile'] ?? '');
+    _emailController = TextEditingController(text: initialEmail);
+    _countryController = TextEditingController(text: values['country'] ?? '');
+    _provinceController = TextEditingController(text: values['province'] ?? '');
+    _cityController = TextEditingController(text: values['city'] ?? '');
+    _addressController = TextEditingController(text: values['address'] ?? '');
+    _zipController = TextEditingController(text: values['zip'] ?? '');
+  }
+
+  void _syncControllers(Map<String, String> values) {
+    final user = FirebaseAuth.instance.currentUser;
+    void update(TextEditingController ctrl, String? val) {
+      final text = val ?? '';
+      if (ctrl.text != text) {
+        ctrl.text = text;
+      }
+    }
+
+    update(_firstNameController, values['firstName']);
+    update(_lastNameController, values['lastName']);
+    update(_nickController, values['nick']);
+    update(_nidController, values['nid']);
+    update(_mobileController, values['mobile']);
+    update(_emailController, values['email'] ?? user?.email);
+    update(_countryController, values['country']);
+    update(_provinceController, values['province']);
+    update(_cityController, values['city']);
+    update(_addressController, values['address']);
+    update(_zipController, values['zip']);
   }
 
   @override
@@ -81,6 +108,13 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AppState>(appStateProvider, (previous, next) {
+      if (previous?.identityValues != next.identityValues &&
+          !next.hasUnsavedProfileChanges) {
+        _syncControllers(next.identityValues);
+      }
+    });
+
     final colors = context.colors;
     final strings = context.strings;
 

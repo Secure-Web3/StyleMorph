@@ -4,10 +4,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_dropdown.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -20,6 +18,7 @@ class AiDnaSubTab extends ConsumerWidget {
     final colors = context.colors;
     final strings = context.strings;
     final appState = ref.watch(appStateProvider);
+    final genderVal = appState.aiDnaValues['gender'];
 
     return Padding(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -29,24 +28,20 @@ class AiDnaSubTab extends ConsumerWidget {
           AppSectionHeader(
             faIcon: FontAwesomeIcons.dna,
             title: strings.aiHeader,
-            trailing: AppBadge(
-              size: AppBadgeSize.sm,
-              child: Text(strings.aiEditable),
-            ),
           ),
           const SizedBox(height: AppSpacing.sm),
 
           Text(
-            strings.aiNote,
+            'اطلاعات آناتومی و اندازه‌های بدن خود را به صورت دستی وارد و ذخیره کنید.',
             style: AppTypography.caption(color: colors.mu),
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // 1. Gender Dropdown
+          // 1. Gender Dropdown (Defaults unselected with prompt)
           AppDropdown<String>(
             label: strings.aiGender,
-            labelTrailing: _sourceBadge(context, ref, 'gender'),
-            value: appState.aiDnaValues['gender'] ?? 'female',
+            placeholder: strings.tr('انتخاب جنسیت'),
+            value: (genderVal != null && genderVal.isNotEmpty) ? genderVal : null,
             items: [
               DropdownMenuItem(
                 value: 'female',
@@ -208,24 +203,6 @@ class AiDnaSubTab extends ConsumerWidget {
     );
   }
 
-  Widget _sourceBadge(
-    BuildContext context,
-    WidgetRef ref,
-    String fieldKey,
-  ) {
-    final source = ref.watch(
-      appStateProvider.select((s) => s.aiDnaSources[fieldKey] ?? 'AI'),
-    );
-    final isAi = source == 'AI';
-    return AppBadge(
-      variant: isAi ? AppBadgeVariant.info : AppBadgeVariant.warning,
-      size: AppBadgeSize.sm,
-      borderRadius: AppRadius.rSm,
-      padding: const EdgeInsetsDirectional.symmetric(horizontal: 5, vertical: 1),
-      child: Text(source, style: const TextStyle(fontSize: 9)),
-    );
-  }
-
   Widget _buildTextEditField({
     required BuildContext context,
     required WidgetRef ref,
@@ -242,7 +219,6 @@ class AiDnaSubTab extends ConsumerWidget {
     return AppTextField(
       key: ValueKey('$fieldKey-${strings.localeCode}'),
       label: label,
-      labelTrailing: _sourceBadge(context, ref, fieldKey),
       initialValue: displayVal,
       suffixText: unit,
       onChanged: (val) {
