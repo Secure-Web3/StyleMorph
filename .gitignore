@@ -58,7 +58,6 @@ out/
 *credentials*.json
 google-services.json
 GoogleService-Info.plist
-firebase_options.dart
 
 # Mobile Signing Keys & Certificates
 *.keystore
