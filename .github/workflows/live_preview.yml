@@ -28,7 +28,7 @@ jobs:
         run: |
           cd app
           flutter pub get
-          flutter build web --release --base-href "/"
+          flutter build web --release --base-href "/" --pwa-strategy=none
 
       - name: Build Flutter Web Admin Panel
         run: |

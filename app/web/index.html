@@ -34,6 +34,30 @@
 </head>
 <body>
   <!--
+    Unregister any active Flutter service workers and purge stale PWA caches
+    before loading the app. This prevents users from being stuck on an outdated
+    build after a new deployment without needing Incognito or manual cache clear.
+  -->
+  <script>
+    (function () {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          registrations.forEach(function (reg) {
+            reg.unregister();
+          });
+        });
+      }
+      if ('caches' in window) {
+        caches.keys().then(function (cacheNames) {
+          cacheNames.forEach(function (cacheName) {
+            caches.delete(cacheName);
+          });
+        });
+      }
+    })();
+  </script>
+
+  <!--
     You can customize the "flutter_bootstrap.js" script.
     This is useful to provide a custom configuration to the Flutter loader
     or to give the user feedback during the initialization process.
