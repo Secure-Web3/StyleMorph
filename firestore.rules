@@ -83,6 +83,16 @@ service cloud.firestore {
         allow read: if isOwner(userId) && hasValidSessionForUser(userId);
         allow write: if false;
       }
+
+      // Multi-Device Sessions & Remote Revocation
+      match /sessions/{sessionId} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // Blocked Devices (for Primary/Master device access control)
+      match /blocked_devices/{deviceId} {
+        allow read, write: if isOwner(userId);
+      }
     }
 
     // Global Immutable Financial Ledger: 100% forbidden for client writes.

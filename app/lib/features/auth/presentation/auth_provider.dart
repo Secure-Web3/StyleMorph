@@ -244,6 +244,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       }
       if (await _isCurrentDeviceBlocked()) return false;
       if (user != null && user.emailVerified) {
+        await _ref.read(sessionServiceProvider).upsertSession();
         await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       }
       state = state.copyWith(isSubmitting: false);
@@ -292,6 +293,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       }
       if (await _isCurrentDeviceBlocked()) return false;
       if (user != null && user.emailVerified) {
+        await _ref.read(sessionServiceProvider).upsertSession();
         await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       }
       state = state.copyWith(isSubmitting: false);
@@ -317,6 +319,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         return false;
       }
       if (await _isCurrentDeviceBlocked()) return false;
+      await _ref.read(sessionServiceProvider).upsertSession();
       await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       state = state.copyWith(isSubmitting: false);
       return true;
@@ -341,6 +344,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         return false;
       }
       if (await _isCurrentDeviceBlocked()) return false;
+      await _ref.read(sessionServiceProvider).upsertSession();
       await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       state = state.copyWith(isSubmitting: false);
       return true;

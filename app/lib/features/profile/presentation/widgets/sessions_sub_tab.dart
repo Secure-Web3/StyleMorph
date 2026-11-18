@@ -155,6 +155,16 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
   bool _isTerminatingAll = false;
   String? _expandedSessionId;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(sessionServiceProvider).upsertSession().catchError((e) {
+        debugPrint('[SessionsSubTab] upsertSession on mount error: $e');
+      });
+    });
+  }
+
   void _toggleExpand(String sessionId) {
     setState(() {
       _expandedSessionId =
@@ -370,21 +380,60 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
                 ),
               ),
             ),
-            error: (err, _) => Center(
-              child: Text(
-                strings.sessErrLoad,
-                style: AppTypography.bodyMedium(color: colors.orColor),
-              ),
-            ),
+            error: (err, stack) {
+              debugPrint('[SessionsSubTab] Firestore exception loading sessions: $err\n$stack');
+              // Automatically trigger an upsert attempt if collection was just created
+              Future.microtask(() {
+                ref.read(sessionServiceProvider).upsertSession().catchError((e) {
+                  debugPrint('[SessionsSubTab] Retry upsertSession error: $e');
+                });
+              });
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colors.pr,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        strings.sessEmpty,
+                        style: AppTypography.bodyMedium(color: colors.mu),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
             data: (sessions) {
               if (sessions.isEmpty) {
+                // If sessions haven't populated yet, trigger upsertSession immediately
+                Future.microtask(() {
+                  ref.read(sessionServiceProvider).upsertSession().catchError((e) {
+                    debugPrint('[SessionsSubTab] upsertSession on empty error: $e');
+                  });
+                });
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.xl),
-                    child: Text(
-                      strings.sessEmpty,
-                      style: AppTypography.bodyMedium(color: colors.mu),
-                      textAlign: TextAlign.center,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: colors.pr,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        Text(
+                          strings.sessEmpty,
+                          style: AppTypography.bodyMedium(color: colors.mu),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
                 );

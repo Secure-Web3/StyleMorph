@@ -36,6 +36,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
   void initState() {
     super.initState();
     Future.microtask(() {
+      ref.read(sessionServiceProvider).upsertSession().catchError((e) {
+        debugPrint('[ProfileTab] upsertSession error: $e');
+      });
       ref.read(appStateProvider.notifier).loadProfileFromFirestore();
     });
   }

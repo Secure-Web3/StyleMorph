@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/services/session_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -10,8 +11,12 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_feedback.dart';
+import 'auth_provider.dart';
 import 'widgets/auth_footer.dart';
 import 'widgets/auth_top_bar.dart';
+
+/// Session override flag when user clicks "I've Verified My Email"
+final emailVerifiedOverrideProvider = StateProvider<bool>((ref) => false);
 
 /// Screen displayed when an email/password account is not yet verified.
 /// Strictly gates access to the main app until user clicks the verification link.
@@ -60,11 +65,22 @@ class _EmailVerificationScreenState
     try {
       await widget.user.reload();
       final refreshedUser = FirebaseAuth.instance.currentUser;
+      if (refreshedUser != null) {
+        try {
+          await refreshedUser.getIdToken(true);
+        } catch (_) {}
+      }
       if (!mounted) return;
 
       if (refreshedUser != null && refreshedUser.emailVerified) {
-        // Successfully verified! Load profile and let AuthGate proceed
+        // 1. Immediately unlock AuthGate
+        ref.read(emailVerifiedOverrideProvider.notifier).state = true;
+        // 2. Guarantee session document is created and marked primary
+        await ref.read(sessionServiceProvider).upsertSession();
+        // 3. Load profile from Firestore
         await ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+        // 4. Force authStateChangesProvider refresh
+        ref.invalidate(authStateChangesProvider);
       } else {
         AppFeedback.showError(
           context,

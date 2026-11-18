@@ -2765,8 +2765,13 @@ class AppStrings {
   String get authEmailVerifyDesc => get('authEmailVerifyDesc');
   String get authEmailCheckBtn => get('authEmailCheckBtn');
   String get authEmailResendBtn => get('authEmailResendBtn');
-  String authEmailResendCooldown(int seconds) =>
-      get('authEmailResendCooldown').replaceAll('{s}', formatNumber(seconds));
+  String authEmailResendCooldown(int seconds) {
+    final lang = _normalizedLang(localeCode);
+    final secStr = (lang == 'fa' || lang == 'ar')
+        ? formatNumber(seconds)
+        : seconds.toString();
+    return get('authEmailResendCooldown').replaceAll('{s}', secStr);
+  }
   String get authEmailNotVerifiedYet => get('authEmailNotVerifiedYet');
   String get authVerificationEmailSent => get('authVerificationEmailSent');
   String get authBackOrSignOut => get('authBackOrSignOut');

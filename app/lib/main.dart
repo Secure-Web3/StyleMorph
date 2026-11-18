@@ -109,7 +109,11 @@ class _AuthGate extends ConsumerWidget {
         final isOAuth = user.providerData.any(
           (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
         );
-        if (!isOAuth && !user.emailVerified) {
+        final isOverrideVerified = ref.watch(emailVerifiedOverrideProvider);
+        final isVerified = isOverrideVerified ||
+            user.emailVerified ||
+            (FirebaseAuth.instance.currentUser?.emailVerified ?? false);
+        if (!isOAuth && !isVerified) {
           return EmailVerificationScreen(user: user);
         }
 
