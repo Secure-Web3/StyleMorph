@@ -1,7 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
+﻿import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/firebase_auth_repository.dart';
+import '../../../core/state/app_state.dart';
 import '../domain/auth_repository.dart';
 
 /// Auth UI mode: toggling between Login, Signup, and Forgot Password views.
@@ -140,8 +141,9 @@ class AuthFormState {
 
 class AuthFormNotifier extends StateNotifier<AuthFormState> {
   final AuthRepository _repository;
+  final Ref _ref;
 
-  AuthFormNotifier(this._repository) : super(const AuthFormState());
+  AuthFormNotifier(this._repository, this._ref) : super(const AuthFormState());
 
   void setMode(AuthMode mode) {
     state = state.copyWith(
@@ -208,6 +210,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         email: state.email,
         password: state.password,
       );
+      await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
@@ -244,6 +247,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         email: state.email,
         password: state.password,
       );
+      await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
@@ -266,6 +270,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         state = state.copyWith(isSubmitting: false, errorCode: 'google-cancelled');
         return false;
       }
+      await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
@@ -333,7 +338,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
 final authFormProvider =
     StateNotifierProvider<AuthFormNotifier, AuthFormState>((ref) {
   final repo = ref.watch(authRepositoryProvider);
-  return AuthFormNotifier(repo);
+  return AuthFormNotifier(repo, ref);
 });
 
 /// Granular selectors

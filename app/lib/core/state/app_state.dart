@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -151,6 +151,9 @@ class AppState {
   final Map<String, String> aiDnaSources;
   final Map<String, String> aiDnaValues;
 
+  // Gate-level pre-fetch flag: true once loadProfileFromFirestore() completes
+  final bool isProfileLoaded;
+
   const AppState({
     this.isLoggedIn = false,
     this.currentTab = AppTab.profile,
@@ -178,6 +181,7 @@ class AppState {
     ],
     this.aiDnaSources = const {},
     this.aiDnaValues = const {},
+    this.isProfileLoaded = false,
   });
 
   int get unreadNotificationsCount =>
@@ -204,6 +208,7 @@ class AppState {
     List<SupportMessage>? supportMessages,
     Map<String, String>? aiDnaSources,
     Map<String, String>? aiDnaValues,
+    bool? isProfileLoaded,
   }) {
     return AppState(
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
@@ -227,6 +232,7 @@ class AppState {
       supportMessages: supportMessages ?? this.supportMessages,
       aiDnaSources: aiDnaSources ?? this.aiDnaSources,
       aiDnaValues: aiDnaValues ?? this.aiDnaValues,
+      isProfileLoaded: isProfileLoaded ?? this.isProfileLoaded,
     );
   }
 }
@@ -430,6 +436,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
       }
     } catch (e) {
       debugPrint('[loadProfileFromFirestore] Error: $e');
+    } finally {
+      // Always mark profile as loaded so the auth gate can proceed
+      state = state.copyWith(isProfileLoaded: true);
     }
   }
 
@@ -616,6 +625,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       userName: '',
       userHandle: '',
       hasUnsavedProfileChanges: false,
+      isProfileLoaded: false,
     );
   }
 }

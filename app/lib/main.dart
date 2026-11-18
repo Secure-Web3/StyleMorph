@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+﻿import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +11,7 @@ import 'core/services/emulator_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'features/auth/presentation/auth_provider.dart';
+import 'core/state/app_state.dart';
 import 'features/auth/presentation/welcome_screen.dart';
 import 'features/shell/presentation/main_shell_screen.dart';
 import 'firebase_options.dart';
@@ -81,20 +82,34 @@ class StyleMorphApp extends ConsumerWidget {
   }
 }
 
-/// Routes to [MainShellScreen] or [WelcomeScreen] based solely on the real
-/// Firebase Auth stream. Shows a neutral splash while the stream is resolving.
+/// Routes to [MainShellScreen] or [WelcomeScreen] based on Firebase Auth stream.
+/// When a user is authenticated, holds on [_Splash] until Firestore profile
+/// data has been fetched and applied to [AppState] (gate-level pre-fetch).
 class _AuthGate extends ConsumerWidget {
   const _AuthGate();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authAsync = ref.watch(authStateChangesProvider);
+    final appState = ref.watch(appStateProvider);
+    final appNotifier = ref.read(appStateProvider.notifier);
 
     return authAsync.when(
       loading: () => const _Splash(),
       error: (_, s) => const WelcomeScreen(),
-      data: (user) =>
-          user != null ? const MainShellScreen() : const WelcomeScreen(),
+      data: (user) {
+        if (user == null) return const WelcomeScreen();
+
+        // Trigger profile load if not already loaded or in progress
+        if (!appState.isProfileLoaded) {
+          // Fire-and-forget; the finally block sets isProfileLoaded = true
+          // which triggers a rebuild and exits this branch.
+          Future.microtask(() => appNotifier.loadProfileFromFirestore());
+          return const _Splash();
+        }
+
+        return const MainShellScreen();
+      },
     );
   }
 }
