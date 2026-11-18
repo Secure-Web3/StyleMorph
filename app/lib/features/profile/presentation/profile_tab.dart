@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/services/session_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -46,6 +47,11 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     final appState = ref.watch(appStateProvider);
     final activeTabId = appState.currentProfileTab;
     final isEditableTab = _editableTabs.contains(activeTabId);
+
+    final sessionsAsync = ref.watch(allSessionsProvider);
+    final activeSessionsCount = sessionsAsync.value
+        ?.where((s) => !s.isBlocked && s.isActive)
+        .length;
 
     final subTabs = [
       _SubTabMeta('p-identity', strings.tIdent, FontAwesomeIcons.idCard),
@@ -127,6 +133,10 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                             isActive: activeTabId == subTabs[i].id,
                             verticalPad: itemVerticalPad,
                             colors: colors,
+                            strings: strings,
+                            badgeCount: subTabs[i].id == 'p-sessions'
+                                ? activeSessionsCount
+                                : null,
                             onTap: () {
                               ref
                                   .read(appStateProvider.notifier)
@@ -212,6 +222,8 @@ class _SidebarTabButton extends StatelessWidget {
   final bool isActive;
   final double verticalPad;
   final AppColors colors;
+  final AppStrings strings;
+  final int? badgeCount;
   final VoidCallback onTap;
 
   const _SidebarTabButton({
@@ -219,6 +231,8 @@ class _SidebarTabButton extends StatelessWidget {
     required this.isActive,
     required this.verticalPad,
     required this.colors,
+    required this.strings,
+    this.badgeCount,
     required this.onTap,
   });
 
@@ -244,18 +258,53 @@ class _SidebarTabButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            if (tab.icon is FaIconData)
-              FaIcon(
-                tab.icon as FaIconData,
-                size: 18,
-                color: isActive ? colors.pr : colors.mu,
-              )
-            else
-              Icon(
-                tab.icon,
-                size: 18,
-                color: isActive ? colors.pr : colors.mu,
-              ),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                if (tab.icon is FaIconData)
+                  FaIcon(
+                    tab.icon as FaIconData,
+                    size: 18,
+                    color: isActive ? colors.pr : colors.mu,
+                  )
+                else
+                  Icon(
+                    tab.icon,
+                    size: 18,
+                    color: isActive ? colors.pr : colors.mu,
+                  ),
+                if (badgeCount != null && badgeCount! > 0)
+                  PositionedDirectional(
+                    top: -5,
+                    end: -8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 4,
+                        vertical: 1,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.ok,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 14,
+                        minHeight: 14,
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        strings.formatNumber(badgeCount!),
+                        style: TextStyle(
+                          fontFamily: 'Vazirmatn',
+                          fontSize: 9,
+                          fontWeight: FontWeight.w700,
+                          color: colors.prt,
+                          height: 1.1,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: 4),
             Text(
               tab.label,

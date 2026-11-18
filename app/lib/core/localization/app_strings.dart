@@ -583,6 +583,28 @@ class AppStrings {
       'sessLoginTime': 'زمان ورود',
       'sessLastActive': 'آخرین فعالیت',
       'sessDelete': 'حذف نشست',
+      'timeJustNow': 'همین الان',
+      'timeMinutesAgo': '{n} دقیقه پیش',
+      'timeHoursAgo': '{n} ساعت پیش',
+      'timeDaysAgo': '{n} روز پیش',
+      'sessPrimaryBadge': 'دستگاه اصلی (Master)',
+      'sessBlockedBadge': 'مسدود شده',
+      'sessBlockBtn': 'مسدودسازی',
+      'sessUnblockBtn': 'رفع مسدودیت',
+      'sessConfirmBlockTitle': 'مسدودسازی موقت دستگاه',
+      'sessConfirmBlockMsg': 'آیا از مسدودسازی موقت دسترسی این دستگاه اطمینان دارید؟ نشست‌های فعال آن بلافاصله خارج خواهند شد.',
+      'sessConfirmUnblockTitle': 'رفع مسدودیت دستگاه',
+      'sessConfirmUnblockMsg': 'آیا مایل به رفع مسدودیت این دستگاه هستید؟ این دستگاه مجدداً امکان ورود خواهد داشت.',
+      'sessConfirmDeleteTitle': 'حذف و لغو نشست',
+      'sessConfirmDeleteMsg': 'آیا از خاتمه دادن و حذف این نشست اطمینان دارید؟',
+      'sessConfirmTerminateAllTitle': 'خروج از سایر دستگاه‌ها',
+      'sessConfirmTerminateAllMsg': 'آیا از خروج همزمان از تمامی دستگاه‌های دیگر اطمینان دارید؟ (دستگاه اصلی خارج نخواهد شد)',
+      'sessDeviceBlockedNotice': 'دسترسی این دستگاه توسط دستگاه اصلی (Primary) موقتاً مسدود شده است.',
+      'sessPrimaryOnlyNotice': 'فقط دستگاه اصلی مجاز به مدیریت یا مسدودسازی نشست‌ها می‌باشد.',
+      'sessCopiedToast': 'شناسه نشست در کلیپ‌بورد کپی شد',
+      'sessErrLoad': 'خطا در بارگذاری نشست‌ها',
+      'dialogCancel': 'انصراف',
+      'dialogConfirm': 'تأیید',
     },
     'en': {
       'appName': 'StyleMorph',
@@ -1068,6 +1090,28 @@ class AppStrings {
       'sessLoginTime': 'Login Time',
       'sessLastActive': 'Last Active',
       'sessDelete': 'Delete Session',
+      'timeJustNow': 'Just now',
+      'timeMinutesAgo': '{n}m ago',
+      'timeHoursAgo': '{n}h ago',
+      'timeDaysAgo': '{n}d ago',
+      'sessPrimaryBadge': 'Primary Device',
+      'sessBlockedBadge': 'Blocked',
+      'sessBlockBtn': 'Block',
+      'sessUnblockBtn': 'Unblock',
+      'sessConfirmBlockTitle': 'Block Device Access',
+      'sessConfirmBlockMsg': 'Are you sure you want to temporarily block this device? Its active sessions will be signed out immediately.',
+      'sessConfirmUnblockTitle': 'Unblock Device Access',
+      'sessConfirmUnblockMsg': 'Do you want to unblock this device? It will be allowed to sign in again.',
+      'sessConfirmDeleteTitle': 'Revoke Session',
+      'sessConfirmDeleteMsg': 'Are you sure you want to sign out and delete this session?',
+      'sessConfirmTerminateAllTitle': 'Sign Out Other Devices',
+      'sessConfirmTerminateAllMsg': 'Are you sure you want to sign out from all other devices? (Primary device will remain active)',
+      'sessDeviceBlockedNotice': 'Access from this device has been temporarily blocked by the primary device.',
+      'sessPrimaryOnlyNotice': 'Only the primary device is authorized to block or delete sessions.',
+      'sessCopiedToast': 'Session ID copied to clipboard',
+      'sessErrLoad': 'Failed to load sessions',
+      'dialogCancel': 'Cancel',
+      'dialogConfirm': 'Confirm',
     },
     'ar': {
       'appName': 'StyleMorph',
@@ -1553,6 +1597,28 @@ class AppStrings {
       'sessLoginTime': 'وقت الدخول',
       'sessLastActive': 'آخر نشاط',
       'sessDelete': 'حذف الجلسة',
+      'timeJustNow': 'الآن',
+      'timeMinutesAgo': 'منذ {n} دقيقة',
+      'timeHoursAgo': 'منذ {n} ساعة',
+      'timeDaysAgo': 'منذ {n} يوم',
+      'sessPrimaryBadge': 'الجهاز الرئيسي',
+      'sessBlockedBadge': 'محظور',
+      'sessBlockBtn': 'حظر',
+      'sessUnblockBtn': 'إلغاء الحظر',
+      'sessConfirmBlockTitle': 'حظر وصول الجهاز',
+      'sessConfirmBlockMsg': 'هل أنت متأكد من حظر وصول هذا الجهاز مؤقتاً؟ سيتم تسجيل خروج جلساته فوراً.',
+      'sessConfirmUnblockTitle': 'إلغاء حظر الجهاز',
+      'sessConfirmUnblockMsg': 'هل تريد إلغاء حظر هذا الجهاز؟ سيتمكن من تسجيل الدخول مجدداً.',
+      'sessConfirmDeleteTitle': 'إلغاء الجلسة',
+      'sessConfirmDeleteMsg': 'هل أنت متأكد من تسجيل الخروج وحذف هذه الجلسة؟',
+      'sessConfirmTerminateAllTitle': 'تسجيل الخروج من الأجهزة الأخرى',
+      'sessConfirmTerminateAllMsg': 'هل أنت متأكد من تسجيل الخروج من جميع الأجهزة الأخرى؟ (لن يتأثر الجهاز الرئيسي)',
+      'sessDeviceBlockedNotice': 'تم حظر وصول هذا الجهاز مؤقتاً بواسطة الجهاز الرئيسي.',
+      'sessPrimaryOnlyNotice': 'فقط الجهاز الرئيسي مصرح له بحظر أو حذف الجلسات.',
+      'sessCopiedToast': 'تم نسخ معرّف الجلسة إلى الحافظة',
+      'sessErrLoad': 'فشل في تحميل الجلسات',
+      'dialogCancel': 'إلغاء',
+      'dialogConfirm': 'تأكيد',
     },
     'tr': {
       'appName': 'StyleMorph',
@@ -2038,6 +2104,28 @@ class AppStrings {
       'sessLoginTime': 'Giriş Zamanı',
       'sessLastActive': 'Son Aktif',
       'sessDelete': 'Oturumu Sil',
+      'timeJustNow': 'Az önce',
+      'timeMinutesAgo': '{n} dk önce',
+      'timeHoursAgo': '{n} sa önce',
+      'timeDaysAgo': '{n} gün önce',
+      'sessPrimaryBadge': 'Ana Cihaz',
+      'sessBlockedBadge': 'Engellendi',
+      'sessBlockBtn': 'Engelle',
+      'sessUnblockBtn': 'Engeli Kaldır',
+      'sessConfirmBlockTitle': 'Cihaz Erişimini Engelle',
+      'sessConfirmBlockMsg': 'Bu cihazın erişimini geçici olarak engellemek istediğinizden emin misiniz? Aktif oturumu hemen kapatılacaktır.',
+      'sessConfirmUnblockTitle': 'Cihaz Engelini Kaldır',
+      'sessConfirmUnblockMsg': 'Bu cihazın engelini kaldırmak istiyor musunuz? Tekrar giriş yapmasına izin verilecektir.',
+      'sessConfirmDeleteTitle': 'Oturumu Sil',
+      'sessConfirmDeleteMsg': 'Bu oturumu kapatıp silmek istediğinizden emin misiniz?',
+      'sessConfirmTerminateAllTitle': 'Diğer Cihazlardan Çıkış Yap',
+      'sessConfirmTerminateAllMsg': 'Diğer tüm cihazlardan çıkış yapmak istediğinizden emin misiniz? (Ana cihaz etkilenmeyecektir)',
+      'sessDeviceBlockedNotice': 'Bu cihazın erişimi ana cihaz tarafından geçici olarak engellendi.',
+      'sessPrimaryOnlyNotice': 'Yalnızca ana cihaz oturumları engelleme veya silme yetkisine sahiptir.',
+      'sessCopiedToast': 'Oturum kimliği panoya kopyalandı',
+      'sessErrLoad': 'Oturumlar yüklenemedi',
+      'dialogCancel': 'İptal',
+      'dialogConfirm': 'Onayla',
     },
   };
 
@@ -2605,9 +2693,45 @@ class AppStrings {
   String get sessLoginTime => get('sessLoginTime');
   String get sessLastActive => get('sessLastActive');
   String get sessDelete => get('sessDelete');
+  String get sessPrimaryBadge => get('sessPrimaryBadge');
+  String get sessBlockedBadge => get('sessBlockedBadge');
+  String get sessBlockBtn => get('sessBlockBtn');
+  String get sessUnblockBtn => get('sessUnblockBtn');
+  String get sessConfirmBlockTitle => get('sessConfirmBlockTitle');
+  String get sessConfirmBlockMsg => get('sessConfirmBlockMsg');
+  String get sessConfirmUnblockTitle => get('sessConfirmUnblockTitle');
+  String get sessConfirmUnblockMsg => get('sessConfirmUnblockMsg');
+  String get sessConfirmDeleteTitle => get('sessConfirmDeleteTitle');
+  String get sessConfirmDeleteMsg => get('sessConfirmDeleteMsg');
+  String get sessConfirmTerminateAllTitle => get('sessConfirmTerminateAllTitle');
+  String get sessConfirmTerminateAllMsg => get('sessConfirmTerminateAllMsg');
+  String get sessDeviceBlockedNotice => get('sessDeviceBlockedNotice');
+  String get sessPrimaryOnlyNotice => get('sessPrimaryOnlyNotice');
+  String get sessCopiedToast => get('sessCopiedToast');
+  String get sessErrLoad => get('sessErrLoad');
+  String get dialogCancel => get('dialogCancel');
+  String get dialogConfirm => get('dialogConfirm');
+
+  String formatRelativeTime(DateTime dt) {
+    final now = DateTime.now();
+    final diff = now.difference(dt);
+    if (diff.inMinutes < 2) return get('timeJustNow');
+    if (diff.inHours < 1) {
+      final m = formatNumber(diff.inMinutes);
+      return get('timeMinutesAgo').replaceAll('{n}', m);
+    }
+    if (diff.inHours < 24) {
+      final h = formatNumber(diff.inHours);
+      return get('timeHoursAgo').replaceAll('{n}', h);
+    }
+    final d = formatNumber(diff.inDays);
+    return get('timeDaysAgo').replaceAll('{n}', d);
+  }
 
   String authErrorMessage(String code) {
     switch (code) {
+      case 'device-blocked':
+        return sessDeviceBlockedNotice;
       case 'email-already-in-use':
         return authErrEmailAlreadyInUse;
       case 'wrong-password':

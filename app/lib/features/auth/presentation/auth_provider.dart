@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/firebase_auth_repository.dart';
+import '../../../core/services/session_service.dart';
 import '../../../core/state/app_state.dart';
 import '../domain/auth_repository.dart';
 
@@ -197,6 +198,31 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
     state = state.copyWith(clearError: true, clearSuccess: true);
   }
 
+  Future<bool> _isCurrentDeviceBlocked() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return false;
+    try {
+      final sessionService = _ref.read(sessionServiceProvider);
+      final deviceId = await sessionService.currentDeviceId();
+      final isBlocked = await sessionService.isDeviceBlocked(user.uid, deviceId);
+      if (isBlocked) {
+        try {
+          await _repository.signOut();
+        } catch (_) {}
+        try {
+          await FirebaseAuth.instance.signOut();
+        } catch (_) {}
+        _ref.read(appStateProvider.notifier).logout();
+        state = state.copyWith(
+          isSubmitting: false,
+          errorCode: 'device-blocked',
+        );
+        return true;
+      }
+    } catch (_) {}
+    return false;
+  }
+
   /// Submits email and password for login.
   Future<bool> login() async {
     if (state.email.isEmpty || state.password.isEmpty) {
@@ -210,6 +236,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         email: state.email,
         password: state.password,
       );
+      if (await _isCurrentDeviceBlocked()) return false;
       await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       state = state.copyWith(isSubmitting: false);
       return true;
@@ -247,6 +274,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         email: state.email,
         password: state.password,
       );
+      if (await _isCurrentDeviceBlocked()) return false;
       await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       state = state.copyWith(isSubmitting: false);
       return true;
@@ -270,6 +298,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         state = state.copyWith(isSubmitting: false, errorCode: 'google-cancelled');
         return false;
       }
+      if (await _isCurrentDeviceBlocked()) return false;
       await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       state = state.copyWith(isSubmitting: false);
       return true;
@@ -293,6 +322,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         state = state.copyWith(isSubmitting: false, errorCode: 'apple-cancelled');
         return false;
       }
+      if (await _isCurrentDeviceBlocked()) return false;
       await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       state = state.copyWith(isSubmitting: false);
       return true;
