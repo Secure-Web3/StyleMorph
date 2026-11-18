@@ -205,25 +205,15 @@ class SessionService {
         browser = 'Opera';
       }
 
-      if (isMobile) {
-        return {
-          'deviceType': 'mobile_web',
-          'deviceName': 'Mobile Web • $browser ($os)',
-          'deviceModel': '$browser on $os',
-          'platform': 'Web',
-          'osVersion': os,
-          'userAgent': ua.isNotEmpty ? ua : 'Mobile Web Browser',
-        };
-      } else {
-        return {
-          'deviceType': 'desktop_web',
-          'deviceName': 'Desktop Web • $browser ($os)',
-          'deviceModel': '$browser on $os',
-          'platform': 'Web',
-          'osVersion': os,
-          'userAgent': ua.isNotEmpty ? ua : 'Desktop Web Browser',
-        };
-      }
+      final formFactor = isMobile ? 'Mobile Web' : 'Desktop Web';
+      return {
+        'deviceType': isMobile ? 'mobile_web' : 'desktop_web',
+        'deviceName': '$formFactor • $browser ($os)',
+        'deviceModel': '$browser on $os',
+        'platform': 'Web',
+        'osVersion': os,
+        'userAgent': ua.isNotEmpty ? ua : '$formFactor Browser',
+      };
     }
 
     final ua = SessionLocalStorage.getUserAgent() ?? '';
@@ -285,7 +275,7 @@ class SessionService {
     }
   }
 
-  // ── Upsert session in Firestore (with Master/Primary assignment) ──────────
+  // ── Upsert session in Firestore (with Legacy Primary Auto-Assignment) ─────
 
   Future<void> upsertSession() async {
     final user = _auth.currentUser;
@@ -297,7 +287,7 @@ class SessionService {
     final now = Timestamp.now();
 
     try {
-      // Check if device is blocked
+      // 1. Check if device is blocked
       final blockedSnap = await _firestore
           .collection('users')
           .doc(user.uid)
@@ -307,6 +297,60 @@ class SessionService {
 
       final isDeviceBlocked = blockedSnap.exists &&
           (blockedSnap.data()?['isBlocked'] as bool? ?? false);
+
+      // 2. Fetch all existing sessions to handle Primary Device assignment
+      final allSessionsSnap = await _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('sessions')
+          .get();
+
+      final existingSessions = allSessionsSnap.docs;
+      final hasPrimary = existingSessions.any(
+        (doc) => (doc.data()['isPrimary'] as bool? ?? false) == true,
+      );
+
+      bool isThisSessionPrimary = false;
+
+      if (hasPrimary) {
+        // If an existing session is primary, keep this session's existing isPrimary value
+        final existingCurrentDoc = existingSessions
+            .cast<QueryDocumentSnapshot<Map<String, dynamic>>?>()
+            .firstWhere(
+              (doc) => doc?.id == sessionId,
+              orElse: () => null,
+            );
+        isThisSessionPrimary =
+            existingCurrentDoc?.data()['isPrimary'] as bool? ?? false;
+      } else {
+        // LEGACY AUTO-ASSIGN: If NO session in Firestore has isPrimary == true:
+        if (existingSessions.isEmpty) {
+          isThisSessionPrimary = true;
+        } else {
+          // Find earliest session by createdAt timestamp
+          QueryDocumentSnapshot<Map<String, dynamic>> earliestDoc =
+              existingSessions.first;
+          DateTime earliestTime =
+              (earliestDoc.data()['createdAt'] as Timestamp?)?.toDate() ??
+                  DateTime.now();
+
+          for (final doc in existingSessions) {
+            final t = (doc.data()['createdAt'] as Timestamp?)?.toDate();
+            if (t != null && t.isBefore(earliestTime)) {
+              earliestTime = t;
+              earliestDoc = doc;
+            }
+          }
+
+          if (earliestDoc.id == sessionId) {
+            isThisSessionPrimary = true;
+          } else {
+            // Promote earliest session to Primary immediately in Firestore
+            await earliestDoc.reference.update({'isPrimary': true});
+            isThisSessionPrimary = false;
+          }
+        }
+      }
 
       final docRef = _firestore
           .collection('users')
@@ -320,6 +364,7 @@ class SessionService {
           'lastActiveAt': now,
           'isActive': !isDeviceBlocked,
           'isBlocked': isDeviceBlocked,
+          'isPrimary': isThisSessionPrimary,
           'deviceId': deviceId,
           'deviceType': meta['deviceType'],
           'deviceName': meta['deviceName'],
@@ -329,18 +374,6 @@ class SessionService {
           'userAgent': meta['userAgent'],
         });
       } else {
-        // Check if ANY existing session has isPrimary == true
-        final primaryQuery = await _firestore
-            .collection('users')
-            .doc(user.uid)
-            .collection('sessions')
-            .where('isPrimary', isEqualTo: true)
-            .limit(1)
-            .get();
-
-        final hasPrimary = primaryQuery.docs.isNotEmpty;
-        final shouldBePrimary = !hasPrimary; // First session becomes Primary Master!
-
         final session = SessionInfo(
           sessionId: sessionId,
           deviceId: deviceId,
@@ -350,7 +383,7 @@ class SessionService {
           platform: meta['platform']!,
           osVersion: meta['osVersion']!,
           userAgent: meta['userAgent']!,
-          isPrimary: shouldBePrimary,
+          isPrimary: isThisSessionPrimary,
           isBlocked: isDeviceBlocked,
           isActive: !isDeviceBlocked,
           createdAt: DateTime.now(),
@@ -358,7 +391,7 @@ class SessionService {
         );
         await docRef.set(session.toMap());
       }
-      debugPrint('[SessionService] Session upserted: $sessionId (dev: $deviceId)');
+      debugPrint('[SessionService] Session upserted: $sessionId (primary: $isThisSessionPrimary)');
     } catch (e) {
       debugPrint('[SessionService] upsertSession error: $e');
     }
