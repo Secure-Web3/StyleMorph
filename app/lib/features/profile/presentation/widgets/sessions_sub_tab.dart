@@ -479,28 +479,48 @@ class _SessionCard extends StatelessWidget {
   });
 
   IconData _platformIcon() {
-    switch (session.deviceType) {
-      case 'mobile_web':
-        return LucideIcons.smartphone;
-      case 'desktop_web':
-        return LucideIcons.laptop;
-      case 'mobile_app':
-        return LucideIcons.smartphone;
-      case 'desktop_app':
-        return LucideIcons.monitor;
-      default:
-        switch (session.platform.toLowerCase()) {
-          case 'android':
-          case 'ios':
-            return LucideIcons.smartphone;
-          case 'web':
-            return LucideIcons.laptop;
-          case 'desktop':
-            return LucideIcons.monitor;
-          default:
-            return LucideIcons.monitorSmartphone;
-        }
+    final dType = session.deviceType.toLowerCase();
+    final plat = session.platform.toLowerCase();
+    final dName = session.deviceName.toLowerCase();
+
+    // 1. Desktop Web
+    if (dType == 'desktop_web' ||
+        (plat == 'web' &&
+            !dName.contains('mobile') &&
+            !dName.contains('iphone') &&
+            !dName.contains('android'))) {
+      return Icons.computer_rounded;
     }
+
+    // 2. Mobile Web
+    if (dType == 'mobile_web' ||
+        (plat == 'web' &&
+            (dName.contains('mobile') ||
+                dName.contains('iphone') ||
+                dName.contains('android')))) {
+      return Icons.phonelink_rounded;
+    }
+
+    // 3. Android App
+    if (plat == 'android' ||
+        (dType == 'mobile_app' && dName.contains('android')) ||
+        dName.contains('android')) {
+      return Icons.android_rounded;
+    }
+
+    // 4. iPhone / iOS App
+    if (plat == 'ios' ||
+        dName.contains('iphone') ||
+        dName.contains('ipad') ||
+        dName.contains('ios')) {
+      return Icons.phone_iphone_rounded;
+    }
+
+    // Fallbacks
+    if (plat == 'web') return Icons.computer_rounded;
+    if (plat == 'android') return Icons.android_rounded;
+    if (plat == 'ios') return Icons.phone_iphone_rounded;
+    return Icons.computer_rounded;
   }
 
   void _copySessionId(BuildContext context) {
@@ -517,12 +537,64 @@ class _SessionCard extends StatelessWidget {
     );
   }
 
+  Widget _buildActionButton({
+    required Color color,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: color.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        hoverColor: color.withValues(alpha: 0.10),
+        splashColor: color.withValues(alpha: 0.18),
+        highlightColor: color.withValues(alpha: 0.12),
+        child: Container(
+          height: 38,
+          padding: const EdgeInsetsDirectional.symmetric(horizontal: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: color.withValues(alpha: 0.35),
+              width: 1,
+            ),
+          ),
+          alignment: Alignment.center,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 15,
+                color: color,
+              ),
+              const SizedBox(width: 6),
+              Flexible(
+                child: Text(
+                  label,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    fontFamily: 'Vazirmatn',
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final shortId = session.sessionId.length > 16
-        ? '${session.sessionId.substring(0, 16)}…'
-        : session.sessionId;
-
     final Color borderColor = isCurrentDevice
         ? colors.ok
         : (session.isBlocked ? colors.orColor : colors.bd);
@@ -530,13 +602,12 @@ class _SessionCard extends StatelessWidget {
     final double borderWidth = isCurrentDevice ? 1.5 : 1.0;
 
     // High contrast explicit colors for the platform icon box
-    final Color iconBoxBg = isCurrentDevice
-        ? colors.okb
-        : (session.isBlocked ? colors.orb : colors.inb);
-
-    final Color iconBoxFg = isCurrentDevice
+    final Color accentColor = isCurrentDevice
         ? colors.ok
-        : (session.isBlocked ? colors.orColor : colors.inColor);
+        : (session.isBlocked ? colors.orColor : colors.pr);
+
+    final Color iconBoxBg = accentColor.withValues(alpha: 0.14);
+    final Color iconBoxFg = accentColor;
 
     return AppCard(
       variant: AppCardVariant.surface,
@@ -556,16 +627,16 @@ class _SessionCard extends StatelessWidget {
                 children: [
                   // High-contrast Platform Icon Box
                   Container(
-                    width: 38,
-                    height: 38,
+                    width: 40,
+                    height: 40,
                     decoration: BoxDecoration(
                       color: iconBoxBg,
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(10),
                     ),
                     alignment: Alignment.center,
                     child: Icon(
                       _platformIcon(),
-                      size: 20,
+                      size: 22,
                       color: iconBoxFg,
                     ),
                   ),
@@ -680,98 +751,101 @@ class _SessionCard extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.sm),
 
-                  // Session ID chip & Action Controls
-                  Row(
-                    children: [
-                      // Monospace Session ID chip
-                      GestureDetector(
-                        onTap: () => _copySessionId(context),
-                        child: Container(
-                          padding: const EdgeInsetsDirectional.symmetric(
-                            horizontal: AppSpacing.sm,
-                            vertical: AppSpacing.xxs,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colors.bg,
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: colors.bd),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              FaIcon(
-                                FontAwesomeIcons.fingerprint,
-                                size: 11,
-                                color: colors.mu,
-                              ),
-                              const SizedBox(width: AppSpacing.xxs),
-                              Text(
-                                shortId,
-                                style: TextStyle(
-                                  fontFamily: 'monospace',
-                                  fontSize: 10,
-                                  color: colors.mu,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.xxs),
-                              FaIcon(
-                                FontAwesomeIcons.copy,
-                                size: 10,
-                                color: colors.mu,
-                              ),
-                            ],
-                          ),
-                        ),
+                  // ── Expanded Footer: Two-tier responsive layout ───────────
+                  // Row 1 (Full Width): Copyable Session ID chip with ellipsis protection
+                  InkWell(
+                    onTap: () => _copySessionId(context),
+                    borderRadius: BorderRadius.circular(6),
+                    child: Container(
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: AppSpacing.xs,
                       ),
-                      const Spacer(),
-
-                      // Action Buttons:
-                      // STRICT CONSTRAINT: Never show destructive buttons on This Device or Primary Device!
-                      if (!isCurrentDevice && !isPrimary) ...[
-                        if (isViewerPrimary) ...[
-                          if (session.isBlocked)
-                            AppButton(
-                              variant: AppButtonVariant.outline,
-                              size: AppButtonSize.sm,
-                              icon: const Icon(LucideIcons.shieldCheck, size: 14),
-                              text: strings.sessUnblockBtn,
-                              onPressed: onUnblock,
-                            )
-                          else ...[
-                            AppButton(
-                              variant: AppButtonVariant.ghost,
-                              size: AppButtonSize.sm,
-                              icon: Icon(
-                                LucideIcons.ban,
-                                size: 14,
-                                color: colors.orColor,
+                      decoration: BoxDecoration(
+                        color: colors.bg,
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(color: colors.bd),
+                      ),
+                      child: Row(
+                        children: [
+                          FaIcon(
+                            FontAwesomeIcons.fingerprint,
+                            size: 12,
+                            color: colors.mu,
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          Expanded(
+                            child: Text(
+                              session.sessionId,
+                              style: TextStyle(
+                                fontFamily: 'monospace',
+                                fontSize: 11,
+                                color: colors.mu,
+                                letterSpacing: 0.5,
                               ),
-                              text: strings.sessBlockBtn,
-                              onPressed: onBlock,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(width: AppSpacing.xs),
-                            AppButton(
-                              variant: AppButtonVariant.destructive,
-                              size: AppButtonSize.sm,
-                              icon: const Icon(LucideIcons.trash2, size: 14),
-                              text: strings.sessDelete,
-                              onPressed: onDelete,
-                            ),
-                          ],
-                        ] else ...[
-                          // Secondary viewer can delete other secondary sessions with confirmation
-                          AppButton(
-                            variant: AppButtonVariant.destructive,
-                            size: AppButtonSize.sm,
-                            icon: const Icon(LucideIcons.trash2, size: 14),
-                            text: strings.sessDelete,
-                            onPressed: onDelete,
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          FaIcon(
+                            FontAwesomeIcons.copy,
+                            size: 11,
+                            color: colors.mu,
                           ),
                         ],
-                      ],
-                    ],
+                      ),
+                    ),
                   ),
+
+                  // Row 2 (Two Equal Side-by-Side Action Buttons separated by 10 spacing):
+                  // STRICT CONSTRAINT: Never show destructive buttons on This Device or Primary Device!
+                  if (!isCurrentDevice && !isPrimary) ...[
+                    const SizedBox(height: 10),
+                    if (isViewerPrimary) ...[
+                      Row(
+                        children: [
+                          Expanded(
+                            child: session.isBlocked
+                                ? _buildActionButton(
+                                    color: colors.ok,
+                                    icon: LucideIcons.shieldCheck,
+                                    label: strings.sessUnblockBtn,
+                                    onTap: onUnblock,
+                                  )
+                                : _buildActionButton(
+                                    color: colors.orColor,
+                                    icon: LucideIcons.ban,
+                                    label: strings.sessBlockBtn,
+                                    onTap: onBlock,
+                                  ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _buildActionButton(
+                              color: colors.orColor,
+                              icon: LucideIcons.trash2,
+                              label: strings.sessDelete,
+                              onTap: onDelete,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildActionButton(
+                              color: colors.orColor,
+                              icon: LucideIcons.trash2,
+                              label: strings.sessDelete,
+                              onTap: onDelete,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
                 ],
               ),
             ),
