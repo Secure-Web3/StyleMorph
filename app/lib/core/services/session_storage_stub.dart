@@ -6,4 +6,7 @@ class SessionLocalStorage {
   static Future<void> setDeviceId(String id) async {}
 
   static String? getUserAgent() => null;
+
+  static Future<bool> getBiometricLockEnabled() async => false;
+  static Future<void> setBiometricLockEnabled(bool enabled) async {}
 }

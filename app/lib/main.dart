@@ -1,17 +1,21 @@
 ﻿import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'core/localization/app_language.dart';
 import 'core/localization/locale_provider.dart';
+import 'core/services/biometric_service.dart';
 import 'core/services/emulator_config.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'features/auth/presentation/auth_provider.dart';
 import 'core/state/app_state.dart';
+import 'features/auth/presentation/biometric_lock_screen.dart';
+import 'features/auth/presentation/email_verification_screen.dart';
 import 'features/auth/presentation/welcome_screen.dart';
 import 'features/profile/presentation/widgets/sessions_sub_tab.dart';
 import 'features/shell/presentation/main_shell_screen.dart';
@@ -101,7 +105,25 @@ class _AuthGate extends ConsumerWidget {
       data: (user) {
         if (user == null) return const WelcomeScreen();
 
-        // Trigger profile load if not already loaded or in progress
+        // 1. Mandatory Email Verification Gate (Email/Password users only)
+        final isOAuth = user.providerData.any(
+          (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
+        );
+        if (!isOAuth && !user.emailVerified) {
+          return EmailVerificationScreen(user: user);
+        }
+
+        // 2. Mobile Biometric App Lock Check
+        if (!kIsWeb) {
+          final isLockEnabled =
+              ref.watch(biometricLockEnabledProvider).value ?? false;
+          final isUnlocked = ref.watch(biometricUnlockedProvider);
+          if (isLockEnabled && !isUnlocked) {
+            return const BiometricLockScreen();
+          }
+        }
+
+        // 3. Trigger profile load if not already loaded or in progress
         if (!appState.isProfileLoaded) {
           // Fire-and-forget; the finally block sets isProfileLoaded = true
           // which triggers a rebuild and exits this branch.

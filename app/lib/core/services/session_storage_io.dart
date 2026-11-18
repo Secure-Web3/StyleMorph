@@ -48,4 +48,22 @@ class SessionLocalStorage {
       return null;
     }
   }
+
+  static Future<bool> getBiometricLockEnabled() async {
+    try {
+      final file = _getFile('.sm_biometric_lock');
+      if (await file.exists()) {
+        final content = (await file.readAsString()).trim();
+        return content == 'true';
+      }
+    } catch (_) {}
+    return false;
+  }
+
+  static Future<void> setBiometricLockEnabled(bool enabled) async {
+    try {
+      final file = _getFile('.sm_biometric_lock');
+      await file.writeAsString(enabled ? 'true' : 'false');
+    } catch (_) {}
+  }
 }

@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_language.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/localization/locale_provider.dart';
+import '../../../../core/services/biometric_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -25,6 +27,43 @@ class SettingsSubTab extends ConsumerStatefulWidget {
 
 class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
   String _backupFrequency = 'weekly';
+  bool _biometricLockEnabled = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBiometricPref();
+  }
+
+  Future<void> _loadBiometricPref() async {
+    final enabled =
+        await ref.read(biometricServiceProvider).isBiometricLockEnabled();
+    if (mounted) {
+      setState(() => _biometricLockEnabled = enabled);
+    }
+  }
+
+  Future<void> _toggleBiometric(bool value) async {
+    if (kIsWeb) return;
+    final service = ref.read(biometricServiceProvider);
+    final strings = context.strings;
+
+    if (value) {
+      // Immediately prompt biometric authentication once before saving
+      final success = await service.authenticate(
+        localizedReason: strings.setBiometricAuthReason,
+      );
+      if (success && mounted) {
+        await service.setBiometricLockEnabled(true);
+        ref.invalidate(biometricLockEnabledProvider);
+        setState(() => _biometricLockEnabled = true);
+      }
+    } else {
+      await service.setBiometricLockEnabled(false);
+      ref.invalidate(biometricLockEnabledProvider);
+      setState(() => _biometricLockEnabled = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -161,7 +200,33 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          // 5. Backup Period
+          // 5. Security & Biometric Section (Fingerprint / Face ID)
+          AppCard(
+            variant: AppCardVariant.subtle,
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.xs,
+            ),
+            child: Column(
+              children: [
+                AppSwitchTile(
+                  label: strings.setBiometricTitle,
+                  subtitle: kIsWeb
+                      ? strings.setBiometricMobileOnly
+                      : strings.setBiometricDesc,
+                  value: kIsWeb ? false : _biometricLockEnabled,
+                  onChanged: (val) {
+                    if (!kIsWeb) {
+                      _toggleBiometric(val);
+                    }
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+
+          // 6. Backup Period
           AppDropdown<String>(
             label: strings.setBackupLabel,
             value: _backupFrequency,

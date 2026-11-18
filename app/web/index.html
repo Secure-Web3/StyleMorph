@@ -31,6 +31,56 @@
 
   <title>stylemorph</title>
   <link rel="manifest" href="manifest.json">
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
+  <script>
+    window.turnstileCallbacks = {};
+    window.isTurnstileLoaded = function() {
+      return typeof window.turnstile !== 'undefined';
+    };
+    window.setTurnstileHandler = function(callbackId, onVerified, onExpired, onError) {
+      window.turnstileCallbacks[callbackId] = {
+        onVerified: onVerified,
+        onExpired: onExpired,
+        onError: onError
+      };
+    };
+    window.removeTurnstileHandler = function(callbackId) {
+      delete window.turnstileCallbacks[callbackId];
+    };
+    window.renderTurnstileExplicit = function(containerId, siteKey, callbackId, theme) {
+      if (!window.turnstile) return null;
+      try {
+        var el = document.getElementById(containerId);
+        if (!el) return null;
+        return window.turnstile.render(el, {
+          sitekey: siteKey,
+          theme: theme || 'auto',
+          callback: function(token) {
+            var cb = window.turnstileCallbacks[callbackId];
+            if (cb && cb.onVerified) cb.onVerified(token);
+          },
+          'expired-callback': function() {
+            var cb = window.turnstileCallbacks[callbackId];
+            if (cb && cb.onExpired) cb.onExpired();
+          },
+          'error-callback': function(err) {
+            var cb = window.turnstileCallbacks[callbackId];
+            if (cb && cb.onError) cb.onError(err);
+          }
+        });
+      } catch (e) {
+        console.error('Turnstile render error:', e);
+        return null;
+      }
+    };
+    window.resetTurnstileExplicit = function(widgetId) {
+      if (window.turnstile && widgetId) {
+        try {
+          window.turnstile.reset(widgetId);
+        } catch (_) {}
+      }
+    };
+  </script>
 </head>
 <body>
   <!--

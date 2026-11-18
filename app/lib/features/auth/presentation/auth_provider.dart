@@ -236,8 +236,16 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         email: state.email,
         password: state.password,
       );
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        try {
+          await user.reload();
+        } catch (_) {}
+      }
       if (await _isCurrentDeviceBlocked()) return false;
-      await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+      if (user != null && user.emailVerified) {
+        await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+      }
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
@@ -270,12 +278,22 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
 
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
-      await _repository.createUserWithEmailAndPassword(
+      final credential = await _repository.createUserWithEmailAndPassword(
         email: state.email,
         password: state.password,
       );
+      final user = credential.user ?? FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        try {
+          await user.sendEmailVerification();
+        } catch (e) {
+          debugPrint('[AuthFormNotifier] sendEmailVerification error: $e');
+        }
+      }
       if (await _isCurrentDeviceBlocked()) return false;
-      await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+      if (user != null && user.emailVerified) {
+        await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+      }
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -18,6 +19,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import 'auth_provider.dart';
 import 'widgets/auth_footer.dart';
 import 'widgets/auth_top_bar.dart';
+import 'widgets/turnstile_widget.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
@@ -32,6 +34,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   late final TextEditingController _passwordController;
   late final TextEditingController _confirmPasswordController;
   late final TextEditingController _forgotEmailController;
+
+  final TurnstileController _turnstileController = TurnstileController();
+  String? _turnstileToken;
 
   late final AnimationController _animController;
   late final Animation<double> _fadeAnim;
@@ -69,6 +74,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   }
 
   void _switchMode(AuthMode mode) {
+    _turnstileController.reset();
+    _turnstileToken = null;
     ref.read(authFormProvider.notifier).setMode(mode);
     _animController
       ..reset()
@@ -76,12 +83,22 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   }
 
   Future<void> _handleLogin() async {
+    if (kIsWeb && (_turnstileToken == null || _turnstileToken!.isEmpty)) {
+      AppFeedback.showError(
+        context,
+        context.strings.authTurnstileRequired,
+      );
+      return;
+    }
+
     final success = await ref.read(authFormProvider.notifier).login();
     if (!mounted) return;
     if (success) {
       ref.read(appStateProvider.notifier).login();
       Navigator.of(context).popUntil((route) => route.isFirst);
     } else {
+      _turnstileController.reset();
+      setState(() => _turnstileToken = null);
       final code = ref.read(authFormProvider).errorCode;
       if (code != null) {
         AppFeedback.showError(
@@ -93,12 +110,22 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   }
 
   Future<void> _handleSignup() async {
+    if (kIsWeb && (_turnstileToken == null || _turnstileToken!.isEmpty)) {
+      AppFeedback.showError(
+        context,
+        context.strings.authTurnstileRequired,
+      );
+      return;
+    }
+
     final success = await ref.read(authFormProvider.notifier).signup();
     if (!mounted) return;
     if (success) {
       ref.read(appStateProvider.notifier).login();
       Navigator.of(context).popUntil((route) => route.isFirst);
     } else {
+      _turnstileController.reset();
+      setState(() => _turnstileToken = null);
       final code = ref.read(authFormProvider).errorCode;
       if (code != null) {
         AppFeedback.showError(
@@ -231,6 +258,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           passwordController: _passwordController,
           isPasswordVisible: state.isPasswordVisible,
           isSubmitting: state.isSubmitting,
+          turnstileController: _turnstileController,
+          onTurnstileVerified: (token) =>
+              setState(() => _turnstileToken = token),
+          onTurnstileExpired: () =>
+              setState(() => _turnstileToken = null),
+          onTurnstileError: () =>
+              setState(() => _turnstileToken = null),
           onEmailChanged: (val) =>
               ref.read(authFormProvider.notifier).setEmail(val),
           onPasswordChanged: (val) =>
@@ -254,6 +288,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           validationState: state.passwordValidation,
           passwordsMatch: state.passwordsMatch,
           isSubmitting: state.isSubmitting,
+          turnstileController: _turnstileController,
+          onTurnstileVerified: (token) =>
+              setState(() => _turnstileToken = token),
+          onTurnstileExpired: () =>
+              setState(() => _turnstileToken = null),
+          onTurnstileError: () =>
+              setState(() => _turnstileToken = null),
           onEmailChanged: (val) =>
               ref.read(authFormProvider.notifier).setEmail(val),
           onPasswordChanged: (val) =>
@@ -355,6 +396,10 @@ class _LoginForm extends StatelessWidget {
   final TextEditingController passwordController;
   final bool isPasswordVisible;
   final bool isSubmitting;
+  final TurnstileController? turnstileController;
+  final ValueChanged<String>? onTurnstileVerified;
+  final VoidCallback? onTurnstileExpired;
+  final VoidCallback? onTurnstileError;
   final ValueChanged<String> onEmailChanged;
   final ValueChanged<String> onPasswordChanged;
   final VoidCallback onTogglePasswordVisibility;
@@ -369,6 +414,10 @@ class _LoginForm extends StatelessWidget {
     required this.passwordController,
     required this.isPasswordVisible,
     required this.isSubmitting,
+    this.turnstileController,
+    this.onTurnstileVerified,
+    this.onTurnstileExpired,
+    this.onTurnstileError,
     required this.onEmailChanged,
     required this.onPasswordChanged,
     required this.onTogglePasswordVisibility,
@@ -437,6 +486,19 @@ class _LoginForm extends StatelessWidget {
           ),
 
           const SizedBox(height: AppSpacing.xl),
+
+          // Cloudflare Turnstile anti-bot verification (Web only)
+          if (kIsWeb) ...[
+            Center(
+              child: TurnstileWidget(
+                controller: turnstileController,
+                onVerified: onTurnstileVerified ?? (_) {},
+                onExpired: onTurnstileExpired,
+                onError: onTurnstileError,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
 
           // Primary Login Button (With loading spinner state)
           AppButton(
@@ -533,6 +595,10 @@ class _SignupForm extends StatelessWidget {
   final PasswordValidationState validationState;
   final bool passwordsMatch;
   final bool isSubmitting;
+  final TurnstileController? turnstileController;
+  final ValueChanged<String>? onTurnstileVerified;
+  final VoidCallback? onTurnstileExpired;
+  final VoidCallback? onTurnstileError;
   final ValueChanged<String> onEmailChanged;
   final ValueChanged<String> onPasswordChanged;
   final ValueChanged<String> onConfirmPasswordChanged;
@@ -552,6 +618,10 @@ class _SignupForm extends StatelessWidget {
     required this.validationState,
     required this.passwordsMatch,
     required this.isSubmitting,
+    this.turnstileController,
+    this.onTurnstileVerified,
+    this.onTurnstileExpired,
+    this.onTurnstileError,
     required this.onEmailChanged,
     required this.onPasswordChanged,
     required this.onConfirmPasswordChanged,
@@ -672,6 +742,19 @@ class _SignupForm extends StatelessWidget {
           ],
 
           const SizedBox(height: AppSpacing.xl),
+
+          // Cloudflare Turnstile anti-bot verification (Web only)
+          if (kIsWeb) ...[
+            Center(
+              child: TurnstileWidget(
+                controller: turnstileController,
+                onVerified: onTurnstileVerified ?? (_) {},
+                onExpired: onTurnstileExpired,
+                onError: onTurnstileError,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
 
           // Primary Signup Button (With loading spinner state)
           AppButton(

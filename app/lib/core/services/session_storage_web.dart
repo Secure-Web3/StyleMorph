@@ -36,4 +36,18 @@ class SessionLocalStorage {
       return null;
     }
   }
+
+  static Future<bool> getBiometricLockEnabled() async {
+    try {
+      return web.window.localStorage.getItem('sm_biometric_lock') == 'true';
+    } catch (_) {
+      return false;
+    }
+  }
+
+  static Future<void> setBiometricLockEnabled(bool enabled) async {
+    try {
+      web.window.localStorage.setItem('sm_biometric_lock', enabled ? 'true' : 'false');
+    } catch (_) {}
+  }
 }

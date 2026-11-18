@@ -570,6 +570,26 @@ class AppStrings {
       'authErrAppleCancelled': 'ورود با حساب اپل لغو شد.',
       'authErrGeneric': 'خطایی در احراز هویت رخ داد. لطفاً مجدداً تلاش کنید.',
       'authResetEmailSent': 'لینک بازیابی رمز عبور به ایمیل شما ارسال شد.',
+      // Email Verification Gate
+      'authEmailVerifyTitle': 'تایید آدرس ایمیل',
+      'authEmailVerifyDesc': 'یک ایمیل حاوی لینک تایید به آدرس زیر ارسال شده است. برای ورود به برنامه، لطفاً روی لینک تایید کلیک کنید.',
+      'authEmailCheckBtn': 'ایمیل را تایید کردم (بررسی)',
+      'authEmailResendBtn': 'ارسال مجدد ایمیل تایید',
+      'authEmailResendCooldown': 'ارسال مجدد تا {s} ثانیه دیگر',
+      'authEmailNotVerifiedYet': 'ایمیل شما هنوز تایید نشده است. لطفاً صندوق ورودی یا پوشه هرزنامه (Spam) خود را بررسی کنید.',
+      'authVerificationEmailSent': 'ایمیل تایید جدید با موفقیت ارسال شد.',
+      'authBackOrSignOut': 'بازگشت و خروج از حساب',
+      // Turnstile Anti-Bot
+      'authTurnstilePrompt': 'تایید امنیتی ورود',
+      'authTurnstileRequired': 'لطفاً تایید امنیتی Cloudflare را تکمیل کنید.',
+      // Biometric Lock
+      'setBiometricTitle': 'قفل بیومتریک (اثر انگشت / Face ID)',
+      'setBiometricDesc': 'هنگام باز کردن اپلیکیشن، هویت شما با حسگرهای بیومتریک بررسی می‌شود.',
+      'setBiometricAuthReason': 'برای فعال‌سازی یا ورود به StyleMorph، هویت خود را تایید کنید.',
+      'setBiometricMobileOnly': 'مختص نسخه اپلیکیشن موبایل',
+      'setBiometricUnlockBtn': 'بازگشایی با بیومتریک',
+      'setBiometricLockedTitle': 'برنامه قفل است',
+      'setBiometricLockedDesc': 'برای دسترسی به حساب، لطفاً با اثر انگشت یا چهره خود وارد شوید.',
       // Sessions sub-tab
       'tSess': 'نشست‌ها',
       'sessHeader': 'نشست‌های فعال و دستگاه‌ها',
@@ -1077,6 +1097,26 @@ class AppStrings {
       'authErrAppleCancelled': 'Apple sign in was cancelled.',
       'authErrGeneric': 'Authentication failed. Please try again.',
       'authResetEmailSent': 'Password reset link has been sent to your email.',
+      // Email Verification Gate
+      'authEmailVerifyTitle': 'Verify Your Email',
+      'authEmailVerifyDesc': 'A verification link has been sent to your email. Please click the link to verify your account and continue.',
+      'authEmailCheckBtn': "I've Verified My Email",
+      'authEmailResendBtn': 'Resend Verification Email',
+      'authEmailResendCooldown': 'Resend in {s}s',
+      'authEmailNotVerifiedYet': 'Email not verified yet. Please check your inbox or spam folder.',
+      'authVerificationEmailSent': 'Verification email sent successfully.',
+      'authBackOrSignOut': 'Back / Sign Out',
+      // Turnstile Anti-Bot
+      'authTurnstilePrompt': 'Security Verification',
+      'authTurnstileRequired': 'Please complete the Cloudflare security verification.',
+      // Biometric Lock
+      'setBiometricTitle': 'Biometric Lock (Fingerprint / Face ID)',
+      'setBiometricDesc': 'Require fingerprint or Face ID authentication upon opening the app.',
+      'setBiometricAuthReason': 'Authenticate to access StyleMorph',
+      'setBiometricMobileOnly': 'Available on mobile app',
+      'setBiometricUnlockBtn': 'Unlock with Biometrics',
+      'setBiometricLockedTitle': 'App is Locked',
+      'setBiometricLockedDesc': 'Please authenticate with your fingerprint or Face ID to continue.',
       // Sessions sub-tab
       'tSess': 'Sessions',
       'sessHeader': 'Active Sessions & Devices',
@@ -1584,6 +1624,26 @@ class AppStrings {
       'authErrAppleCancelled': 'تم إلغاء تسجيل الدخول عبر Apple.',
       'authErrGeneric': 'حدث خطأ في المصادقة. يرجى إعادة المحاولة.',
       'authResetEmailSent': 'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك.',
+      // Email Verification Gate
+      'authEmailVerifyTitle': 'تأكيد البريد الإلكتروني',
+      'authEmailVerifyDesc': 'تم إرسال رابط تأكيد إلى بريدك الإلكتروني. يرجى الضغط على الرابط لتأكيد حسابك والمتابعة.',
+      'authEmailCheckBtn': 'لقد قمت بتأكيد البريد',
+      'authEmailResendBtn': 'إعادة إرسال البريد الإلكتروني',
+      'authEmailResendCooldown': 'إعادة الإرسال بعد {s} ثانية',
+      'authEmailNotVerifiedYet': 'لم يتم تأكيد البريد بعد. يرجى التحقق من صندوق الوارد أو البريد العشوائي (Spam).',
+      'authVerificationEmailSent': 'تم إرسال بريد التأكيد بنجاح.',
+      'authBackOrSignOut': 'الرجوع / تسجيل الخروج',
+      // Turnstile Anti-Bot
+      'authTurnstilePrompt': 'التحقق الأمني',
+      'authTurnstileRequired': 'يرجى إكمال التحقق الأمني من Cloudflare.',
+      // Biometric Lock
+      'setBiometricTitle': 'القفل الحيوي (بصمة الإصبع / التعرف على الوجه)',
+      'setBiometricDesc': 'طلب التحقق ببصمة الإصبع أو الوجه عند فتح التطبيق.',
+      'setBiometricAuthReason': 'يرجى التحقق للوصول إلى StyleMorph',
+      'setBiometricMobileOnly': 'متاح على تطبيق الهاتف فقط',
+      'setBiometricUnlockBtn': 'فتح القفل بالبصمة',
+      'setBiometricLockedTitle': 'التطبيق مقفل',
+      'setBiometricLockedDesc': 'يرجى التحقق ببصمة الإصبع أو الوجه للمتابعة.',
       // Sessions sub-tab
       'tSess': 'الجلسات',
       'sessHeader': 'الجلسات والأجهزة النشطة',
@@ -2091,6 +2151,26 @@ class AppStrings {
       'authErrAppleCancelled': 'Apple ile giriş iptal edildi.',
       'authErrGeneric': 'Kimlik doğrulama başarısız oldu. Lütfen tekrar deneyin.',
       'authResetEmailSent': 'Şifre sıfırlama bağlantısı e-postanıza gönderildi.',
+      // Email Verification Gate
+      'authEmailVerifyTitle': 'E-posta Adresinizi Doğrulayın',
+      'authEmailVerifyDesc': 'E-posta adresinize bir doğrulama bağlantısı gönderildi. Lütfen devam etmek için bağlantıya tıklayın.',
+      'authEmailCheckBtn': 'E-postamı Doğruladım',
+      'authEmailResendBtn': 'Doğrulama E-postasını Tekrar Gönder',
+      'authEmailResendCooldown': '{s} sn içinde tekrar gönder',
+      'authEmailNotVerifiedYet': 'E-posta henüz doğrulanmadı. Lütfen gelen kutunuzu veya spam klasörünüzü kontrol edin.',
+      'authVerificationEmailSent': 'Doğrulama e-postası başarıyla gönderildi.',
+      'authBackOrSignOut': 'Geri / Çıkış Yap',
+      // Turnstile Anti-Bot
+      'authTurnstilePrompt': 'Güvenlik Doğrulaması',
+      'authTurnstileRequired': 'Lütfen Cloudflare güvenlik doğrulamasını tamamlayın.',
+      // Biometric Lock
+      'setBiometricTitle': 'Biyometrik Kilit (Parmak İzi / Face ID)',
+      'setBiometricDesc': 'Uygulamayı açarken parmak izi veya Face ID doğrulaması iste.',
+      'setBiometricAuthReason': 'StyleMorph\'a erişmek için doğrulama yapın',
+      'setBiometricMobileOnly': 'Yalnızca mobil uygulamada kullanılabilir',
+      'setBiometricUnlockBtn': 'Biyometrik ile Kilidi Aç',
+      'setBiometricLockedTitle': 'Uygulama Kilitli',
+      'setBiometricLockedDesc': 'Devam etmek için lütfen parmak iziniz veya Face ID ile kimliğinizi doğrulayın.',
       // Sessions sub-tab
       'tSess': 'Oturumlar',
       'sessHeader': 'Aktif Oturumlar ve Cihazlar',
@@ -2679,6 +2759,30 @@ class AppStrings {
   String get authErrAppleCancelled => get('authErrAppleCancelled');
   String get authErrGeneric => get('authErrGeneric');
   String get authResetEmailSent => get('authResetEmailSent');
+
+  // Email verification getters
+  String get authEmailVerifyTitle => get('authEmailVerifyTitle');
+  String get authEmailVerifyDesc => get('authEmailVerifyDesc');
+  String get authEmailCheckBtn => get('authEmailCheckBtn');
+  String get authEmailResendBtn => get('authEmailResendBtn');
+  String authEmailResendCooldown(int seconds) =>
+      get('authEmailResendCooldown').replaceAll('{s}', formatNumber(seconds));
+  String get authEmailNotVerifiedYet => get('authEmailNotVerifiedYet');
+  String get authVerificationEmailSent => get('authVerificationEmailSent');
+  String get authBackOrSignOut => get('authBackOrSignOut');
+
+  // Turnstile getters
+  String get authTurnstilePrompt => get('authTurnstilePrompt');
+  String get authTurnstileRequired => get('authTurnstileRequired');
+
+  // Biometric lock getters
+  String get setBiometricTitle => get('setBiometricTitle');
+  String get setBiometricDesc => get('setBiometricDesc');
+  String get setBiometricAuthReason => get('setBiometricAuthReason');
+  String get setBiometricMobileOnly => get('setBiometricMobileOnly');
+  String get setBiometricUnlockBtn => get('setBiometricUnlockBtn');
+  String get setBiometricLockedTitle => get('setBiometricLockedTitle');
+  String get setBiometricLockedDesc => get('setBiometricLockedDesc');
 
   // Sessions sub-tab getters
   String get tSess => get('tSess');
