@@ -2,6 +2,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../services/session_service.dart';
 
 enum AppTab {
   shop,
@@ -329,6 +330,11 @@ class AppStateNotifier extends StateNotifier<AppState> {
     if (user == null) return;
 
     try {
+      // Upsert current device session on profile load
+      SessionService().upsertSession().catchError((e) {
+        debugPrint('[AppStateNotifier] upsertSession error: $e');
+      });
+
       final doc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)

@@ -570,6 +570,19 @@ class AppStrings {
       'authErrAppleCancelled': 'ورود با حساب اپل لغو شد.',
       'authErrGeneric': 'خطایی در احراز هویت رخ داد. لطفاً مجدداً تلاش کنید.',
       'authResetEmailSent': 'لینک بازیابی رمز عبور به ایمیل شما ارسال شد.',
+      // Sessions sub-tab
+      'tSess': 'نشست‌ها',
+      'sessHeader': 'نشست‌های فعال و دستگاه‌ها',
+      'sessSubtitle': 'تمام دستگاه‌هایی که با حساب شما وارد شده‌اند را مشاهده و مدیریت کنید. برای امنیت بیشتر می‌توانید دسترسی دستگاه‌های غیرفعال را لغو کنید.',
+      'sessTerminateAll': 'خروج از سایر دستگاه‌ها',
+      'sessCurrentDevice': 'این دستگاه',
+      'sessEmpty': 'هیچ نشست فعالی یافت نشد.',
+      'sessPlatform': 'پلتفرم',
+      'sessOs': 'سیستم‌عامل',
+      'sessUserAgent': 'مرورگر / اپ',
+      'sessLoginTime': 'زمان ورود',
+      'sessLastActive': 'آخرین فعالیت',
+      'sessDelete': 'حذف نشست',
     },
     'en': {
       'appName': 'StyleMorph',
@@ -1042,6 +1055,19 @@ class AppStrings {
       'authErrAppleCancelled': 'Apple sign in was cancelled.',
       'authErrGeneric': 'Authentication failed. Please try again.',
       'authResetEmailSent': 'Password reset link has been sent to your email.',
+      // Sessions sub-tab
+      'tSess': 'Sessions',
+      'sessHeader': 'Active Sessions & Devices',
+      'sessSubtitle': 'View and manage all devices signed in to your account. Revoke access to inactive devices for better security.',
+      'sessTerminateAll': 'Sign Out Other Devices',
+      'sessCurrentDevice': 'This Device',
+      'sessEmpty': 'No active sessions found.',
+      'sessPlatform': 'Platform',
+      'sessOs': 'OS',
+      'sessUserAgent': 'Browser / App',
+      'sessLoginTime': 'Login Time',
+      'sessLastActive': 'Last Active',
+      'sessDelete': 'Delete Session',
     },
     'ar': {
       'appName': 'StyleMorph',
@@ -1514,6 +1540,19 @@ class AppStrings {
       'authErrAppleCancelled': 'تم إلغاء تسجيل الدخول عبر Apple.',
       'authErrGeneric': 'حدث خطأ في المصادقة. يرجى إعادة المحاولة.',
       'authResetEmailSent': 'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك.',
+      // Sessions sub-tab
+      'tSess': 'الجلسات',
+      'sessHeader': 'الجلسات والأجهزة النشطة',
+      'sessSubtitle': 'عرض وإدارة جميع الأجهزة المسجّل دخولها إلى حسابك. يمكنك إلغاء وصول الأجهزة غير النشطة لمزيد من الأمان.',
+      'sessTerminateAll': 'تسجيل الخروج من الأجهزة الأخرى',
+      'sessCurrentDevice': 'هذا الجهاز',
+      'sessEmpty': 'لا توجد جلسات نشطة.',
+      'sessPlatform': 'المنصة',
+      'sessOs': 'نظام التشغيل',
+      'sessUserAgent': 'المتصفح / التطبيق',
+      'sessLoginTime': 'وقت الدخول',
+      'sessLastActive': 'آخر نشاط',
+      'sessDelete': 'حذف الجلسة',
     },
     'tr': {
       'appName': 'StyleMorph',
@@ -1986,6 +2025,19 @@ class AppStrings {
       'authErrAppleCancelled': 'Apple ile giriş iptal edildi.',
       'authErrGeneric': 'Kimlik doğrulama başarısız oldu. Lütfen tekrar deneyin.',
       'authResetEmailSent': 'Şifre sıfırlama bağlantısı e-postanıza gönderildi.',
+      // Sessions sub-tab
+      'tSess': 'Oturumlar',
+      'sessHeader': 'Aktif Oturumlar ve Cihazlar',
+      'sessSubtitle': 'Hesabınıza giriş yapmış tüm cihazları görüntüleyin ve yönetin. Daha iyi güvenlik için etkin olmayan cihazların erişimini iptal edebilirsiniz.',
+      'sessTerminateAll': 'Diğer Cihazlardan Çıkış Yap',
+      'sessCurrentDevice': 'Bu Cihaz',
+      'sessEmpty': 'Aktif oturum bulunamadı.',
+      'sessPlatform': 'Platform',
+      'sessOs': 'İşletim Sistemi',
+      'sessUserAgent': 'Tarayıcı / Uygulama',
+      'sessLoginTime': 'Giriş Zamanı',
+      'sessLastActive': 'Son Aktif',
+      'sessDelete': 'Oturumu Sil',
     },
   };
 
@@ -2539,6 +2591,20 @@ class AppStrings {
   String get authErrAppleCancelled => get('authErrAppleCancelled');
   String get authErrGeneric => get('authErrGeneric');
   String get authResetEmailSent => get('authResetEmailSent');
+
+  // Sessions sub-tab getters
+  String get tSess => get('tSess');
+  String get sessHeader => get('sessHeader');
+  String get sessSubtitle => get('sessSubtitle');
+  String get sessTerminateAll => get('sessTerminateAll');
+  String get sessCurrentDevice => get('sessCurrentDevice');
+  String get sessEmpty => get('sessEmpty');
+  String get sessPlatform => get('sessPlatform');
+  String get sessOs => get('sessOs');
+  String get sessUserAgent => get('sessUserAgent');
+  String get sessLoginTime => get('sessLoginTime');
+  String get sessLastActive => get('sessLastActive');
+  String get sessDelete => get('sessDelete');
 
   String authErrorMessage(String code) {
     switch (code) {

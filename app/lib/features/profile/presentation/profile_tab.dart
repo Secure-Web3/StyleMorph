@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -11,6 +12,7 @@ import 'widgets/gallery_sub_tab.dart';
 import 'widgets/identity_sub_tab.dart';
 import 'widgets/persona_sub_tab.dart';
 import 'widgets/referral_sub_tab.dart';
+import 'widgets/sessions_sub_tab.dart';
 import 'widgets/settings_sub_tab.dart';
 import 'widgets/wallet_sub_tab.dart';
 
@@ -56,6 +58,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
         strings.tComp,
         FontAwesomeIcons.wandMagicSparkles,
       ),
+      _SubTabMeta('p-sessions', strings.tSess, LucideIcons.monitorSmartphone),
       _SubTabMeta('p-settings', strings.tSet, FontAwesomeIcons.sliders),
     ];
 
@@ -78,6 +81,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
         break;
       case 'p-companion':
         activeContent = const PersonaSubTab();
+        break;
+      case 'p-sessions':
+        activeContent = const SessionsSubTab();
         break;
       case 'p-settings':
         activeContent = const SettingsSubTab();
@@ -114,7 +120,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                     child: Column(
                       children: [
                         for (int i = 0; i < subTabs.length; i++) ...[
-                          if (subTabs[i].id == 'p-settings' && !compactSidebar)
+                          if (subTabs[i].id == 'p-sessions' && !compactSidebar)
                             const Spacer(),
                           _SidebarTabButton(
                             tab: subTabs[i],
@@ -128,7 +134,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                             },
                           ),
                           if (i < subTabs.length - 1 &&
-                              subTabs[i + 1].id != 'p-settings')
+                              subTabs[i + 1].id != 'p-sessions')
                             SizedBox(height: compactSidebar ? 1 : 3),
                         ],
                       ],
@@ -238,11 +244,18 @@ class _SidebarTabButton extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            FaIcon(
-              tab.icon,
-              size: 18,
-              color: isActive ? colors.pr : colors.mu,
-            ),
+            if (tab.icon is FaIconData)
+              FaIcon(
+                tab.icon as FaIconData,
+                size: 18,
+                color: isActive ? colors.pr : colors.mu,
+              )
+            else
+              Icon(
+                tab.icon,
+                size: 18,
+                color: isActive ? colors.pr : colors.mu,
+              ),
             const SizedBox(height: 4),
             Text(
               tab.label,
@@ -325,7 +338,7 @@ class _StickySaveBar extends StatelessWidget {
 class _SubTabMeta {
   final String id;
   final String label;
-  final FaIconData icon;
+  final dynamic icon;
 
   const _SubTabMeta(this.id, this.label, this.icon);
 }

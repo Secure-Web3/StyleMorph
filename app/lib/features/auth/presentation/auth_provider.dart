@@ -293,6 +293,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         state = state.copyWith(isSubmitting: false, errorCode: 'apple-cancelled');
         return false;
       }
+      await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {

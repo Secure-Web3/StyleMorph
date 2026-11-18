@@ -13,6 +13,7 @@ import 'core/theme/theme_provider.dart';
 import 'features/auth/presentation/auth_provider.dart';
 import 'core/state/app_state.dart';
 import 'features/auth/presentation/welcome_screen.dart';
+import 'features/profile/presentation/widgets/sessions_sub_tab.dart';
 import 'features/shell/presentation/main_shell_screen.dart';
 import 'firebase_options.dart';
 
@@ -108,7 +109,9 @@ class _AuthGate extends ConsumerWidget {
           return const _Splash();
         }
 
-        return const MainShellScreen();
+        return const SessionRevocationListener(
+          child: MainShellScreen(),
+        );
       },
     );
   }
