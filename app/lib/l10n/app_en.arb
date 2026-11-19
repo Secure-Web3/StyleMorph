@@ -415,5 +415,7 @@
   "idUnverified": "Unverified",
   "authLockoutCooldown": "Too many failed attempts. Please wait {s}s.",
   "authLockoutBtn": "Locked ({s}s)",
-  "authRememberMe": "Remember Me"
+  "authRememberMe": "Remember Me",
+  "authSessionExpired": "Your session has expired due to 5 days of inactivity. Please sign in again.",
+  "authSessionTerminatedConcurrent": "Your session was ended because the maximum of 5 concurrent devices was reached."
 }

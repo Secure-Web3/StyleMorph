@@ -415,5 +415,7 @@
   "idUnverified": "غير مؤكد",
   "authLockoutCooldown": "عدد محاولات غير صحيحة زائد عن الحد. يرجى الانتظار {s} ثانية.",
   "authLockoutBtn": "مغلق مؤقتاً ({s} ثانية)",
-  "authRememberMe": "تذكرني"
+  "authRememberMe": "تذكرني",
+  "authSessionExpired": "انتهت جلستك بسبب عدم النشاط لمدة 5 أيام. يرجى تسجيل الدخول مرة أخرى.",
+  "authSessionTerminatedConcurrent": "تم إنهاء جلستك للوصول إلى الحد الأقصى البالغ 5 أجهزة نشطة."
 }

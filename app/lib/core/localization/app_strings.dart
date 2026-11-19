@@ -592,6 +592,8 @@ class AppStrings {
       'authLockoutCooldown': 'تلاش‌های ناموفق بیش از حد مجاز. لطفاً {s} ثانیه صبر کنید.',
       'authLockoutBtn': 'قفل موقت ({s} ثانیه)',
       'authRememberMe': 'مرا به خاطر بسپار',
+      'authSessionExpired': 'نشست شما به دلیل ۵ روز عدم فعالیت منقضی شد. لطفاً دوباره وارد شوید.',
+      'authSessionTerminatedConcurrent': 'نشست شما به دلیل ورود از بیش از ۵ دستگاه خاتمه یافت.',
       // Biometric Lock
       'setBiometricTitle': 'قفل بیومتریک (اثر انگشت / Face ID)',
       'setBiometricDesc': 'هنگام باز کردن اپلیکیشن، هویت شما با حسگرهای بیومتریک بررسی می‌شود.',
@@ -1129,6 +1131,8 @@ class AppStrings {
       'authLockoutCooldown': 'Too many failed attempts. Please wait {s}s.',
       'authLockoutBtn': 'Locked ({s}s)',
       'authRememberMe': 'Remember Me',
+      'authSessionExpired': 'Your session has expired due to 5 days of inactivity. Please sign in again.',
+      'authSessionTerminatedConcurrent': 'Your session was ended because the maximum of 5 concurrent devices was reached.',
       // Biometric Lock
       'setBiometricTitle': 'Biometric Lock (Fingerprint / Face ID)',
       'setBiometricDesc': 'Require fingerprint or Face ID authentication upon opening the app.',
@@ -1666,6 +1670,8 @@ class AppStrings {
       'authLockoutCooldown': 'عدد محاولات غير صحيحة زائد عن الحد. يرجى الانتظار {s} ثانية.',
       'authLockoutBtn': 'مغلق مؤقتاً ({s} ثانية)',
       'authRememberMe': 'تذكرني',
+      'authSessionExpired': 'انتهت جلستك بسبب عدم النشاط لمدة 5 أيام. يرجى تسجيل الدخول مرة أخرى.',
+      'authSessionTerminatedConcurrent': 'تم إنهاء جلستك للوصول إلى الحد الأقصى البالغ 5 أجهزة نشطة.',
       // Biometric Lock
       'setBiometricTitle': 'القفل الحيوي (بصمة الإصبع / التعرف على الوجه)',
       'setBiometricDesc': 'طلب التحقق ببصمة الإصبع أو الوجه عند فتح التطبيق.',
@@ -2203,6 +2209,8 @@ class AppStrings {
       'authLockoutCooldown': 'Çok fazla başarısız deneme. Lütfen {s} sn bekleyin.',
       'authLockoutBtn': 'Kilitlendi ({s} sn)',
       'authRememberMe': 'Beni hatırla',
+      'authSessionExpired': 'Oturumunuz 5 günlük hareketsizlik nedeniyle sona erdi. Lütfen tekrar giriş yapın.',
+      'authSessionTerminatedConcurrent': 'Oturumunuz maksimum 5 eşzamanlı cihaza ulaşıldığı için sonlandırıldı.',
       // Biometric Lock
       'setBiometricTitle': 'Biyometrik Kilit (Parmak İzi / Face ID)',
       'setBiometricDesc': 'Uygulamayı açarken parmak izi veya Face ID doğrulaması iste.',
@@ -2827,6 +2835,8 @@ class AppStrings {
   String get authTurnstilePrompt => get('authTurnstilePrompt');
   String get authTurnstileRequired => get('authTurnstileRequired');
   String get authRememberMe => get('authRememberMe');
+  String get authSessionExpired => get('authSessionExpired');
+  String get authSessionTerminatedConcurrent => get('authSessionTerminatedConcurrent');
   String authLockoutCooldown(int seconds) {
     final lang = _normalizedLang(localeCode);
     final secStr = (lang == 'fa' || lang == 'ar')

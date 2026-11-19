@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -36,7 +37,8 @@ class SessionRevocationListener extends ConsumerStatefulWidget {
 }
 
 class _SessionRevocationListenerState
-    extends ConsumerState<SessionRevocationListener> {
+    extends ConsumerState<SessionRevocationListener>
+    with WidgetsBindingObserver {
   bool _listenerActive = false;
   StreamSubscription? _sessionSub;
   StreamSubscription? _blockedSub;
@@ -44,20 +46,45 @@ class _SessionRevocationListenerState
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _attachListener();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _sessionSub?.cancel();
     _blockedSub?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkSessionExpiry();
+    }
+  }
+
+  Future<void> _checkSessionExpiry() async {
+    if (Firebase.apps.isEmpty) return;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    final isExpired = await ref
+        .read(sessionServiceProvider)
+        .checkSessionExpiryAndSignOutIfExpired();
+    if (isExpired && mounted) {
+      _performExpiredSignOut();
+    }
   }
 
   void _attachListener() {
     if (_listenerActive) return;
     _listenerActive = true;
 
+    // Check 5-day session expiry upon initial attachment
+    _checkSessionExpiry();
+
+    if (Firebase.apps.isEmpty) return;
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
@@ -126,6 +153,32 @@ class _SessionRevocationListenerState
     }
   }
 
+  Future<void> _performExpiredSignOut() async {
+    final messenger = ScaffoldMessenger.of(context);
+    final notice = context.strings.authSessionExpired;
+    final alertColor = context.colors.orColor;
+
+    try {
+      await ref.read(authRepositoryProvider).signOut();
+    } catch (_) {}
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (_) {}
+    if (mounted) {
+      ref.read(appStateProvider.notifier).logout();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            notice,
+            style: const TextStyle(fontFamily: 'Vazirmatn'),
+          ),
+          backgroundColor: alertColor,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    }
+  }
+
   Future<void> _performSignOut() async {
     try {
       await ref.read(authRepositoryProvider).signOut();
@@ -139,7 +192,15 @@ class _SessionRevocationListenerState
   }
 
   @override
-  Widget build(BuildContext context) => widget.child;
+  Widget build(BuildContext context) {
+    return Listener(
+      behavior: HitTestBehavior.translucent,
+      onPointerDown: (_) {
+        ref.read(sessionServiceProvider).recordUserActivityThrottled();
+      },
+      child: widget.child,
+    );
+  }
 }
 
 // ── Sessions sub-tab ────────────────────────────────────────────────────────
