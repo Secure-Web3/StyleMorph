@@ -481,5 +481,18 @@
   "idChangeEmailSuccessDesc": "A verification link was sent to {email}. Once clicked, your email will be updated.",
   "idLostAccessEmailSupport": "Lost access to your old email? Contact Support",
   "idChangeEmailSameError": "New email cannot be the same as your current email.",
-  "idChangeEmailInvalidError": "Please enter a valid email address."
+  "idChangeEmailInvalidError": "Please enter a valid email address.",
+  "idSelectCountry": "Select Country",
+  "idSelectProvince": "Select Province / State",
+  "idSelectCity": "Select City",
+  "idSelectDialCode": "Country Dial Code",
+  "idSearchPlaceholder": "Search...",
+  "idUseCustomCity": "Use entered city",
+  "idErrInvalidNidIran": "Invalid 10-digit Iranian National ID",
+  "idErrInvalidNidTurkey": "Invalid 11-digit Turkish T.C. Kimlik No",
+  "idErrInvalidNidInternational": "Invalid National ID (min 5 characters)",
+  "idErrInvalidZipIran": "Postal code must be 10 valid digits",
+  "idErrInvalidZipTurkey": "Turkish postal code must be 5 digits",
+  "idErrInvalidZipInternational": "Invalid Postal/ZIP Code (3-12 characters)",
+  "idErrInvalidMobile": "Invalid mobile number for selected country"
 }

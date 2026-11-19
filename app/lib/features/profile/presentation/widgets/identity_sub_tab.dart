@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_badge.dart';
@@ -14,9 +15,12 @@ import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../auth/presentation/email_verification_provider.dart';
+import '../../data/identity_validator.dart';
+import '../../data/iso_location_data.dart';
 import 'change_email_dialog.dart';
 import 'email_verification_banner.dart';
 import 'kyc_verification_section.dart';
+import 'searchable_location_picker_sheet.dart';
 
 class IdentitySubTab extends ConsumerStatefulWidget {
   const IdentitySubTab({super.key});
@@ -31,7 +35,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
   late final TextEditingController _nickController;
   late final TextEditingController _nidController;
   late final TextEditingController _dobController;
-  late final TextEditingController _mobileController;
+  late final TextEditingController _mobileSubscriberController;
   late final TextEditingController _emailController;
   late final TextEditingController _countryController;
   late final TextEditingController _provinceController;
@@ -39,12 +43,22 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
   late final TextEditingController _addressController;
   late final TextEditingController _zipController;
 
+  IsoCountry _selectedCountry = IsoLocationData.defaultCountry;
+  IsoProvince? _selectedProvince;
+  IsoCountry _mobileCountry = IsoLocationData.defaultCountry;
+
+  String? _nidError;
+  String? _zipError;
+  String? _mobileError;
+
   @override
   void initState() {
     super.initState();
     User? user;
     try {
-      user = FirebaseAuth.instance.currentUser;
+      if (Firebase.apps.isNotEmpty) {
+        user = FirebaseAuth.instance.currentUser;
+      }
     } catch (_) {}
     final values = ref.read(appStateProvider).identityValues;
     String initialFirst = values['firstName'] ?? '';
@@ -61,12 +75,38 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
         ? values['email']!
         : (user?.email ?? '');
 
+    // Resolve Country & Province from saved data
+    final savedCountryCode = values['countryCode'] ?? '';
+    final savedCountryName = values['country'] ?? '';
+    _selectedCountry = IsoLocationData.findByCode(savedCountryCode) ??
+        IsoLocationData.findByName(savedCountryName) ??
+        IsoLocationData.defaultCountry;
+
+    final savedProvinceName = values['province'] ?? '';
+    final savedProvinceCode = values['provinceCode'] ?? '';
+    for (final p in _selectedCountry.provinces) {
+      if (p.code.toLowerCase() == savedProvinceCode.toLowerCase() ||
+          p.nameEn.toLowerCase() == savedProvinceName.toLowerCase() ||
+          p.nameFa == savedProvinceName ||
+          p.nameTr == savedProvinceName ||
+          p.nameAr == savedProvinceName) {
+        _selectedProvince = p;
+        break;
+      }
+    }
+
+    // Resolve Mobile E.164
+    final rawMobile = values['mobile'] ?? '';
+    final parsedMobile = IdentityValidator.parseE164(rawMobile);
+    _mobileCountry = parsedMobile.country;
+    _mobileSubscriberController =
+        TextEditingController(text: parsedMobile.subscriber);
+
     _firstNameController = TextEditingController(text: initialFirst);
     _lastNameController = TextEditingController(text: initialLast);
     _nickController = TextEditingController(text: values['nick'] ?? '');
     _nidController = TextEditingController(text: values['nid'] ?? '');
     _dobController = TextEditingController(text: values['dob'] ?? '');
-    _mobileController = TextEditingController(text: values['mobile'] ?? '');
     _emailController = TextEditingController(text: initialEmail);
     _countryController = TextEditingController(text: values['country'] ?? '');
     _provinceController = TextEditingController(text: values['province'] ?? '');
@@ -78,8 +118,11 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
   void _syncControllers(Map<String, String> values) {
     User? user;
     try {
-      user = FirebaseAuth.instance.currentUser;
+      if (Firebase.apps.isNotEmpty) {
+        user = FirebaseAuth.instance.currentUser;
+      }
     } catch (_) {}
+
     void update(TextEditingController ctrl, String? val) {
       final text = val ?? '';
       if (ctrl.text != text) {
@@ -92,13 +135,19 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     update(_nickController, values['nick']);
     update(_nidController, values['nid']);
     update(_dobController, values['dob']);
-    update(_mobileController, values['mobile']);
     update(_emailController, values['email'] ?? user?.email);
     update(_countryController, values['country']);
     update(_provinceController, values['province']);
     update(_cityController, values['city']);
     update(_addressController, values['address']);
     update(_zipController, values['zip']);
+
+    final rawMobile = values['mobile'] ?? '';
+    final parsed = IdentityValidator.parseE164(rawMobile);
+    if (_mobileCountry.code != parsed.country.code) {
+      _mobileCountry = parsed.country;
+    }
+    update(_mobileSubscriberController, parsed.subscriber);
   }
 
   @override
@@ -108,7 +157,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     _nickController.dispose();
     _nidController.dispose();
     _dobController.dispose();
-    _mobileController.dispose();
+    _mobileSubscriberController.dispose();
     _emailController.dispose();
     _countryController.dispose();
     _provinceController.dispose();
@@ -122,9 +171,177 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     ref.read(appStateProvider.notifier).updateIdentityField(key, value);
   }
 
+  void _validateNid(String? val, AppStrings strings) {
+    if (val == null || val.trim().isEmpty) {
+      _nidError = null;
+      return;
+    }
+    final code = _selectedCountry.code.toUpperCase();
+    if (code == 'IR') {
+      _nidError = IdentityValidator.isValidIranianNationalId(val)
+          ? null
+          : strings.idErrInvalidNidIran;
+    } else if (code == 'TR') {
+      _nidError = IdentityValidator.isValidTurkishKimlik(val)
+          ? null
+          : strings.idErrInvalidNidTurkey;
+    } else {
+      _nidError = IdentityValidator.isValidInternationalNationalId(val)
+          ? null
+          : strings.idErrInvalidNidInternational;
+    }
+  }
+
+  void _validateZip(String? val, AppStrings strings) {
+    if (val == null || val.trim().isEmpty) {
+      _zipError = null;
+      return;
+    }
+    final code = _selectedCountry.code.toUpperCase();
+    if (code == 'IR') {
+      _zipError = IdentityValidator.isValidIranianPostalCode(val)
+          ? null
+          : strings.idErrInvalidZipIran;
+    } else if (code == 'TR') {
+      _zipError = IdentityValidator.isValidTurkishPostalCode(val)
+          ? null
+          : strings.idErrInvalidZipTurkey;
+    } else {
+      _zipError = IdentityValidator.isValidInternationalPostalCode(val)
+          ? null
+          : strings.idErrInvalidZipInternational;
+    }
+  }
+
+  void _validateMobile(String? val, AppStrings strings) {
+    if (val == null || val.trim().isEmpty) {
+      _mobileError = null;
+      return;
+    }
+    _mobileError = IdentityValidator.isValidSubscriber(val, _mobileCountry)
+        ? null
+        : strings.idErrInvalidMobile;
+  }
+
+  Future<void> _pickCountry() async {
+    final picked = await SearchableLocationPickerSheet.showCountryPicker(
+      context,
+      selectedCode: _selectedCountry.code,
+    );
+    if (!mounted) return;
+    if (picked != null) {
+      final locale = Localizations.localeOf(context).languageCode;
+      final strings = context.strings;
+      final localizedName = picked.localizedName(locale);
+      setState(() {
+        _selectedCountry = picked;
+        _selectedProvince = null;
+        _countryController.text = localizedName;
+        _provinceController.text = '';
+        _cityController.text = '';
+
+        // Sync mobile dial code with selected country
+        _mobileCountry = picked;
+        final currentSub = _mobileSubscriberController.text.trim();
+        if (currentSub.isNotEmpty) {
+          final canonical = IdentityValidator.formatE164(
+            dialCode: _mobileCountry.dialCode,
+            subscriber: currentSub,
+          );
+          _onFieldChanged('mobile', canonical);
+        }
+
+        _validateNid(_nidController.text, strings);
+        _validateZip(_zipController.text, strings);
+        _validateMobile(_mobileSubscriberController.text, strings);
+      });
+
+      _onFieldChanged('country', localizedName);
+      _onFieldChanged('countryCode', picked.code);
+      _onFieldChanged('province', '');
+      _onFieldChanged('provinceCode', '');
+      _onFieldChanged('city', '');
+    }
+  }
+
+  Future<void> _pickProvince() async {
+    final picked = await SearchableLocationPickerSheet.showProvincePicker(
+      context,
+      country: _selectedCountry,
+      selectedCode: _selectedProvince?.code,
+    );
+    if (!mounted) return;
+    if (picked != null) {
+      final locale = Localizations.localeOf(context).languageCode;
+      final localizedName = picked.localizedName(locale);
+      setState(() {
+        _selectedProvince = picked;
+        _provinceController.text = localizedName;
+        _cityController.text = '';
+      });
+      _onFieldChanged('province', localizedName);
+      _onFieldChanged('provinceCode', picked.code);
+      _onFieldChanged('city', '');
+    }
+  }
+
+  Future<void> _pickCity() async {
+    if (_selectedProvince == null) {
+      if (_selectedCountry.provinces.isNotEmpty) {
+        await _pickProvince();
+        if (_selectedProvince == null) return;
+      } else {
+        // Country has no predefined provinces
+        final defaultProv = IsoProvince(
+          code: _selectedCountry.code,
+          nameEn: _selectedCountry.nameEn,
+          nameFa: _selectedCountry.nameFa,
+          nameAr: _selectedCountry.nameAr,
+          nameTr: _selectedCountry.nameTr,
+        );
+        _selectedProvince = defaultProv;
+      }
+    }
+
+    if (!mounted) return;
+    final picked = await SearchableLocationPickerSheet.showCityPicker(
+      context,
+      province: _selectedProvince!,
+      currentCity: _cityController.text,
+    );
+    if (picked != null && picked.isNotEmpty) {
+      setState(() {
+        _cityController.text = picked;
+      });
+      _onFieldChanged('city', picked);
+    }
+  }
+
+  Future<void> _pickDialCode() async {
+    final picked = await SearchableLocationPickerSheet.showDialCodePicker(
+      context,
+      selectedDialCode: _mobileCountry.dialCode,
+    );
+    if (!mounted) return;
+    if (picked != null) {
+      final strings = context.strings;
+      setState(() {
+        _mobileCountry = picked;
+        final currentSub = _mobileSubscriberController.text.trim();
+        if (currentSub.isNotEmpty) {
+          final canonical = IdentityValidator.formatE164(
+            dialCode: _mobileCountry.dialCode,
+            subscriber: currentSub,
+          );
+          _onFieldChanged('mobile', canonical);
+        }
+        _validateMobile(_mobileSubscriberController.text, strings);
+      });
+    }
+  }
+
   Future<void> _pickDateOfBirth() async {
     final now = DateTime.now();
-    // Legal minimum age 13 years old
     final lastDate = DateTime(now.year - 13, now.month, now.day);
     final firstDate = DateTime(now.year - 120, 1, 1);
 
@@ -216,7 +433,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // First Name & Last Name
+          // First Name & Last Name (Completely Unrestricted in Script/Language)
           Row(
             children: [
               Expanded(
@@ -240,8 +457,9 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          // Nickname & National ID
+          // Nickname / Handle (Unrestricted) & National ID (Country-Aware Validated)
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
                 child: AppTextField(
@@ -257,7 +475,15 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                   label: strings.idNationalId,
                   placeholder: strings.idNationalIdPlaceholder,
                   controller: _nidController,
-                  onChanged: (val) => _onFieldChanged('nid', val),
+                  errorText: _nidError,
+                  keyboardType: TextInputType.text,
+                  maxLength: 25,
+                  onChanged: (val) {
+                    _onFieldChanged('nid', val);
+                    setState(() {
+                      _validateNid(val, strings);
+                    });
+                  },
                 ),
               ),
             ],
@@ -289,7 +515,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          // Mobile Number with Disabled Verification Button & "Coming Soon" Badge
+          // Structured International E.164 Mobile Input + Coming Soon Badge
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -299,16 +525,70 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
               ),
               const SizedBox(height: AppSpacing.xs),
               Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Flag + Dial Code Picker Button
+                  InkWell(
+                    onTap: _pickDialCode,
+                    borderRadius: AppRadius.rLg,
+                    child: Container(
+                      height: 40,
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: AppSpacing.sm,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.bg,
+                        borderRadius: AppRadius.rLg,
+                        border: Border.all(color: colors.bd, width: 1.0),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _mobileCountry.flag,
+                            style: const TextStyle(fontSize: 16),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _mobileCountry.dialCode,
+                            style: TextStyle(
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: colors.tx,
+                            ),
+                          ),
+                          const SizedBox(width: 2),
+                          Icon(Icons.arrow_drop_down,
+                              size: 16, color: colors.mu),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+
+                  // Numeric Subscriber Input
                   Expanded(
                     child: AppTextField(
                       placeholder: strings.idMobilePlaceholder,
                       keyboardType: TextInputType.phone,
-                      controller: _mobileController,
-                      onChanged: (val) => _onFieldChanged('mobile', val),
+                      controller: _mobileSubscriberController,
+                      errorText: _mobileError,
+                      onChanged: (val) {
+                        final canonical = IdentityValidator.formatE164(
+                          dialCode: _mobileCountry.dialCode,
+                          subscriber: val,
+                        );
+                        _onFieldChanged('mobile', canonical);
+                        setState(() {
+                          _validateMobile(val, strings);
+                        });
+                      },
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
+
+                  // Mobile Verification Button (Disabled + Coming Soon)
                   AppButton(
                     size: AppButtonSize.sm,
                     variant: AppButtonVariant.outline,
@@ -508,40 +788,62 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          // Country / Province / City (3 columns)
+          // Cascading, Searchable Location Selectors (Country -> Province -> City)
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Country Selector
               Expanded(
                 child: AppTextField(
                   label: strings.idCountry,
                   placeholder: strings.idCountryPlaceholder,
                   controller: _countryController,
-                  onChanged: (val) => _onFieldChanged('country', val),
+                  readOnly: true,
+                  prefix: Padding(
+                    padding: const EdgeInsetsDirectional.only(start: 8, end: 4),
+                    child: Center(
+                      widthFactor: 1,
+                      child: Text(
+                        _selectedCountry.flag,
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                  suffix: const Icon(Icons.arrow_drop_down, size: 20),
+                  onTap: _pickCountry,
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
+
+              // Province / State Selector
               Expanded(
                 child: AppTextField(
                   label: strings.idProvince,
                   placeholder: strings.idProvincePlaceholder,
                   controller: _provinceController,
-                  onChanged: (val) => _onFieldChanged('province', val),
+                  readOnly: true,
+                  suffix: const Icon(Icons.arrow_drop_down, size: 20),
+                  onTap: _pickProvince,
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
+
+              // City Selector
               Expanded(
                 child: AppTextField(
                   label: strings.idCity,
                   placeholder: strings.idCityPlaceholder,
                   controller: _cityController,
-                  onChanged: (val) => _onFieldChanged('city', val),
+                  readOnly: true,
+                  suffix: const Icon(Icons.arrow_drop_down, size: 20),
+                  onTap: _pickCity,
                 ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          // Postal Address & Postal Code
+          // Postal Address & Postal / ZIP Code (Country-Aware Validated)
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -562,9 +864,15 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                   label: strings.idZip,
                   placeholder: strings.idZipPlaceholder,
                   controller: _zipController,
+                  errorText: _zipError,
                   keyboardType: TextInputType.text,
                   maxLength: 12,
-                  onChanged: (val) => _onFieldChanged('zip', val),
+                  onChanged: (val) {
+                    _onFieldChanged('zip', val);
+                    setState(() {
+                      _validateZip(val, strings);
+                    });
+                  },
                 ),
               ),
             ],

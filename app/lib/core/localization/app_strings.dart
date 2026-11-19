@@ -243,6 +243,19 @@ class AppStrings {
       'idAddressPlaceholder': 'خیابان، کوچه، پلاک، واحد',
       'idZip': 'کد پستی',
       'idZipPlaceholder': 'کد پستی / زیپ‌کد',
+      'idSelectCountry': 'انتخاب کشور',
+      'idSelectProvince': 'انتخاب استان / ایالت',
+      'idSelectCity': 'انتخاب شهر',
+      'idSelectDialCode': 'پیش‌شماره کشور',
+      'idSearchPlaceholder': 'جستجو...',
+      'idUseCustomCity': 'استفاده از شهر واردشده',
+      'idErrInvalidNidIran': 'کد ملی ۱۰ رقمی نامعتبر است',
+      'idErrInvalidNidTurkey': 'شماره هویت ترکیه (T.C. Kimlik) نامعتبر است',
+      'idErrInvalidNidInternational': 'کد شناسایی نامعتبر است (حداقل ۵ کاراکتر)',
+      'idErrInvalidZipIran': 'کد پستی باید ۱۰ رقم عددی معتبر باشد',
+      'idErrInvalidZipTurkey': 'کد پستی ترکیه باید ۵ رقم عددی باشد',
+      'idErrInvalidZipInternational': 'کد پستی نامعتبر است (۳ تا ۱۲ کاراکتر)',
+      'idErrInvalidMobile': 'شماره موبایل وارد شده برای این کشور نامعتبر است',
       'kycSectionTitle': 'احراز هویت و مدارک شناسایی (KYC)',
       'kycSectionSubtitle': 'جهت فعال‌سازی قابلیت‌های پیشرفته و امنیت حساب، مدارک هویتی خود را ارسال کنید.',
       'kycStatusNotSubmitted': 'تایید نشده',
@@ -846,6 +859,19 @@ class AppStrings {
       'idAddressPlaceholder': 'Street name, building number, suite',
       'idZip': 'Postal / ZIP Code',
       'idZipPlaceholder': 'Postal / ZIP Code',
+      'idSelectCountry': 'Select Country',
+      'idSelectProvince': 'Select Province / State',
+      'idSelectCity': 'Select City',
+      'idSelectDialCode': 'Country Dial Code',
+      'idSearchPlaceholder': 'Search...',
+      'idUseCustomCity': 'Use entered city',
+      'idErrInvalidNidIran': 'Invalid 10-digit Iranian National ID',
+      'idErrInvalidNidTurkey': 'Invalid 11-digit Turkish T.C. Kimlik No',
+      'idErrInvalidNidInternational': 'Invalid National ID (min 5 characters)',
+      'idErrInvalidZipIran': 'Postal code must be 10 valid digits',
+      'idErrInvalidZipTurkey': 'Turkish postal code must be 5 digits',
+      'idErrInvalidZipInternational': 'Invalid Postal/ZIP Code (3-12 characters)',
+      'idErrInvalidMobile': 'Invalid mobile number for selected country',
       'kycSectionTitle': 'KYC Verification & Identity Documents',
       'kycSectionSubtitle': 'Submit your identity documents to unlock advanced features and secure your account.',
       'kycStatusNotSubmitted': 'Not Submitted',
@@ -1449,6 +1475,19 @@ class AppStrings {
       'idAddressPlaceholder': 'الشارع، رقم المبنى، الشقة',
       'idZip': 'الرمز البريدي',
       'idZipPlaceholder': 'الرمز البريدي',
+      'idSelectCountry': 'اختر الدولة',
+      'idSelectProvince': 'اختر المحافظة / الولاية',
+      'idSelectCity': 'اختر المدينة',
+      'idSelectDialCode': 'رمز الاتصال الدولي',
+      'idSearchPlaceholder': 'بحث...',
+      'idUseCustomCity': 'استخدام المدينة المدخلة',
+      'idErrInvalidNidIran': 'الرقم القومي الإيراني غير صالح',
+      'idErrInvalidNidTurkey': 'رقم الهوية التركية غير صالح',
+      'idErrInvalidNidInternational': 'رقم الهوية غير صالح (٥ أحرف على الأقل)',
+      'idErrInvalidZipIran': 'يجب أن يتكون الرمز البريدي من ١٠ أرقام',
+      'idErrInvalidZipTurkey': 'يجب أن يتكون الرمز البريدي التركي من ٥ أرقام',
+      'idErrInvalidZipInternational': 'الرمز البريدي غير صالح (٣-١٢ حرف)',
+      'idErrInvalidMobile': 'رقم الجوال غير صالح للدولة المحددة',
       'kycSectionTitle': 'التحقق من الهوية والوثائق (KYC)',
       'kycSectionSubtitle': 'أرسل وثائق هويتك لتفعيل الميزات المتقدمة وتأمين حسابك.',
       'kycStatusNotSubmitted': 'غير مرسل',
@@ -2052,6 +2091,19 @@ class AppStrings {
       'idAddressPlaceholder': 'Mahalle, cadde, sokak, no, daire',
       'idZip': 'Posta Kodu',
       'idZipPlaceholder': 'Posta Kodu',
+      'idSelectCountry': 'Ülke Seçin',
+      'idSelectProvince': 'İl / Eyalet Seçin',
+      'idSelectCity': 'Şehir Seçin',
+      'idSelectDialCode': 'Ülke Arama Kodu',
+      'idSearchPlaceholder': 'Ara...',
+      'idUseCustomCity': 'Girilen şehri kullan',
+      'idErrInvalidNidIran': 'Geçersiz 10 haneli İran Kimlik No',
+      'idErrInvalidNidTurkey': 'Geçersiz 11 haneli T.C. Kimlik No',
+      'idErrInvalidNidInternational': 'Geçersiz Kimlik No (en az 5 karakter)',
+      'idErrInvalidZipIran': 'Posta kodu 10 haneli geçerli olmalıdır',
+      'idErrInvalidZipTurkey': 'Türkiye posta kodu 5 haneli olmalıdır',
+      'idErrInvalidZipInternational': 'Geçersiz Posta Kodu (3-12 karakter)',
+      'idErrInvalidMobile': 'Seçilen ülke için geçersiz cep telefonu',
       'kycSectionTitle': 'Kimlik Doğrulama & Belgeler (KYC)',
       'kycSectionSubtitle': 'Gelişmiş özellikleri etkinleştirmek ve hesabınızı güvenceye almak için kimlik belgelerinizi gönderin.',
       'kycStatusNotSubmitted': 'Gönderilmedi',
@@ -2705,6 +2757,19 @@ class AppStrings {
   String get idAddressPlaceholder => get('idAddressPlaceholder');
   String get idZip => get('idZip');
   String get idZipPlaceholder => get('idZipPlaceholder');
+  String get idSelectCountry => get('idSelectCountry');
+  String get idSelectProvince => get('idSelectProvince');
+  String get idSelectCity => get('idSelectCity');
+  String get idSelectDialCode => get('idSelectDialCode');
+  String get idSearchPlaceholder => get('idSearchPlaceholder');
+  String get idUseCustomCity => get('idUseCustomCity');
+  String get idErrInvalidNidIran => get('idErrInvalidNidIran');
+  String get idErrInvalidNidTurkey => get('idErrInvalidNidTurkey');
+  String get idErrInvalidNidInternational => get('idErrInvalidNidInternational');
+  String get idErrInvalidZipIran => get('idErrInvalidZipIran');
+  String get idErrInvalidZipTurkey => get('idErrInvalidZipTurkey');
+  String get idErrInvalidZipInternational => get('idErrInvalidZipInternational');
+  String get idErrInvalidMobile => get('idErrInvalidMobile');
 
   // KYC
   String get kycSectionTitle => get('kycSectionTitle');

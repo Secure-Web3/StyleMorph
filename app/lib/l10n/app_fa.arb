@@ -481,5 +481,18 @@
   "idChangeEmailSuccessDesc": "لینک تایید به {email} ارسال شد. پس از کلیک روی لینک، ایمیل شما تغییر خواهد کرد.",
   "idLostAccessEmailSupport": "به ایمیل قبلی خود دسترسی ندارید؟ تماس با پشتیبانی",
   "idChangeEmailSameError": "ایمیل جدید نمی‌تواند همان ایمیل قبلی باشد.",
-  "idChangeEmailInvalidError": "لطفاً یک آدرس ایمیل معتبر وارد کنید."
+  "idChangeEmailInvalidError": "لطفاً یک آدرس ایمیل معتبر وارد کنید.",
+  "idSelectCountry": "انتخاب کشور",
+  "idSelectProvince": "انتخاب استان / ایالت",
+  "idSelectCity": "انتخاب شهر",
+  "idSelectDialCode": "پیش‌شماره کشور",
+  "idSearchPlaceholder": "جستجو...",
+  "idUseCustomCity": "استفاده از شهر واردشده",
+  "idErrInvalidNidIran": "کد ملی ۱۰ رقمی نامعتبر است",
+  "idErrInvalidNidTurkey": "شماره هویت ترکیه (T.C. Kimlik) نامعتبر است",
+  "idErrInvalidNidInternational": "کد شناسایی نامعتبر است (حداقل ۵ کاراکتر)",
+  "idErrInvalidZipIran": "کد پستی باید ۱۰ رقم عددی معتبر باشد",
+  "idErrInvalidZipTurkey": "کد پستی ترکیه باید ۵ رقم عددی باشد",
+  "idErrInvalidZipInternational": "کد پستی نامعتبر است (۳ تا ۱۲ کاراکتر)",
+  "idErrInvalidMobile": "شماره موبایل وارد شده برای این کشور نامعتبر است"
 }

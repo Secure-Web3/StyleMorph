@@ -22,6 +22,7 @@ class AppTextField extends StatelessWidget {
   final int? maxLength;
   final bool readOnly;
   final VoidCallback? onTap;
+  final String? errorText;
 
   const AppTextField({
     super.key,
@@ -42,6 +43,7 @@ class AppTextField extends StatelessWidget {
     this.maxLength,
     this.readOnly = false,
     this.onTap,
+    this.errorText,
   });
 
   @override
@@ -105,6 +107,20 @@ class AppTextField extends StatelessWidget {
               fontFamily: AppTypography.fontFamily,
               fontSize: 11,
               color: colors.mu,
+            ),
+            errorText: errorText,
+            errorStyle: TextStyle(
+              fontFamily: AppTypography.fontFamily,
+              fontSize: 10,
+              color: colors.orColor,
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: AppRadius.rLg,
+              borderSide: BorderSide(color: colors.orColor, width: 1.0),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: AppRadius.rLg,
+              borderSide: BorderSide(color: colors.orColor, width: 1.5),
             ),
             filled: true,
             fillColor: colors.bg,

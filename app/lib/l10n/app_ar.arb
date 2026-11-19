@@ -481,5 +481,18 @@
   "idChangeEmailSuccessDesc": "تم إرسال رابط التأكيد إلى {email}. بمجرد النقر عليه، سيتم تحديث بريدك الإلكتروني.",
   "idLostAccessEmailSupport": "فقدت الوصول إلى بريدك السابق؟ اتصل بالدعم",
   "idChangeEmailSameError": "لا يمكن أن يكون البريد الجديد هو نفس البريد الحالي.",
-  "idChangeEmailInvalidError": "يرجى إدخال عنوان بريد إلكتروني صالح."
+  "idChangeEmailInvalidError": "يرجى إدخال عنوان بريد إلكتروني صالح.",
+  "idSelectCountry": "اختر الدولة",
+  "idSelectProvince": "اختر المحافظة / الولاية",
+  "idSelectCity": "اختر المدينة",
+  "idSelectDialCode": "رمز الاتصال الدولي",
+  "idSearchPlaceholder": "بحث...",
+  "idUseCustomCity": "استخدام المدينة المدخلة",
+  "idErrInvalidNidIran": "الرقم القومي الإيراني غير صالح",
+  "idErrInvalidNidTurkey": "رقم الهوية التركية غير صالح",
+  "idErrInvalidNidInternational": "رقم الهوية غير صالح (٥ أحرف على الأقل)",
+  "idErrInvalidZipIran": "يجب أن يتكون الرمز البريدي من ١٠ أرقام",
+  "idErrInvalidZipTurkey": "يجب أن يتكون الرمز البريدي التركي من ٥ أرقام",
+  "idErrInvalidZipInternational": "الرمز البريدي غير صالح (٣-١٢ حرف)",
+  "idErrInvalidMobile": "رقم الجوال غير صالح للدولة المحددة"
 }
