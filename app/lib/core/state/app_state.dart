@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../services/session_service.dart';
 
 enum AppTab {
@@ -505,6 +506,18 @@ class AppStateNotifier extends StateNotifier<AppState> {
         'profileProgress': progress,
         'updatedAt': FieldValue.serverTimestamp(),
       };
+
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final p = prefs.getString('user_theme_palette');
+        final m = prefs.getString('user_theme_mode');
+        if (p != null || m != null) {
+          dataToSave['theme'] = {
+            'palette': ?p,
+            'mode': ?m,
+          };
+        }
+      } catch (_) {}
 
       await FirebaseFirestore.instance
           .collection('users')

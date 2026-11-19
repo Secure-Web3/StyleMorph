@@ -37,6 +37,7 @@ final welcomePersistenceServiceProvider =
 /// StateNotifier that manages the in-memory and persistent state of `hasSeenWelcome`.
 class HasSeenWelcomeNotifier extends StateNotifier<AsyncValue<bool>> {
   final WelcomePersistenceService _service;
+  bool _markedSeen = false;
 
   HasSeenWelcomeNotifier(this._service) : super(const AsyncValue.loading()) {
     _load();
@@ -45,15 +46,20 @@ class HasSeenWelcomeNotifier extends StateNotifier<AsyncValue<bool>> {
   Future<void> _load() async {
     try {
       final hasSeen = await _service.hasSeenWelcome();
-      state = AsyncValue.data(hasSeen);
+      if (!_markedSeen) {
+        state = AsyncValue.data(hasSeen);
+      }
     } catch (e, st) {
       debugPrint('[HasSeenWelcomeNotifier] load error: $e');
-      state = AsyncValue.error(e, st);
+      if (!_markedSeen) {
+        state = AsyncValue.error(e, st);
+      }
     }
   }
 
   /// Marks the welcome screen as seen permanently and updates all reactive listeners.
   Future<void> markSeen() async {
+    _markedSeen = true;
     state = const AsyncValue.data(true);
     await _service.setHasSeenWelcome();
   }

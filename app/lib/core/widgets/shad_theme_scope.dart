@@ -12,7 +12,7 @@ Widget ensureShadTheme(BuildContext context, Widget child) {
   final isDark = Theme.of(context).brightness == Brightness.dark;
   return ShadTheme(
     data: AppTheme.buildShadTheme(
-      palette: AppPalette.white,
+      palette: AppPalette.editorial,
       isDark: isDark,
     ),
     child: child,
