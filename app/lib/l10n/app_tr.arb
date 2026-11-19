@@ -633,5 +633,6 @@
   "authReferralInvalidError": "Girilen davet kodu geçersiz",
   "tAbout": "Hakkında",
   "aboutHeader": "StyleMorph Hakkında",
-  "aboutTagline": "Kişisel Yapay Zeka Stilisti ve Sanal Deneme Stüdyosu"
+  "aboutTagline": "Kişisel Yapay Zeka Stilisti ve Sanal Deneme Stüdyosu",
+  "newUser": "Yeni Kullanıcı"
 }

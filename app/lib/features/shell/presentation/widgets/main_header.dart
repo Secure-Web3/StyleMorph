@@ -88,7 +88,7 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                                         ? strings.tr(appState.userName)
                                         : (user?.displayName ??
                                             (user?.email?.split('@').first ??
-                                                'کاربر جدید'));
+                                                strings.newUser));
                                     final userEmail = user?.email ??
                                         (appState.identityValues['email'] ?? '');
 

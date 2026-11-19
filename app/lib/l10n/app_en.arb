@@ -633,5 +633,6 @@
   "authReferralInvalidError": "The entered referral code is invalid",
   "tAbout": "About",
   "aboutHeader": "About StyleMorph",
-  "aboutTagline": "Personal AI Stylist & Virtual Try-On Studio"
+  "aboutTagline": "Personal AI Stylist & Virtual Try-On Studio",
+  "newUser": "New User"
 }

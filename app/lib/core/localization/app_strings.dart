@@ -196,6 +196,7 @@ class AppStrings {
       'notifCatShop': 'تخفیف و فروشگاه',
       'notifCatFinance': 'مالی و سکه',
       'newWord': 'جدید',
+      'newUser': 'کاربر جدید',
       'idHeader': 'شناسنامه و اطلاعات هویتی',
       'idFirstName': 'نام',
       'idFirstNamePlaceholder': 'مثال: علی',
@@ -988,6 +989,7 @@ class AppStrings {
       'notifCatShop': 'Deals & Shop',
       'notifCatFinance': 'Wallet & Coins',
       'newWord': 'new',
+      'newUser': 'New User',
       'idHeader': 'Identity & Personal Information',
       'idFirstName': 'First Name',
       'idFirstNamePlaceholder': 'e.g. Ali',
@@ -1780,6 +1782,7 @@ class AppStrings {
       'notifCatShop': 'العروض والمتجر',
       'notifCatFinance': 'المحفظة والعملات',
       'newWord': 'جديد',
+      'newUser': 'مستخدم جديد',
       'idHeader': 'الهوية والمعلومات الشخصية',
       'idFirstName': 'الاسم الأول',
       'idFirstNamePlaceholder': 'مثال: علي',
@@ -2572,6 +2575,7 @@ class AppStrings {
       'notifCatShop': 'Fırsatlar & Mağaza',
       'notifCatFinance': 'Cüzdan & Jeton',
       'newWord': 'yeni',
+      'newUser': 'Yeni Kullanıcı',
       'idHeader': 'Kimlik ve Kişisel Bilgiler',
       'idFirstName': 'Ad',
       'idFirstNamePlaceholder': 'Örn: Ali',
@@ -3269,8 +3273,51 @@ class AppStrings {
     },
   };
 
+  /// In-memory cache for dynamic database translation overrides
+  /// (e.g. from Firestore `app_config/translations` or remote CMS).
+  static final Map<String, Map<String, String>> _dynamicOverrides = {};
+
+  /// Updates or injects dynamic translations fetched from the database / remote config.
+  static void setDynamicOverrides(String langCode, Map<String, String> overrides) {
+    final normalized = _normalizedLang(langCode);
+    _dynamicOverrides[normalized] = {
+      ...?_dynamicOverrides[normalized],
+      ...overrides,
+    };
+  }
+
+  /// Clears dynamic translation overrides (useful for testing or cache refresh).
+  static void clearDynamicOverrides([String? langCode]) {
+    if (langCode != null) {
+      _dynamicOverrides.remove(_normalizedLang(langCode));
+    } else {
+      _dynamicOverrides.clear();
+    }
+  }
+
   String get(String key) {
-    return _values[localeCode]?[key] ?? _values['en']?[key] ?? key;
+    final lang = _normalizedLang(localeCode);
+    final overrideVal = _dynamicOverrides[lang]?[key] ??
+        _dynamicOverrides['en']?[key];
+    if (overrideVal != null && overrideVal.isNotEmpty) {
+      return overrideVal;
+    }
+    return _values[lang]?[key] ?? _values['en']?[key] ?? key;
+  }
+
+  /// Safely resolves dynamic database-driven keys or fallback value,
+  /// allowing zero UI changes when new language columns/keys are added.
+  String resolveKey(String key, {String? fallback}) {
+    final lang = _normalizedLang(localeCode);
+    final overrideVal = _dynamicOverrides[lang]?[key] ??
+        _dynamicOverrides['en']?[key];
+    if (overrideVal != null && overrideVal.isNotEmpty) {
+      return overrideVal;
+    }
+    return _values[lang]?[key] ??
+        _values['en']?[key] ??
+        fallback ??
+        key;
   }
 
   // Dynamic formatted helpers
@@ -3411,6 +3458,7 @@ class AppStrings {
   String get notifCatShop => get('notifCatShop');
   String get notifCatFinance => get('notifCatFinance');
   String get newWord => get('newWord');
+  String get newUser => get('newUser');
 
   // Identity
   String get idHeader => get('idHeader');
