@@ -200,6 +200,9 @@ class AppStrings {
       'idLastName': 'نام خانوادگی',
       'idNick': 'نام مستعار',
       'idNationalId': 'کد ملی',
+      'idDob': 'تاریخ تولد',
+      'idDobPlaceholder': 'انتخاب تاریخ تولد',
+      'idDobAgeRequirement': 'حداقل سن قانونی ۱۳ سال است',
       'idMobile': 'شماره موبایل',
       'idVerifyMobile': 'تایید',
       'commonComingSoon': 'به زودی',
@@ -763,6 +766,9 @@ class AppStrings {
       'idLastName': 'Last Name',
       'idNick': 'Handle / Nickname',
       'idNationalId': 'National ID',
+      'idDob': 'Date of Birth',
+      'idDobPlaceholder': 'Select date of birth',
+      'idDobAgeRequirement': 'Minimum legal age is 13 years',
       'idMobile': 'Mobile Number',
       'idVerifyMobile': 'Verify',
       'commonComingSoon': 'Coming Soon',
@@ -1326,6 +1332,9 @@ class AppStrings {
       'idLastName': 'اسم العائلة',
       'idNick': 'الاسم المستعار',
       'idNationalId': 'الرقم القومي',
+      'idDob': 'تاريخ الميلاد',
+      'idDobPlaceholder': 'اختر تاريخ الميلاد',
+      'idDobAgeRequirement': 'الحد الأدنى للسن القانوني هو 13 عاماً',
       'idMobile': 'رقم الجوال',
       'idVerifyMobile': 'تأكيد',
       'commonComingSoon': 'قريباً',
@@ -1889,6 +1898,9 @@ class AppStrings {
       'idLastName': 'Soyad',
       'idNick': 'Kullanıcı Adı',
       'idNationalId': 'Kimlik No',
+      'idDob': 'Doğum Tarihi',
+      'idDobPlaceholder': 'Doğum tarihini seçin',
+      'idDobAgeRequirement': 'Yasal minimum yaş 13\'tür',
       'idMobile': 'Cep Telefonu',
       'idVerifyMobile': 'Doğrula',
       'commonComingSoon': 'Yakında',
@@ -2501,6 +2513,9 @@ class AppStrings {
   String get idLastName => get('idLastName');
   String get idNick => get('idNick');
   String get idNationalId => get('idNationalId');
+  String get idDob => get('idDob');
+  String get idDobPlaceholder => get('idDobPlaceholder');
+  String get idDobAgeRequirement => get('idDobAgeRequirement');
   String get idMobile => get('idMobile');
   String get idVerifyMobile => get('idVerifyMobile');
   String get commonComingSoon => get('commonComingSoon');

@@ -20,6 +20,8 @@ class AppTextField extends StatelessWidget {
   final bool autofocus;
   final int maxLines;
   final int? maxLength;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   const AppTextField({
     super.key,
@@ -38,6 +40,8 @@ class AppTextField extends StatelessWidget {
     this.autofocus = false,
     this.maxLines = 1,
     this.maxLength,
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -76,6 +80,8 @@ class AppTextField extends StatelessWidget {
           obscureText: obscureText,
           keyboardType: keyboardType,
           autofocus: autofocus,
+          readOnly: readOnly,
+          onTap: onTap,
           maxLines: maxLines,
           maxLength: maxLength,
           style: TextStyle(

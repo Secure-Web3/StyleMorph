@@ -259,16 +259,17 @@ class AppStateNotifier extends StateNotifier<AppState> {
     if ((identity['email'] ?? '').trim().isNotEmpty) score += 0.10;
     if ((identity['firstName'] ?? '').trim().isNotEmpty) score += 0.10;
     if ((identity['lastName'] ?? '').trim().isNotEmpty) score += 0.10;
-    if ((identity['nick'] ?? '').trim().isNotEmpty) score += 0.10;
-    if ((identity['mobile'] ?? '').trim().isNotEmpty) score += 0.10;
-    if ((identity['nid'] ?? '').trim().isNotEmpty) score += 0.10;
+    if ((identity['nick'] ?? '').trim().isNotEmpty) score += 0.08;
+    if ((identity['mobile'] ?? '').trim().isNotEmpty) score += 0.08;
+    if ((identity['nid'] ?? '').trim().isNotEmpty) score += 0.08;
+    if ((identity['dob'] ?? '').trim().isNotEmpty) score += 0.08;
     if ((identity['country'] ?? '').trim().isNotEmpty ||
         (identity['city'] ?? '').trim().isNotEmpty) {
-      score += 0.10;
+      score += 0.09;
     }
     if ((identity['address'] ?? '').trim().isNotEmpty ||
         (identity['zip'] ?? '').trim().isNotEmpty) {
-      score += 0.10;
+      score += 0.09;
     }
 
     // Anatomy basics (Gender, Height, Weight)

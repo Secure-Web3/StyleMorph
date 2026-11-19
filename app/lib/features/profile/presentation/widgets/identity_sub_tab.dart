@@ -29,6 +29,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
   late final TextEditingController _lastNameController;
   late final TextEditingController _nickController;
   late final TextEditingController _nidController;
+  late final TextEditingController _dobController;
   late final TextEditingController _mobileController;
   late final TextEditingController _emailController;
   late final TextEditingController _countryController;
@@ -63,6 +64,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     _lastNameController = TextEditingController(text: initialLast);
     _nickController = TextEditingController(text: values['nick'] ?? '');
     _nidController = TextEditingController(text: values['nid'] ?? '');
+    _dobController = TextEditingController(text: values['dob'] ?? '');
     _mobileController = TextEditingController(text: values['mobile'] ?? '');
     _emailController = TextEditingController(text: initialEmail);
     _countryController = TextEditingController(text: values['country'] ?? '');
@@ -88,6 +90,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     update(_lastNameController, values['lastName']);
     update(_nickController, values['nick']);
     update(_nidController, values['nid']);
+    update(_dobController, values['dob']);
     update(_mobileController, values['mobile']);
     update(_emailController, values['email'] ?? user?.email);
     update(_countryController, values['country']);
@@ -103,6 +106,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     _lastNameController.dispose();
     _nickController.dispose();
     _nidController.dispose();
+    _dobController.dispose();
     _mobileController.dispose();
     _emailController.dispose();
     _countryController.dispose();
@@ -115,6 +119,61 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
 
   void _onFieldChanged(String key, String value) {
     ref.read(appStateProvider.notifier).updateIdentityField(key, value);
+  }
+
+  Future<void> _pickDateOfBirth() async {
+    final now = DateTime.now();
+    // Legal minimum age 13 years old
+    final lastDate = DateTime(now.year - 13, now.month, now.day);
+    final firstDate = DateTime(now.year - 120, 1, 1);
+
+    DateTime initialDate = DateTime(now.year - 20, now.month, now.day);
+    final currentText = _dobController.text.trim();
+    if (currentText.isNotEmpty) {
+      final parsed = DateTime.tryParse(currentText);
+      if (parsed != null &&
+          !parsed.isAfter(lastDate) &&
+          !parsed.isBefore(firstDate)) {
+        initialDate = parsed;
+      }
+    }
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      builder: (context, child) {
+        final colors = context.colors;
+        final isDark = Theme.of(context).brightness == Brightness.dark;
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: isDark
+                ? ColorScheme.dark(
+                    primary: colors.pr,
+                    onPrimary: colors.prt,
+                    surface: colors.sf,
+                    onSurface: colors.tx,
+                  )
+                : ColorScheme.light(
+                    primary: colors.pr,
+                    onPrimary: colors.prt,
+                    surface: colors.sf,
+                    onSurface: colors.tx,
+                  ),
+            dialogBackgroundColor: colors.sf,
+          ),
+          child: child ?? const SizedBox.shrink(),
+        );
+      },
+    );
+
+    if (picked != null) {
+      final isoString =
+          '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
+      _dobController.text = isoString;
+      _onFieldChanged('dob', isoString);
+    }
   }
 
   @override
@@ -197,6 +256,31 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+
+          // Date of Birth
+          AppTextField(
+            label: strings.idDob,
+            labelTrailing: Text(
+              strings.idDobAgeRequirement,
+              style: TextStyle(
+                fontSize: 10,
+                color: colors.mu,
+              ),
+            ),
+            placeholder: strings.idDobPlaceholder,
+            controller: _dobController,
+            readOnly: true,
+            onTap: _pickDateOfBirth,
+            suffix: IconButton(
+              icon: FaIcon(
+                FontAwesomeIcons.calendar,
+                size: 14,
+                color: colors.mu,
+              ),
+              onPressed: _pickDateOfBirth,
+            ),
           ),
           const SizedBox(height: AppSpacing.sm),
 
