@@ -188,6 +188,7 @@ class AppStrings {
       'saveChanges': 'ذخیره تغییرات',
       'noChangesYet': 'تغییراتی ثبت نشده',
       'profileSavedToast': 'تغییرات پروفایل با موفقیت ذخیره شد.',
+      'profileSaveErrorToast': 'خطا در ذخیره تغییرات در سرور. لطفاً مجدداً تلاش کنید.',
       'notificationsTitle': 'مرکز اعلان‌ها',
       'markAllRead': 'خواندن همه ✓',
       'noNotifications': 'اعلانی در این دسته وجود ندارد.',
@@ -195,21 +196,94 @@ class AppStrings {
       'notifCatShop': 'تخفیف و فروشگاه',
       'notifCatFinance': 'مالی و سکه',
       'newWord': 'جدید',
+      'newUser': 'کاربر جدید',
       'idHeader': 'شناسنامه و اطلاعات هویتی',
       'idFirstName': 'نام',
+      'idFirstNamePlaceholder': 'مثال: علی',
       'idLastName': 'نام خانوادگی',
+      'idLastNamePlaceholder': 'مثال: رضایی',
       'idNick': 'نام مستعار',
+      'idNickPlaceholder': '@ali_style',
       'idNationalId': 'کد ملی',
+      'idNationalIdPlaceholder': 'کد ملی ۱۰ رقمی',
+      'idDob': 'تاریخ تولد',
+      'idDobPlaceholder': 'انتخاب تاریخ تولد',
+      'idDobAgeRequirement': 'حداقل سن قانونی ۱۳ سال است',
       'idMobile': 'شماره موبایل',
+      'idMobilePlaceholder': '+98 912 345 6789',
+      'idVerifyMobile': 'تایید',
+      'commonComingSoon': 'به زودی',
+      'commonGotIt': 'متوجه شدم',
+      'idVerifyEmail': 'تایید ایمیل',
+      'idCheckEmailStatus': 'بررسی تایید',
+      'idChangeEmail': 'تغییر ایمیل',
+      'idSocialEmailNote': 'ایمیل حساب‌های گوگل و اپل از طریق ارائه‌دهنده سرویس مدیریت می‌شود.',
+      'idChangeEmailTitle': 'تغییر آدرس ایمیل',
+      'idChangeEmailReauthSubtitle': 'جهت حفظ امنیت حساب، لطفاً ابتدا رمز عبور فعلی خود را وارد کنید.',
+      'idCurrentPasswordLabel': 'رمز عبور فعلی',
+      'idVerifyAndContinue': 'تایید رمز و ادامه',
+      'idNewEmailLabel': 'آدرس ایمیل جدید',
+      'idChangeEmailNotice': 'ایمیل فعلی شما تا زمان کلیک روی لینک تایید ارسالی به ایمیل جدید فعال می‌ماند. همچنین فایربیس یک هشدار امنیتی با لینک بازگشت به ایمیل قبلی شما ارسال خواهد کرد.',
+      'idSendVerificationToNewEmail': 'ارسال لینک تایید به ایمیل جدید',
+      'idChangeEmailSuccessTitle': 'لینک تایید ارسال شد',
+      'idChangeEmailSuccessDesc': 'لینک تایید به {email} ارسال شد. پس از کلیک روی لینک، ایمیل شما تغییر خواهد کرد.',
+      'idLostAccessEmailSupport': 'به ایمیل قبلی خود دسترسی ندارید؟ تماس با پشتیبانی',
+      'idChangeEmailSameError': 'ایمیل جدید نمی‌تواند همان ایمیل قبلی باشد.',
+      'idChangeEmailInvalidError': 'لطفاً یک آدرس ایمیل معتبر وارد کنید.',
       'idVerified': 'تایید شده',
       'idEmail': 'ایمیل',
+      'idEmailPlaceholder': 'name@example.com',
       'idSendCode': 'ارسال کد',
       'idCodeSentToast': 'کد تایید به ایمیل شما ارسال شد.',
       'idCountry': 'کشور',
+      'idCountryPlaceholder': 'مثال: ایران',
       'idProvince': 'استان',
+      'idProvincePlaceholder': 'مثال: تهران',
       'idCity': 'شهر',
+      'idCityPlaceholder': 'مثال: تهران',
       'idAddress': 'آدرس پستی',
-      'idZip': 'کد پستی ۱۰ رقمی',
+      'idAddressPlaceholder': 'خیابان، کوچه، پلاک، واحد',
+      'idZip': 'کد پستی',
+      'idZipPlaceholder': 'کد پستی / زیپ‌کد',
+      'idSelectCountry': 'انتخاب کشور',
+      'idSelectProvince': 'انتخاب استان / ایالت',
+      'idSelectCity': 'انتخاب شهر',
+      'idSelectDialCode': 'پیش‌شماره کشور',
+      'idSearchPlaceholder': 'جستجو...',
+      'idUseCustomCity': 'استفاده از شهر واردشده',
+      'idErrInvalidNidIran': 'کد ملی ۱۰ رقمی نامعتبر است',
+      'idErrInvalidNidTurkey': 'شماره هویت ترکیه (T.C. Kimlik) نامعتبر است',
+      'idErrInvalidNidInternational': 'کد شناسایی نامعتبر است (حداقل ۵ کاراکتر)',
+      'idErrInvalidZipIran': 'کد پستی باید ۱۰ رقم عددی معتبر باشد',
+      'idErrInvalidZipTurkey': 'کد پستی ترکیه باید ۵ رقم عددی باشد',
+      'idErrInvalidZipInternational': 'کد پستی نامعتبر است (۳ تا ۱۲ کاراکتر)',
+      'idErrInvalidMobile': 'شماره موبایل وارد شده برای این کشور نامعتبر است',
+      'kycSectionTitle': 'احراز هویت و مدارک شناسایی (KYC)',
+      'kycSectionSubtitle': 'جهت فعال‌سازی قابلیت‌های پیشرفته و امنیت حساب، مدارک هویتی خود را ارسال کنید.',
+      'kycStatusNotSubmitted': 'تایید نشده',
+      'kycStatusPending': 'در حال بررسی',
+      'kycStatusVerified': 'تایید شده',
+      'kycStatusRejected': 'رد شده',
+      'kycVerifiedBadge': 'احراز هویت شده (KYC Verified)',
+      'kycDocNationalId': 'کارت ملی',
+      'kycDocPassport': 'گذرنامه',
+      'kycDocDriversLicense': 'گواهینامه رانندگی',
+      'kycSelectDocType': 'نوع مدرک شناسایی',
+      'kycUploadFront': 'تصویر روی مدرک (الزامی)',
+      'kycUploadBack': 'تصویر پشت مدرک یا سلفی (اختیاری)',
+      'kycTakeCamera': 'دوربین',
+      'kycChooseGallery': 'گالری تصاویر',
+      'kycSubmit': 'ارسال مدرک جهت بررسی',
+      'kycSubmitting': 'در حال آپلود و ثبت...',
+      'kycPreview': 'مشاهده بزرگنمایی',
+      'kycEdit': 'ویرایش یا جایگزینی',
+      'kycDelete': 'حذف مدرک',
+      'kycDeleteConfirmTitle': 'حذف مدرک شناسایی',
+      'kycDeleteConfirmDesc': 'آیا از حذف مدرک شناسایی خود اطمینان دارید؟ در صورت حذف، وضعیت احراز هویت شما ریست خواهد شد.',
+      'kycDeleteSuccess': 'مدرک شناسایی با موفقیت حذف شد.',
+      'kycSubmitSuccess': 'مدارک شما با موفقیت ارسال شد و در صف بررسی کارشناسان قرار گرفت.',
+      'kycRejectionReasonLabel': 'علت عدم تایید مدرک:',
+      'kycFrontRequired': 'لطفاً ابتدا تصویر روی مدرک را بارگذاری نمایید.',
       'galHeader': 'آلبوم و تصاویر مرجع',
       'galScan360': 'اسکن ۳۶۰ درجه بدن',
       'galUploaded': 'آپلود شده',
@@ -224,24 +298,128 @@ class AppStrings {
       'galRecorded': 'ثبت شد',
       'galUploadSlot3': 'آپلود قاب ۳',
       'galTip': 'تصاویر مرجع برای افزایش دقت پرو مجازی لباس و تحلیل اندام استفاده می‌شوند.',
+      'galPersonaModeTitle': 'حالت مدل‌سازی پرسونای هوش مصنوعی',
+      'galModePrivacy': 'آواتار حریم خصوصی (چهره و مو)',
+      'galModePrivacyDesc': 'بدون نیاز به عکس قدی؛ چهره و موی شما با مانکن سه‌بعدی آناتومی ترکیب می‌شود.',
+      'galModeFullBody': 'پرسونای کامل اندام واقعی',
+      'galModeFullBodyDesc': 'شامل ۷ زاویه مرجع برای حداکثر دقت در تن‌خور و شبیه‌سازی سه‌بعدی پرو مجازی.',
+      'galSlotFrontFace': 'چهره و مو از روبرو',
+      'galSlotSideFace': 'نیمرخ چهره و مو (۹۰ درجه)',
+      'galSlotBodyFront': 'تمام‌قد روبرو (حالت A-Pose)',
+      'galSlotBodySide': 'تمام‌قد نیمرخ (۹۰ درجه)',
+      'galSlotBodyBack': 'تمام‌قد از پشت سر',
+      'galSlotHandSkin': 'کلوزآپ دست و رنگ پوست',
+      'galSlotScan360': 'اسکن ویدیویی ۳۶۰ درجه بدن',
+      'galRequired': 'الزامی',
+      'galOptional': 'اختیاری',
+      'galProSlot': 'پیشرفته (PRO)',
+      'galAwaitingUpload': 'در انتظار بارگذاری',
+      'galClickToScan': 'برای بارگذاری یا ضبط ویدیو ۳۶۰ درجه کلیک کنید',
+      'galTakeCameraWithGuide': 'عکاسی با راهنمای زاویه',
+      'galUploadFromGallery': 'انتخاب از گالری',
+      'galAlignmentGuideTitle': 'راهنمای زاویه و کادربندی',
+      'galReadyToCapture': 'آماده عکاسی',
+      'galDeleteConfirmTitle': 'حذف فایل مرجع',
+      'galDeleteConfirmDesc': 'آیا از حذف این فایل مرجع اطمینان دارید؟ در صورت حذف، دقت مدل‌سازی هوش مصنوعی کاهش می‌یابد.',
       'aiHeader': 'آناتومی و مشخصات DNA',
       'aiEditable': 'قابل ویرایش',
       'aiNote': 'مقادیر توسط هوش مصنوعی استخراج شده‌اند. با ویرایش هر فیلد، برچسب آن به USER تغییر می‌کند.',
       'aiGender': 'جنسیت',
-      'aiFemale': 'زنانه (Female)',
-      'aiMale': 'مردانه (Male)',
+      'aiFemale': 'زنانه',
+      'aiMale': 'مردانه',
       'aiHeight': 'قد (cm)',
       'aiWeight': 'وزن (kg)',
       'aiSkinTone': 'رنگ پوست',
       'aiBodyShape': 'فرم بدن',
       'aiFaceShape': 'فرم چهره',
       'aiHair': 'مشخصات مو',
-      'aiTailoringHeader': 'اندازه‌های دقیق خیاطی و پرو (Tailoring)',
+      'aiTailoringHeader': 'ابعاد کلیدی تناسب و پرو مجازی',
       'aiShoulder': 'عرض شانه (cm)',
       'aiChest': 'دور سینه (cm)',
-      'aiWaist': 'دور کمر',
-      'aiBelly': 'دور شکم',
-      'aiHips': 'دور باسن',
+      'aiWaist': 'دور کمر (cm)',
+      'aiBelly': 'دور شکم (cm)',
+      'aiHips': 'دور باسن (cm)',
+      'aiSectionBiometrics': 'پایه بیومتریک و فرم اندام',
+      'aiGenderNonBinary': 'غیردوگانه / خنثی',
+      'aiBmiLabel': 'شاخص توده بدنی (BMI)',
+      'aiBmiUnderweight': 'کم‌وزن',
+      'aiBmiNormal': 'نرمال و متناسب',
+      'aiBmiOverweight': 'اضافه‌وزن',
+      'aiBmiObese': 'چاقی',
+      'aiBodySilhouette': 'فرم سیلوییت اندام',
+      'aiSilHourglass': 'ساعت شنی',
+      'aiSilPear': 'گلابی / مثلثی',
+      'aiSilApple': 'سیب / گرد',
+      'aiSilRectangle': 'مستطیلی',
+      'aiSilInvertedTriangle': 'مثلث وارونه',
+      'aiSilTrapezoid': 'ذوزنقه‌ای متوازن',
+      'aiSilOval': 'بیضی',
+      'aiSectionColorimetry': 'رنگ‌شناسی و مشخصات ظاهری',
+      'aiFitzpatrickLabel': 'تناژ پوست (فیتزپاتریک I–VI)',
+      'aiFitz1': 'نوع ۱: بسیار روشن و شیری',
+      'aiFitz2': 'نوع ۲: روشن متمایل به بژ',
+      'aiFitz3': 'نوع ۳: گندمی روشن / زیتونی',
+      'aiFitz4': 'نوع ۴: گندمی تیره / برنزه',
+      'aiFitz5': 'نوع ۵: سبزه تیره / قهوه‌ای',
+      'aiFitz6': 'نوع ۶: بسیار تیره / آبنوسی',
+      'aiUndertone': 'ته‌رنگ پوست (Undertone)',
+      'aiToneWarm': 'گرم (Warm)',
+      'aiToneCool': 'سرد (Cool)',
+      'aiToneNeutral': 'خنثی (Neutral)',
+      'aiEyeColor': 'رنگ چشم',
+      'aiEyeBrown': 'قهوه‌ای',
+      'aiEyeHazel': 'میشی / عسلی',
+      'aiEyeGreen': 'سبز',
+      'aiEyeBlue': 'آبی',
+      'aiEyeGray': 'طوسی',
+      'aiEyeBlack': 'مشکی / تیره',
+      'aiHairProfile': 'مشخصات مو',
+      'aiHairColor': 'رنگ مو',
+      'aiHairLength': 'بلندی و بافت مو',
+      'aiHairBlack': 'مشکی',
+      'aiHairDarkBrown': 'قهوه‌ای تیره',
+      'aiHairLightBrown': 'قهوه‌ای روشن',
+      'aiHairBlonde': 'بلوند',
+      'aiHairAuburn': 'شرابی / خرمایی',
+      'aiHairGray': 'خاکستری / نقره‌ای',
+      'aiHairDyed': 'فانتزی / رنگ‌شده',
+      'aiHairShort': 'کوتاه',
+      'aiHairMedium': 'متوسط',
+      'aiHairLong': 'بلند',
+      'aiHairBald': 'تراشیده / کچل',
+      'aiHairCurly': 'فرفری / وز',
+      'aiHairWavy': 'موج‌دار',
+      'aiHairStraight': 'لَخت و صاف',
+      'aiFaceOval': 'بیضی',
+      'aiFaceRound': 'گرد',
+      'aiFaceSquare': 'مربعی',
+      'aiFaceHeart': 'قلبی',
+      'aiFaceOblong': 'کشیده',
+      'aiAnthropometricHeader': 'ابعاد کلیدی تناسب و پرو مجازی',
+      'aiAnthropometricSub': 'ابعاد دقیق بدن جهت مِش‌بندی سه‌بعدی و برازش لباس هوش مصنوعی (SMPL)',
+      'aiShoulderHint': 'فاصله بین دو برجستگی استخوان شانه از پشت سر',
+      'aiChestHint': 'محیط برجسته‌ترین نقطه سینه با تنفس عادی',
+      'aiBraSize': 'سایز سوتین (ویژه بانوان)',
+      'aiBraBand': 'سایز بند (Band)',
+      'aiBraCup': 'سایز کاپ (Cup)',
+      'aiWaistHint': 'محیط باریک‌ترین بخش کمر (حدود ۲ تا ۳ سانتی‌متر بالای ناف)',
+      'aiBellyHint': 'محیط برجسته‌ترین نقطه شکم از روی ناف',
+      'aiHipsHint': 'محیط پهن‌ترین بخش باسن و ران‌ها',
+      'aiSleeve': 'قد آستین (cm)',
+      'aiSleeveHint': 'از سر استخوان شانه تا مفصل مچ دست',
+      'aiInseam': 'قد فاق تا مچ (cm)',
+      'aiInseamHint': 'از بالاترین نقطه داخلی فاق تا برآمدگی قوزک پا',
+      'aiNeck': 'دور طوق گردن (cm)',
+      'aiNeckHint': 'محیط پایین‌ترین قسمت گردن بالای استخوان ترقوه',
+      'aiShoeSize': 'سایز کفش (EU / US)',
+      'aiShoeSizeHint': 'سایز استاندارد کفش بر اساس استانداردهای متداول',
+      'aiFitPrefHeader': 'سلیقه تن‌خور و استایل لباس',
+      'aiFitSlim': 'جذب / فیت اندامی',
+      'aiFitSlimDesc': 'نزدیک به فرم بدن با حداقل آزادی پارچه',
+      'aiFitRegular': 'استاندارد / کلاسیک',
+      'aiFitRegularDesc': 'تن‌خور متعادل، راحت و استاندارد',
+      'aiFitRelaxed': 'آزاد / اورسایز',
+      'aiFitRelaxedDesc': 'آزادی زیاد و استایل کژوال مدرن',
       'walHeader': 'مالی، کیف پول و پلن‌ها',
       'walActivePlan': 'پلن فعال شما',
       'walActive': 'فعال',
@@ -269,6 +447,17 @@ class AppStrings {
       'refJoinedTitle': 'آخرین اعضای ملحق‌شده به شبکه شما',
       'refRuleInfo': 'با دعوت از هر دوست، ۱۰۰ سکه به شما و ۵۰ سکه هدیه به دوست شما تعلق می‌گیرد.',
       'refMembersUnit': 'نفر',
+      'refShare': 'اشتراک‌گذاری',
+      'refSharedToast': 'لینک اختصاصی دعوت در کلیپ‌بورد کپی شد!',
+      'refEmptyFriends': 'هنوز دوستی با کد شما ثبت‌نام نکرده است',
+      'refTierStarter': 'پایه',
+      'refTierSilver': 'نقره‌ای',
+      'refTierGold': 'طلایی',
+      'refTierAmbassador': 'سفیر',
+      'authReferralCodeLabel': 'کد معرف (اختیاری)',
+      'authReferralCodeHint': 'کد معرف ۸ حرفی',
+      'authReferralSelfError': 'امکان استفاده از کد معرف خودتان وجود ندارد',
+      'authReferralInvalidError': 'کد معرف وارد شده معتبر نیست',
       'perHeader': 'شخصیت همراه و دستیار هوشمند',
       'perSub': 'شخصیت، لحن گفتگو و سطح سختگیری دستیار هوش مصنوعی را مطابق سلیقه خود تنظیم کنید.',
       'perSelectTitle': 'انتخاب شخصیت همراه',
@@ -298,6 +487,26 @@ class AppStrings {
       'setLangLabel': 'زبان برنامه (Language)',
       'setShowSupport': 'نمایش ویجت شناور پشتیبانی',
       'setShowHeaderCoins': 'نمایش موجودی سکه در هدر',
+      'setShowEmailInHeader': 'نمایش آدرس ایمیل در هدر',
+      'rankBronze': 'برنز',
+      'rankSilver': 'نقره‌ای',
+      'rankGold': 'طلایی',
+      'rankDiamond': 'الماس',
+      'loyaltyTitle': 'سطح وفاداری و StylePoints',
+      'pts': 'امتیاز',
+      'pointsToNextRank': '{pts} امتیاز تا سطح بعدی',
+      'maxRankReached': 'بالاترین سطح وفاداری کسب شده است',
+      'howToEarnPoints': 'نحوه کسب StylePoints',
+      'earnProfileRule': 'تکمیل پروفایل: تا ۳۰۰ امتیاز بر اساس درصد پیشرفت',
+      'earnEmailRule': 'تأیید ایمیل: ۱۰۰+ امتیاز یک‌باره',
+      'earnReferralRule': 'دعوت موفق دوستان: ۱۵۰+ امتیاز به ازای هر دعوت',
+      'earnAiRule': 'استفاده از هوش مصنوعی (پرو و استایلیست): ۱۰+ امتیاز هر نشست',
+      'earnWalletRule': 'فعالیت کیف پول: ۱+ امتیاز به ازای هر ۱۰ سکه',
+      'loyaltyPerksTitle': 'مزایای سطوح وفاداری',
+      'perkBronze': 'دسترسی استاندارد به تمامی امکانات پایه',
+      'perkSilver': 'کاهش ۵۰ درصدی تبلیغات + اولویت صف پردازش هوش مصنوعی',
+      'perkGold': 'حذف کامل بنرهای تبلیغاتی + ۱۰٪ تخفیف سکه در خدمات ویژه',
+      'perkDiamond': 'تجربه ۱۰۰٪ بدون تبلیغات + دسترسی زودهنگام به مدل‌های جدید هوش مصنوعی و هدایای دوره‌ای سکه',
       'setBackupLabel': 'پشتیبان‌گیری خودکار داده‌ها',
       'setBackupWeekly': 'هفتگی (پیشنهادی)',
       'setBackupMonthly': 'ماهانه',
@@ -579,9 +788,26 @@ class AppStrings {
       'authEmailNotVerifiedYet': 'ایمیل شما هنوز تایید نشده است. لطفاً صندوق ورودی یا پوشه هرزنامه (Spam) خود را بررسی کنید.',
       'authVerificationEmailSent': 'ایمیل تایید جدید با موفقیت ارسال شد.',
       'authBackOrSignOut': 'بازگشت و خروج از حساب',
+      'emailVerificationBannerTitle': 'تأیید ایمیل برای دسترسی کامل',
+      'emailVerificationBannerDesc': 'ایمیل شما هنوز تأیید نشده است. برای فعال‌سازی کامل امکانات هوش مصنوعی و تراکنش‌های مالی، لطفاً ایمیل خود را تأیید کنید.',
+      'emailVerificationSoftGateTitle': 'نیاز به تأیید آدرس ایمیل',
+      'emailVerificationSoftGateDesc': 'برای استفاده از این قابلیت حساس (پردازش‌های هوش مصنوعی و تراکنش‌های مالی)، ابتدا باید آدرس ایمیل خود را تأیید کنید.',
+      'emailVerificationGoToProfile': 'رفتن به بخش هویت و پروفایل',
+      'emailVerificationSuccessToast': 'ایمیل شما با موفقیت تأیید شد.',
+      'idUnverified': 'تأیید نشده',
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'تایید امنیتی ورود',
       'authTurnstileRequired': 'لطفاً تایید امنیتی Cloudflare را تکمیل کنید.',
+      'authTurnstileChecking': 'در حال بررسی امنیتی...',
+      'authFallbackSecurityTitle': 'تایید امنیتی جایگزین',
+      'authFallbackMathQuestion': '{a} + {b} = ؟',
+      'authFallbackVerified': 'تایید شد',
+      'authFallbackAnswerHint': 'پاسخ',
+      'authLockoutCooldown': 'تلاش‌های ناموفق بیش از حد مجاز. لطفاً {s} ثانیه صبر کنید.',
+      'authLockoutBtn': 'قفل موقت ({s} ثانیه)',
+      'authRememberMe': 'مرا به خاطر بسپار',
+      'authSessionExpired': 'نشست شما به دلیل ۵ روز عدم فعالیت منقضی شد. لطفاً دوباره وارد شوید.',
+      'authSessionTerminatedConcurrent': 'نشست شما به دلیل ورود از بیش از ۵ دستگاه خاتمه یافت.',
       // Biometric Lock
       'setBiometricTitle': 'قفل بیومتریک (اثر انگشت / Face ID)',
       'setBiometricDesc': 'هنگام باز کردن اپلیکیشن، هویت شما با حسگرهای بیومتریک بررسی می‌شود.',
@@ -625,6 +851,46 @@ class AppStrings {
       'sessErrLoad': 'خطا در بارگذاری نشست‌ها',
       'dialogCancel': 'انصراف',
       'dialogConfirm': 'تأیید',
+      // About & Updates Sub-Tab
+      'tAbout': 'درباره برنامه',
+      'aboutHeader': 'درباره استایل‌مورف',
+      'aboutTagline': 'استودیوی اختصاصی استایلیست هوشمند و پرو مجازی لباس',
+      'aboutMission': 'استایل‌مورف پلتفرمی نوآورانه در تقاطع مد، تکنولوژی و زیبایی است. ما با بهره‌گیری از هوش مصنوعی مولد، تجربه پرو فوق‌واقع‌گرایانه، مدیریت کمد دیجیتال و پیشنهادهای استایل اختصاصی را با بالاترین استانداردهای حریم خصوصی در اختیارتان قرار می‌دهیم.',
+      'aboutVersionLabel': 'نسخه برنامه',
+      'aboutBuildLabel': 'شماره ساخت',
+      'aboutReleaseDateLabel': 'تاریخ انتشار',
+      'aboutReleaseDateVal': 'نوامبر ۲۰۲۶',
+      'aboutEnvironmentLabel': 'محیط اجرا',
+      'aboutEnvironmentVal': 'پایدار (پروداکشن)',
+      'aboutCheckUpdatesBtn': 'بررسی به‌روزرسانی',
+      'aboutChecking': 'در حال بررسی نسخه‌های جدید...',
+      'aboutUpToDate': 'شما از آخرین نسخه پایدار استایل‌مورف استفاده می‌کنید.',
+      'aboutUpdateAvailable': 'نسخه جدید ({version}) در دسترس است!',
+      'aboutUpdateActionWeb': 'نصب به‌روزرسانی و بارگذاری مجدد',
+      'aboutUpdateActionMobile': 'دریافت نسخه جدید',
+      'aboutWhatsNewTitle': 'تازه‌ها و تغییرات نسخه ۱.۰',
+      'aboutChangelog1Title': 'اتاق پرو مجازی و آتلیه هوشمند',
+      'aboutChangelog1Desc': 'پرو واقع‌گرایانه انواع پوشاک روی عکس شما با شبیه‌سازی بافت پارچه، چین و فرم بدن',
+      'aboutChangelog2Title': 'کمد دیجیتال و برچسب‌گذاری هوشمند',
+      'aboutChangelog2Desc': 'حذف خودکار پس‌زمینه تصاویر، استخراج مشخصات و دسته‌بندی هوشمند البسه',
+      'aboutChangelog3Title': 'دروازه هوش مصنوعی پرسرعت و پایدار',
+      'aboutChangelog3Desc': 'توزیع بار چندحسابی، صف‌بندی بلادرنگ و پایداری کامل بدون زمان انتظار سرد',
+      'aboutChangelog4Title': 'سیستم پاداش دعوت و سطوح وفاداری',
+      'aboutChangelog4Desc': 'محاسبه شفاف امتیازهای StylePoints، پاداش دوطرفه سکه و ۴ رتبه ارتقای حساب',
+      'aboutChangelog5Title': 'امنیت داده‌ها و حالت آواتار خصوصی',
+      'aboutChangelog5Desc': 'رمزنگاری کامل تصاویر، کش دیجیتال SHA-256 و امکان انتخاب مانکن مینیمال به جای عکس چهره',
+      'aboutLegalSectionTitle': 'قوانین و حریم خصوصی',
+      'aboutTermsTitle': 'شرایط و مقررات استفاده از خدمات',
+      'aboutPrivacyTitle': 'سیاست حفظ حریم خصوصی و امنیت تصاویر هوش مصنوعی',
+      'aboutLicensesTitle': 'مجوزهای متن‌باز و اعتبارات نرم‌افزاری',
+      'aboutContactSectionTitle': 'ارتباط و شبکه‌های رسمی',
+      'aboutWebsiteLabel': 'وب‌سایت رسمی',
+      'aboutEmailLabel': 'ایمیل پشتیبانی رسمی',
+      'aboutInstagramLabel': 'صفحه اینستاگرام',
+      'aboutTelegramLabel': 'کانال تلگرام',
+      'aboutCopyrightNotice': 'تمامی حقوق برای پلتفرم استایل‌مورف محفوظ است © ۲۰۲۶',
+      'aboutLinkCopied': 'در کلیپ‌بورد کپی شد',
+      'aboutClose': 'بستن',
     },
     'en': {
       'appName': 'StyleMorph',
@@ -715,6 +981,7 @@ class AppStrings {
       'saveChanges': 'Save Changes',
       'noChangesYet': 'No changes made',
       'profileSavedToast': 'Profile changes saved successfully.',
+      'profileSaveErrorToast': 'Failed to save changes to the server. Please try again.',
       'notificationsTitle': 'Notification Center',
       'markAllRead': 'Mark all read ✓',
       'noNotifications': 'No notifications in this category.',
@@ -722,21 +989,94 @@ class AppStrings {
       'notifCatShop': 'Deals & Shop',
       'notifCatFinance': 'Wallet & Coins',
       'newWord': 'new',
+      'newUser': 'New User',
       'idHeader': 'Identity & Personal Information',
       'idFirstName': 'First Name',
+      'idFirstNamePlaceholder': 'e.g. Ali',
       'idLastName': 'Last Name',
+      'idLastNamePlaceholder': 'e.g. Rezaei',
       'idNick': 'Handle / Nickname',
+      'idNickPlaceholder': '@ali_style',
       'idNationalId': 'National ID',
+      'idNationalIdPlaceholder': 'National ID number',
+      'idDob': 'Date of Birth',
+      'idDobPlaceholder': 'Select date of birth',
+      'idDobAgeRequirement': 'Minimum legal age is 13 years',
       'idMobile': 'Mobile Number',
+      'idMobilePlaceholder': '+1 234 567 8900',
+      'idVerifyMobile': 'Verify',
+      'commonComingSoon': 'Coming Soon',
+      'commonGotIt': 'Got It',
+      'idVerifyEmail': 'Verify Email',
+      'idCheckEmailStatus': 'Check Status',
+      'idChangeEmail': 'Change Email',
+      'idSocialEmailNote': 'Social login emails are managed by your provider.',
+      'idChangeEmailTitle': 'Change Email Address',
+      'idChangeEmailReauthSubtitle': 'For security purposes, please re-enter your current password.',
+      'idCurrentPasswordLabel': 'Current Password',
+      'idVerifyAndContinue': 'Verify & Continue',
+      'idNewEmailLabel': 'New Email Address',
+      'idChangeEmailNotice': 'Your current email remains active until the verification link sent to your new email is clicked. Firebase also sends a security alert with a revert link to your old email.',
+      'idSendVerificationToNewEmail': 'Send Verification Link',
+      'idChangeEmailSuccessTitle': 'Verification Link Sent',
+      'idChangeEmailSuccessDesc': 'A verification link was sent to {email}. Once clicked, your email will be updated.',
+      'idLostAccessEmailSupport': 'Lost access to your old email? Contact Support',
+      'idChangeEmailSameError': 'New email cannot be the same as your current email.',
+      'idChangeEmailInvalidError': 'Please enter a valid email address.',
       'idVerified': 'Verified',
       'idEmail': 'Email',
+      'idEmailPlaceholder': 'name@example.com',
       'idSendCode': 'Send Code',
       'idCodeSentToast': 'Verification code sent to your email.',
       'idCountry': 'Country',
+      'idCountryPlaceholder': 'e.g. United States, Canada',
       'idProvince': 'Province',
+      'idProvincePlaceholder': 'e.g. California, Ontario',
       'idCity': 'City',
+      'idCityPlaceholder': 'e.g. New York, Toronto',
       'idAddress': 'Postal Address',
-      'idZip': '10-Digit Postal Code',
+      'idAddressPlaceholder': 'Street name, building number, suite',
+      'idZip': 'Postal / ZIP Code',
+      'idZipPlaceholder': 'Postal / ZIP Code',
+      'idSelectCountry': 'Select Country',
+      'idSelectProvince': 'Select Province / State',
+      'idSelectCity': 'Select City',
+      'idSelectDialCode': 'Country Dial Code',
+      'idSearchPlaceholder': 'Search...',
+      'idUseCustomCity': 'Use entered city',
+      'idErrInvalidNidIran': 'Invalid 10-digit Iranian National ID',
+      'idErrInvalidNidTurkey': 'Invalid 11-digit Turkish T.C. Kimlik No',
+      'idErrInvalidNidInternational': 'Invalid National ID (min 5 characters)',
+      'idErrInvalidZipIran': 'Postal code must be 10 valid digits',
+      'idErrInvalidZipTurkey': 'Turkish postal code must be 5 digits',
+      'idErrInvalidZipInternational': 'Invalid Postal/ZIP Code (3-12 characters)',
+      'idErrInvalidMobile': 'Invalid mobile number for selected country',
+      'kycSectionTitle': 'KYC Verification & Identity Documents',
+      'kycSectionSubtitle': 'Submit your identity documents to unlock advanced features and secure your account.',
+      'kycStatusNotSubmitted': 'Not Submitted',
+      'kycStatusPending': 'Pending Review',
+      'kycStatusVerified': 'Verified',
+      'kycStatusRejected': 'Rejected',
+      'kycVerifiedBadge': 'KYC Verified',
+      'kycDocNationalId': 'National ID Card',
+      'kycDocPassport': 'Passport',
+      'kycDocDriversLicense': "Driver's License",
+      'kycSelectDocType': 'Document Type',
+      'kycUploadFront': 'Front of Document (Required)',
+      'kycUploadBack': 'Back of Document or Selfie (Optional)',
+      'kycTakeCamera': 'Camera',
+      'kycChooseGallery': 'Photo Gallery',
+      'kycSubmit': 'Submit Document for Review',
+      'kycSubmitting': 'Uploading & Submitting...',
+      'kycPreview': 'View Full Image',
+      'kycEdit': 'Edit / Replace',
+      'kycDelete': 'Delete Document',
+      'kycDeleteConfirmTitle': 'Delete Identity Document',
+      'kycDeleteConfirmDesc': 'Are you sure you want to delete your submitted document? Your verification status will be reset.',
+      'kycDeleteSuccess': 'Identity document deleted successfully.',
+      'kycSubmitSuccess': 'Your documents were submitted successfully and are pending review.',
+      'kycRejectionReasonLabel': 'Rejection Reason:',
+      'kycFrontRequired': 'Please upload the front image of your document.',
       'galHeader': 'Media Album & Reference Photos',
       'galScan360': '360° Body Scan',
       'galUploaded': 'Uploaded',
@@ -751,6 +1091,29 @@ class AppStrings {
       'galRecorded': 'Added',
       'galUploadSlot3': 'Upload Frame 3',
       'galTip': 'Reference photos are used to improve virtual try-on accuracy and body modeling.',
+      'galPersonaModeTitle': 'AI Persona Modeling Architecture',
+      'galModePrivacy': 'Privacy Face & Hair Avatar',
+      'galModePrivacyDesc': 'No full-body photo needed; your face and hair are combined with the 3D parametric mannequin.',
+      'galModeFullBody': 'Full Real-Body Persona',
+      'galModeFullBodyDesc': 'Includes 7 reference angles for maximum draping accuracy and 3D virtual try-on.',
+      'galSlotFrontFace': 'Front Face & Hair',
+      'galSlotSideFace': 'Side Profile Face & Hair (90°)',
+      'galSlotBodyFront': 'Full Body Front (A-Pose)',
+      'galSlotBodySide': 'Full Body Side Profile (90°)',
+      'galSlotBodyBack': 'Full Body Back View',
+      'galSlotHandSkin': 'Hand & Skin Tone Close-up',
+      'galSlotScan360': '360° Body Scan Video',
+      'galRequired': 'Required',
+      'galOptional': 'Optional',
+      'galProSlot': 'Advanced (PRO)',
+      'galAwaitingUpload': 'Awaiting Upload',
+      'galClickToScan': 'Click to record or upload 360° video',
+      'galTakeCameraWithGuide': 'Camera with Alignment Guide',
+      'galUploadFromGallery': 'Upload from Gallery',
+      'galAlignmentGuideTitle': 'Pose & Alignment Guide',
+      'galReadyToCapture': 'Ready to Capture',
+      'galDeleteConfirmTitle': 'Delete Reference Media',
+      'galDeleteConfirmDesc': 'Are you sure you want to delete this reference media? AI simulation accuracy will be reduced.',
       'aiHeader': 'Anatomy & DNA Specs',
       'aiEditable': 'Editable',
       'aiNote': 'Values were extracted by AI. Editing any field switches its badge to USER.',
@@ -763,12 +1126,93 @@ class AppStrings {
       'aiBodyShape': 'Body Shape',
       'aiFaceShape': 'Face Shape',
       'aiHair': 'Hair Profile',
-      'aiTailoringHeader': 'Tailoring & Try-On Measurements',
+      'aiTailoringHeader': 'Anthropometric Fit Dimensions',
       'aiShoulder': 'Shoulder Width (cm)',
-      'aiChest': 'Chest (cm)',
-      'aiWaist': 'Waist',
-      'aiBelly': 'Abdomen',
-      'aiHips': 'Hips',
+      'aiChest': 'Chest / Bust (cm)',
+      'aiWaist': 'Waist (cm)',
+      'aiBelly': 'Abdomen (cm)',
+      'aiHips': 'Hips (cm)',
+      'aiSectionBiometrics': 'Biometric Base & Silhouette',
+      'aiGenderNonBinary': 'Non-Binary',
+      'aiBmiLabel': 'Body Mass Index (BMI)',
+      'aiBmiUnderweight': 'Underweight',
+      'aiBmiNormal': 'Normal',
+      'aiBmiOverweight': 'Overweight',
+      'aiBmiObese': 'Obese',
+      'aiBodySilhouette': 'Body Silhouette',
+      'aiSilHourglass': 'Hourglass',
+      'aiSilPear': 'Pear / Triangle',
+      'aiSilApple': 'Apple / Round',
+      'aiSilRectangle': 'Rectangle',
+      'aiSilInvertedTriangle': 'Inverted Triangle',
+      'aiSilTrapezoid': 'Trapezoid',
+      'aiSilOval': 'Oval',
+      'aiSectionColorimetry': 'Visual & Colorimetry Specs',
+      'aiFitzpatrickLabel': 'Fitzpatrick Skin Tone (I–VI)',
+      'aiFitz1': 'Type I: Very Fair / Porcelain',
+      'aiFitz2': 'Type II: Fair / Light Beige',
+      'aiFitz3': 'Type III: Medium / Olive',
+      'aiFitz4': 'Type IV: Moderate Brown / Tan',
+      'aiFitz5': 'Type V: Dark Brown / Caramel',
+      'aiFitz6': 'Type VI: Deep / Espresso',
+      'aiUndertone': 'Skin Undertone',
+      'aiToneWarm': 'Warm',
+      'aiToneCool': 'Cool',
+      'aiToneNeutral': 'Neutral',
+      'aiEyeColor': 'Eye Color',
+      'aiEyeBrown': 'Brown',
+      'aiEyeHazel': 'Hazel / Amber',
+      'aiEyeGreen': 'Green',
+      'aiEyeBlue': 'Blue',
+      'aiEyeGray': 'Gray',
+      'aiEyeBlack': 'Black / Dark',
+      'aiHairProfile': 'Hair Profile',
+      'aiHairColor': 'Hair Color',
+      'aiHairLength': 'Hair Length & Texture',
+      'aiHairBlack': 'Black',
+      'aiHairDarkBrown': 'Dark Brown',
+      'aiHairLightBrown': 'Light Brown',
+      'aiHairBlonde': 'Blonde',
+      'aiHairAuburn': 'Auburn / Red',
+      'aiHairGray': 'Gray / Silver',
+      'aiHairDyed': 'Dyed / Vivid',
+      'aiHairShort': 'Short',
+      'aiHairMedium': 'Medium',
+      'aiHairLong': 'Long',
+      'aiHairBald': 'Bald / Buzz Cut',
+      'aiHairCurly': 'Curly / Coily',
+      'aiHairWavy': 'Wavy',
+      'aiHairStraight': 'Straight',
+      'aiFaceOval': 'Oval',
+      'aiFaceRound': 'Round',
+      'aiFaceSquare': 'Square',
+      'aiFaceHeart': 'Heart',
+      'aiFaceOblong': 'Oblong',
+      'aiAnthropometricHeader': 'Anthropometric Fit Dimensions',
+      'aiAnthropometricSub': 'Key body measurements for SMPL 3D mesh and AI virtual try-on',
+      'aiShoulderHint': 'Distance between outer shoulder bone edges across back',
+      'aiChestHint': 'Circumference around the fullest part of the chest horizontally',
+      'aiBraSize': 'Bra Size (Female)',
+      'aiBraBand': 'Band Size',
+      'aiBraCup': 'Cup Size',
+      'aiWaistHint': 'Narrowest point of the torso (approx 2-3 cm above navel)',
+      'aiBellyHint': 'Fullest part across the navel during normal breathing',
+      'aiHipsHint': 'Circumference at the widest part of buttocks and hips',
+      'aiSleeve': 'Sleeve Length (cm)',
+      'aiSleeveHint': 'From shoulder bone edge down to the wrist bone',
+      'aiInseam': 'Inseam Length (cm)',
+      'aiInseamHint': 'From inner crotch point down to ankle bone',
+      'aiNeck': 'Neck Circumference (cm)',
+      'aiNeckHint': 'Circumference around base of neck above collarbone',
+      'aiShoeSize': 'Shoe Size (EU / US)',
+      'aiShoeSizeHint': 'Your standard everyday footwear size',
+      'aiFitPrefHeader': 'Garment Fit Preference',
+      'aiFitSlim': 'Slim Fit',
+      'aiFitSlimDesc': 'Close to body curves with minimal drape ease',
+      'aiFitRegular': 'Regular Fit',
+      'aiFitRegularDesc': 'Balanced, classic drape with comfortable ease',
+      'aiFitRelaxed': 'Relaxed / Oversized',
+      'aiFitRelaxedDesc': 'Loose silhouette with generous drape ease',
       'walHeader': 'Wallet, Plans & Billing',
       'walActivePlan': 'Your Active Plan',
       'walActive': 'Active',
@@ -796,6 +1240,17 @@ class AppStrings {
       'refJoinedTitle': 'Recently Joined Friends',
       'refRuleInfo': 'Earn 100 coins and gift 50 bonus coins for every friend who signs up.',
       'refMembersUnit': 'friends',
+      'refShare': 'Share',
+      'refSharedToast': 'Invite link copied to clipboard!',
+      'refEmptyFriends': 'No friends have joined using your referral code yet',
+      'refTierStarter': 'Starter',
+      'refTierSilver': 'Silver',
+      'refTierGold': 'Gold',
+      'refTierAmbassador': 'Ambassador',
+      'authReferralCodeLabel': 'Referral Code (Optional)',
+      'authReferralCodeHint': '8-character referral code',
+      'authReferralSelfError': 'You cannot use your own referral code',
+      'authReferralInvalidError': 'The entered referral code is invalid',
       'perHeader': 'AI Companion & Persona Settings',
       'perSub': 'Customize your AI companion character, conversation tone, and critique strictness.',
       'perSelectTitle': 'Select Companion Character',
@@ -825,6 +1280,26 @@ class AppStrings {
       'setLangLabel': 'App Language',
       'setShowSupport': 'Show Floating Support Widget',
       'setShowHeaderCoins': 'Show Coin Balance in Header',
+      'setShowEmailInHeader': 'Show Email in Header',
+      'rankBronze': 'Bronze',
+      'rankSilver': 'Silver',
+      'rankGold': 'Gold',
+      'rankDiamond': 'Diamond',
+      'loyaltyTitle': 'Loyalty Rank & StylePoints',
+      'pts': 'pts',
+      'pointsToNextRank': '{pts} pts to next rank',
+      'maxRankReached': 'Maximum rank achieved',
+      'howToEarnPoints': 'How to Earn StylePoints',
+      'earnProfileRule': 'Profile completion: up to 300 pts based on progress',
+      'earnEmailRule': 'Verified email: +100 pts one-time',
+      'earnReferralRule': 'Friend referrals: +150 pts per invited friend',
+      'earnAiRule': 'AI services (Try-On & Stylist): +10 pts per session',
+      'earnWalletRule': 'Coin activity: +1 pt per 10 coins earned/spent',
+      'loyaltyPerksTitle': 'Loyalty Rank Perks',
+      'perkBronze': 'Standard access to all base features',
+      'perkSilver': '50% ad reduction + priority AI queue',
+      'perkGold': 'Zero banner ads + 10% coin discount on premium AI',
+      'perkDiamond': '100% ad-free + early access to new AI models & periodic coin gifts',
       'setBackupLabel': 'Auto Data Backup',
       'setBackupWeekly': 'Weekly (Recommended)',
       'setBackupMonthly': 'Monthly',
@@ -1106,9 +1581,26 @@ class AppStrings {
       'authEmailNotVerifiedYet': 'Email not verified yet. Please check your inbox or spam folder.',
       'authVerificationEmailSent': 'Verification email sent successfully.',
       'authBackOrSignOut': 'Back / Sign Out',
+      'emailVerificationBannerTitle': 'Verify Email for Full Access',
+      'emailVerificationBannerDesc': 'Your email is not verified yet. Please verify your email to unlock AI generation, smart wardrobe, and financial features.',
+      'emailVerificationSoftGateTitle': 'Email Verification Required',
+      'emailVerificationSoftGateDesc': 'To use this feature (AI processing and financial transactions), please verify your email address first.',
+      'emailVerificationGoToProfile': 'Go to Profile & Identity',
+      'emailVerificationSuccessToast': 'Your email has been verified successfully.',
+      'idUnverified': 'Unverified',
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'Security Verification',
       'authTurnstileRequired': 'Please complete the Cloudflare security verification.',
+      'authTurnstileChecking': 'Performing security check...',
+      'authFallbackSecurityTitle': 'Security Verification',
+      'authFallbackMathQuestion': '{a} + {b} = ?',
+      'authFallbackVerified': 'Verified',
+      'authFallbackAnswerHint': 'Answer',
+      'authLockoutCooldown': 'Too many failed attempts. Please wait {s}s.',
+      'authLockoutBtn': 'Locked ({s}s)',
+      'authRememberMe': 'Remember Me',
+      'authSessionExpired': 'Your session has expired due to 5 days of inactivity. Please sign in again.',
+      'authSessionTerminatedConcurrent': 'Your session was ended because the maximum of 5 concurrent devices was reached.',
       // Biometric Lock
       'setBiometricTitle': 'Biometric Lock (Fingerprint / Face ID)',
       'setBiometricDesc': 'Require fingerprint or Face ID authentication upon opening the app.',
@@ -1152,6 +1644,46 @@ class AppStrings {
       'sessErrLoad': 'Failed to load sessions',
       'dialogCancel': 'Cancel',
       'dialogConfirm': 'Confirm',
+      // About & Updates Sub-Tab
+      'tAbout': 'About',
+      'aboutHeader': 'About StyleMorph',
+      'aboutTagline': 'Personal AI Stylist & Virtual Try-On Studio',
+      'aboutMission': 'StyleMorph is a cutting-edge platform at the intersection of fashion, technology, and aesthetic elegance. Leveraging advanced generative AI, we provide hyper-realistic virtual fitting, intelligent wardrobe curation, and bespoke styling with strict privacy-first data protection.',
+      'aboutVersionLabel': 'App Version',
+      'aboutBuildLabel': 'Build',
+      'aboutReleaseDateLabel': 'Release Date',
+      'aboutReleaseDateVal': 'November 2026',
+      'aboutEnvironmentLabel': 'Environment',
+      'aboutEnvironmentVal': 'Stable (Production)',
+      'aboutCheckUpdatesBtn': 'Check for Updates',
+      'aboutChecking': 'Checking for updates...',
+      'aboutUpToDate': 'You are running the latest version of StyleMorph.',
+      'aboutUpdateAvailable': 'New update ({version}) is available!',
+      'aboutUpdateActionWeb': 'Install Update & Refresh',
+      'aboutUpdateActionMobile': 'Download Update',
+      'aboutWhatsNewTitle': 'What\'s New in Version 1.0',
+      'aboutChangelog1Title': 'Virtual Try-On & Atelier Studio',
+      'aboutChangelog1Desc': 'Hyper-realistic garment fitting on user photos with fabric texture and lighting simulation',
+      'aboutChangelog2Title': 'Smart Wardrobe & Auto-Tagging',
+      'aboutChangelog2Desc': 'Automated background removal, color/texture tagging, and intelligent outfit curation',
+      'aboutChangelog3Title': 'High-Resilience AI Gateway',
+      'aboutChangelog3Desc': 'Multi-account key pool load balancing, sub-100ms cold starts, and circuit breaking',
+      'aboutChangelog4Title': 'Referral Rewards & Loyalty Tiers',
+      'aboutChangelog4Desc': 'Transparent StylePoints formula, dual-sided referral rewards, and 4 progressive ranks',
+      'aboutChangelog5Title': 'Data Privacy & Dual Persona Avatar',
+      'aboutChangelog5Desc': 'Zero permanent raw storage, SHA-256 caching, and privacy mannequin mode',
+      'aboutLegalSectionTitle': 'Legal & Compliance',
+      'aboutTermsTitle': 'Terms of Service',
+      'aboutPrivacyTitle': 'Privacy Policy & AI Image Data Protection',
+      'aboutLicensesTitle': 'Open Source Licenses',
+      'aboutContactSectionTitle': 'Official Contact & Socials',
+      'aboutWebsiteLabel': 'Official Website',
+      'aboutEmailLabel': 'Support Email',
+      'aboutInstagramLabel': 'Instagram',
+      'aboutTelegramLabel': 'Telegram',
+      'aboutCopyrightNotice': '© 2026 StyleMorph. All rights reserved.',
+      'aboutLinkCopied': 'Copied to clipboard',
+      'aboutClose': 'Close',
     },
     'ar': {
       'appName': 'StyleMorph',
@@ -1242,6 +1774,7 @@ class AppStrings {
       'saveChanges': 'حفظ التغييرات',
       'noChangesYet': 'لا توجد تغييرات',
       'profileSavedToast': 'تم حفظ تغييرات الملف بنجاح.',
+      'profileSaveErrorToast': 'فشل حفظ التغييرات على الخادم. يرجى المحاولة مرة أخرى.',
       'notificationsTitle': 'مركز الإشعارات',
       'markAllRead': 'قراءة الكل ✓',
       'noNotifications': 'لا توجد إشعارات في هذه الفئة.',
@@ -1249,21 +1782,94 @@ class AppStrings {
       'notifCatShop': 'العروض والمتجر',
       'notifCatFinance': 'المحفظة والعملات',
       'newWord': 'جديد',
+      'newUser': 'مستخدم جديد',
       'idHeader': 'الهوية والمعلومات الشخصية',
       'idFirstName': 'الاسم الأول',
+      'idFirstNamePlaceholder': 'مثال: علي',
       'idLastName': 'اسم العائلة',
+      'idLastNamePlaceholder': 'مثال: رضائي',
       'idNick': 'الاسم المستعار',
+      'idNickPlaceholder': '@ali_style',
       'idNationalId': 'الرقم القومي',
+      'idNationalIdPlaceholder': 'الرقم القومي / الهوية الوطنية',
+      'idDob': 'تاريخ الميلاد',
+      'idDobPlaceholder': 'اختر تاريخ الميلاد',
+      'idDobAgeRequirement': 'الحد الأدنى للسن القانوني هو 13 عاماً',
       'idMobile': 'رقم الجوال',
+      'idMobilePlaceholder': '+971 50 123 4567',
+      'idVerifyMobile': 'تأكيد',
+      'commonComingSoon': 'قريباً',
+      'commonGotIt': 'فهمت ذلك',
+      'idVerifyEmail': 'تأكيد البريد',
+      'idCheckEmailStatus': 'التحقق من الحالة',
+      'idChangeEmail': 'تغيير البريد',
+      'idSocialEmailNote': 'تتم إدارة بريد تسجيل الدخول عبر حسابات جوجل وآبل من خلال مزود الخدمة.',
+      'idChangeEmailTitle': 'تغيير عنوان البريد الإلكتروني',
+      'idChangeEmailReauthSubtitle': 'لأسباب أمنية، يرجى إعادة إدخال كلمة المرور الحالية أولاً.',
+      'idCurrentPasswordLabel': 'كلمة المرور الحالية',
+      'idVerifyAndContinue': 'تأكيد ومتابعة',
+      'idNewEmailLabel': 'عنوان البريد الإلكتروني الجديد',
+      'idChangeEmailNotice': 'سيبقى بريدك الحالي نشطاً حتى يتم النقر على رابط التأكيد المرسل إلى بريدك الجديد. سيرسل فايربيس أيضاً تنبيهاً أمنياً مع رابط استعادة إلى بريدك السابق.',
+      'idSendVerificationToNewEmail': 'إرسال رابط التأكيد إلى البريد الجديد',
+      'idChangeEmailSuccessTitle': 'تم إرسال رابط التأكيد',
+      'idChangeEmailSuccessDesc': 'تم إرسال رابط التأكيد إلى {email}. بمجرد النقر عليه، سيتم تحديث بريدك الإلكتروني.',
+      'idLostAccessEmailSupport': 'فقدت الوصول إلى بريدك السابق؟ اتصل بالدعم',
+      'idChangeEmailSameError': 'لا يمكن أن يكون البريد الجديد هو نفس البريد الحالي.',
+      'idChangeEmailInvalidError': 'يرجى إدخال عنوان بريد إلكتروني صالح.',
       'idVerified': 'موثّق',
       'idEmail': 'البريد الإلكتروني',
+      'idEmailPlaceholder': 'name@example.com',
       'idSendCode': 'إرسال الرمز',
       'idCodeSentToast': 'تم إرسال رمز التحقق إلى بريدك.',
       'idCountry': 'الدولة',
+      'idCountryPlaceholder': 'مثال: الإمارات، مصر',
       'idProvince': 'المحافظة',
+      'idProvincePlaceholder': 'مثال: دبي، القاهرة',
       'idCity': 'المدينة',
+      'idCityPlaceholder': 'مثال: أبوظبي، الجيزة',
       'idAddress': 'العنوان البريدي',
-      'idZip': 'الرمز البريدي (١٠ أرقام)',
+      'idAddressPlaceholder': 'الشارع، رقم المبنى، الشقة',
+      'idZip': 'الرمز البريدي',
+      'idZipPlaceholder': 'الرمز البريدي',
+      'idSelectCountry': 'اختر الدولة',
+      'idSelectProvince': 'اختر المحافظة / الولاية',
+      'idSelectCity': 'اختر المدينة',
+      'idSelectDialCode': 'رمز الاتصال الدولي',
+      'idSearchPlaceholder': 'بحث...',
+      'idUseCustomCity': 'استخدام المدينة المدخلة',
+      'idErrInvalidNidIran': 'الرقم القومي الإيراني غير صالح',
+      'idErrInvalidNidTurkey': 'رقم الهوية التركية غير صالح',
+      'idErrInvalidNidInternational': 'رقم الهوية غير صالح (٥ أحرف على الأقل)',
+      'idErrInvalidZipIran': 'يجب أن يتكون الرمز البريدي من ١٠ أرقام',
+      'idErrInvalidZipTurkey': 'يجب أن يتكون الرمز البريدي التركي من ٥ أرقام',
+      'idErrInvalidZipInternational': 'الرمز البريدي غير صالح (٣-١٢ حرف)',
+      'idErrInvalidMobile': 'رقم الجوال غير صالح للدولة المحددة',
+      'kycSectionTitle': 'التحقق من الهوية والوثائق (KYC)',
+      'kycSectionSubtitle': 'أرسل وثائق هويتك لتفعيل الميزات المتقدمة وتأمين حسابك.',
+      'kycStatusNotSubmitted': 'غير مرسل',
+      'kycStatusPending': 'قيد المراجعة',
+      'kycStatusVerified': 'موثّق',
+      'kycStatusRejected': 'مرفوض',
+      'kycVerifiedBadge': 'تم التحقق (KYC)',
+      'kycDocNationalId': 'بطاقة الهوية الوطنية',
+      'kycDocPassport': 'جواز السفر',
+      'kycDocDriversLicense': 'رخصة القيادة',
+      'kycSelectDocType': 'نوع الوثيقة',
+      'kycUploadFront': 'وجه الوثيقة (مطلوب)',
+      'kycUploadBack': 'ظهر الوثيقة أو سيلفي (اختياري)',
+      'kycTakeCamera': 'الكاميرا',
+      'kycChooseGallery': 'معرض الصور',
+      'kycSubmit': 'إرسال الوثيقة للمراجعة',
+      'kycSubmitting': 'جاري الرفع والتسجيل...',
+      'kycPreview': 'عرض الصورة الكاملة',
+      'kycEdit': 'تعديل أو استبدال',
+      'kycDelete': 'حذف الوثيقة',
+      'kycDeleteConfirmTitle': 'حذف وثيقة الهوية',
+      'kycDeleteConfirmDesc': 'هل أنت متأكد من رغبتك في حذف وثيقة الهوية؟ ستتم إعادة تعيين حالة التحقق الخاصة بك.',
+      'kycDeleteSuccess': 'تم حذف وثيقة الهوية بنجاح.',
+      'kycSubmitSuccess': 'تم إرسال وثائقك بنجاح وهي قيد المراجعة.',
+      'kycRejectionReasonLabel': 'سبب الرفض:',
+      'kycFrontRequired': 'يرجى تحميل صورة وجه الوثيقة أولاً.',
       'galHeader': 'ألبوم الوسائط والصور المرجعية',
       'galScan360': 'مسح ٣٦٠ درجة للجسم',
       'galUploaded': 'تم التحميل',
@@ -1278,24 +1884,128 @@ class AppStrings {
       'galRecorded': 'تم الحفظ',
       'galUploadSlot3': 'تحميل الإطار ٣',
       'galTip': 'تُستخدم الصور المرجعية لرفع دقة القياس الافتراضي وتحليل القوام.',
+      'galPersonaModeTitle': 'وضع نمذجة شخصية الذكاء الاصطناعي',
+      'galModePrivacy': 'رمزية الوجه والشعر الخاصة (بدون جسم)',
+      'galModePrivacyDesc': 'لا حاجة لصور الجسم الكامل؛ يدمج وجهك وشعرك مع المانيكان ثلاثي الأبعاد.',
+      'galModeFullBody': 'شخصية الجسم الكامل الحقيقي',
+      'galModeFullBodyDesc': 'يتضمن ٧ زوايا مرجعية لتحقيق أقصى دقة في قياس ومحاكاة الملابس ثلاثية الأبعاد.',
+      'galSlotFrontFace': 'الوجه والشعر من الأمام',
+      'galSlotSideFace': 'الملف الجانبي للوجه والشعر (٩٠ درجة)',
+      'galSlotBodyFront': 'الجسم بالكامل من الأمام (وضع A)',
+      'galSlotBodySide': 'الجسم بالكامل جانبي (٩٠ درجة)',
+      'galSlotBodyBack': 'الجسم بالكامل من الخلف',
+      'galSlotHandSkin': 'لقطة مقربة لليد ولون البشرة',
+      'galSlotScan360': 'فيديو مسح ٣٦٠ درجة للجسم',
+      'galRequired': 'مطلوب',
+      'galOptional': 'اختياري',
+      'galProSlot': 'متقدم (PRO)',
+      'galAwaitingUpload': 'بانتظار التحميل',
+      'galClickToScan': 'انقر لتسجيل أو تحميل فيديو ٣٦٠ درجة',
+      'galTakeCameraWithGuide': 'التصوير مع دليل المحاذاة',
+      'galUploadFromGallery': 'اختيار من المعرض',
+      'galAlignmentGuideTitle': 'دليل المحاذاة والوضعية',
+      'galReadyToCapture': 'جاهز للتصوير',
+      'galDeleteConfirmTitle': 'حذف الملف المرجعي',
+      'galDeleteConfirmDesc': 'هل أنت متأكد من حذف هذا الملف المرجعي؟ ستقل دقة محاكاة الذكاء الاصطناعي.',
       'aiHeader': 'التشريح ومواصفات DNA',
       'aiEditable': 'قابل للتعديل',
       'aiNote': 'تم استخراج القيم بالذكاء الاصطناعي. تعديل أي حقل يغيّر وسْمه إلى USER.',
       'aiGender': 'الجنس',
-      'aiFemale': 'نسائي (Female)',
-      'aiMale': 'رجالي (Male)',
+      'aiFemale': 'أنثى',
+      'aiMale': 'ذكر',
       'aiHeight': 'الطول (cm)',
       'aiWeight': 'الوزن (kg)',
       'aiSkinTone': 'لون البشرة',
       'aiBodyShape': 'شكل الجسم',
       'aiFaceShape': 'شكل الوجه',
       'aiHair': 'مواصفات الشعر',
-      'aiTailoringHeader': 'مقاسات الخياطة والقياس الدقيق',
+      'aiTailoringHeader': 'أبعاد الملاءمة والقياس الافتراضي',
       'aiShoulder': 'عرض الكتف (cm)',
       'aiChest': 'محيط الصدر (cm)',
-      'aiWaist': 'محيط الخصر',
-      'aiBelly': 'محيط البطن',
-      'aiHips': 'محيط الورك',
+      'aiWaist': 'محيط الخصر (cm)',
+      'aiBelly': 'محيط البطن (cm)',
+      'aiHips': 'محيط الورك (cm)',
+      'aiSectionBiometrics': 'القياسات الحيوية وهيئة القوام',
+      'aiGenderNonBinary': 'غير ثنائي',
+      'aiBmiLabel': 'مؤشر كتلة الجسم (BMI)',
+      'aiBmiUnderweight': 'نقص الوزن',
+      'aiBmiNormal': 'وزن طبيعي ومتناسق',
+      'aiBmiOverweight': 'وزن زائد',
+      'aiBmiObese': 'سمنة',
+      'aiBodySilhouette': 'هيئة القوام الظلية',
+      'aiSilHourglass': 'الساعة الرملية',
+      'aiSilPear': 'الكمثري / المثلث',
+      'aiSilApple': 'التفاحي / الدائري',
+      'aiSilRectangle': 'المستطيل',
+      'aiSilInvertedTriangle': 'المثلث المقلوب',
+      'aiSilTrapezoid': 'شبه منحرف متوازن',
+      'aiSilOval': 'البيضاوي',
+      'aiSectionColorimetry': 'مواصفات المظهر ودرجات الألوان',
+      'aiFitzpatrickLabel': 'لون البشرة (فيتزباتريك I–VI)',
+      'aiFitz1': 'النوع ١: فاتح جداً وعاجي',
+      'aiFitz2': 'النوع ٢: فاتح مائل للبيج',
+      'aiFitz3': 'النوع ٣: حنطي / زيتوني معتدل',
+      'aiFitz4': 'النوع ٤: أسمر معتدل / برونزي',
+      'aiFitz5': 'النوع ٥: أسمر داكن / كراميل',
+      'aiFitz6': 'النوع ٦: داكن جداً / إسبريسو',
+      'aiUndertone': 'اللون التحتي للبشرة',
+      'aiToneWarm': 'دافئ (Warm)',
+      'aiToneCool': 'بارد (Cool)',
+      'aiToneNeutral': 'محايد (Neutral)',
+      'aiEyeColor': 'لون العينين',
+      'aiEyeBrown': 'بني',
+      'aiEyeHazel': 'عسلي / كهرماني',
+      'aiEyeGreen': 'أخضر',
+      'aiEyeBlue': 'أزرق',
+      'aiEyeGray': 'رمادي',
+      'aiEyeBlack': 'أسود / داكن',
+      'aiHairProfile': 'مواصفات الشعر',
+      'aiHairColor': 'لون الشعر',
+      'aiHairLength': 'طول وطبيعة الشعر',
+      'aiHairBlack': 'أسود',
+      'aiHairDarkBrown': 'بني داكن',
+      'aiHairLightBrown': 'بني فاتح',
+      'aiHairBlonde': 'أشقر',
+      'aiHairAuburn': 'أحمر / كستنائي',
+      'aiHairGray': 'رمادي / فضي',
+      'aiHairDyed': 'مصبوغ / ملون',
+      'aiHairShort': 'قصير',
+      'aiHairMedium': 'متوسط',
+      'aiHairLong': 'طويل',
+      'aiHairBald': 'حليق / بدون شعر',
+      'aiHairCurly': 'مجعد / كيرلي',
+      'aiHairWavy': 'مموج',
+      'aiHairStraight': 'ناعم ومسترسل',
+      'aiFaceOval': 'بيضاوي',
+      'aiFaceRound': 'دائري',
+      'aiFaceSquare': 'مربع',
+      'aiFaceHeart': 'قلبي',
+      'aiFaceOblong': 'مستطيل / ممتد',
+      'aiAnthropometricHeader': 'أبعاد الملاءمة والقياس الافتراضي',
+      'aiAnthropometricSub': 'أبعاد الجسم الدقيقة للنمذجة ثلاثية الأبعاد والقياس الافتراضي (SMPL)',
+      'aiShoulderHint': 'المسافة بين طرفي عظم الكتف من الخلف',
+      'aiChestHint': 'المحيط حول أبرز نقطة في الصدر أفقياً بتنفس طبيعي',
+      'aiBraSize': 'قياس الصدرية (للإناث)',
+      'aiBraBand': 'مقاس الشريط (Band)',
+      'aiBraCup': 'مقاس القالب (Cup)',
+      'aiWaistHint': 'المحيط عند أضيق نقطة في الخصر (حوالي ٢-٣ سم فوق السرة)',
+      'aiBellyHint': 'المحيط عند أبرز نقطة في البطن عبر السرة',
+      'aiHipsHint': 'المحيط عند أعرض نقطة في الأرداف والوركين',
+      'aiSleeve': 'طول الكم (cm)',
+      'aiSleeveHint': 'من طرف عظم الكتف إلى عظم المعصم',
+      'aiInseam': 'طول الساق الداخلي (cm)',
+      'aiInseamHint': 'من أعلى نقطة في المنفرج الداخلي إلى الكاحل',
+      'aiNeck': 'محيط الرقبة (cm)',
+      'aiNeckHint': 'المحيط حول قاعدة الرقبة فوق الترقوة',
+      'aiShoeSize': 'مقاس الحذاء (EU / US)',
+      'aiShoeSizeHint': 'مقاس الحذاء اليومي المعتاد',
+      'aiFitPrefHeader': 'تفضيل قياس وارتداء الملابس',
+      'aiFitSlim': 'ضيق مجسم (Slim Fit)',
+      'aiFitSlimDesc': 'ملاصق لمنحنيات الجسم مع أدنى وسع',
+      'aiFitRegular': 'قياسي كلاسيكي (Regular Fit)',
+      'aiFitRegularDesc': 'مريح ومتوازن مع وسع كلاسيكي طبيعي',
+      'aiFitRelaxed': 'فضفاض مريح (Relaxed / Oversized)',
+      'aiFitRelaxedDesc': 'قصّة واسعة مع راحة وتهوية قصوى',
       'walHeader': 'المحفظة والخطط والفوترة',
       'walActivePlan': 'خطتك الحالية',
       'walActive': 'نشط',
@@ -1323,6 +2033,17 @@ class AppStrings {
       'refJoinedTitle': 'أحدث الأصدقاء المنضمين لشبكتك',
       'refRuleInfo': 'احصل على ١٠٠ عملة و٥٠ عملة هدية لصديقك عند كل دعوة.',
       'refMembersUnit': 'أصدقاء',
+      'refShare': 'مشاركة',
+      'refSharedToast': 'تم نسخ رابط الدعوة!',
+      'refEmptyFriends': 'لم ينضم أي صديق باستخدام رمز الإحالة الخاص بك بعد',
+      'refTierStarter': 'مبتدئ',
+      'refTierSilver': 'فضي',
+      'refTierGold': 'ذهبي',
+      'refTierAmbassador': 'سفير',
+      'authReferralCodeLabel': 'رمز الإحالة (اختياري)',
+      'authReferralCodeHint': 'رمز الإحالة المكوّن من ٨ أحرف',
+      'authReferralSelfError': 'لا يمكنك استخدام رمز الإحالة الخاص بك',
+      'authReferralInvalidError': 'رمز الإحالة المدخل غير صالح',
       'perHeader': 'شخصية المرافق الذكي',
       'perSub': 'خصّص شخصية المساعد ونبرة الحديث ومستوى الصرامة في تقييم الأسلوب.',
       'perSelectTitle': 'اختيار شخصية المرافق',
@@ -1352,6 +2073,26 @@ class AppStrings {
       'setLangLabel': 'لغة التطبيق',
       'setShowSupport': 'إظهار زر الدعم العائم',
       'setShowHeaderCoins': 'إظهار رصيد العملات في الرأس',
+      'setShowEmailInHeader': 'إظهار البريد الإلكتروني في الترويسة',
+      'rankBronze': 'برونزي',
+      'rankSilver': 'فضي',
+      'rankGold': 'ذهبي',
+      'rankDiamond': 'ماسي',
+      'loyaltyTitle': 'مستوى الولاء ونقاط الأناقة',
+      'pts': 'نقطة',
+      'pointsToNextRank': '{pts} نقطة إلى المستوى التالي',
+      'maxRankReached': 'تم الوصول إلى أعلى مستوى ولاء',
+      'howToEarnPoints': 'كيفية كسب نقاط StylePoints',
+      'earnProfileRule': 'إكمال الملف الشخصي: ما يصل إلى ۳۰۰ نقطة حسب التقدم',
+      'earnEmailRule': 'تأكيد البريد الإلكتروني: +۱۰۰ نقطة لمرة واحدة',
+      'earnReferralRule': 'دعوة الأصدقاء: +۱٥۰ نقطة لكل صديق منضم',
+      'earnAiRule': 'استخدام الذكاء الاصطناعي: +۱۰ نقاط لكل جلسة',
+      'earnWalletRule': 'نشاط المحفظة: +۱ نقطة لكل ۱۰ عملات',
+      'loyaltyPerksTitle': 'مزايا مستويات الولاء',
+      'perkBronze': 'وصول قياسي إلى كافة الميزات الأساسية',
+      'perkSilver': 'تقليل الإعلانات بنسبة ٥۰٪ + أولوية في طابور الذكاء الاصطناعي',
+      'perkGold': 'إزالة كاملة للإعلانات الصورية + خصم ۱۰٪ على العملات',
+      'perkDiamond': 'تجربة خالية تماماً من الإعلانات + وصول مبكر لنماذج الذكاء الاصطناعي وهدايا دورية',
       'setBackupLabel': 'النسخ الاحتياطي التلقائي',
       'setBackupWeekly': 'أسبوعي (موصى به)',
       'setBackupMonthly': 'شهري',
@@ -1633,9 +2374,26 @@ class AppStrings {
       'authEmailNotVerifiedYet': 'لم يتم تأكيد البريد بعد. يرجى التحقق من صندوق الوارد أو البريد العشوائي (Spam).',
       'authVerificationEmailSent': 'تم إرسال بريد التأكيد بنجاح.',
       'authBackOrSignOut': 'الرجوع / تسجيل الخروج',
+      'emailVerificationBannerTitle': 'تأكيد البريد الإلكتروني للوصول الكامل',
+      'emailVerificationBannerDesc': 'لم يتم تأكيد بريدك الإلكتروني بعد. يرجى تأكيد بريدك لتفعيل ميزات الذکاء الاصطناعي وخزانة الملابس والمعاملات المالية بالكامل.',
+      'emailVerificationSoftGateTitle': 'مطلوب تأكيد البريد الإلكتروني',
+      'emailVerificationSoftGateDesc': 'لاستخدام هذه الميزة (معالجة الذكاء الاصطناعي والمعاملات المالية)، يرجى تأكيد عنوان بريدك الإلكتروني أولاً.',
+      'emailVerificationGoToProfile': 'الانتقال إلى الملف الشخصي والهوية',
+      'emailVerificationSuccessToast': 'تم تأكيد بريدك الإلكتروني بنجاح.',
+      'idUnverified': 'غير مؤكد',
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'التحقق الأمني',
       'authTurnstileRequired': 'يرجى إكمال التحقق الأمني من Cloudflare.',
+      'authTurnstileChecking': 'جارٍ التحقق من الأمان...',
+      'authFallbackSecurityTitle': 'التحقق الأمني البديل',
+      'authFallbackMathQuestion': '{a} + {b} = ؟',
+      'authFallbackVerified': 'تم التحقق',
+      'authFallbackAnswerHint': 'الإجابة',
+      'authLockoutCooldown': 'عدد محاولات غير صحيحة زائد عن الحد. يرجى الانتظار {s} ثانية.',
+      'authLockoutBtn': 'مغلق مؤقتاً ({s} ثانية)',
+      'authRememberMe': 'تذكرني',
+      'authSessionExpired': 'انتهت جلستك بسبب عدم النشاط لمدة 5 أيام. يرجى تسجيل الدخول مرة أخرى.',
+      'authSessionTerminatedConcurrent': 'تم إنهاء جلستك للوصول إلى الحد الأقصى البالغ 5 أجهزة نشطة.',
       // Biometric Lock
       'setBiometricTitle': 'القفل الحيوي (بصمة الإصبع / التعرف على الوجه)',
       'setBiometricDesc': 'طلب التحقق ببصمة الإصبع أو الوجه عند فتح التطبيق.',
@@ -1679,6 +2437,46 @@ class AppStrings {
       'sessErrLoad': 'فشل في تحميل الجلسات',
       'dialogCancel': 'إلغاء',
       'dialogConfirm': 'تأكيد',
+      // About & Updates Sub-Tab
+      'tAbout': 'حول التطبيق',
+      'aboutHeader': 'حول ستايل مورف',
+      'aboutTagline': 'استوديو المنسق الذكي والقياس الافتراضي الشخصي',
+      'aboutMission': 'ستايل مورف هي منصة متطورة تجمع بين الموضة والتكنولوجيا والجمال. باستخدام أحدث نماذج الذكاء الاصطناعي التوليدي، نقدم تجربة قياس افتراضية واقعية وإدارة ذكية لخزانتك وتنسيقات أزياء مخصصة مع أعلى معايير الخصوصية.',
+      'aboutVersionLabel': 'إصدار التطبيق',
+      'aboutBuildLabel': 'رقم البناء',
+      'aboutReleaseDateLabel': 'تاريخ الإصدار',
+      'aboutReleaseDateVal': 'نوفمبر ٢٠٢٦',
+      'aboutEnvironmentLabel': 'بيئة التشغيل',
+      'aboutEnvironmentVal': 'مستقر (الإنتاج)',
+      'aboutCheckUpdatesBtn': 'التحقق من التحديثات',
+      'aboutChecking': 'جارٍ التحقق من وجود تحديثات...',
+      'aboutUpToDate': 'أنت تستخدم أحدث إصدار من ستايل مورف.',
+      'aboutUpdateAvailable': 'تحديث جديد ({version}) متوفر الآن!',
+      'aboutUpdateActionWeb': 'تثبيت التحديث وإعادة التحميل',
+      'aboutUpdateActionMobile': 'تنزيل التحديث',
+      'aboutWhatsNewTitle': 'ما الجديد في الإصدار ١.٠',
+      'aboutChangelog1Title': 'غرفة القياس الافتراضية واستوديو الأزياء',
+      'aboutChangelog1Desc': 'تجربة واقعية لتنسيق وقياس الملابس على صورتك مع محاكاة خامات الأقمشة والإضاءة',
+      'aboutChangelog2Title': 'الخزانة الذكية وتصنيف الأزياء التلقائي',
+      'aboutChangelog2Desc': 'إزالة خلفيات الصور تلقائياً وتحديد الألوان والخامات وتنسيق الملابس بذكاء',
+      'aboutChangelog3Title': 'بوابة ذكاء اصطناعي عالية الكفاءة',
+      'aboutChangelog3Desc': 'موازنة الحمل عبر حسابات متعددة مع تشغيل فوري دون تأخير وحماية من الأعطال',
+      'aboutChangelog4Title': 'مكافآت الإحالة ومستويات الولاء',
+      'aboutChangelog4Desc': 'احتساب شفاف لنقاط StylePoints ومكافآت متبادلة للعملات و٤ فئات تصنيف',
+      'aboutChangelog5Title': 'خصوصية البيانات ووضع الأفاتار الآمن',
+      'aboutChangelog5Desc': 'تشفير متكامل للصور، تخزين مؤقت مشفر وإمكانية اختيار مانيكان بدلاً من الوجه الحقيقي',
+      'aboutLegalSectionTitle': 'الشروط والخصوصية',
+      'aboutTermsTitle': 'شروط الخدمة والأحكام',
+      'aboutPrivacyTitle': 'سياسة الخصوصية وحماية بيانات وصور الذكاء الاصطناعي',
+      'aboutLicensesTitle': 'تراخيص البرمجيات مفتوحة المصدر',
+      'aboutContactSectionTitle': 'التواصل والقنوات الرسمية',
+      'aboutWebsiteLabel': 'الموقع الرسمي',
+      'aboutEmailLabel': 'البريد الإلكتروني للدعم',
+      'aboutInstagramLabel': 'إنستغرام',
+      'aboutTelegramLabel': 'تيليجرام',
+      'aboutCopyrightNotice': 'جميع الحقوق محفوظة لمنصة ستايل مورف © ٢٠٢٦',
+      'aboutLinkCopied': 'تم النسخ إلى الحافظة',
+      'aboutClose': 'إغلاق',
     },
     'tr': {
       'appName': 'StyleMorph',
@@ -1769,6 +2567,7 @@ class AppStrings {
       'saveChanges': 'Değişiklikleri Kaydet',
       'noChangesYet': 'Değişiklik yok',
       'profileSavedToast': 'Profil değişiklikleri kaydedildi.',
+      'profileSaveErrorToast': 'Değişiklikler sunucuya kaydedilemedi. Lütfen tekrar deneyin.',
       'notificationsTitle': 'Bildirim Merkezi',
       'markAllRead': 'Tümünü oku ✓',
       'noNotifications': 'Bu kategoride bildirim yok.',
@@ -1776,21 +2575,94 @@ class AppStrings {
       'notifCatShop': 'Fırsatlar & Mağaza',
       'notifCatFinance': 'Cüzdan & Jeton',
       'newWord': 'yeni',
+      'newUser': 'Yeni Kullanıcı',
       'idHeader': 'Kimlik ve Kişisel Bilgiler',
       'idFirstName': 'Ad',
+      'idFirstNamePlaceholder': 'Örn: Ali',
       'idLastName': 'Soyad',
+      'idLastNamePlaceholder': 'Örn: Yılmaz',
       'idNick': 'Kullanıcı Adı',
+      'idNickPlaceholder': '@ali_style',
       'idNationalId': 'Kimlik No',
+      'idNationalIdPlaceholder': 'T.C. Kimlik No',
+      'idDob': 'Doğum Tarihi',
+      'idDobPlaceholder': 'Doğum tarihini seçin',
+      'idDobAgeRequirement': 'Yasal minimum yaş 13\'tür',
       'idMobile': 'Cep Telefonu',
+      'idMobilePlaceholder': '+90 532 123 4567',
+      'idVerifyMobile': 'Doğrula',
+      'commonComingSoon': 'Yakında',
+      'commonGotIt': 'Anladım',
+      'idVerifyEmail': 'E-postayı Doğrula',
+      'idCheckEmailStatus': 'Durumu Kontrol Et',
+      'idChangeEmail': 'E-postayı Değiştir',
+      'idSocialEmailNote': 'Google ve Apple ile giriş yapılan e-postalar sağlayıcı tarafından yönetilir.',
+      'idChangeEmailTitle': 'E-posta Adresini Değiştir',
+      'idChangeEmailReauthSubtitle': 'Güvenlik nedeniyle lütfen önce mevcut şifrenizi girin.',
+      'idCurrentPasswordLabel': 'Mevcut Şifre',
+      'idVerifyAndContinue': 'Doğrula ve Devam Et',
+      'idNewEmailLabel': 'Yeni E-posta Adresi',
+      'idChangeEmailNotice': 'Yeni e-postanıza gönderilen doğrulama bağlantısına tıklanana kadar mevcut e-postanız aktif kalır. Firebase ayrıca eski e-postanıza bir geri alma bağlantısı içeren güvenlik uyarısı gönderir.',
+      'idSendVerificationToNewEmail': 'Yeni E-postaya Doğrulama Bağlantısı Gönder',
+      'idChangeEmailSuccessTitle': 'Doğrulama Bağlantısı Gönderildi',
+      'idChangeEmailSuccessDesc': '{email} adresine bir doğrulama bağlantısı gönderildi. Bağlantıya tıklandığında e-postanız güncellenecektir.',
+      'idLostAccessEmailSupport': 'Eski e-postanıza erişimi mi kaybettiniz? Destek ile İletişime Geçin',
+      'idChangeEmailSameError': 'Yeni e-posta mevcut e-postanızla aynı olamaz.',
+      'idChangeEmailInvalidError': 'Lütfen geçerli bir e-posta adresi girin.',
       'idVerified': 'Doğrulandı',
       'idEmail': 'E-posta',
+      'idEmailPlaceholder': 'name@example.com',
       'idSendCode': 'Kod Gönder',
       'idCodeSentToast': 'Doğrulama kodu e-postanıza gönderildi.',
       'idCountry': 'Ülke',
+      'idCountryPlaceholder': 'Örn: Türkiye',
       'idProvince': 'İl',
+      'idProvincePlaceholder': 'Örn: İstanbul',
       'idCity': 'Şehir',
+      'idCityPlaceholder': 'Örn: Kadıköy',
       'idAddress': 'Açık Adres',
-      'idZip': '10 Haneli Posta Kodu',
+      'idAddressPlaceholder': 'Mahalle, cadde, sokak, no, daire',
+      'idZip': 'Posta Kodu',
+      'idZipPlaceholder': 'Posta Kodu',
+      'idSelectCountry': 'Ülke Seçin',
+      'idSelectProvince': 'İl / Eyalet Seçin',
+      'idSelectCity': 'Şehir Seçin',
+      'idSelectDialCode': 'Ülke Arama Kodu',
+      'idSearchPlaceholder': 'Ara...',
+      'idUseCustomCity': 'Girilen şehri kullan',
+      'idErrInvalidNidIran': 'Geçersiz 10 haneli İran Kimlik No',
+      'idErrInvalidNidTurkey': 'Geçersiz 11 haneli T.C. Kimlik No',
+      'idErrInvalidNidInternational': 'Geçersiz Kimlik No (en az 5 karakter)',
+      'idErrInvalidZipIran': 'Posta kodu 10 haneli geçerli olmalıdır',
+      'idErrInvalidZipTurkey': 'Türkiye posta kodu 5 haneli olmalıdır',
+      'idErrInvalidZipInternational': 'Geçersiz Posta Kodu (3-12 karakter)',
+      'idErrInvalidMobile': 'Seçilen ülke için geçersiz cep telefonu',
+      'kycSectionTitle': 'Kimlik Doğrulama & Belgeler (KYC)',
+      'kycSectionSubtitle': 'Gelişmiş özellikleri etkinleştirmek ve hesabınızı güvenceye almak için kimlik belgelerinizi gönderin.',
+      'kycStatusNotSubmitted': 'Gönderilmedi',
+      'kycStatusPending': 'İncelemede',
+      'kycStatusVerified': 'Doğrulandı',
+      'kycStatusRejected': 'Reddedildi',
+      'kycVerifiedBadge': 'KYC Doğrulandı',
+      'kycDocNationalId': 'Kimlik Kartı',
+      'kycDocPassport': 'Pasaport',
+      'kycDocDriversLicense': 'Sürücü Belgesi',
+      'kycSelectDocType': 'Belge Türü',
+      'kycUploadFront': 'Belgenin Ön Yüzü (Zorunlu)',
+      'kycUploadBack': 'Belgenin Arka Yüzü veya Selfie (İsteğe Bağlı)',
+      'kycTakeCamera': 'Kamera',
+      'kycChooseGallery': 'Fotoğraf Galerisi',
+      'kycSubmit': 'Belgeyi İnceleme için Gönder',
+      'kycSubmitting': 'Yükleniyor ve Gönderiliyor...',
+      'kycPreview': 'Tam Resmi Görüntüle',
+      'kycEdit': 'Düzenle / Değiştir',
+      'kycDelete': 'Belgeyi Sil',
+      'kycDeleteConfirmTitle': 'Kimlik Belgesini Sil',
+      'kycDeleteConfirmDesc': 'Gönderilen kimlik belgenizi silmek istediğinizden emin misiniz? Doğrulama durumunuz sıfırlanacaktır.',
+      'kycDeleteSuccess': 'Kimlik belgesi başarıyla silindi.',
+      'kycSubmitSuccess': 'Belgeleriniz başarıyla gönderildi ve inceleme kuyruğuna alındı.',
+      'kycRejectionReasonLabel': 'Reddetme Nedeni:',
+      'kycFrontRequired': 'Lütfen önce belgenizin ön yüzünün fotoğrafını yükleyin.',
       'galHeader': 'Medya Albümü ve Referanslar',
       'galScan360': '360° Vücut Taraması',
       'galUploaded': 'Yüklendi',
@@ -1805,24 +2677,128 @@ class AppStrings {
       'galRecorded': 'Eklendi',
       'galUploadSlot3': 'Kare 3 Yükle',
       'galTip': 'Referans fotoğraflar sanal deneme ve vücut analizi doğruluğunu artırır.',
+      'galPersonaModeTitle': 'Yapay Zeka Persona Modelleme Mimarisi',
+      'galModePrivacy': 'Gizlilik Yüz ve Saç Avatarı',
+      'galModePrivacyDesc': 'Tam vücut fotoğrafına gerek yok; yüzünüz ve saçınız 3D parametrik mankenle birleştirilir.',
+      'galModeFullBody': 'Tam Gerçek Beden Personası',
+      'galModeFullBodyDesc': 'Maksimum döküm ve 3D sanal prova doğruluğu için 7 referans açısı içerir.',
+      'galSlotFrontFace': 'Önden Yüz ve Saç',
+      'galSlotSideFace': 'Yan Profil Yüz ve Saç (90°)',
+      'galSlotBodyFront': 'Tam Boy Ön (A-Duruşu)',
+      'galSlotBodySide': 'Tam Boy Yan Profil (90°)',
+      'galSlotBodyBack': 'Tam Boy Arka Görünüm',
+      'galSlotHandSkin': 'El ve Ten Rengi Yakın Çekim',
+      'galSlotScan360': '360° Vücut Tarama Videosu',
+      'galRequired': 'Zorunlu',
+      'galOptional': 'İsteğe Bağlı',
+      'galProSlot': 'Gelişmiş (PRO)',
+      'galAwaitingUpload': 'Yükleme Bekleniyor',
+      'galClickToScan': '360° video kaydetmek veya yüklemek için tıklayın',
+      'galTakeCameraWithGuide': 'Hizalama Kılavuzu ile Kamera',
+      'galUploadFromGallery': 'Galeriden Yükle',
+      'galAlignmentGuideTitle': 'Poz ve Hizalama Kılavuzu',
+      'galReadyToCapture': 'Fotoğraf Çekmeye Hazır',
+      'galDeleteConfirmTitle': 'Referans Dosyasını Sil',
+      'galDeleteConfirmDesc': 'Bu referans dosyasını silmek istediğinizden emin misiniz? Yapay zeka simülasyon doğruluğu azalacaktır.',
       'aiHeader': 'Anatomi ve DNA Ölçüleri',
       'aiEditable': 'Düzenlenebilir',
       'aiNote': 'Değerler Yapay Zeka ile çıkarıldı. Düzenlenen alan USER olarak işaretlenir.',
       'aiGender': 'Cinsiyet',
-      'aiFemale': 'Kadın (Female)',
-      'aiMale': 'Erkek (Male)',
+      'aiFemale': 'Kadın',
+      'aiMale': 'Erkek',
       'aiHeight': 'Boy (cm)',
       'aiWeight': 'Kilo (kg)',
       'aiSkinTone': 'Cilt Tonu',
       'aiBodyShape': 'Vücut Tipi',
       'aiFaceShape': 'Yüz Şekli',
       'aiHair': 'Saç Özellikleri',
-      'aiTailoringHeader': 'Detaylı Terzilik ve Deneme Ölçüleri',
+      'aiTailoringHeader': 'Antropometrik Uyum Ölçüleri',
       'aiShoulder': 'Omuz Genişliği (cm)',
       'aiChest': 'Göğüs (cm)',
-      'aiWaist': 'Bel',
-      'aiBelly': 'Karın',
-      'aiHips': 'Basen',
+      'aiWaist': 'Bel (cm)',
+      'aiBelly': 'Karın (cm)',
+      'aiHips': 'Basen (cm)',
+      'aiSectionBiometrics': 'Biyometrik Temel ve Siluet',
+      'aiGenderNonBinary': 'İkili Olmayan',
+      'aiBmiLabel': 'Vücut Kitle İndeksi (VKİ)',
+      'aiBmiUnderweight': 'Zayıf',
+      'aiBmiNormal': 'Normal ve Dengeli',
+      'aiBmiOverweight': 'Fazla Kilolu',
+      'aiBmiObese': 'Obez',
+      'aiBodySilhouette': 'Vücut Silueti',
+      'aiSilHourglass': 'Kum Saati',
+      'aiSilPear': 'Armut / Üçgen',
+      'aiSilApple': 'Elma / Yuvarlak',
+      'aiSilRectangle': 'Dikdörtgen',
+      'aiSilInvertedTriangle': 'Ters Üçgen',
+      'aiSilTrapezoid': 'Dengeli Yamuk',
+      'aiSilOval': 'Oval',
+      'aiSectionColorimetry': 'Görsel ve Kolorimetri Özellikleri',
+      'aiFitzpatrickLabel': 'Cilt Tonu (Fitzpatrick I–VI)',
+      'aiFitz1': 'Tip I: Çok Açık / Fildişi',
+      'aiFitz2': 'Tip II: Açık / Bej',
+      'aiFitz3': 'Tip III: Buğday / Açık Zeytin',
+      'aiFitz4': 'Tip IV: Esmer / Bronz',
+      'aiFitz5': 'Tip V: Koyu Esmer / Karamel',
+      'aiFitz6': 'Tip VI: Çok Koyu / Espresso',
+      'aiUndertone': 'Cilt Alt Tonu',
+      'aiToneWarm': 'Sıcak (Warm)',
+      'aiToneCool': 'Soğuk (Cool)',
+      'aiToneNeutral': 'Nötr (Neutral)',
+      'aiEyeColor': 'Göz Rengi',
+      'aiEyeBrown': 'Kahverengi',
+      'aiEyeHazel': 'Ela / Kehribar',
+      'aiEyeGreen': 'Yeşil',
+      'aiEyeBlue': 'Mavi',
+      'aiEyeGray': 'Gri',
+      'aiEyeBlack': 'Siyah / Koyu',
+      'aiHairProfile': 'Saç Profili',
+      'aiHairColor': 'Saç Rengi',
+      'aiHairLength': 'Saç Uzunluğu ve Dokusu',
+      'aiHairBlack': 'Siyah',
+      'aiHairDarkBrown': 'Koyu Kahve',
+      'aiHairLightBrown': 'Açık Kahve',
+      'aiHairBlonde': 'Sarı',
+      'aiHairAuburn': 'Kızıl / Kestane',
+      'aiHairGray': 'Gri / Gümüş',
+      'aiHairDyed': 'Boyalı / Renkli',
+      'aiHairShort': 'Kısa',
+      'aiHairMedium': 'Orta',
+      'aiHairLong': 'Uzun',
+      'aiHairBald': 'Kazıtılmış / Kel',
+      'aiHairCurly': 'Kıvırcık',
+      'aiHairWavy': 'Dalgalı',
+      'aiHairStraight': 'Düz',
+      'aiFaceOval': 'Oval',
+      'aiFaceRound': 'Yuvarlak',
+      'aiFaceSquare': 'Kare',
+      'aiFaceHeart': 'Kalp',
+      'aiFaceOblong': 'Uzun / Dikdörtgen',
+      'aiAnthropometricHeader': 'Antropometrik Uyum Ölçüleri',
+      'aiAnthropometricSub': 'SMPL 3D ağ modellemesi ve yapay zeka provası için hassas ölçüler',
+      'aiShoulderHint': 'Sırttan iki omuz kemiği ucu arasındaki mesafe',
+      'aiChestHint': 'Normal nefeste göğsün en geniş noktasından yatay çevre',
+      'aiBraSize': 'Sütyen Ölçüsü (Kadın)',
+      'aiBraBand': 'Bant Ölçüsü (Band)',
+      'aiBraCup': 'Kup Ölçüsü (Cup)',
+      'aiWaistHint': 'Gövdenin en dar kısmı (göbeğin 2-3 cm üzeri)',
+      'aiBellyHint': 'Göbek deliği hizasından en geniş karın çevresi',
+      'aiHipsHint': 'Kalça ve basenin en geniş kısmının çevresi',
+      'aiSleeve': 'Kol Boyu (cm)',
+      'aiSleeveHint': 'Omuz kemiğinden bilek kemiğine kadar',
+      'aiInseam': 'İç Bacak Boyu (cm)',
+      'aiInseamHint': 'İç ağ kısmından ayak bileği kemiğine kadar',
+      'aiNeck': 'Boyun Çevresi (cm)',
+      'aiNeckHint': 'Köprücük kemiğinin hemen üstünden boyun tabanı',
+      'aiShoeSize': 'Ayakkabı Numarası (EU / US)',
+      'aiShoeSizeHint': 'Standart günlük ayakkabı numaranız',
+      'aiFitPrefHeader': 'Giysi Kalıp Tercihi',
+      'aiFitSlim': 'Dar Kesim (Slim Fit)',
+      'aiFitSlimDesc': 'Vücut hatlarını saran, minimal bolluk',
+      'aiFitRegular': 'Standart / Klasik (Regular Fit)',
+      'aiFitRegularDesc': 'Dengeli ve rahat dökümlü klasik kalıp',
+      'aiFitRelaxed': 'Rahat / Geniş (Relaxed / Oversized)',
+      'aiFitRelaxedDesc': 'Bol siluetli ve modern dökümlü',
       'walHeader': 'Cüzdan, Planlar ve Ödemeler',
       'walActivePlan': 'Aktif Planınız',
       'walActive': 'Aktif',
@@ -1850,6 +2826,17 @@ class AppStrings {
       'refJoinedTitle': 'Ağınıza Son Katılanlar',
       'refRuleInfo': 'Her arkadaş davetinizde size 100 jeton, arkadaşınıza 50 hediye jeton verilir.',
       'refMembersUnit': 'kişi',
+      'refShare': 'Paylaş',
+      'refSharedToast': 'Davet bağlantısı panoya kopyalandı!',
+      'refEmptyFriends': 'Henüz davet kodunuzla katılan bir arkadaşınız yok',
+      'refTierStarter': 'Başlangıç',
+      'refTierSilver': 'Gümüş',
+      'refTierGold': 'Altın',
+      'refTierAmbassador': 'Elçi',
+      'authReferralCodeLabel': 'Davet Kodu (İsteğe bağlı)',
+      'authReferralCodeHint': '8 haneli davet kodu',
+      'authReferralSelfError': 'Kendi davet kodunuzu kullanamazsınız',
+      'authReferralInvalidError': 'Girilen davet kodu geçersiz',
       'perHeader': 'Yapay Zeka Asistanı Kişiliği',
       'perSub': 'Asistan karakterini, konuşma üslubunu ve stil eleştiri sertliğini ayarlayın.',
       'perSelectTitle': 'Asistan Karakterini Seçin',
@@ -1879,6 +2866,26 @@ class AppStrings {
       'setLangLabel': 'Uygulama Dili (Language)',
       'setShowSupport': 'Yüzen Destek Butonunu Göster',
       'setShowHeaderCoins': 'Üst Kısımda Jeton Bakiyesini Göster',
+      'setShowEmailInHeader': 'Başlıkta E-postayı Göster',
+      'rankBronze': 'Bronz',
+      'rankSilver': 'Gümüş',
+      'rankGold': 'Altın',
+      'rankDiamond': 'Elmas',
+      'loyaltyTitle': 'Sadakat Seviyesi ve StylePoints',
+      'pts': 'puan',
+      'pointsToNextRank': 'Sonraki seviyeye {pts} puan',
+      'maxRankReached': 'Maksimum seviyeye ulaşıldı',
+      'howToEarnPoints': 'StylePoints Nasıl Kazanılır',
+      'earnProfileRule': 'Profil tamamlama: ilerlemeye göre 300 puana kadar',
+      'earnEmailRule': 'Doğrulanmış e-posta: bir kerelik +100 puan',
+      'earnReferralRule': 'Arkadaş davetleri: davet edilen her arkadaş için +150 puan',
+      'earnAiRule': 'Yapay zeka servisleri (Deneme ve Stilist): seans başına +10 puan',
+      'earnWalletRule': 'Cüzdan aktivitesi: kazanılan/harcanan her 10 jeton için +1 puan',
+      'loyaltyPerksTitle': 'Sadakat Seviyesi Avantajları',
+      'perkBronze': 'Tüm temel özelliklere standart erişim',
+      'perkSilver': '%50 reklam azaltma + öncelikli yapay zeka sırası',
+      'perkGold': 'Sıfır banner reklamı + premium yapay zekada %10 jeton indirimi',
+      'perkDiamond': '%100 reklamsız + yeni yapay zeka modellerine erken erişim ve periyodik jeton hediyeleri',
       'setBackupLabel': 'Otomatik Veri Yedekleme',
       'setBackupWeekly': 'Haftalık (Önerilen)',
       'setBackupMonthly': 'Aylık',
@@ -2160,9 +3167,26 @@ class AppStrings {
       'authEmailNotVerifiedYet': 'E-posta henüz doğrulanmadı. Lütfen gelen kutunuzu veya spam klasörünüzü kontrol edin.',
       'authVerificationEmailSent': 'Doğrulama e-postası başarıyla gönderildi.',
       'authBackOrSignOut': 'Geri / Çıkış Yap',
+      'emailVerificationBannerTitle': 'Tam Erişim için E-postanızı Doğrulayın',
+      'emailVerificationBannerDesc': 'E-postanız henüz doğrulanmadı. Yapay zeka, akıllı gardırop ve finansal özellikleri etkinleştirmek için lütfen e-postanızı doğrulayın.',
+      'emailVerificationSoftGateTitle': 'E-posta Doğrulaması Gerekli',
+      'emailVerificationSoftGateDesc': 'Bu özelliği (yapay zeka işlemleri ve finansal işlemler) kullanmak için lütfen önce e-posta adresinizi doğrulayın.',
+      'emailVerificationGoToProfile': 'Profile ve Kimliğe Git',
+      'emailVerificationSuccessToast': 'E-postanız başarıyla doğrulandı.',
+      'idUnverified': 'Doğrulanmadı',
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'Güvenlik Doğrulaması',
       'authTurnstileRequired': 'Lütfen Cloudflare güvenlik doğrulamasını tamamlayın.',
+      'authTurnstileChecking': 'Güvenlik kontrolü yapılıyor...',
+      'authFallbackSecurityTitle': 'Güvenlik Doğrulaması',
+      'authFallbackMathQuestion': '{a} + {b} = ?',
+      'authFallbackVerified': 'Doğrulandı',
+      'authFallbackAnswerHint': 'Cevap',
+      'authLockoutCooldown': 'Çok fazla başarısız deneme. Lütfen {s} sn bekleyin.',
+      'authLockoutBtn': 'Kilitlendi ({s} sn)',
+      'authRememberMe': 'Beni hatırla',
+      'authSessionExpired': 'Oturumunuz 5 günlük hareketsizlik nedeniyle sona erdi. Lütfen tekrar giriş yapın.',
+      'authSessionTerminatedConcurrent': 'Oturumunuz maksimum 5 eşzamanlı cihaza ulaşıldığı için sonlandırıldı.',
       // Biometric Lock
       'setBiometricTitle': 'Biyometrik Kilit (Parmak İzi / Face ID)',
       'setBiometricDesc': 'Uygulamayı açarken parmak izi veya Face ID doğrulaması iste.',
@@ -2206,11 +3230,94 @@ class AppStrings {
       'sessErrLoad': 'Oturumlar yüklenemedi',
       'dialogCancel': 'İptal',
       'dialogConfirm': 'Onayla',
+      // About & Updates Sub-Tab
+      'tAbout': 'Hakkında',
+      'aboutHeader': 'StyleMorph Hakkında',
+      'aboutTagline': 'Kişisel Yapay Zeka Stilisti ve Sanal Deneme Stüdyosu',
+      'aboutMission': 'StyleMorph; moda, teknoloji ve zarafetin kesiştiği yenilikçi bir platformdur. Gelişmiş üretken yapay zeka ile hiper-gerçekçi sanal deneme, akıllı gardırop yönetimi ve kişiye özel stil önerilerini en yüksek gizlilik standartlarıyla sunuyoruz.',
+      'aboutVersionLabel': 'Uygulama Sürümü',
+      'aboutBuildLabel': 'Yapım No',
+      'aboutReleaseDateLabel': 'Yayın Tarihi',
+      'aboutReleaseDateVal': 'Kasım 2026',
+      'aboutEnvironmentLabel': 'Ortam',
+      'aboutEnvironmentVal': 'Kararlı (Üretim)',
+      'aboutCheckUpdatesBtn': 'Güncellemeleri Denetle',
+      'aboutChecking': 'Güncellemeler kontrol ediliyor...',
+      'aboutUpToDate': 'StyleMorph\'un en son kararlı sürümünü kullanıyorsunuz.',
+      'aboutUpdateAvailable': 'Yeni güncelleme ({version}) mevcut!',
+      'aboutUpdateActionWeb': 'Güncellemeyi Yükle ve Yenile',
+      'aboutUpdateActionMobile': 'Güncellemeyi İndir',
+      'aboutWhatsNewTitle': 'Sürüm 1.0 Yenilikleri',
+      'aboutChangelog1Title': 'Sanal Deneme Kabini ve Atölye Stüdyosu',
+      'aboutChangelog1Desc': 'Fotoğrafınız üzerinde kumaş dokusu ve ışık simülasyonu ile hiper-gerçekçi kıyafet denemesi',
+      'aboutChangelog2Title': 'Akıllı Gardırop ve Otomatik Etiketleme',
+      'aboutChangelog2Desc': 'Otomatik arka plan temizleme, renk/doku tespiti ve akıllı kıyafet kombinleme',
+      'aboutChangelog3Title': 'Yüksek Performanslı Yapay Zeka Ağ Geçidi',
+      'aboutChangelog3Desc': 'Çoklu hesap yük dengeleme, anında başlatma ve kesintisiz yapay zeka hattı',
+      'aboutChangelog4Title': 'Davet Ödülleri ve Sadakat Kademeleri',
+      'aboutChangelog4Desc': 'Şeffaf StylePoints formülü, karşılıklı hediye paralar ve 4 aşamalı sadakat kademesi',
+      'aboutChangelog5Title': 'Veri Gizliliği ve Çift Kişilikli Güvenli Avatar',
+      'aboutChangelog5Desc': 'Uçtan uca şifreleme, SHA-256 önbellekleme ve gerçek fotoğraf yerine gizlilik avatarı seçeneği',
+      'aboutLegalSectionTitle': 'Yasal ve Gizlilik',
+      'aboutTermsTitle': 'Kullanım Koşulları',
+      'aboutPrivacyTitle': 'Gizlilik Politikası ve Yapay Zeka Görsel Veri Koruması',
+      'aboutLicensesTitle': 'Açık Kaynak Lisansları',
+      'aboutContactSectionTitle': 'İletişim ve Sosyal Kanallar',
+      'aboutWebsiteLabel': 'Resmi Web Sitesi',
+      'aboutEmailLabel': 'Destek E-postası',
+      'aboutInstagramLabel': 'Instagram',
+      'aboutTelegramLabel': 'Telegram',
+      'aboutCopyrightNotice': '© 2026 StyleMorph. Tüm hakları saklıdır.',
+      'aboutLinkCopied': 'Panoya kopyalandı',
+      'aboutClose': 'Kapat',
     },
   };
 
+  /// In-memory cache for dynamic database translation overrides
+  /// (e.g. from Firestore `app_config/translations` or remote CMS).
+  static final Map<String, Map<String, String>> _dynamicOverrides = {};
+
+  /// Updates or injects dynamic translations fetched from the database / remote config.
+  static void setDynamicOverrides(String langCode, Map<String, String> overrides) {
+    final normalized = _normalizedLang(langCode);
+    _dynamicOverrides[normalized] = {
+      ...?_dynamicOverrides[normalized],
+      ...overrides,
+    };
+  }
+
+  /// Clears dynamic translation overrides (useful for testing or cache refresh).
+  static void clearDynamicOverrides([String? langCode]) {
+    if (langCode != null) {
+      _dynamicOverrides.remove(_normalizedLang(langCode));
+    } else {
+      _dynamicOverrides.clear();
+    }
+  }
+
   String get(String key) {
-    return _values[localeCode]?[key] ?? _values['en']?[key] ?? key;
+    final lang = _normalizedLang(localeCode);
+    final overrideVal = _dynamicOverrides[lang]?[key] ??
+        _dynamicOverrides['en']?[key];
+    if (overrideVal != null && overrideVal.isNotEmpty) {
+      return overrideVal;
+    }
+    return _values[lang]?[key] ?? _values['en']?[key] ?? key;
+  }
+
+  /// Safely resolves dynamic database-driven keys or fallback value,
+  /// allowing zero UI changes when new language columns/keys are added.
+  String resolveKey(String key, {String? fallback}) {
+    final lang = _normalizedLang(localeCode);
+    final overrideVal = _dynamicOverrides[lang]?[key] ??
+        _dynamicOverrides['en']?[key];
+    if (overrideVal != null && overrideVal.isNotEmpty) {
+      return overrideVal;
+    }
+    return _values[lang]?[key] ??
+        _values['en']?[key] ??
+        fallback ??
+        key;
   }
 
   // Dynamic formatted helpers
@@ -2343,6 +3450,7 @@ class AppStrings {
   String get saveChanges => get('saveChanges');
   String get noChangesYet => get('noChangesYet');
   String get profileSavedToast => get('profileSavedToast');
+  String get profileSaveErrorToast => get('profileSaveErrorToast');
   String get notificationsTitle => get('notificationsTitle');
   String get markAllRead => get('markAllRead');
   String get noNotifications => get('noNotifications');
@@ -2350,23 +3458,99 @@ class AppStrings {
   String get notifCatShop => get('notifCatShop');
   String get notifCatFinance => get('notifCatFinance');
   String get newWord => get('newWord');
+  String get newUser => get('newUser');
 
   // Identity
   String get idHeader => get('idHeader');
   String get idFirstName => get('idFirstName');
+  String get idFirstNamePlaceholder => get('idFirstNamePlaceholder');
   String get idLastName => get('idLastName');
+  String get idLastNamePlaceholder => get('idLastNamePlaceholder');
   String get idNick => get('idNick');
+  String get idNickPlaceholder => get('idNickPlaceholder');
   String get idNationalId => get('idNationalId');
+  String get idNationalIdPlaceholder => get('idNationalIdPlaceholder');
+  String get idDob => get('idDob');
+  String get idDobPlaceholder => get('idDobPlaceholder');
+  String get idDobAgeRequirement => get('idDobAgeRequirement');
   String get idMobile => get('idMobile');
+  String get idMobilePlaceholder => get('idMobilePlaceholder');
+  String get idVerifyMobile => get('idVerifyMobile');
+  String get commonComingSoon => get('commonComingSoon');
+  String get commonGotIt => get('commonGotIt');
+  String get idVerifyEmail => get('idVerifyEmail');
+  String get idCheckEmailStatus => get('idCheckEmailStatus');
+  String get idChangeEmail => get('idChangeEmail');
+  String get idSocialEmailNote => get('idSocialEmailNote');
+  String get idChangeEmailTitle => get('idChangeEmailTitle');
+  String get idChangeEmailReauthSubtitle => get('idChangeEmailReauthSubtitle');
+  String get idCurrentPasswordLabel => get('idCurrentPasswordLabel');
+  String get idVerifyAndContinue => get('idVerifyAndContinue');
+  String get idNewEmailLabel => get('idNewEmailLabel');
+  String get idChangeEmailNotice => get('idChangeEmailNotice');
+  String get idSendVerificationToNewEmail => get('idSendVerificationToNewEmail');
+  String get idChangeEmailSuccessTitle => get('idChangeEmailSuccessTitle');
+  String idChangeEmailSuccessDesc(String email) =>
+      get('idChangeEmailSuccessDesc').replaceAll('{email}', email);
+  String get idLostAccessEmailSupport => get('idLostAccessEmailSupport');
+  String get idChangeEmailSameError => get('idChangeEmailSameError');
+  String get idChangeEmailInvalidError => get('idChangeEmailInvalidError');
   String get idVerified => get('idVerified');
   String get idEmail => get('idEmail');
+  String get idEmailPlaceholder => get('idEmailPlaceholder');
   String get idSendCode => get('idSendCode');
   String get idCodeSentToast => get('idCodeSentToast');
   String get idCountry => get('idCountry');
+  String get idCountryPlaceholder => get('idCountryPlaceholder');
   String get idProvince => get('idProvince');
+  String get idProvincePlaceholder => get('idProvincePlaceholder');
   String get idCity => get('idCity');
+  String get idCityPlaceholder => get('idCityPlaceholder');
   String get idAddress => get('idAddress');
+  String get idAddressPlaceholder => get('idAddressPlaceholder');
   String get idZip => get('idZip');
+  String get idZipPlaceholder => get('idZipPlaceholder');
+  String get idSelectCountry => get('idSelectCountry');
+  String get idSelectProvince => get('idSelectProvince');
+  String get idSelectCity => get('idSelectCity');
+  String get idSelectDialCode => get('idSelectDialCode');
+  String get idSearchPlaceholder => get('idSearchPlaceholder');
+  String get idUseCustomCity => get('idUseCustomCity');
+  String get idErrInvalidNidIran => get('idErrInvalidNidIran');
+  String get idErrInvalidNidTurkey => get('idErrInvalidNidTurkey');
+  String get idErrInvalidNidInternational => get('idErrInvalidNidInternational');
+  String get idErrInvalidZipIran => get('idErrInvalidZipIran');
+  String get idErrInvalidZipTurkey => get('idErrInvalidZipTurkey');
+  String get idErrInvalidZipInternational => get('idErrInvalidZipInternational');
+  String get idErrInvalidMobile => get('idErrInvalidMobile');
+
+  // KYC
+  String get kycSectionTitle => get('kycSectionTitle');
+  String get kycSectionSubtitle => get('kycSectionSubtitle');
+  String get kycStatusNotSubmitted => get('kycStatusNotSubmitted');
+  String get kycStatusPending => get('kycStatusPending');
+  String get kycStatusVerified => get('kycStatusVerified');
+  String get kycStatusRejected => get('kycStatusRejected');
+  String get kycVerifiedBadge => get('kycVerifiedBadge');
+  String get kycDocNationalId => get('kycDocNationalId');
+  String get kycDocPassport => get('kycDocPassport');
+  String get kycDocDriversLicense => get('kycDocDriversLicense');
+  String get kycSelectDocType => get('kycSelectDocType');
+  String get kycUploadFront => get('kycUploadFront');
+  String get kycUploadBack => get('kycUploadBack');
+  String get kycTakeCamera => get('kycTakeCamera');
+  String get kycChooseGallery => get('kycChooseGallery');
+  String get kycSubmit => get('kycSubmit');
+  String get kycSubmitting => get('kycSubmitting');
+  String get kycPreview => get('kycPreview');
+  String get kycEdit => get('kycEdit');
+  String get kycDelete => get('kycDelete');
+  String get kycDeleteConfirmTitle => get('kycDeleteConfirmTitle');
+  String get kycDeleteConfirmDesc => get('kycDeleteConfirmDesc');
+  String get kycDeleteSuccess => get('kycDeleteSuccess');
+  String get kycSubmitSuccess => get('kycSubmitSuccess');
+  String get kycRejectionReasonLabel => get('kycRejectionReasonLabel');
+  String get kycFrontRequired => get('kycFrontRequired');
 
   // Gallery
   String get galHeader => get('galHeader');
@@ -2383,6 +3567,29 @@ class AppStrings {
   String get galRecorded => get('galRecorded');
   String get galUploadSlot3 => get('galUploadSlot3');
   String get galTip => get('galTip');
+  String get galPersonaModeTitle => get('galPersonaModeTitle');
+  String get galModePrivacy => get('galModePrivacy');
+  String get galModePrivacyDesc => get('galModePrivacyDesc');
+  String get galModeFullBody => get('galModeFullBody');
+  String get galModeFullBodyDesc => get('galModeFullBodyDesc');
+  String get galSlotFrontFace => get('galSlotFrontFace');
+  String get galSlotSideFace => get('galSlotSideFace');
+  String get galSlotBodyFront => get('galSlotBodyFront');
+  String get galSlotBodySide => get('galSlotBodySide');
+  String get galSlotBodyBack => get('galSlotBodyBack');
+  String get galSlotHandSkin => get('galSlotHandSkin');
+  String get galSlotScan360 => get('galSlotScan360');
+  String get galRequired => get('galRequired');
+  String get galOptional => get('galOptional');
+  String get galProSlot => get('galProSlot');
+  String get galAwaitingUpload => get('galAwaitingUpload');
+  String get galClickToScan => get('galClickToScan');
+  String get galTakeCameraWithGuide => get('galTakeCameraWithGuide');
+  String get galUploadFromGallery => get('galUploadFromGallery');
+  String get galAlignmentGuideTitle => get('galAlignmentGuideTitle');
+  String get galReadyToCapture => get('galReadyToCapture');
+  String get galDeleteConfirmTitle => get('galDeleteConfirmTitle');
+  String get galDeleteConfirmDesc => get('galDeleteConfirmDesc');
 
   // AI DNA
   String get aiHeader => get('aiHeader');
@@ -2403,6 +3610,95 @@ class AppStrings {
   String get aiWaist => get('aiWaist');
   String get aiBelly => get('aiBelly');
   String get aiHips => get('aiHips');
+
+  // AI Anatomy Layers
+  String get aiSectionBiometrics => get('aiSectionBiometrics');
+  String get aiGenderNonBinary => get('aiGenderNonBinary');
+  String get aiBmiLabel => get('aiBmiLabel');
+  String get aiBmiUnderweight => get('aiBmiUnderweight');
+  String get aiBmiNormal => get('aiBmiNormal');
+  String get aiBmiOverweight => get('aiBmiOverweight');
+  String get aiBmiObese => get('aiBmiObese');
+  String get aiBodySilhouette => get('aiBodySilhouette');
+  String get aiSilHourglass => get('aiSilHourglass');
+  String get aiSilPear => get('aiSilPear');
+  String get aiSilApple => get('aiSilApple');
+  String get aiSilRectangle => get('aiSilRectangle');
+  String get aiSilInvertedTriangle => get('aiSilInvertedTriangle');
+  String get aiSilTrapezoid => get('aiSilTrapezoid');
+  String get aiSilOval => get('aiSilOval');
+
+  String get aiSectionColorimetry => get('aiSectionColorimetry');
+  String get aiFitzpatrickLabel => get('aiFitzpatrickLabel');
+  String get aiFitz1 => get('aiFitz1');
+  String get aiFitz2 => get('aiFitz2');
+  String get aiFitz3 => get('aiFitz3');
+  String get aiFitz4 => get('aiFitz4');
+  String get aiFitz5 => get('aiFitz5');
+  String get aiFitz6 => get('aiFitz6');
+  String get aiUndertone => get('aiUndertone');
+  String get aiToneWarm => get('aiToneWarm');
+  String get aiToneCool => get('aiToneCool');
+  String get aiToneNeutral => get('aiToneNeutral');
+
+  String get aiEyeColor => get('aiEyeColor');
+  String get aiEyeBrown => get('aiEyeBrown');
+  String get aiEyeHazel => get('aiEyeHazel');
+  String get aiEyeGreen => get('aiEyeGreen');
+  String get aiEyeBlue => get('aiEyeBlue');
+  String get aiEyeGray => get('aiEyeGray');
+  String get aiEyeBlack => get('aiEyeBlack');
+
+  String get aiHairProfile => get('aiHairProfile');
+  String get aiHairColor => get('aiHairColor');
+  String get aiHairLength => get('aiHairLength');
+  String get aiHairBlack => get('aiHairBlack');
+  String get aiHairDarkBrown => get('aiHairDarkBrown');
+  String get aiHairLightBrown => get('aiHairLightBrown');
+  String get aiHairBlonde => get('aiHairBlonde');
+  String get aiHairAuburn => get('aiHairAuburn');
+  String get aiHairGray => get('aiHairGray');
+  String get aiHairDyed => get('aiHairDyed');
+  String get aiHairShort => get('aiHairShort');
+  String get aiHairMedium => get('aiHairMedium');
+  String get aiHairLong => get('aiHairLong');
+  String get aiHairBald => get('aiHairBald');
+  String get aiHairCurly => get('aiHairCurly');
+  String get aiHairWavy => get('aiHairWavy');
+  String get aiHairStraight => get('aiHairStraight');
+
+  String get aiFaceOval => get('aiFaceOval');
+  String get aiFaceRound => get('aiFaceRound');
+  String get aiFaceSquare => get('aiFaceSquare');
+  String get aiFaceHeart => get('aiFaceHeart');
+  String get aiFaceOblong => get('aiFaceOblong');
+
+  String get aiAnthropometricHeader => get('aiAnthropometricHeader');
+  String get aiAnthropometricSub => get('aiAnthropometricSub');
+  String get aiShoulderHint => get('aiShoulderHint');
+  String get aiChestHint => get('aiChestHint');
+  String get aiBraSize => get('aiBraSize');
+  String get aiBraBand => get('aiBraBand');
+  String get aiBraCup => get('aiBraCup');
+  String get aiWaistHint => get('aiWaistHint');
+  String get aiBellyHint => get('aiBellyHint');
+  String get aiHipsHint => get('aiHipsHint');
+  String get aiSleeve => get('aiSleeve');
+  String get aiSleeveHint => get('aiSleeveHint');
+  String get aiInseam => get('aiInseam');
+  String get aiInseamHint => get('aiInseamHint');
+  String get aiNeck => get('aiNeck');
+  String get aiNeckHint => get('aiNeckHint');
+  String get aiShoeSize => get('aiShoeSize');
+  String get aiShoeSizeHint => get('aiShoeSizeHint');
+
+  String get aiFitPrefHeader => get('aiFitPrefHeader');
+  String get aiFitSlim => get('aiFitSlim');
+  String get aiFitSlimDesc => get('aiFitSlimDesc');
+  String get aiFitRegular => get('aiFitRegular');
+  String get aiFitRegularDesc => get('aiFitRegularDesc');
+  String get aiFitRelaxed => get('aiFitRelaxed');
+  String get aiFitRelaxedDesc => get('aiFitRelaxedDesc');
 
   // Wallet
   String get walHeader => get('walHeader');
@@ -2431,6 +3727,31 @@ class AppStrings {
   String get refJoinedTitle => get('refJoinedTitle');
   String get refRuleInfo => get('refRuleInfo');
   String get refMembersUnit => get('refMembersUnit');
+  String get refShare => get('refShare');
+  String get refSharedToast => get('refSharedToast');
+  String get refEmptyFriends => get('refEmptyFriends');
+  String get refTierStarter => get('refTierStarter');
+  String get refTierSilver => get('refTierSilver');
+  String get refTierGold => get('refTierGold');
+  String get refTierAmbassador => get('refTierAmbassador');
+  String get authReferralCodeLabel => get('authReferralCodeLabel');
+  String get authReferralCodeHint => get('authReferralCodeHint');
+  String get authReferralSelfError => get('authReferralSelfError');
+  String get authReferralInvalidError => get('authReferralInvalidError');
+
+  String getTierLabel(String tier) {
+    switch (tier.toLowerCase()) {
+      case 'silver':
+        return refTierSilver;
+      case 'gold':
+        return refTierGold;
+      case 'ambassador':
+        return refTierAmbassador;
+      case 'starter':
+      default:
+        return refTierStarter;
+    }
+  }
 
   // Persona
   String get perHeader => get('perHeader');
@@ -2464,6 +3785,27 @@ class AppStrings {
   String get setLangLabel => get('setLangLabel');
   String get setShowSupport => get('setShowSupport');
   String get setShowHeaderCoins => get('setShowHeaderCoins');
+  String get setShowEmailInHeader => get('setShowEmailInHeader');
+  String get rankBronze => get('rankBronze');
+  String get rankSilver => get('rankSilver');
+  String get rankGold => get('rankGold');
+  String get rankDiamond => get('rankDiamond');
+  String get loyaltyTitle => get('loyaltyTitle');
+  String get pts => get('pts');
+  String pointsToNextRank(String count) =>
+      get('pointsToNextRank').replaceAll('{pts}', count);
+  String get maxRankReached => get('maxRankReached');
+  String get howToEarnPoints => get('howToEarnPoints');
+  String get earnProfileRule => get('earnProfileRule');
+  String get earnEmailRule => get('earnEmailRule');
+  String get earnReferralRule => get('earnReferralRule');
+  String get earnAiRule => get('earnAiRule');
+  String get earnWalletRule => get('earnWalletRule');
+  String get loyaltyPerksTitle => get('loyaltyPerksTitle');
+  String get perkBronze => get('perkBronze');
+  String get perkSilver => get('perkSilver');
+  String get perkGold => get('perkGold');
+  String get perkDiamond => get('perkDiamond');
   String get setBackupLabel => get('setBackupLabel');
   String get setBackupWeekly => get('setBackupWeekly');
   String get setBackupMonthly => get('setBackupMonthly');
@@ -2775,10 +4117,48 @@ class AppStrings {
   String get authEmailNotVerifiedYet => get('authEmailNotVerifiedYet');
   String get authVerificationEmailSent => get('authVerificationEmailSent');
   String get authBackOrSignOut => get('authBackOrSignOut');
+  String get emailVerificationBannerTitle => get('emailVerificationBannerTitle');
+  String get emailVerificationBannerDesc => get('emailVerificationBannerDesc');
+  String get emailVerificationSoftGateTitle => get('emailVerificationSoftGateTitle');
+  String get emailVerificationSoftGateDesc => get('emailVerificationSoftGateDesc');
+  String get emailVerificationGoToProfile => get('emailVerificationGoToProfile');
+  String get emailVerificationSuccessToast => get('emailVerificationSuccessToast');
+  String get idUnverified => get('idUnverified');
 
   // Turnstile getters
   String get authTurnstilePrompt => get('authTurnstilePrompt');
   String get authTurnstileRequired => get('authTurnstileRequired');
+  String get authTurnstileChecking => get('authTurnstileChecking');
+  String get authFallbackSecurityTitle => get('authFallbackSecurityTitle');
+  String get authFallbackVerified => get('authFallbackVerified');
+  String get authFallbackAnswerHint => get('authFallbackAnswerHint');
+  String authFallbackMathQuestion(int a, int b) {
+    final lang = _normalizedLang(localeCode);
+    final aStr =
+        (lang == 'fa' || lang == 'ar') ? formatNumber(a) : a.toString();
+    final bStr =
+        (lang == 'fa' || lang == 'ar') ? formatNumber(b) : b.toString();
+    return get('authFallbackMathQuestion')
+        .replaceAll('{a}', aStr)
+        .replaceAll('{b}', bStr);
+  }
+  String get authRememberMe => get('authRememberMe');
+  String get authSessionExpired => get('authSessionExpired');
+  String get authSessionTerminatedConcurrent => get('authSessionTerminatedConcurrent');
+  String authLockoutCooldown(int seconds) {
+    final lang = _normalizedLang(localeCode);
+    final secStr = (lang == 'fa' || lang == 'ar')
+        ? formatNumber(seconds)
+        : seconds.toString();
+    return get('authLockoutCooldown').replaceAll('{s}', secStr);
+  }
+  String authLockoutBtn(int seconds) {
+    final lang = _normalizedLang(localeCode);
+    final secStr = (lang == 'fa' || lang == 'ar')
+        ? formatNumber(seconds)
+        : seconds.toString();
+    return get('authLockoutBtn').replaceAll('{s}', secStr);
+  }
 
   // Biometric lock getters
   String get setBiometricTitle => get('setBiometricTitle');
@@ -2820,6 +4200,47 @@ class AppStrings {
   String get sessErrLoad => get('sessErrLoad');
   String get dialogCancel => get('dialogCancel');
   String get dialogConfirm => get('dialogConfirm');
+
+  // About & Updates sub-tab getters
+  String get tAbout => get('tAbout');
+  String get aboutHeader => get('aboutHeader');
+  String get aboutTagline => get('aboutTagline');
+  String get aboutMission => get('aboutMission');
+  String get aboutVersionLabel => get('aboutVersionLabel');
+  String get aboutBuildLabel => get('aboutBuildLabel');
+  String get aboutReleaseDateLabel => get('aboutReleaseDateLabel');
+  String get aboutReleaseDateVal => get('aboutReleaseDateVal');
+  String get aboutEnvironmentLabel => get('aboutEnvironmentLabel');
+  String get aboutEnvironmentVal => get('aboutEnvironmentVal');
+  String get aboutCheckUpdatesBtn => get('aboutCheckUpdatesBtn');
+  String get aboutChecking => get('aboutChecking');
+  String get aboutUpToDate => get('aboutUpToDate');
+  String get aboutUpdateAvailable => get('aboutUpdateAvailable');
+  String get aboutUpdateActionWeb => get('aboutUpdateActionWeb');
+  String get aboutUpdateActionMobile => get('aboutUpdateActionMobile');
+  String get aboutWhatsNewTitle => get('aboutWhatsNewTitle');
+  String get aboutChangelog1Title => get('aboutChangelog1Title');
+  String get aboutChangelog1Desc => get('aboutChangelog1Desc');
+  String get aboutChangelog2Title => get('aboutChangelog2Title');
+  String get aboutChangelog2Desc => get('aboutChangelog2Desc');
+  String get aboutChangelog3Title => get('aboutChangelog3Title');
+  String get aboutChangelog3Desc => get('aboutChangelog3Desc');
+  String get aboutChangelog4Title => get('aboutChangelog4Title');
+  String get aboutChangelog4Desc => get('aboutChangelog4Desc');
+  String get aboutChangelog5Title => get('aboutChangelog5Title');
+  String get aboutChangelog5Desc => get('aboutChangelog5Desc');
+  String get aboutLegalSectionTitle => get('aboutLegalSectionTitle');
+  String get aboutTermsTitle => get('aboutTermsTitle');
+  String get aboutPrivacyTitle => get('aboutPrivacyTitle');
+  String get aboutLicensesTitle => get('aboutLicensesTitle');
+  String get aboutContactSectionTitle => get('aboutContactSectionTitle');
+  String get aboutWebsiteLabel => get('aboutWebsiteLabel');
+  String get aboutEmailLabel => get('aboutEmailLabel');
+  String get aboutInstagramLabel => get('aboutInstagramLabel');
+  String get aboutTelegramLabel => get('aboutTelegramLabel');
+  String get aboutCopyrightNotice => get('aboutCopyrightNotice');
+  String get aboutLinkCopied => get('aboutLinkCopied');
+  String get aboutClose => get('aboutClose');
 
   String formatRelativeTime(DateTime dt) {
     final now = DateTime.now();

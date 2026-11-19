@@ -3,8 +3,9 @@ import 'dart:js_interop';
 import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
+import 'turnstile_skeleton.dart';
 
-const String kTurnstileSiteKey = '1x00000000000000000000AA';
+const String kTurnstileSiteKey = '0x4AAAAAAGILAS7YQZalDE3k';
 
 @JS('setTurnstileHandler')
 external void _setTurnstileHandler(
@@ -12,6 +13,7 @@ external void _setTurnstileHandler(
   JSFunction onVerified,
   JSFunction onExpired,
   JSFunction onError,
+  JSFunction onLoaded,
 );
 
 @JS('removeTurnstileHandler')
@@ -65,6 +67,7 @@ class _TurnstileWidgetState extends State<TurnstileWidget> {
   late final String _containerId;
   String? _widgetId;
   Timer? _renderTimer;
+  bool _isInteractive = false;
 
   @override
   void initState() {
@@ -113,11 +116,9 @@ class _TurnstileWidgetState extends State<TurnstileWidget> {
   }
 
   void reset() {
-    if (_widgetId != null) {
-      try {
-        _jsResetTurnstile(_widgetId);
-      } catch (_) {}
-    }
+    try {
+      _jsResetTurnstile(_widgetId);
+    } catch (_) {}
   }
 
   void _registerCallbacks() {
@@ -139,12 +140,21 @@ class _TurnstileWidgetState extends State<TurnstileWidget> {
       }
     }
 
+    void onLoadedDart() {
+      if (mounted && !_isInteractive) {
+        setState(() {
+          _isInteractive = true;
+        });
+      }
+    }
+
     try {
       _setTurnstileHandler(
         _uniqueId,
         onVerifiedDart.toJS,
         onExpiredDart.toJS,
         onErrorDart.toJS,
+        onLoadedDart.toJS,
       );
     } catch (e) {
       debugPrint('[TurnstileWeb] _setTurnstileHandler error: $e');
@@ -177,6 +187,9 @@ class _TurnstileWidgetState extends State<TurnstileWidget> {
       _renderTimer = Timer(const Duration(milliseconds: 250), () {
         _scheduleRender(attempt + 1);
       });
+    } else {
+      debugPrint('[TurnstileWeb] Turnstile load timeout. Calling onError.');
+      widget.onError?.call();
     }
   }
 
@@ -185,7 +198,24 @@ class _TurnstileWidgetState extends State<TurnstileWidget> {
     return SizedBox(
       width: 300,
       height: 65,
-      child: HtmlElementView(viewType: _viewId),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // 1. Cloudflare Turnstile platform view iframe (renders underneath)
+          HtmlElementView(viewType: _viewId),
+
+          // 2. Smooth Shimmer/Pulse Skeleton (Cross-fades out when interactive)
+          IgnorePointer(
+            ignoring: _isInteractive,
+            child: AnimatedOpacity(
+              opacity: _isInteractive ? 0.0 : 1.0,
+              duration: const Duration(milliseconds: 350),
+              curve: Curves.easeInOut,
+              child: const TurnstileSkeleton(width: 300, height: 65),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

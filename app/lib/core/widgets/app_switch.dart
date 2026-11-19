@@ -79,6 +79,7 @@ class AppCheckboxTile extends StatelessWidget {
   final bool value;
   final ValueChanged<bool> onChanged;
   final EdgeInsetsDirectional? padding;
+  final TextStyle? labelStyle;
 
   const AppCheckboxTile({
     super.key,
@@ -86,6 +87,7 @@ class AppCheckboxTile extends StatelessWidget {
     required this.value,
     required this.onChanged,
     this.padding,
+    this.labelStyle,
   });
 
   @override
@@ -110,12 +112,13 @@ class AppCheckboxTile extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: TextStyle(
-                  fontFamily: AppTypography.fontFamily,
-                  fontSize: 11,
-                  color: colors.mu,
-                  height: 1.4,
-                ),
+                style: labelStyle ??
+                    TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 11,
+                      color: colors.mu,
+                      height: 1.4,
+                    ),
               ),
             ),
           ],

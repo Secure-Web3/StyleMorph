@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_switch.dart';
+import '../../../../core/widgets/email_verification_gate.dart';
 import '../../domain/stylist_models.dart';
 import '../stylist_provider.dart';
 
@@ -38,6 +39,7 @@ class _TryOnDialogState extends ConsumerState<TryOnDialog> {
   }
 
   Future<void> _executeTryOn() async {
+    if (!checkEmailVerificationGate(context, ref)) return;
     setState(() {
       _inProgress = true;
       _errorMessage = null;

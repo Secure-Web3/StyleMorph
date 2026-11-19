@@ -23,7 +23,7 @@ service firebase.storage {
       return isValidImage() || isValidVideo();
     }
 
-    // User-scoped media storage (Wardrobe, Avatar, Reference Photos, Atelier Outputs)
+    // User-scoped media storage (Wardrobe, Avatar, Reference Photos, Atelier Outputs, KYC Documents)
     match /users/{userId}/{allPaths=**} {
       allow read: if isOwner(userId);
       allow create, update: if isOwner(userId)

@@ -32,14 +32,17 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
   @override
   void initState() {
     super.initState();
+    _backupFrequency = ref.read(appStateProvider).preferences.autoDataBackup;
     _loadBiometricPref();
   }
 
   Future<void> _loadBiometricPref() async {
     final enabled =
         await ref.read(biometricServiceProvider).isBiometricLockEnabled();
+    final prefBiometric =
+        ref.read(appStateProvider).preferences.biometricLock;
     if (mounted) {
-      setState(() => _biometricLockEnabled = enabled);
+      setState(() => _biometricLockEnabled = enabled || prefBiometric);
     }
   }
 
@@ -55,11 +58,13 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
       );
       if (success && mounted) {
         await service.setBiometricLockEnabled(true);
+        ref.read(appStateProvider.notifier).setBiometricLock(true);
         ref.invalidate(biometricLockEnabledProvider);
         setState(() => _biometricLockEnabled = true);
       }
     } else {
       await service.setBiometricLockEnabled(false);
+      ref.read(appStateProvider.notifier).setBiometricLock(false);
       ref.invalidate(biometricLockEnabledProvider);
       setState(() => _biometricLockEnabled = false);
     }
@@ -113,7 +118,7 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
             onChanged: (palette) {
               if (palette != null) {
                 ref.read(themeProvider.notifier).setPalette(palette);
-                ref.read(appStateProvider.notifier).markProfileDirty();
+                ref.read(appStateProvider.notifier).setFashionThemePalette(palette.name);
               }
             },
           ),
@@ -140,7 +145,7 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
             onChanged: (mode) {
               if (mode != null) {
                 ref.read(themeProvider.notifier).setThemeMode(mode);
-                ref.read(appStateProvider.notifier).markProfileDirty();
+                ref.read(appStateProvider.notifier).setBrightnessMode(mode.name);
               }
             },
           ),
@@ -159,7 +164,7 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
             onChanged: (code) {
               if (code != null) {
                 ref.read(localeProvider.notifier).setLanguage(code);
-                ref.read(appStateProvider.notifier).markProfileDirty();
+                ref.read(appStateProvider.notifier).setAppLanguage(code);
               }
             },
           ),
@@ -192,6 +197,17 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                     ref
                         .read(appStateProvider.notifier)
                         .toggleHeaderCoins(val);
+                    ref.read(appStateProvider.notifier).markProfileDirty();
+                  },
+                ),
+                Divider(height: 1, color: colors.bd),
+                AppSwitchTile(
+                  label: strings.setShowEmailInHeader,
+                  value: appState.preferences.showEmailInHeader,
+                  onChanged: (val) {
+                    ref
+                        .read(appStateProvider.notifier)
+                        .toggleShowEmailInHeader(val);
                     ref.read(appStateProvider.notifier).markProfileDirty();
                   },
                 ),
@@ -247,11 +263,67 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
             onChanged: (val) {
               if (val != null) {
                 setState(() => _backupFrequency = val);
-                ref.read(appStateProvider.notifier).markProfileDirty();
+                ref.read(appStateProvider.notifier).setAutoDataBackup(val);
               }
             },
           ),
           const SizedBox(height: AppSpacing.lg),
+
+          // Save Changes Button (Persist to users/{uid}.preferences in Firestore)
+          AppButton(
+            variant: AppButtonVariant.primary,
+            isFullWidth: true,
+            icon: appState.isSavingProfile
+                ? null
+                : FaIcon(
+                    FontAwesomeIcons.floppyDisk,
+                    size: 14,
+                    color: colors.prt,
+                  ),
+            text: appState.isSavingProfile ? null : strings.saveChanges,
+            onPressed: appState.isSavingProfile
+                ? null
+                : () async {
+                    final success = await ref
+                        .read(appStateProvider.notifier)
+                        .saveProfileToFirestore();
+                    if (!context.mounted) return;
+                    if (success) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            strings.profileSavedToast,
+                            style: const TextStyle(fontFamily: 'Vazirmatn'),
+                          ),
+                          backgroundColor: colors.ok,
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            strings.profileSaveErrorToast,
+                            style: const TextStyle(fontFamily: 'Vazirmatn'),
+                          ),
+                          backgroundColor: colors.orColor,
+                          duration: const Duration(seconds: 3),
+                        ),
+                      );
+                    }
+                  },
+            child: appState.isSavingProfile
+                ? SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colors.prt,
+                    ),
+                  )
+                : null,
+          ),
+          const SizedBox(height: AppSpacing.sm),
 
           // Logout Button
           AppButton(

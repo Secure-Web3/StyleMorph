@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'session_storage.dart';
@@ -111,12 +112,28 @@ class SessionInfo {
 // ── Service ────────────────────────────────────────────────────────────────
 
 class SessionService {
-  final FirebaseFirestore _firestore;
-  final FirebaseAuth _auth;
+  final FirebaseFirestore? _customFirestore;
+  final FirebaseAuth? _customAuth;
+
+  FirebaseFirestore get _firestore =>
+      _customFirestore ?? FirebaseFirestore.instance;
+  FirebaseAuth get _auth => _customAuth ?? FirebaseAuth.instance;
+
+  static const Duration sessionInactivityExpiry = Duration(days: 5);
+  static const Duration lastActiveThrottle = Duration(minutes: 15);
+  static const int maxConcurrentSessions = 5;
+
+  DateTime? _lastActivityWriteTime;
+
+  @visibleForTesting
+  DateTime? get lastActivityWriteTime => _lastActivityWriteTime;
+
+  @visibleForTesting
+  set lastActivityWriteTime(DateTime? val) => _lastActivityWriteTime = val;
 
   SessionService({FirebaseFirestore? firestore, FirebaseAuth? auth})
-      : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+      : _customFirestore = firestore,
+        _customAuth = auth;
 
   // ── Persistent IDs ────────────────────────────────────────────────────────
 
@@ -278,6 +295,7 @@ class SessionService {
   // ── Upsert session in Firestore (with Legacy Primary Auto-Assignment) ─────
 
   Future<void> upsertSession() async {
+    if (Firebase.apps.isEmpty && _customFirestore == null) return;
     final user = _auth.currentUser;
     if (user == null) return;
 
@@ -360,8 +378,21 @@ class SessionService {
 
       final existing = await docRef.get();
       if (existing.exists) {
-        await docRef.update({
-          'lastActiveAt': now,
+        // Automatic 5-day inactivity expiration check upon open/login
+        final existingLastActive =
+            (existing.data()?['lastActiveAt'] as Timestamp?)?.toDate();
+        if (existingLastActive != null &&
+            DateTime.now().difference(existingLastActive) >=
+                sessionInactivityExpiry) {
+          debugPrint(
+            '[SessionService] Session $sessionId has expired (> 5 days inactivity). Deleting document and signing out.',
+          );
+          await docRef.delete();
+          await _auth.signOut();
+          return;
+        }
+
+        final Map<String, dynamic> updateData = {
           'isActive': !isDeviceBlocked,
           'isBlocked': isDeviceBlocked,
           'isPrimary': isThisSessionPrimary,
@@ -372,7 +403,19 @@ class SessionService {
           'platform': meta['platform'],
           'osVersion': meta['osVersion'],
           'userAgent': meta['userAgent'],
-        });
+        };
+
+        // Throttle lastActiveAt updates to at most once every 15 minutes
+        final shouldUpdateLastActive = _lastActivityWriteTime == null ||
+            now.toDate().difference(_lastActivityWriteTime!) >=
+                lastActiveThrottle;
+
+        if (shouldUpdateLastActive) {
+          updateData['lastActiveAt'] = now;
+          _lastActivityWriteTime = DateTime.now();
+        }
+
+        await docRef.update(updateData);
       } else {
         final session = SessionInfo(
           sessionId: sessionId,
@@ -390,7 +433,12 @@ class SessionService {
           lastActiveAt: DateTime.now(),
         );
         await docRef.set(session.toMap());
+        _lastActivityWriteTime = DateTime.now();
       }
+
+      // Enforce maximum of 5 concurrent active sessions upon login
+      await enforceMaxActiveSessions(user.uid, sessionId);
+
       debugPrint('[SessionService] Session upserted: $sessionId (primary: $isThisSessionPrimary)');
     } catch (e) {
       debugPrint('[SessionService] upsertSession error: $e');
@@ -602,6 +650,135 @@ class SessionService {
     } catch (_) {
       return false;
     }
+  }
+
+  // ── Session Lifecycle: 5-Day Expiry, Max 5 Devices & 15-Min Write Throttling ──
+
+  /// Automatically checks if the current session has been inactive for > 5 days.
+  /// If expired, deletes the session document from Firestore and signs out of Firebase Auth.
+  Future<bool> checkSessionExpiryAndSignOutIfExpired() async {
+    if (Firebase.apps.isEmpty && _customFirestore == null) return false;
+    final user = _auth.currentUser;
+    if (user == null) return false;
+
+    try {
+      final sessionId = await currentSessionId();
+      final docRef = _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('sessions')
+          .doc(sessionId);
+
+      final doc = await docRef.get();
+      if (!doc.exists) return false;
+
+      final lastActive = (doc.data()?['lastActiveAt'] as Timestamp?)?.toDate();
+      if (lastActive != null &&
+          DateTime.now().difference(lastActive) >= sessionInactivityExpiry) {
+        debugPrint(
+          '[SessionService] Session $sessionId has expired (> 5 days inactivity). Deleting and signing out.',
+        );
+        await docRef.delete();
+        await _auth.signOut();
+        return true;
+      }
+    } catch (e) {
+      debugPrint('[SessionService] checkSessionExpiryAndSignOutIfExpired error: $e');
+    }
+    return false;
+  }
+
+  /// Enforces a maximum of 5 concurrent active devices/sessions per account.
+  /// If active sessions exceed 5, automatically deletes the oldest non-current session document.
+  Future<void> enforceMaxActiveSessions(
+    String uid,
+    String currentSessionId,
+  ) async {
+    if (Firebase.apps.isEmpty && _customFirestore == null) return;
+    try {
+      final snap = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('sessions')
+          .get();
+
+      final activeDocs = snap.docs.where((doc) {
+        final data = doc.data();
+        final isActive = data['isActive'] as bool? ?? true;
+        final isBlocked = data['isBlocked'] as bool? ?? false;
+        return isActive && !isBlocked;
+      }).toList();
+
+      if (activeDocs.length > maxConcurrentSessions) {
+        final nonCurrent =
+            activeDocs.where((d) => d.id != currentSessionId).toList();
+
+        nonCurrent.sort((a, b) {
+          final tA = (a.data()['lastActiveAt'] as Timestamp?)?.toDate() ??
+              (a.data()['createdAt'] as Timestamp?)?.toDate() ??
+              DateTime.fromMillisecondsSinceEpoch(0);
+          final tB = (b.data()['lastActiveAt'] as Timestamp?)?.toDate() ??
+              (b.data()['createdAt'] as Timestamp?)?.toDate() ??
+              DateTime.fromMillisecondsSinceEpoch(0);
+          return tA.compareTo(tB);
+        });
+
+        int excessCount = activeDocs.length - maxConcurrentSessions;
+        for (final doc in nonCurrent) {
+          if (excessCount <= 0) break;
+          final isPrimary = doc.data()['isPrimary'] as bool? ?? false;
+          if (isPrimary && nonCurrent.length > excessCount) {
+            continue;
+          }
+          debugPrint(
+            '[SessionService] Active sessions exceed $maxConcurrentSessions. Pruning oldest session: ${doc.id}',
+          );
+          await doc.reference.delete();
+          excessCount--;
+        }
+      }
+    } catch (e) {
+      debugPrint('[SessionService] enforceMaxActiveSessions error: $e');
+    }
+  }
+
+  /// Throttles `lastActiveAt` updates in Firestore to at most once every 15 minutes
+  /// (only when user activity occurs) so page refreshes or rapid clicks do not generate
+  /// unnecessary Firestore writes.
+  Future<bool> recordUserActivityThrottled() async {
+    final now = DateTime.now();
+    if (_lastActivityWriteTime != null &&
+        now.difference(_lastActivityWriteTime!) < lastActiveThrottle) {
+      return false; // Throttled: no write
+    }
+
+    if (Firebase.apps.isEmpty && _customFirestore == null) return false;
+    final user = _auth.currentUser;
+    if (user == null) return false;
+
+    try {
+      final sessionId = await currentSessionId();
+      final docRef = _firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('sessions')
+          .doc(sessionId);
+
+      final doc = await docRef.get();
+      if (doc.exists && (doc.data()?['isActive'] as bool? ?? true)) {
+        await docRef.update({
+          'lastActiveAt': FieldValue.serverTimestamp(),
+        });
+        _lastActivityWriteTime = DateTime.now();
+        debugPrint(
+          '[SessionService] Throttled lastActiveAt updated in Firestore for $sessionId',
+        );
+        return true;
+      }
+    } catch (e) {
+      debugPrint('[SessionService] recordUserActivityThrottled error: $e');
+    }
+    return false;
   }
 }
 

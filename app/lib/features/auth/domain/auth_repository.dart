@@ -33,6 +33,8 @@ abstract class AuthRepository {
   Future<void> provisionFirestoreUser(
     User user, {
     required String authProvider,
+    String? firstName,
+    String? lastName,
   });
 
   /// Signs out the currently authenticated user.

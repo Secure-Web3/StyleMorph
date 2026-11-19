@@ -15,6 +15,7 @@ import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_segmented_control.dart';
 import '../../../../core/widgets/app_switch.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/email_verification_gate.dart';
 import '../wellness_provider.dart';
 
 // ─────────────────────────────────────────────
@@ -437,6 +438,7 @@ class _FutureSelfSheetState extends ConsumerState<FutureSelfSheet> {
   String? _error;
 
   Future<void> _runSimulation() async {
+    if (!checkEmailVerificationGate(context, ref)) return;
     setState(() {
       _error = null;
       _inProgress = true;

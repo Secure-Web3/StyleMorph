@@ -116,7 +116,7 @@ class AppButton extends StatelessWidget {
               icon!,
               const SizedBox(width: AppSpacing.sm),
             ],
-            if (isFullWidth) Flexible(child: labelWidget) else labelWidget,
+            Flexible(child: labelWidget),
           ],
         ),
       ),

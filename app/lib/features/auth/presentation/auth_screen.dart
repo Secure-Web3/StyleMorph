@@ -1,9 +1,11 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/localization/locale_provider.dart';
+import '../../../../core/services/referral_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -14,11 +16,13 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/app_logo.dart';
+import '../../../../core/widgets/app_switch.dart';
 import '../../../../core/widgets/app_text_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import 'auth_provider.dart';
 import 'widgets/auth_footer.dart';
 import 'widgets/auth_top_bar.dart';
+import 'widgets/fallback_security_challenge.dart';
 import 'widgets/turnstile_widget.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -34,9 +38,18 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   late final TextEditingController _passwordController;
   late final TextEditingController _confirmPasswordController;
   late final TextEditingController _forgotEmailController;
+  late final TextEditingController _referralCodeController;
 
   final TurnstileController _turnstileController = TurnstileController();
+  final FallbackChallengeController _fallbackController =
+      FallbackChallengeController();
   String? _turnstileToken;
+  bool _useSecurityFallback = false;
+  Timer? _turnstileTimeoutTimer;
+
+  int _consecutiveLoginFailures = 0;
+  int _lockoutSeconds = 0;
+  Timer? _lockoutTimer;
 
   late final AnimationController _animController;
   late final Animation<double> _fadeAnim;
@@ -51,6 +64,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
         TextEditingController(text: initialState.confirmPassword);
     _forgotEmailController =
         TextEditingController(text: initialState.forgotEmail);
+    _referralCodeController =
+        TextEditingController(text: initialState.referralCode);
+    if (_referralCodeController.text.isEmpty) {
+      ReferralService().getPendingReferralCode().then((code) {
+        if (code != null && code.isNotEmpty && mounted) {
+          _referralCodeController.text = code;
+          ref.read(authFormProvider.notifier).setReferralCode(code);
+        }
+      }).catchError((_) {});
+    }
 
     _animController = AnimationController(
       vsync: this,
@@ -61,28 +84,82 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       curve: Curves.easeInOut,
     );
     _animController.forward();
+    _startTurnstileTimeoutTimer();
   }
 
   @override
   void dispose() {
+    _turnstileTimeoutTimer?.cancel();
+    _lockoutTimer?.cancel();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _forgotEmailController.dispose();
+    _referralCodeController.dispose();
     _animController.dispose();
     super.dispose();
   }
 
+  void _startTurnstileTimeoutTimer() {
+    _turnstileTimeoutTimer?.cancel();
+    if (kIsWeb &&
+        !_useSecurityFallback &&
+        (_turnstileToken == null || _turnstileToken!.isEmpty)) {
+      _turnstileTimeoutTimer = Timer(const Duration(seconds: 8), () {
+        if (!mounted) return;
+        if (_turnstileToken == null || _turnstileToken!.isEmpty) {
+          setState(() {
+            _useSecurityFallback = true;
+          });
+        }
+      });
+    }
+  }
+
   void _switchMode(AuthMode mode) {
+    _turnstileTimeoutTimer?.cancel();
     _turnstileController.reset();
+    _fallbackController.reset();
     _turnstileToken = null;
+    _useSecurityFallback = false;
+    _startTurnstileTimeoutTimer();
     ref.read(authFormProvider.notifier).setMode(mode);
     _animController
       ..reset()
       ..forward();
   }
 
+  void _startLockoutTimer() {
+    _lockoutTimer?.cancel();
+    setState(() {
+      _lockoutSeconds = 30;
+    });
+    _lockoutTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        if (_lockoutSeconds > 1) {
+          _lockoutSeconds--;
+        } else {
+          _lockoutSeconds = 0;
+          _consecutiveLoginFailures = 0;
+          timer.cancel();
+        }
+      });
+    });
+  }
+
   Future<void> _handleLogin() async {
+    if (_lockoutSeconds > 0) {
+      AppFeedback.showError(
+        context,
+        context.strings.authLockoutCooldown(_lockoutSeconds),
+      );
+      return;
+    }
+
     if (kIsWeb && (_turnstileToken == null || _turnstileToken!.isEmpty)) {
       AppFeedback.showError(
         context,
@@ -94,17 +171,33 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     final success = await ref.read(authFormProvider.notifier).login();
     if (!mounted) return;
     if (success) {
+      _consecutiveLoginFailures = 0;
+      _lockoutTimer?.cancel();
+      _lockoutSeconds = 0;
       ref.read(appStateProvider.notifier).login();
       Navigator.of(context).popUntil((route) => route.isFirst);
     } else {
       _turnstileController.reset();
-      setState(() => _turnstileToken = null);
-      final code = ref.read(authFormProvider).errorCode;
-      if (code != null) {
+      _fallbackController.reset();
+      setState(() {
+        _turnstileToken = null;
+        _consecutiveLoginFailures++;
+      });
+
+      if (_consecutiveLoginFailures >= 3) {
+        _startLockoutTimer();
         AppFeedback.showError(
           context,
-          context.strings.authErrorMessage(code),
+          context.strings.authLockoutCooldown(_lockoutSeconds),
         );
+      } else {
+        final code = ref.read(authFormProvider).errorCode;
+        if (code != null) {
+          AppFeedback.showError(
+            context,
+            context.strings.authErrorMessage(code),
+          );
+        }
       }
     }
   }
@@ -125,6 +218,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       Navigator.of(context).popUntil((route) => route.isFirst);
     } else {
       _turnstileController.reset();
+      _fallbackController.reset();
       setState(() => _turnstileToken = null);
       final code = ref.read(authFormProvider).errorCode;
       if (code != null) {
@@ -258,13 +352,28 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           passwordController: _passwordController,
           isPasswordVisible: state.isPasswordVisible,
           isSubmitting: state.isSubmitting,
+          rememberMe: state.rememberMe,
+          onRememberMeChanged: (val) =>
+              ref.read(authFormProvider.notifier).setRememberMe(val),
           turnstileController: _turnstileController,
-          onTurnstileVerified: (token) =>
-              setState(() => _turnstileToken = token),
+          fallbackController: _fallbackController,
+          useSecurityFallback: _useSecurityFallback,
+          isTurnstileVerified:
+              !kIsWeb || (_turnstileToken != null && _turnstileToken!.isNotEmpty),
+          lockoutSeconds: _lockoutSeconds,
+          onTurnstileVerified: (token) {
+            _turnstileTimeoutTimer?.cancel();
+            setState(() => _turnstileToken = token);
+          },
           onTurnstileExpired: () =>
               setState(() => _turnstileToken = null),
-          onTurnstileError: () =>
-              setState(() => _turnstileToken = null),
+          onTurnstileError: () {
+            _turnstileTimeoutTimer?.cancel();
+            setState(() {
+              _turnstileToken = null;
+              _useSecurityFallback = true;
+            });
+          },
           onEmailChanged: (val) =>
               ref.read(authFormProvider.notifier).setEmail(val),
           onPasswordChanged: (val) =>
@@ -283,24 +392,38 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           emailController: _emailController,
           passwordController: _passwordController,
           confirmPasswordController: _confirmPasswordController,
+          referralCodeController: _referralCodeController,
           isPasswordVisible: state.isPasswordVisible,
           isConfirmPasswordVisible: state.isConfirmPasswordVisible,
           validationState: state.passwordValidation,
           passwordsMatch: state.passwordsMatch,
           isSubmitting: state.isSubmitting,
           turnstileController: _turnstileController,
-          onTurnstileVerified: (token) =>
-              setState(() => _turnstileToken = token),
+          fallbackController: _fallbackController,
+          useSecurityFallback: _useSecurityFallback,
+          isTurnstileVerified:
+              !kIsWeb || (_turnstileToken != null && _turnstileToken!.isNotEmpty),
+          onTurnstileVerified: (token) {
+            _turnstileTimeoutTimer?.cancel();
+            setState(() => _turnstileToken = token);
+          },
           onTurnstileExpired: () =>
               setState(() => _turnstileToken = null),
-          onTurnstileError: () =>
-              setState(() => _turnstileToken = null),
+          onTurnstileError: () {
+            _turnstileTimeoutTimer?.cancel();
+            setState(() {
+              _turnstileToken = null;
+              _useSecurityFallback = true;
+            });
+          },
           onEmailChanged: (val) =>
               ref.read(authFormProvider.notifier).setEmail(val),
           onPasswordChanged: (val) =>
               ref.read(authFormProvider.notifier).setPassword(val),
           onConfirmPasswordChanged: (val) =>
               ref.read(authFormProvider.notifier).setConfirmPassword(val),
+          onReferralCodeChanged: (val) =>
+              ref.read(authFormProvider.notifier).setReferralCode(val),
           onTogglePasswordVisibility: () => ref
               .read(authFormProvider.notifier)
               .togglePasswordVisibility(),
@@ -396,7 +519,13 @@ class _LoginForm extends StatelessWidget {
   final TextEditingController passwordController;
   final bool isPasswordVisible;
   final bool isSubmitting;
+  final bool isTurnstileVerified;
+  final bool useSecurityFallback;
+  final int lockoutSeconds;
+  final bool rememberMe;
+  final ValueChanged<bool> onRememberMeChanged;
   final TurnstileController? turnstileController;
+  final FallbackChallengeController? fallbackController;
   final ValueChanged<String>? onTurnstileVerified;
   final VoidCallback? onTurnstileExpired;
   final VoidCallback? onTurnstileError;
@@ -414,7 +543,13 @@ class _LoginForm extends StatelessWidget {
     required this.passwordController,
     required this.isPasswordVisible,
     required this.isSubmitting,
+    this.isTurnstileVerified = true,
+    this.useSecurityFallback = false,
+    this.lockoutSeconds = 0,
+    this.rememberMe = true,
+    required this.onRememberMeChanged,
     this.turnstileController,
+    this.fallbackController,
     this.onTurnstileVerified,
     this.onTurnstileExpired,
     this.onTurnstileError,
@@ -432,6 +567,14 @@ class _LoginForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
+    final bool isLocked = lockoutSeconds > 0;
+    final bool isButtonDisabled =
+        isSubmitting || isLocked || !isTurnstileVerified;
+    final String? buttonText = isSubmitting
+        ? null
+        : isLocked
+            ? strings.authLockoutBtn(lockoutSeconds)
+            : strings.authLoginBtn;
 
     return AppCard(
       padding: const EdgeInsetsDirectional.all(AppSpacing.xl),
@@ -485,26 +628,41 @@ class _LoginForm extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.sm),
 
-          // Cloudflare Turnstile anti-bot verification (Web only)
+          // Remember Me Checkbox (Luxury Editorial styled)
+          AppCheckboxTile(
+            label: strings.authRememberMe,
+            value: rememberMe,
+            onChanged: onRememberMeChanged,
+            padding: const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.xxs),
+          ),
+
+          const SizedBox(height: AppSpacing.md),
+
+          // Cloudflare Turnstile anti-bot verification or Smart Fallback (Web only)
           if (kIsWeb) ...[
             Center(
-              child: TurnstileWidget(
-                controller: turnstileController,
-                onVerified: onTurnstileVerified ?? (_) {},
-                onExpired: onTurnstileExpired,
-                onError: onTurnstileError,
-              ),
+              child: useSecurityFallback
+                  ? FallbackSecurityChallenge(
+                      controller: fallbackController,
+                      onVerified: onTurnstileVerified ?? (_) {},
+                    )
+                  : TurnstileWidget(
+                      controller: turnstileController,
+                      onVerified: onTurnstileVerified ?? (_) {},
+                      onExpired: onTurnstileExpired,
+                      onError: onTurnstileError,
+                    ),
             ),
             const SizedBox(height: AppSpacing.md),
           ],
 
-          // Primary Login Button (With loading spinner state)
+          // Primary Login Button (With loading spinner and lockout countdown)
           AppButton(
             isFullWidth: true,
-            text: isSubmitting ? null : strings.authLoginBtn,
-            onPressed: isSubmitting ? null : onLogin,
+            text: buttonText,
+            onPressed: isButtonDisabled ? null : onLogin,
             child: isSubmitting
                 ? SizedBox(
                     width: 18,
@@ -561,8 +719,10 @@ class _LoginForm extends StatelessWidget {
           const SizedBox(height: AppSpacing.xl),
 
           // Secondary actions: Sign Up & Forgot Password
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: AppSpacing.xs,
             children: [
               AppTextButton(
                 text: strings.authSwitchToSignup,
@@ -590,18 +750,23 @@ class _SignupForm extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
+  final TextEditingController? referralCodeController;
   final bool isPasswordVisible;
   final bool isConfirmPasswordVisible;
   final PasswordValidationState validationState;
   final bool passwordsMatch;
   final bool isSubmitting;
+  final bool isTurnstileVerified;
+  final bool useSecurityFallback;
   final TurnstileController? turnstileController;
+  final FallbackChallengeController? fallbackController;
   final ValueChanged<String>? onTurnstileVerified;
   final VoidCallback? onTurnstileExpired;
   final VoidCallback? onTurnstileError;
   final ValueChanged<String> onEmailChanged;
   final ValueChanged<String> onPasswordChanged;
   final ValueChanged<String> onConfirmPasswordChanged;
+  final ValueChanged<String>? onReferralCodeChanged;
   final VoidCallback onTogglePasswordVisibility;
   final VoidCallback onToggleConfirmPasswordVisibility;
   final VoidCallback onSignup;
@@ -613,18 +778,23 @@ class _SignupForm extends StatelessWidget {
     required this.emailController,
     required this.passwordController,
     required this.confirmPasswordController,
+    this.referralCodeController,
     required this.isPasswordVisible,
     required this.isConfirmPasswordVisible,
     required this.validationState,
     required this.passwordsMatch,
     required this.isSubmitting,
+    this.isTurnstileVerified = true,
+    this.useSecurityFallback = false,
     this.turnstileController,
+    this.fallbackController,
     this.onTurnstileVerified,
     this.onTurnstileExpired,
     this.onTurnstileError,
     required this.onEmailChanged,
     required this.onPasswordChanged,
     required this.onConfirmPasswordChanged,
+    this.onReferralCodeChanged,
     required this.onTogglePasswordVisibility,
     required this.onToggleConfirmPasswordVisibility,
     required this.onSignup,
@@ -741,17 +911,32 @@ class _SignupForm extends StatelessWidget {
             ),
           ],
 
+          // 4. Optional Referral Code Field
+          const SizedBox(height: AppSpacing.md),
+          AppTextField(
+            label: strings.authReferralCodeLabel,
+            placeholder: strings.authReferralCodeHint,
+            controller: referralCodeController,
+            onChanged: onReferralCodeChanged,
+            prefix: Icon(Icons.card_giftcard_rounded, size: 16, color: colors.mu),
+          ),
+
           const SizedBox(height: AppSpacing.xl),
 
-          // Cloudflare Turnstile anti-bot verification (Web only)
+          // Cloudflare Turnstile anti-bot verification or Smart Fallback (Web only)
           if (kIsWeb) ...[
             Center(
-              child: TurnstileWidget(
-                controller: turnstileController,
-                onVerified: onTurnstileVerified ?? (_) {},
-                onExpired: onTurnstileExpired,
-                onError: onTurnstileError,
-              ),
+              child: useSecurityFallback
+                  ? FallbackSecurityChallenge(
+                      controller: fallbackController,
+                      onVerified: onTurnstileVerified ?? (_) {},
+                    )
+                  : TurnstileWidget(
+                      controller: turnstileController,
+                      onVerified: onTurnstileVerified ?? (_) {},
+                      onExpired: onTurnstileExpired,
+                      onError: onTurnstileError,
+                    ),
             ),
             const SizedBox(height: AppSpacing.md),
           ],
@@ -760,7 +945,7 @@ class _SignupForm extends StatelessWidget {
           AppButton(
             isFullWidth: true,
             text: isSubmitting ? null : strings.authSignupBtn,
-            onPressed: isSubmitting ? null : onSignup,
+            onPressed: (isSubmitting || !isTurnstileVerified) ? null : onSignup,
             child: isSubmitting
                 ? SizedBox(
                     width: 18,

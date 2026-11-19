@@ -10,12 +10,15 @@ import 'core/localization/app_language.dart';
 import 'core/localization/locale_provider.dart';
 import 'core/services/biometric_service.dart';
 import 'core/services/emulator_config.dart';
+import 'core/services/referral_service.dart';
+import 'core/services/session_persistence_service.dart';
+import 'core/services/welcome_persistence_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'features/auth/presentation/auth_provider.dart';
 import 'core/state/app_state.dart';
+import 'features/auth/presentation/auth_screen.dart';
 import 'features/auth/presentation/biometric_lock_screen.dart';
-import 'features/auth/presentation/email_verification_screen.dart';
 import 'features/auth/presentation/welcome_screen.dart';
 import 'features/profile/presentation/widgets/sessions_sub_tab.dart';
 import 'features/shell/presentation/main_shell_screen.dart';
@@ -35,6 +38,8 @@ Future<void> main() async {
         FirebaseFirestore.instance.useFirestoreEmulator(host, port);
       },
     );
+    await SessionPersistenceService().checkAndClearNonPersistentSessionOnStartup();
+    await ReferralService().captureReferralFromUri(Uri.base);
   } catch (e) {
     debugPrint('[FirebaseInit] Notice: $e');
   }
@@ -98,26 +103,32 @@ class _AuthGate extends ConsumerWidget {
     final authAsync = ref.watch(authStateChangesProvider);
     final appState = ref.watch(appStateProvider);
     final appNotifier = ref.read(appStateProvider.notifier);
+    final hasSeenWelcomeAsync = ref.watch(hasSeenWelcomeProvider);
 
     return authAsync.when(
       loading: () => const _Splash(),
-      error: (_, s) => const WelcomeScreen(),
+      error: (_, s) {
+        final hasSeen = hasSeenWelcomeAsync.value ?? false;
+        return hasSeen ? const AuthScreen() : const WelcomeScreen();
+      },
       data: (user) {
-        if (user == null) return const WelcomeScreen();
-
-        // 1. Mandatory Email Verification Gate (Email/Password users only)
-        final isOAuth = user.providerData.any(
-          (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
-        );
-        final isOverrideVerified = ref.watch(emailVerifiedOverrideProvider);
-        final isVerified = isOverrideVerified ||
-            user.emailVerified ||
-            (FirebaseAuth.instance.currentUser?.emailVerified ?? false);
-        if (!isOAuth && !isVerified) {
-          return EmailVerificationScreen(user: user);
+        if (user == null) {
+          return hasSeenWelcomeAsync.when(
+            loading: () => const _Splash(),
+            error: (_, _) => const AuthScreen(),
+            data: (hasSeen) =>
+                hasSeen ? const AuthScreen() : const WelcomeScreen(),
+          );
         }
 
-        // 2. Mobile Biometric App Lock Check
+        // Ensure has_seen_welcome is persisted once a valid authenticated session exists
+        if (hasSeenWelcomeAsync.value == false) {
+          Future.microtask(
+            () => ref.read(hasSeenWelcomeProvider.notifier).markSeen(),
+          );
+        }
+
+        // 1. Mobile Biometric App Lock Check
         if (!kIsWeb) {
           final isLockEnabled =
               ref.watch(biometricLockEnabledProvider).value ?? false;
@@ -127,7 +138,7 @@ class _AuthGate extends ConsumerWidget {
           }
         }
 
-        // 3. Trigger profile load if not already loaded or in progress
+        // 2. Trigger profile load if not already loaded or in progress
         if (!appState.isProfileLoaded) {
           // Fire-and-forget; the finally block sets isProfileLoaded = true
           // which triggers a rebuild and exits this branch.

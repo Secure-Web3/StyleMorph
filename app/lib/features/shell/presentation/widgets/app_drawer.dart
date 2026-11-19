@@ -100,12 +100,8 @@ class AppDrawer extends ConsumerWidget {
                   _DrawerItem(
                     icon: FontAwesomeIcons.wallet,
                     title: strings.tWal,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      ref
-                          .read(appStateProvider.notifier)
-                          .switchProfileTab('p-wallet');
-                    },
+                    badgeText: strings.commonComingSoon,
+                    enabled: false,
                   ),
                   _DrawerItem(
                     icon: FontAwesomeIcons.gift,
@@ -154,14 +150,20 @@ class AppDrawer extends ConsumerWidget {
                     },
                   ),
                   _DrawerItem(
-                    icon: FontAwesomeIcons.wandMagicSparkles,
-                    title: strings.tComp,
+                    icon: FontAwesomeIcons.circleInfo,
+                    title: strings.tAbout,
                     onTap: () {
                       Navigator.of(context).pop();
                       ref
                           .read(appStateProvider.notifier)
-                          .switchProfileTab('p-companion');
+                          .switchProfileTab('p-about');
                     },
+                  ),
+                  _DrawerItem(
+                    icon: FontAwesomeIcons.wandMagicSparkles,
+                    title: strings.tComp,
+                    badgeText: strings.commonComingSoon,
+                    enabled: false,
                   ),
                   _DrawerItem(
                     icon: FontAwesomeIcons.headset,

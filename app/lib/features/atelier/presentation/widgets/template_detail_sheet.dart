@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_switch.dart';
+import '../../../../core/widgets/email_verification_gate.dart';
 import '../../domain/atelier_models.dart';
 import '../atelier_provider.dart';
 
@@ -38,6 +39,7 @@ class _TemplateDetailSheetState extends ConsumerState<TemplateDetailSheet> {
   }
 
   void _generate() {
+    if (!checkEmailVerificationGate(context, ref)) return;
     setState(() => _error = null);
     final strings = context.strings;
     try {

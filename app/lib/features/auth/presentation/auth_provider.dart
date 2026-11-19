@@ -2,7 +2,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/firebase_auth_repository.dart';
+import '../../../core/services/referral_service.dart';
+import '../../../core/services/session_persistence_service.dart';
 import '../../../core/services/session_service.dart';
+import '../../../core/services/welcome_persistence_service.dart';
 import '../../../core/state/app_state.dart';
 import '../domain/auth_repository.dart';
 
@@ -89,6 +92,8 @@ class AuthFormState {
   final bool isSubmitting;
   final String? errorCode;
   final String? successMessageKey;
+  final bool rememberMe;
+  final String referralCode;
 
   const AuthFormState({
     this.mode = AuthMode.login,
@@ -103,6 +108,8 @@ class AuthFormState {
     this.isSubmitting = false,
     this.errorCode,
     this.successMessageKey,
+    this.rememberMe = true,
+    this.referralCode = '',
   });
 
   AuthFormState copyWith({
@@ -120,6 +127,8 @@ class AuthFormState {
     bool clearError = false,
     String? successMessageKey,
     bool clearSuccess = false,
+    bool? rememberMe,
+    String? referralCode,
   }) {
     return AuthFormState(
       mode: mode ?? this.mode,
@@ -136,6 +145,8 @@ class AuthFormState {
       errorCode: clearError ? null : (errorCode ?? this.errorCode),
       successMessageKey:
           clearSuccess ? null : (successMessageKey ?? this.successMessageKey),
+      rememberMe: rememberMe ?? this.rememberMe,
+      referralCode: referralCode ?? this.referralCode,
     );
   }
 }
@@ -194,6 +205,17 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
     state = state.copyWith(forgotEmail: value.trim(), clearError: true);
   }
 
+  void setRememberMe(bool value) {
+    state = state.copyWith(rememberMe: value);
+  }
+
+  void setReferralCode(String value) {
+    state = state.copyWith(
+      referralCode: value.trim().toUpperCase(),
+      clearError: true,
+    );
+  }
+
   void clearMessages() {
     state = state.copyWith(clearError: true, clearSuccess: true);
   }
@@ -232,6 +254,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
 
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
+      await _ref
+          .read(sessionPersistenceServiceProvider)
+          .applyPersistence(state.rememberMe);
       await _repository.signInWithEmailAndPassword(
         email: state.email,
         password: state.password,
@@ -243,9 +268,10 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         } catch (_) {}
       }
       if (await _isCurrentDeviceBlocked()) return false;
-      if (user != null && user.emailVerified) {
+      if (user != null) {
         await _ref.read(sessionServiceProvider).upsertSession();
         await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+        _ref.read(hasSeenWelcomeProvider.notifier).markSeen();
       }
       state = state.copyWith(isSubmitting: false);
       return true;
@@ -279,12 +305,31 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
 
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
+      await _ref
+          .read(sessionPersistenceServiceProvider)
+          .applyPersistence(state.rememberMe);
       final credential = await _repository.createUserWithEmailAndPassword(
         email: state.email,
         password: state.password,
       );
       final user = credential.user ?? FirebaseAuth.instance.currentUser;
       if (user != null) {
+        if (state.referralCode.isNotEmpty) {
+          try {
+            final applied =
+                await _ref.read(referralServiceProvider).applyReferralOnSignUp(
+                      newUserUid: user.uid,
+                      newEmail: user.email ?? state.email,
+                      displayName: user.displayName,
+                      referralCode: state.referralCode,
+                    );
+            if (applied) {
+              _ref.read(appStateProvider.notifier).addCoins(50);
+            }
+          } catch (e) {
+            debugPrint('[AuthFormNotifier] applyReferralOnSignUp notice: $e');
+          }
+        }
         try {
           await user.sendEmailVerification();
         } catch (e) {
@@ -292,9 +337,10 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         }
       }
       if (await _isCurrentDeviceBlocked()) return false;
-      if (user != null && user.emailVerified) {
+      if (user != null) {
         await _ref.read(sessionServiceProvider).upsertSession();
         await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+        _ref.read(hasSeenWelcomeProvider.notifier).markSeen();
       }
       state = state.copyWith(isSubmitting: false);
       return true;
@@ -313,6 +359,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
   Future<bool> signInWithGoogle() async {
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
+      await _ref
+          .read(sessionPersistenceServiceProvider)
+          .applyPersistence(state.rememberMe);
       final credential = await _repository.signInWithGoogle();
       if (credential == null) {
         state = state.copyWith(isSubmitting: false, errorCode: 'google-cancelled');
@@ -321,6 +370,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       if (await _isCurrentDeviceBlocked()) return false;
       await _ref.read(sessionServiceProvider).upsertSession();
       await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+      _ref.read(hasSeenWelcomeProvider.notifier).markSeen();
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
@@ -338,6 +388,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
   Future<bool> signInWithApple() async {
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
+      await _ref
+          .read(sessionPersistenceServiceProvider)
+          .applyPersistence(state.rememberMe);
       final credential = await _repository.signInWithApple();
       if (credential == null) {
         state = state.copyWith(isSubmitting: false, errorCode: 'apple-cancelled');
@@ -346,6 +399,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       if (await _isCurrentDeviceBlocked()) return false;
       await _ref.read(sessionServiceProvider).upsertSession();
       await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+      _ref.read(hasSeenWelcomeProvider.notifier).markSeen();
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
