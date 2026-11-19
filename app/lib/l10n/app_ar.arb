@@ -417,5 +417,6 @@
   "authLockoutBtn": "مغلق مؤقتاً ({s} ثانية)",
   "authRememberMe": "تذكرني",
   "authSessionExpired": "انتهت جلستك بسبب عدم النشاط لمدة 5 أيام. يرجى تسجيل الدخول مرة أخرى.",
-  "authSessionTerminatedConcurrent": "تم إنهاء جلستك للوصول إلى الحد الأقصى البالغ 5 أجهزة نشطة."
+  "authSessionTerminatedConcurrent": "تم إنهاء جلستك للوصول إلى الحد الأقصى البالغ 5 أجهزة نشطة.",
+  "authTurnstileChecking": "جارٍ التحقق من الأمان..."
 }

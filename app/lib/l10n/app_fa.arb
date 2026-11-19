@@ -417,5 +417,6 @@
   "authLockoutBtn": "قفل موقت ({s} ثانیه)",
   "authRememberMe": "مرا به خاطر بسپار",
   "authSessionExpired": "نشست شما به دلیل ۵ روز عدم فعالیت منقضی شد. لطفاً دوباره وارد شوید.",
-  "authSessionTerminatedConcurrent": "نشست شما به دلیل ورود از بیش از ۵ دستگاه خاتمه یافت."
+  "authSessionTerminatedConcurrent": "نشست شما به دلیل ورود از بیش از ۵ دستگاه خاتمه یافت.",
+  "authTurnstileChecking": "در حال بررسی امنیتی..."
 }

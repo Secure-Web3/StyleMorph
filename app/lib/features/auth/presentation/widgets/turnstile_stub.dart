@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+export 'turnstile_skeleton.dart';
+
 const String kTurnstileSiteKey = '0x4AAAAAAGILAS7YQZalDE3k';
 
 class TurnstileController {

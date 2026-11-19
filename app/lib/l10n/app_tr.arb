@@ -417,5 +417,6 @@
   "authLockoutBtn": "Kilitlendi ({s} sn)",
   "authRememberMe": "Beni hatırla",
   "authSessionExpired": "Oturumunuz 5 günlük hareketsizlik nedeniyle sona erdi. Lütfen tekrar giriş yapın.",
-  "authSessionTerminatedConcurrent": "Oturumunuz maksimum 5 eşzamanlı cihaza ulaşıldığı için sonlandırıldı."
+  "authSessionTerminatedConcurrent": "Oturumunuz maksimum 5 eşzamanlı cihaza ulaşıldığı için sonlandırıldı.",
+  "authTurnstileChecking": "Güvenlik kontrolü yapılıyor..."
 }

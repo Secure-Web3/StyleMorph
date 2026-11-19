@@ -37,11 +37,12 @@
     window.isTurnstileLoaded = function() {
       return typeof window.turnstile !== 'undefined';
     };
-    window.setTurnstileHandler = function(callbackId, onVerified, onExpired, onError) {
+    window.setTurnstileHandler = function(callbackId, onVerified, onExpired, onError, onLoaded) {
       window.turnstileCallbacks[callbackId] = {
         onVerified: onVerified,
         onExpired: onExpired,
-        onError: onError
+        onError: onError,
+        onLoaded: onLoaded
       };
     };
     window.removeTurnstileHandler = function(callbackId) {
@@ -52,11 +53,16 @@
       try {
         var el = document.getElementById(containerId);
         if (!el) return null;
-        return window.turnstile.render(el, {
+        var widgetId = window.turnstile.render(el, {
           sitekey: siteKey,
           theme: theme || 'auto',
+          'before-interactive-callback': function() {
+            var cb = window.turnstileCallbacks[callbackId];
+            if (cb && cb.onLoaded) cb.onLoaded();
+          },
           callback: function(token) {
             var cb = window.turnstileCallbacks[callbackId];
+            if (cb && cb.onLoaded) cb.onLoaded();
             if (cb && cb.onVerified) cb.onVerified(token);
           },
           'expired-callback': function() {
@@ -65,9 +71,17 @@
           },
           'error-callback': function(err) {
             var cb = window.turnstileCallbacks[callbackId];
+            if (cb && cb.onLoaded) cb.onLoaded();
             if (cb && cb.onError) cb.onError(err);
           }
         });
+        if (widgetId) {
+          setTimeout(function() {
+            var cb = window.turnstileCallbacks[callbackId];
+            if (cb && cb.onLoaded) cb.onLoaded();
+          }, 350);
+        }
+        return widgetId;
       } catch (e) {
         console.error('Turnstile render error:', e);
         return null;

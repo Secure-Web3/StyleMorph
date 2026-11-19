@@ -589,6 +589,7 @@ class AppStrings {
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'تایید امنیتی ورود',
       'authTurnstileRequired': 'لطفاً تایید امنیتی Cloudflare را تکمیل کنید.',
+      'authTurnstileChecking': 'در حال بررسی امنیتی...',
       'authLockoutCooldown': 'تلاش‌های ناموفق بیش از حد مجاز. لطفاً {s} ثانیه صبر کنید.',
       'authLockoutBtn': 'قفل موقت ({s} ثانیه)',
       'authRememberMe': 'مرا به خاطر بسپار',
@@ -1128,6 +1129,7 @@ class AppStrings {
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'Security Verification',
       'authTurnstileRequired': 'Please complete the Cloudflare security verification.',
+      'authTurnstileChecking': 'Performing security check...',
       'authLockoutCooldown': 'Too many failed attempts. Please wait {s}s.',
       'authLockoutBtn': 'Locked ({s}s)',
       'authRememberMe': 'Remember Me',
@@ -1667,6 +1669,7 @@ class AppStrings {
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'التحقق الأمني',
       'authTurnstileRequired': 'يرجى إكمال التحقق الأمني من Cloudflare.',
+      'authTurnstileChecking': 'جارٍ التحقق من الأمان...',
       'authLockoutCooldown': 'عدد محاولات غير صحيحة زائد عن الحد. يرجى الانتظار {s} ثانية.',
       'authLockoutBtn': 'مغلق مؤقتاً ({s} ثانية)',
       'authRememberMe': 'تذكرني',
@@ -2206,6 +2209,7 @@ class AppStrings {
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'Güvenlik Doğrulaması',
       'authTurnstileRequired': 'Lütfen Cloudflare güvenlik doğrulamasını tamamlayın.',
+      'authTurnstileChecking': 'Güvenlik kontrolü yapılıyor...',
       'authLockoutCooldown': 'Çok fazla başarısız deneme. Lütfen {s} sn bekleyin.',
       'authLockoutBtn': 'Kilitlendi ({s} sn)',
       'authRememberMe': 'Beni hatırla',
@@ -2834,6 +2838,7 @@ class AppStrings {
   // Turnstile getters
   String get authTurnstilePrompt => get('authTurnstilePrompt');
   String get authTurnstileRequired => get('authTurnstileRequired');
+  String get authTurnstileChecking => get('authTurnstileChecking');
   String get authRememberMe => get('authRememberMe');
   String get authSessionExpired => get('authSessionExpired');
   String get authSessionTerminatedConcurrent => get('authSessionTerminatedConcurrent');

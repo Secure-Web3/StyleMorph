@@ -417,5 +417,6 @@
   "authLockoutBtn": "Locked ({s}s)",
   "authRememberMe": "Remember Me",
   "authSessionExpired": "Your session has expired due to 5 days of inactivity. Please sign in again.",
-  "authSessionTerminatedConcurrent": "Your session was ended because the maximum of 5 concurrent devices was reached."
+  "authSessionTerminatedConcurrent": "Your session was ended because the maximum of 5 concurrent devices was reached.",
+  "authTurnstileChecking": "Performing security check..."
 }
