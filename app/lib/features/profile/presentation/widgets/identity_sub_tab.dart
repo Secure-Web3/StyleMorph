@@ -8,6 +8,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_badge.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../auth/presentation/email_verification_provider.dart';
@@ -36,7 +37,10 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
   @override
   void initState() {
     super.initState();
-    final user = FirebaseAuth.instance.currentUser;
+    User? user;
+    try {
+      user = FirebaseAuth.instance.currentUser;
+    } catch (_) {}
     final values = ref.read(appStateProvider).identityValues;
     String initialFirst = values['firstName'] ?? '';
     String initialLast = values['lastName'] ?? '';
@@ -66,7 +70,10 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
   }
 
   void _syncControllers(Map<String, String> values) {
-    final user = FirebaseAuth.instance.currentUser;
+    User? user;
+    try {
+      user = FirebaseAuth.instance.currentUser;
+    } catch (_) {}
     void update(TextEditingController ctrl, String? val) {
       final text = val ?? '';
       if (ctrl.text != text) {
@@ -179,7 +186,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          // Mobile with Verified Badge
+          // Mobile Number with Disabled Verification Button & "Coming Soon" Badge
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -197,20 +204,23 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
+                  AppButton(
+                    size: AppButtonSize.sm,
+                    variant: AppButtonVariant.outline,
+                    onPressed: null,
+                    text: strings.idVerifyMobile,
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
                   AppBadge(
-                    variant: AppBadgeVariant.success,
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.sm,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        FaIcon(FontAwesomeIcons.check,
-                            size: 11, color: colors.ok),
-                        const SizedBox(width: AppSpacing.xs),
-                        Text(strings.idVerified),
-                      ],
+                    variant: AppBadgeVariant.standard,
+                    size: AppBadgeSize.sm,
+                    child: Text(
+                      strings.commonComingSoon,
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: colors.mu,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],

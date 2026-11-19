@@ -422,5 +422,7 @@
   "authFallbackSecurityTitle": "Güvenlik Doğrulaması",
   "authFallbackMathQuestion": "{a} + {b} = ?",
   "authFallbackVerified": "Doğrulandı",
-  "authFallbackAnswerHint": "Cevap"
+  "authFallbackAnswerHint": "Cevap",
+  "idVerifyMobile": "Doğrula",
+  "commonComingSoon": "Yakında"
 }

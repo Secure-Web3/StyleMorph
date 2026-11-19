@@ -422,5 +422,7 @@
   "authFallbackSecurityTitle": "تایید امنیتی جایگزین",
   "authFallbackMathQuestion": "{a} + {b} = ؟",
   "authFallbackVerified": "تایید شد",
-  "authFallbackAnswerHint": "پاسخ"
+  "authFallbackAnswerHint": "پاسخ",
+  "idVerifyMobile": "تایید",
+  "commonComingSoon": "به زودی"
 }

@@ -422,5 +422,7 @@
   "authFallbackSecurityTitle": "Security Verification",
   "authFallbackMathQuestion": "{a} + {b} = ?",
   "authFallbackVerified": "Verified",
-  "authFallbackAnswerHint": "Answer"
+  "authFallbackAnswerHint": "Answer",
+  "idVerifyMobile": "Verify",
+  "commonComingSoon": "Coming Soon"
 }

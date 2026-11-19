@@ -422,5 +422,7 @@
   "authFallbackSecurityTitle": "التحقق الأمني البديل",
   "authFallbackMathQuestion": "{a} + {b} = ؟",
   "authFallbackVerified": "تم التحقق",
-  "authFallbackAnswerHint": "الإجابة"
+  "authFallbackAnswerHint": "الإجابة",
+  "idVerifyMobile": "تأكيد",
+  "commonComingSoon": "قريباً"
 }
