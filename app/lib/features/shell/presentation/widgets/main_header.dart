@@ -158,11 +158,7 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                         // StyleCoin Chip
                         if (appState.showHeaderCoins) ...[
                           InkWell(
-                            onTap: () {
-                              ref
-                                  .read(appStateProvider.notifier)
-                                  .switchProfileTab('p-wallet');
-                            },
+                            onTap: null, // Tap navigation disabled while Wallet & Plan is temporarily disabled
                             borderRadius: AppRadius.rFull,
                             child: Container(
                               padding: const EdgeInsetsDirectional.symmetric(
@@ -372,7 +368,12 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
         initials = parts[0].characters.take(2).toString().toUpperCase();
       }
     } else {
-      final email = FirebaseAuth.instance.currentUser?.email ?? '';
+      String email = '';
+      try {
+        if (Firebase.apps.isNotEmpty) {
+          email = FirebaseAuth.instance.currentUser?.email ?? '';
+        }
+      } catch (_) {}
       if (email.isNotEmpty) {
         initials = email.split('@').first.characters.take(2).toString().toUpperCase();
       }

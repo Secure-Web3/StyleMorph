@@ -52,7 +52,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     final isEditableTab = _editableTabs.contains(activeTabId);
 
     final sessionsAsync = ref.watch(allSessionsProvider);
-    final activeSessionsCount = sessionsAsync.value
+    final activeSessionsCount = sessionsAsync.valueOrNull
         ?.where((s) => !s.isBlocked && s.isActive)
         .length;
 
@@ -60,7 +60,13 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
       _SubTabMeta('p-identity', strings.tIdent, FontAwesomeIcons.idCard),
       _SubTabMeta('p-gallery', strings.tGal, FontAwesomeIcons.images),
       _SubTabMeta('p-ai', strings.tAi, FontAwesomeIcons.dna),
-      _SubTabMeta('p-wallet', strings.tWal, FontAwesomeIcons.wallet),
+      _SubTabMeta(
+        'p-wallet',
+        strings.tWal,
+        FontAwesomeIcons.wallet,
+        isEnabled: false,
+        badgeText: strings.commonComingSoon,
+      ),
       _SubTabMeta('p-referral', strings.tRef, FontAwesomeIcons.gift),
       _SubTabMeta(
         'p-companion',
@@ -140,11 +146,13 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                             badgeCount: subTabs[i].id == 'p-sessions'
                                 ? activeSessionsCount
                                 : null,
-                            onTap: () {
-                              ref
-                                  .read(appStateProvider.notifier)
-                                  .switchProfileTab(subTabs[i].id);
-                            },
+                            onTap: subTabs[i].isEnabled
+                                ? () {
+                                    ref
+                                        .read(appStateProvider.notifier)
+                                        .switchProfileTab(subTabs[i].id);
+                                  }
+                                : null,
                           ),
                           if (i < subTabs.length - 1 &&
                               subTabs[i + 1].id != 'p-sessions')
@@ -227,7 +235,7 @@ class _SidebarTabButton extends StatelessWidget {
   final AppColors colors;
   final AppStrings strings;
   final int? badgeCount;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _SidebarTabButton({
     required this.tab,
@@ -236,93 +244,135 @@ class _SidebarTabButton extends StatelessWidget {
     required this.colors,
     required this.strings,
     this.badgeCount,
-    required this.onTap,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: verticalPad, horizontal: 4),
-        decoration: BoxDecoration(
-          color:
-              isActive ? colors.pr.withValues(alpha: 0.08) : Colors.transparent,
-          border: BorderDirectional(
-            start: BorderSide(
-              color: isActive ? colors.pr : Colors.transparent,
-              width: 3,
+    final isEnabled = tab.isEnabled;
+    final effectiveIsActive = isActive && isEnabled;
+
+    return Opacity(
+      opacity: isEnabled ? 1.0 : 0.55,
+      child: InkWell(
+        onTap: isEnabled ? onTap : null,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 160),
+          width: double.infinity,
+          padding: EdgeInsets.symmetric(vertical: verticalPad, horizontal: 4),
+          decoration: BoxDecoration(
+            color:
+                effectiveIsActive ? colors.pr.withValues(alpha: 0.08) : Colors.transparent,
+            border: BorderDirectional(
+              start: BorderSide(
+                color: effectiveIsActive ? colors.pr : Colors.transparent,
+                width: 3,
+              ),
             ),
           ),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              children: [
-                if (tab.icon is FaIconData)
-                  FaIcon(
-                    tab.icon as FaIconData,
-                    size: 18,
-                    color: isActive ? colors.pr : colors.mu,
-                  )
-                else
-                  Icon(
-                    tab.icon,
-                    size: 18,
-                    color: isActive ? colors.pr : colors.mu,
-                  ),
-                if (badgeCount != null && badgeCount! > 0)
-                  PositionedDirectional(
-                    top: -5,
-                    end: -8,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 4,
-                        vertical: 1,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colors.ok,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 14,
-                        minHeight: 14,
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        strings.formatNumber(badgeCount!),
-                        style: TextStyle(
-                          fontFamily: 'Vazirmatn',
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          color: colors.prt,
-                          height: 1.1,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  if (tab.icon is FaIconData)
+                    FaIcon(
+                      tab.icon as FaIconData,
+                      size: 18,
+                      color: !isEnabled
+                          ? colors.mu
+                          : (effectiveIsActive ? colors.pr : colors.mu),
+                    )
+                  else
+                    Icon(
+                      tab.icon,
+                      size: 18,
+                      color: !isEnabled
+                          ? colors.mu
+                          : (effectiveIsActive ? colors.pr : colors.mu),
+                    ),
+                  if (badgeCount != null && badgeCount! > 0)
+                    PositionedDirectional(
+                      top: -5,
+                      end: -8,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 4,
+                          vertical: 1,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colors.ok,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 14,
+                          minHeight: 14,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          strings.formatNumber(badgeCount!),
+                          style: TextStyle(
+                            fontFamily: 'Vazirmatn',
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                            color: colors.prt,
+                            height: 1.1,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              tab.label,
-              style: TextStyle(
-                fontFamily: 'Vazirmatn',
-                fontSize: 10,
-                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                color: isActive ? colors.pr : colors.mu,
-                height: 1.15,
+                ],
               ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+              const SizedBox(height: 4),
+              Text(
+                tab.label,
+                style: TextStyle(
+                  fontFamily: 'Vazirmatn',
+                  fontSize: 10,
+                  fontWeight: effectiveIsActive ? FontWeight.w700 : FontWeight.w500,
+                  color: !isEnabled
+                      ? colors.mu
+                      : (effectiveIsActive ? colors.pr : colors.mu),
+                  height: 1.15,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (tab.badgeText != null) ...[
+                const SizedBox(height: 3),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 1.5,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.mu.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border.all(
+                      color: colors.bd.withValues(alpha: 0.8),
+                      width: 0.8,
+                    ),
+                  ),
+                  child: Text(
+                    tab.badgeText!,
+                    style: TextStyle(
+                      fontFamily: 'Vazirmatn',
+                      fontSize: 8,
+                      fontWeight: FontWeight.w600,
+                      color: colors.mu,
+                      height: 1.1,
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ],
+          ),
         ),
       ),
     );
@@ -391,6 +441,14 @@ class _SubTabMeta {
   final String id;
   final String label;
   final dynamic icon;
+  final bool isEnabled;
+  final String? badgeText;
 
-  const _SubTabMeta(this.id, this.label, this.icon);
+  const _SubTabMeta(
+    this.id,
+    this.label,
+    this.icon, {
+    this.isEnabled = true,
+    this.badgeText,
+  });
 }
