@@ -630,5 +630,8 @@
   "authReferralCodeLabel": "کد معرف (اختیاری)",
   "authReferralCodeHint": "کد معرف ۸ حرفی",
   "authReferralSelfError": "امکان استفاده از کد معرف خودتان وجود ندارد",
-  "authReferralInvalidError": "کد معرف وارد شده معتبر نیست"
+  "authReferralInvalidError": "کد معرف وارد شده معتبر نیست",
+  "tAbout": "درباره برنامه",
+  "aboutHeader": "درباره استایل‌مورف",
+  "aboutTagline": "استودیوی اختصاصی استایلیست هوشمند و پرو مجازی لباس"
 }

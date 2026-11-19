@@ -630,5 +630,8 @@
   "authReferralCodeLabel": "Davet Kodu (İsteğe bağlı)",
   "authReferralCodeHint": "8 haneli davet kodu",
   "authReferralSelfError": "Kendi davet kodunuzu kullanamazsınız",
-  "authReferralInvalidError": "Girilen davet kodu geçersiz"
+  "authReferralInvalidError": "Girilen davet kodu geçersiz",
+  "tAbout": "Hakkında",
+  "aboutHeader": "StyleMorph Hakkında",
+  "aboutTagline": "Kişisel Yapay Zeka Stilisti ve Sanal Deneme Stüdyosu"
 }

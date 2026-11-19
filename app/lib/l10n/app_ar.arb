@@ -630,5 +630,8 @@
   "authReferralCodeLabel": "رمز الإحالة (اختياري)",
   "authReferralCodeHint": "رمز الإحالة المكوّن من ٨ أحرف",
   "authReferralSelfError": "لا يمكنك استخدام رمز الإحالة الخاص بك",
-  "authReferralInvalidError": "رمز الإحالة المدخل غير صالح"
+  "authReferralInvalidError": "رمز الإحالة المدخل غير صالح",
+  "tAbout": "حول التطبيق",
+  "aboutHeader": "حول ستايل مورف",
+  "aboutTagline": "استوديو المنسق الذكي والقياس الافتراضي الشخصي"
 }

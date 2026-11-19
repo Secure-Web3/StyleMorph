@@ -150,6 +150,16 @@ class AppDrawer extends ConsumerWidget {
                     },
                   ),
                   _DrawerItem(
+                    icon: FontAwesomeIcons.circleInfo,
+                    title: strings.tAbout,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      ref
+                          .read(appStateProvider.notifier)
+                          .switchProfileTab('p-about');
+                    },
+                  ),
+                  _DrawerItem(
                     icon: FontAwesomeIcons.wandMagicSparkles,
                     title: strings.tComp,
                     badgeText: strings.commonComingSoon,

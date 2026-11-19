@@ -163,6 +163,12 @@ service cloud.firestore {
       allow read, write: if false;
     }
 
+    // Public App Configuration & Remote Versioning (read-only for all clients)
+    match /app_config/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
     // Default Zero-Trust catch-all deny
     match /{document=**} {
       allow read, write: if false;

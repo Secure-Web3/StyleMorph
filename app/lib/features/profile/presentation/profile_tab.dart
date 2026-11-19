@@ -7,6 +7,7 @@ import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
+import 'widgets/about_sub_tab.dart';
 import 'widgets/ai_dna_sub_tab.dart';
 import 'widgets/gallery_sub_tab.dart';
 import 'widgets/identity_sub_tab.dart';
@@ -76,6 +77,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
       ),
       _SubTabMeta('p-sessions', strings.tSess, Icons.devices_rounded),
       _SubTabMeta('p-settings', strings.tSet, FontAwesomeIcons.sliders),
+      _SubTabMeta('p-about', strings.tAbout, Icons.info_outline_rounded),
     ];
 
     Widget activeContent;
@@ -104,14 +106,17 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
       case 'p-settings':
         activeContent = const SettingsSubTab();
         break;
+      case 'p-about':
+        activeContent = const AboutSubTab();
+        break;
       default:
         activeContent = const IdentitySubTab();
     }
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final compactSidebar = constraints.maxHeight < 460;
-        final itemVerticalPad = compactSidebar ? 4.0 : 8.0;
+        final compactSidebar = constraints.maxHeight < 560;
+        final itemVerticalPad = compactSidebar ? 3.0 : 6.0;
 
         return SizedBox(
           width: constraints.maxWidth,

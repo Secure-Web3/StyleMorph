@@ -850,6 +850,46 @@ class AppStrings {
       'sessErrLoad': 'خطا در بارگذاری نشست‌ها',
       'dialogCancel': 'انصراف',
       'dialogConfirm': 'تأیید',
+      // About & Updates Sub-Tab
+      'tAbout': 'درباره برنامه',
+      'aboutHeader': 'درباره استایل‌مورف',
+      'aboutTagline': 'استودیوی اختصاصی استایلیست هوشمند و پرو مجازی لباس',
+      'aboutMission': 'استایل‌مورف پلتفرمی نوآورانه در تقاطع مد، تکنولوژی و زیبایی است. ما با بهره‌گیری از هوش مصنوعی مولد، تجربه پرو فوق‌واقع‌گرایانه، مدیریت کمد دیجیتال و پیشنهادهای استایل اختصاصی را با بالاترین استانداردهای حریم خصوصی در اختیارتان قرار می‌دهیم.',
+      'aboutVersionLabel': 'نسخه برنامه',
+      'aboutBuildLabel': 'شماره ساخت',
+      'aboutReleaseDateLabel': 'تاریخ انتشار',
+      'aboutReleaseDateVal': 'نوامبر ۲۰۲۶',
+      'aboutEnvironmentLabel': 'محیط اجرا',
+      'aboutEnvironmentVal': 'پایدار (پروداکشن)',
+      'aboutCheckUpdatesBtn': 'بررسی به‌روزرسانی',
+      'aboutChecking': 'در حال بررسی نسخه‌های جدید...',
+      'aboutUpToDate': 'شما از آخرین نسخه پایدار استایل‌مورف استفاده می‌کنید.',
+      'aboutUpdateAvailable': 'نسخه جدید ({version}) در دسترس است!',
+      'aboutUpdateActionWeb': 'نصب به‌روزرسانی و بارگذاری مجدد',
+      'aboutUpdateActionMobile': 'دریافت نسخه جدید',
+      'aboutWhatsNewTitle': 'تازه‌ها و تغییرات نسخه ۱.۰',
+      'aboutChangelog1Title': 'اتاق پرو مجازی و آتلیه هوشمند',
+      'aboutChangelog1Desc': 'پرو واقع‌گرایانه انواع پوشاک روی عکس شما با شبیه‌سازی بافت پارچه، چین و فرم بدن',
+      'aboutChangelog2Title': 'کمد دیجیتال و برچسب‌گذاری هوشمند',
+      'aboutChangelog2Desc': 'حذف خودکار پس‌زمینه تصاویر، استخراج مشخصات و دسته‌بندی هوشمند البسه',
+      'aboutChangelog3Title': 'دروازه هوش مصنوعی پرسرعت و پایدار',
+      'aboutChangelog3Desc': 'توزیع بار چندحسابی، صف‌بندی بلادرنگ و پایداری کامل بدون زمان انتظار سرد',
+      'aboutChangelog4Title': 'سیستم پاداش دعوت و سطوح وفاداری',
+      'aboutChangelog4Desc': 'محاسبه شفاف امتیازهای StylePoints، پاداش دوطرفه سکه و ۴ رتبه ارتقای حساب',
+      'aboutChangelog5Title': 'امنیت داده‌ها و حالت آواتار خصوصی',
+      'aboutChangelog5Desc': 'رمزنگاری کامل تصاویر، کش دیجیتال SHA-256 و امکان انتخاب مانکن مینیمال به جای عکس چهره',
+      'aboutLegalSectionTitle': 'قوانین و حریم خصوصی',
+      'aboutTermsTitle': 'شرایط و مقررات استفاده از خدمات',
+      'aboutPrivacyTitle': 'سیاست حفظ حریم خصوصی و امنیت تصاویر هوش مصنوعی',
+      'aboutLicensesTitle': 'مجوزهای متن‌باز و اعتبارات نرم‌افزاری',
+      'aboutContactSectionTitle': 'ارتباط و شبکه‌های رسمی',
+      'aboutWebsiteLabel': 'وب‌سایت رسمی',
+      'aboutEmailLabel': 'ایمیل پشتیبانی رسمی',
+      'aboutInstagramLabel': 'صفحه اینستاگرام',
+      'aboutTelegramLabel': 'کانال تلگرام',
+      'aboutCopyrightNotice': 'تمامی حقوق برای پلتفرم استایل‌مورف محفوظ است © ۲۰۲۶',
+      'aboutLinkCopied': 'در کلیپ‌بورد کپی شد',
+      'aboutClose': 'بستن',
     },
     'en': {
       'appName': 'StyleMorph',
@@ -1602,6 +1642,46 @@ class AppStrings {
       'sessErrLoad': 'Failed to load sessions',
       'dialogCancel': 'Cancel',
       'dialogConfirm': 'Confirm',
+      // About & Updates Sub-Tab
+      'tAbout': 'About',
+      'aboutHeader': 'About StyleMorph',
+      'aboutTagline': 'Personal AI Stylist & Virtual Try-On Studio',
+      'aboutMission': 'StyleMorph is a cutting-edge platform at the intersection of fashion, technology, and aesthetic elegance. Leveraging advanced generative AI, we provide hyper-realistic virtual fitting, intelligent wardrobe curation, and bespoke styling with strict privacy-first data protection.',
+      'aboutVersionLabel': 'App Version',
+      'aboutBuildLabel': 'Build',
+      'aboutReleaseDateLabel': 'Release Date',
+      'aboutReleaseDateVal': 'November 2026',
+      'aboutEnvironmentLabel': 'Environment',
+      'aboutEnvironmentVal': 'Stable (Production)',
+      'aboutCheckUpdatesBtn': 'Check for Updates',
+      'aboutChecking': 'Checking for updates...',
+      'aboutUpToDate': 'You are running the latest version of StyleMorph.',
+      'aboutUpdateAvailable': 'New update ({version}) is available!',
+      'aboutUpdateActionWeb': 'Install Update & Refresh',
+      'aboutUpdateActionMobile': 'Download Update',
+      'aboutWhatsNewTitle': 'What\'s New in Version 1.0',
+      'aboutChangelog1Title': 'Virtual Try-On & Atelier Studio',
+      'aboutChangelog1Desc': 'Hyper-realistic garment fitting on user photos with fabric texture and lighting simulation',
+      'aboutChangelog2Title': 'Smart Wardrobe & Auto-Tagging',
+      'aboutChangelog2Desc': 'Automated background removal, color/texture tagging, and intelligent outfit curation',
+      'aboutChangelog3Title': 'High-Resilience AI Gateway',
+      'aboutChangelog3Desc': 'Multi-account key pool load balancing, sub-100ms cold starts, and circuit breaking',
+      'aboutChangelog4Title': 'Referral Rewards & Loyalty Tiers',
+      'aboutChangelog4Desc': 'Transparent StylePoints formula, dual-sided referral rewards, and 4 progressive ranks',
+      'aboutChangelog5Title': 'Data Privacy & Dual Persona Avatar',
+      'aboutChangelog5Desc': 'Zero permanent raw storage, SHA-256 caching, and privacy mannequin mode',
+      'aboutLegalSectionTitle': 'Legal & Compliance',
+      'aboutTermsTitle': 'Terms of Service',
+      'aboutPrivacyTitle': 'Privacy Policy & AI Image Data Protection',
+      'aboutLicensesTitle': 'Open Source Licenses',
+      'aboutContactSectionTitle': 'Official Contact & Socials',
+      'aboutWebsiteLabel': 'Official Website',
+      'aboutEmailLabel': 'Support Email',
+      'aboutInstagramLabel': 'Instagram',
+      'aboutTelegramLabel': 'Telegram',
+      'aboutCopyrightNotice': '© 2026 StyleMorph. All rights reserved.',
+      'aboutLinkCopied': 'Copied to clipboard',
+      'aboutClose': 'Close',
     },
     'ar': {
       'appName': 'StyleMorph',
@@ -2354,6 +2434,46 @@ class AppStrings {
       'sessErrLoad': 'فشل في تحميل الجلسات',
       'dialogCancel': 'إلغاء',
       'dialogConfirm': 'تأكيد',
+      // About & Updates Sub-Tab
+      'tAbout': 'حول التطبيق',
+      'aboutHeader': 'حول ستايل مورف',
+      'aboutTagline': 'استوديو المنسق الذكي والقياس الافتراضي الشخصي',
+      'aboutMission': 'ستايل مورف هي منصة متطورة تجمع بين الموضة والتكنولوجيا والجمال. باستخدام أحدث نماذج الذكاء الاصطناعي التوليدي، نقدم تجربة قياس افتراضية واقعية وإدارة ذكية لخزانتك وتنسيقات أزياء مخصصة مع أعلى معايير الخصوصية.',
+      'aboutVersionLabel': 'إصدار التطبيق',
+      'aboutBuildLabel': 'رقم البناء',
+      'aboutReleaseDateLabel': 'تاريخ الإصدار',
+      'aboutReleaseDateVal': 'نوفمبر ٢٠٢٦',
+      'aboutEnvironmentLabel': 'بيئة التشغيل',
+      'aboutEnvironmentVal': 'مستقر (الإنتاج)',
+      'aboutCheckUpdatesBtn': 'التحقق من التحديثات',
+      'aboutChecking': 'جارٍ التحقق من وجود تحديثات...',
+      'aboutUpToDate': 'أنت تستخدم أحدث إصدار من ستايل مورف.',
+      'aboutUpdateAvailable': 'تحديث جديد ({version}) متوفر الآن!',
+      'aboutUpdateActionWeb': 'تثبيت التحديث وإعادة التحميل',
+      'aboutUpdateActionMobile': 'تنزيل التحديث',
+      'aboutWhatsNewTitle': 'ما الجديد في الإصدار ١.٠',
+      'aboutChangelog1Title': 'غرفة القياس الافتراضية واستوديو الأزياء',
+      'aboutChangelog1Desc': 'تجربة واقعية لتنسيق وقياس الملابس على صورتك مع محاكاة خامات الأقمشة والإضاءة',
+      'aboutChangelog2Title': 'الخزانة الذكية وتصنيف الأزياء التلقائي',
+      'aboutChangelog2Desc': 'إزالة خلفيات الصور تلقائياً وتحديد الألوان والخامات وتنسيق الملابس بذكاء',
+      'aboutChangelog3Title': 'بوابة ذكاء اصطناعي عالية الكفاءة',
+      'aboutChangelog3Desc': 'موازنة الحمل عبر حسابات متعددة مع تشغيل فوري دون تأخير وحماية من الأعطال',
+      'aboutChangelog4Title': 'مكافآت الإحالة ومستويات الولاء',
+      'aboutChangelog4Desc': 'احتساب شفاف لنقاط StylePoints ومكافآت متبادلة للعملات و٤ فئات تصنيف',
+      'aboutChangelog5Title': 'خصوصية البيانات ووضع الأفاتار الآمن',
+      'aboutChangelog5Desc': 'تشفير متكامل للصور، تخزين مؤقت مشفر وإمكانية اختيار مانيكان بدلاً من الوجه الحقيقي',
+      'aboutLegalSectionTitle': 'الشروط والخصوصية',
+      'aboutTermsTitle': 'شروط الخدمة والأحكام',
+      'aboutPrivacyTitle': 'سياسة الخصوصية وحماية بيانات وصور الذكاء الاصطناعي',
+      'aboutLicensesTitle': 'تراخيص البرمجيات مفتوحة المصدر',
+      'aboutContactSectionTitle': 'التواصل والقنوات الرسمية',
+      'aboutWebsiteLabel': 'الموقع الرسمي',
+      'aboutEmailLabel': 'البريد الإلكتروني للدعم',
+      'aboutInstagramLabel': 'إنستغرام',
+      'aboutTelegramLabel': 'تيليجرام',
+      'aboutCopyrightNotice': 'جميع الحقوق محفوظة لمنصة ستايل مورف © ٢٠٢٦',
+      'aboutLinkCopied': 'تم النسخ إلى الحافظة',
+      'aboutClose': 'إغلاق',
     },
     'tr': {
       'appName': 'StyleMorph',
@@ -3106,6 +3226,46 @@ class AppStrings {
       'sessErrLoad': 'Oturumlar yüklenemedi',
       'dialogCancel': 'İptal',
       'dialogConfirm': 'Onayla',
+      // About & Updates Sub-Tab
+      'tAbout': 'Hakkında',
+      'aboutHeader': 'StyleMorph Hakkında',
+      'aboutTagline': 'Kişisel Yapay Zeka Stilisti ve Sanal Deneme Stüdyosu',
+      'aboutMission': 'StyleMorph; moda, teknoloji ve zarafetin kesiştiği yenilikçi bir platformdur. Gelişmiş üretken yapay zeka ile hiper-gerçekçi sanal deneme, akıllı gardırop yönetimi ve kişiye özel stil önerilerini en yüksek gizlilik standartlarıyla sunuyoruz.',
+      'aboutVersionLabel': 'Uygulama Sürümü',
+      'aboutBuildLabel': 'Yapım No',
+      'aboutReleaseDateLabel': 'Yayın Tarihi',
+      'aboutReleaseDateVal': 'Kasım 2026',
+      'aboutEnvironmentLabel': 'Ortam',
+      'aboutEnvironmentVal': 'Kararlı (Üretim)',
+      'aboutCheckUpdatesBtn': 'Güncellemeleri Denetle',
+      'aboutChecking': 'Güncellemeler kontrol ediliyor...',
+      'aboutUpToDate': 'StyleMorph\'un en son kararlı sürümünü kullanıyorsunuz.',
+      'aboutUpdateAvailable': 'Yeni güncelleme ({version}) mevcut!',
+      'aboutUpdateActionWeb': 'Güncellemeyi Yükle ve Yenile',
+      'aboutUpdateActionMobile': 'Güncellemeyi İndir',
+      'aboutWhatsNewTitle': 'Sürüm 1.0 Yenilikleri',
+      'aboutChangelog1Title': 'Sanal Deneme Kabini ve Atölye Stüdyosu',
+      'aboutChangelog1Desc': 'Fotoğrafınız üzerinde kumaş dokusu ve ışık simülasyonu ile hiper-gerçekçi kıyafet denemesi',
+      'aboutChangelog2Title': 'Akıllı Gardırop ve Otomatik Etiketleme',
+      'aboutChangelog2Desc': 'Otomatik arka plan temizleme, renk/doku tespiti ve akıllı kıyafet kombinleme',
+      'aboutChangelog3Title': 'Yüksek Performanslı Yapay Zeka Ağ Geçidi',
+      'aboutChangelog3Desc': 'Çoklu hesap yük dengeleme, anında başlatma ve kesintisiz yapay zeka hattı',
+      'aboutChangelog4Title': 'Davet Ödülleri ve Sadakat Kademeleri',
+      'aboutChangelog4Desc': 'Şeffaf StylePoints formülü, karşılıklı hediye paralar ve 4 aşamalı sadakat kademesi',
+      'aboutChangelog5Title': 'Veri Gizliliği ve Çift Kişilikli Güvenli Avatar',
+      'aboutChangelog5Desc': 'Uçtan uca şifreleme, SHA-256 önbellekleme ve gerçek fotoğraf yerine gizlilik avatarı seçeneği',
+      'aboutLegalSectionTitle': 'Yasal ve Gizlilik',
+      'aboutTermsTitle': 'Kullanım Koşulları',
+      'aboutPrivacyTitle': 'Gizlilik Politikası ve Yapay Zeka Görsel Veri Koruması',
+      'aboutLicensesTitle': 'Açık Kaynak Lisansları',
+      'aboutContactSectionTitle': 'İletişim ve Sosyal Kanallar',
+      'aboutWebsiteLabel': 'Resmi Web Sitesi',
+      'aboutEmailLabel': 'Destek E-postası',
+      'aboutInstagramLabel': 'Instagram',
+      'aboutTelegramLabel': 'Telegram',
+      'aboutCopyrightNotice': '© 2026 StyleMorph. Tüm hakları saklıdır.',
+      'aboutLinkCopied': 'Panoya kopyalandı',
+      'aboutClose': 'Kapat',
     },
   };
 
@@ -3992,6 +4152,47 @@ class AppStrings {
   String get sessErrLoad => get('sessErrLoad');
   String get dialogCancel => get('dialogCancel');
   String get dialogConfirm => get('dialogConfirm');
+
+  // About & Updates sub-tab getters
+  String get tAbout => get('tAbout');
+  String get aboutHeader => get('aboutHeader');
+  String get aboutTagline => get('aboutTagline');
+  String get aboutMission => get('aboutMission');
+  String get aboutVersionLabel => get('aboutVersionLabel');
+  String get aboutBuildLabel => get('aboutBuildLabel');
+  String get aboutReleaseDateLabel => get('aboutReleaseDateLabel');
+  String get aboutReleaseDateVal => get('aboutReleaseDateVal');
+  String get aboutEnvironmentLabel => get('aboutEnvironmentLabel');
+  String get aboutEnvironmentVal => get('aboutEnvironmentVal');
+  String get aboutCheckUpdatesBtn => get('aboutCheckUpdatesBtn');
+  String get aboutChecking => get('aboutChecking');
+  String get aboutUpToDate => get('aboutUpToDate');
+  String get aboutUpdateAvailable => get('aboutUpdateAvailable');
+  String get aboutUpdateActionWeb => get('aboutUpdateActionWeb');
+  String get aboutUpdateActionMobile => get('aboutUpdateActionMobile');
+  String get aboutWhatsNewTitle => get('aboutWhatsNewTitle');
+  String get aboutChangelog1Title => get('aboutChangelog1Title');
+  String get aboutChangelog1Desc => get('aboutChangelog1Desc');
+  String get aboutChangelog2Title => get('aboutChangelog2Title');
+  String get aboutChangelog2Desc => get('aboutChangelog2Desc');
+  String get aboutChangelog3Title => get('aboutChangelog3Title');
+  String get aboutChangelog3Desc => get('aboutChangelog3Desc');
+  String get aboutChangelog4Title => get('aboutChangelog4Title');
+  String get aboutChangelog4Desc => get('aboutChangelog4Desc');
+  String get aboutChangelog5Title => get('aboutChangelog5Title');
+  String get aboutChangelog5Desc => get('aboutChangelog5Desc');
+  String get aboutLegalSectionTitle => get('aboutLegalSectionTitle');
+  String get aboutTermsTitle => get('aboutTermsTitle');
+  String get aboutPrivacyTitle => get('aboutPrivacyTitle');
+  String get aboutLicensesTitle => get('aboutLicensesTitle');
+  String get aboutContactSectionTitle => get('aboutContactSectionTitle');
+  String get aboutWebsiteLabel => get('aboutWebsiteLabel');
+  String get aboutEmailLabel => get('aboutEmailLabel');
+  String get aboutInstagramLabel => get('aboutInstagramLabel');
+  String get aboutTelegramLabel => get('aboutTelegramLabel');
+  String get aboutCopyrightNotice => get('aboutCopyrightNotice');
+  String get aboutLinkCopied => get('aboutLinkCopied');
+  String get aboutClose => get('aboutClose');
 
   String formatRelativeTime(DateTime dt) {
     final now = DateTime.now();

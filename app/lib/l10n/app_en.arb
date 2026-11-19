@@ -630,5 +630,8 @@
   "authReferralCodeLabel": "Referral Code (Optional)",
   "authReferralCodeHint": "8-character referral code",
   "authReferralSelfError": "You cannot use your own referral code",
-  "authReferralInvalidError": "The entered referral code is invalid"
+  "authReferralInvalidError": "The entered referral code is invalid",
+  "tAbout": "About",
+  "aboutHeader": "About StyleMorph",
+  "aboutTagline": "Personal AI Stylist & Virtual Try-On Studio"
 }
