@@ -1,12 +1,17 @@
 ﻿import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/profile/data/kyc_model.dart';
+import '../../features/profile/data/user_preferences.dart';
+import '../localization/locale_provider.dart';
+import '../services/biometric_service.dart';
 import '../services/referral_service.dart';
 import '../services/session_service.dart';
+import '../theme/app_colors.dart';
+import '../theme/theme_provider.dart';
 
 enum AppTab {
   shop,
@@ -142,6 +147,7 @@ class AppState {
   final bool showHeaderCoins;
   final String currentPlan;
   final List<SupportMessage> supportMessages;
+  final UserPreferences preferences;
 
   // Profile dirty-state & form data
   final bool hasUnsavedProfileChanges;
@@ -180,8 +186,9 @@ class AppState {
     this.userHandle = '',
     this.userLevel = 1,
     this.isSupportOpen = false,
-    this.showFloatingSupport = true,
-    this.showHeaderCoins = true,
+    this.showFloatingSupport = false,
+    this.showHeaderCoins = false,
+    this.preferences = const UserPreferences(),
     this.currentPlan = 'عادی (رایگان)',
     this.hasUnsavedProfileChanges = false,
     this.isSavingProfile = false,
@@ -222,6 +229,7 @@ class AppState {
     bool? isSupportOpen,
     bool? showFloatingSupport,
     bool? showHeaderCoins,
+    UserPreferences? preferences,
     String? currentPlan,
     bool? hasUnsavedProfileChanges,
     bool? isSavingProfile,
@@ -252,6 +260,7 @@ class AppState {
       isSupportOpen: isSupportOpen ?? this.isSupportOpen,
       showFloatingSupport: showFloatingSupport ?? this.showFloatingSupport,
       showHeaderCoins: showHeaderCoins ?? this.showHeaderCoins,
+      preferences: preferences ?? this.preferences,
       currentPlan: currentPlan ?? this.currentPlan,
       hasUnsavedProfileChanges:
           hasUnsavedProfileChanges ?? this.hasUnsavedProfileChanges,
@@ -275,11 +284,13 @@ class AppState {
 }
 
 final appStateProvider = StateNotifierProvider<AppStateNotifier, AppState>((ref) {
-  return AppStateNotifier();
+  return AppStateNotifier(ref);
 });
 
 class AppStateNotifier extends StateNotifier<AppState> {
-  AppStateNotifier() : super(const AppState()) {
+  final Ref? _ref;
+
+  AppStateNotifier([this._ref]) : super(const AppState()) {
     loadProfileFromFirestore();
   }
 
@@ -524,6 +535,53 @@ class AppStateNotifier extends StateNotifier<AppState> {
           referralEntries = snap.docs.map(ReferralEntry.fromFirestore).toList();
         } catch (_) {}
 
+        UserPreferences preferences = const UserPreferences();
+        if (data['preferences'] is Map) {
+          preferences = UserPreferences.fromMap(
+            Map<String, dynamic>.from(data['preferences'] as Map),
+          );
+        } else if (data['theme'] is Map) {
+          final tMap = Map<String, dynamic>.from(data['theme'] as Map);
+          preferences = UserPreferences(
+            fashionThemePalette: tMap['palette']?.toString() ?? 'editorial',
+            brightnessMode: tMap['mode']?.toString() ?? 'light',
+          );
+        }
+
+        // Apply loaded preferences locally across the app
+        try {
+          final localPrefs = await SharedPreferences.getInstance();
+          await localPrefs.setString(
+            ThemeNotifier.keyThemePalette,
+            preferences.fashionThemePalette,
+          );
+          await localPrefs.setString(
+            ThemeNotifier.keyThemeMode,
+            preferences.brightnessMode,
+          );
+          await localPrefs.setString(
+            LocaleNotifier.keyAppLanguage,
+            preferences.appLanguage,
+          );
+        } catch (_) {}
+
+        if (_ref != null) {
+          for (final p in AppPalette.values) {
+            if (p.name == preferences.fashionThemePalette) {
+              _ref.read(themeProvider.notifier).setPalette(p);
+              break;
+            }
+          }
+          for (final m in ThemeMode.values) {
+            if (m.name == preferences.brightnessMode) {
+              _ref.read(themeProvider.notifier).setThemeMode(m);
+              break;
+            }
+          }
+          _ref.read(localeProvider.notifier).setLanguage(preferences.appLanguage);
+          _ref.read(biometricServiceProvider).setBiometricLockEnabled(preferences.biometricLock);
+        }
+
         state = state.copyWith(
           identityValues: identity,
           aiDnaValues: aiDna,
@@ -534,6 +592,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
           kycData: kyc,
           personaMode: personaMode,
           mediaSlots: mediaSlots,
+          preferences: preferences,
+          showFloatingSupport: preferences.showFloatingSupport,
+          showHeaderCoins: preferences.showHeaderCoins,
           referralCode: referralCode,
           referralCount: referralCount,
           networkTier: networkTier,
@@ -635,17 +696,32 @@ class AppStateNotifier extends StateNotifier<AppState> {
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
+      String currentPalette = state.preferences.fashionThemePalette;
+      String currentMode = state.preferences.brightnessMode;
+      String currentLang = state.preferences.appLanguage;
       try {
         final prefs = await SharedPreferences.getInstance();
-        final p = prefs.getString('user_theme_palette');
-        final m = prefs.getString('user_theme_mode');
-        if (p != null || m != null) {
-          dataToSave['theme'] = {
-            'palette': ?p,
-            'mode': ?m,
-          };
-        }
+        final p = prefs.getString(ThemeNotifier.keyThemePalette);
+        if (p != null) currentPalette = p;
+        final m = prefs.getString(ThemeNotifier.keyThemeMode);
+        if (m != null) currentMode = m;
+        final l = prefs.getString(LocaleNotifier.keyAppLanguage);
+        if (l != null) currentLang = l;
       } catch (_) {}
+
+      final updatedPreferences = state.preferences.copyWith(
+        fashionThemePalette: currentPalette,
+        brightnessMode: currentMode,
+        appLanguage: currentLang,
+        showFloatingSupport: state.showFloatingSupport,
+        showHeaderCoins: state.showHeaderCoins,
+      );
+
+      dataToSave['preferences'] = updatedPreferences.toMap();
+      dataToSave['theme'] = {
+        'palette': currentPalette,
+        'mode': currentMode,
+      };
 
       await FirebaseFirestore.instance
           .collection('users')
@@ -655,6 +731,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       state = state.copyWith(
         isSavingProfile: false,
         hasUnsavedProfileChanges: false,
+        preferences: updatedPreferences,
         profileProgress: progress,
         userName: fullName.isNotEmpty ? fullName : state.userName,
         userHandle: nick.isNotEmpty ? nick : state.userHandle,
@@ -787,12 +864,53 @@ class AppStateNotifier extends StateNotifier<AppState> {
   void toggleFloatingSupport(bool show) {
     state = state.copyWith(
       showFloatingSupport: show,
+      preferences: state.preferences.copyWith(showFloatingSupport: show),
       isSupportOpen: show ? state.isSupportOpen : false,
+      hasUnsavedProfileChanges: true,
     );
   }
 
   void toggleHeaderCoins(bool show) {
-    state = state.copyWith(showHeaderCoins: show);
+    state = state.copyWith(
+      showHeaderCoins: show,
+      preferences: state.preferences.copyWith(showHeaderCoins: show),
+      hasUnsavedProfileChanges: true,
+    );
+  }
+
+  void setFashionThemePalette(String palette) {
+    state = state.copyWith(
+      preferences: state.preferences.copyWith(fashionThemePalette: palette),
+      hasUnsavedProfileChanges: true,
+    );
+  }
+
+  void setBrightnessMode(String mode) {
+    state = state.copyWith(
+      preferences: state.preferences.copyWith(brightnessMode: mode),
+      hasUnsavedProfileChanges: true,
+    );
+  }
+
+  void setAppLanguage(String code) {
+    state = state.copyWith(
+      preferences: state.preferences.copyWith(appLanguage: code),
+      hasUnsavedProfileChanges: true,
+    );
+  }
+
+  void setAutoDataBackup(String frequency) {
+    state = state.copyWith(
+      preferences: state.preferences.copyWith(autoDataBackup: frequency),
+      hasUnsavedProfileChanges: true,
+    );
+  }
+
+  void setBiometricLock(bool enabled) {
+    state = state.copyWith(
+      preferences: state.preferences.copyWith(biometricLock: enabled),
+      hasUnsavedProfileChanges: true,
+    );
   }
 
   void markNotificationRead(String id) {
@@ -855,6 +973,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
       referralCount: 0,
       networkTier: 'Starter',
       referrals: const [],
+      preferences: const UserPreferences(),
+      showFloatingSupport: false,
+      showHeaderCoins: false,
       hasUnsavedProfileChanges: false,
       isProfileLoaded: false,
     );

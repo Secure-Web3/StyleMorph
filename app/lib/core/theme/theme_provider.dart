@@ -127,10 +127,20 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
       final doc =
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
       final data = doc.data();
-      if (data != null && data['theme'] is Map) {
-        final themeMap = Map<String, dynamic>.from(data['theme'] as Map);
-        final paletteStr = themeMap['palette']?.toString();
-        final modeStr = themeMap['mode']?.toString();
+      if (data != null) {
+        Map<String, dynamic>? themeMap;
+        if (data['preferences'] is Map) {
+          final prefMap = Map<String, dynamic>.from(data['preferences'] as Map);
+          themeMap = {
+            'palette': prefMap['fashionThemePalette'] ?? prefMap['palette'],
+            'mode': prefMap['brightnessMode'] ?? prefMap['mode'],
+          };
+        } else if (data['theme'] is Map) {
+          themeMap = Map<String, dynamic>.from(data['theme'] as Map);
+        }
+        if (themeMap != null) {
+          final paletteStr = themeMap['palette']?.toString();
+          final modeStr = themeMap['mode']?.toString();
 
         AppPalette? palette;
         if (paletteStr != null) {
@@ -163,7 +173,8 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
           _saveToLocalPrefs();
         }
       }
-    } catch (e) {
+    }
+  } catch (e) {
       debugPrint('[ThemeNotifier] _loadUserThemeFromFirestore error: $e');
     }
   }

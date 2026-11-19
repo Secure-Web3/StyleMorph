@@ -205,9 +205,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: const Text(
-                                    'خطا در ذخیره تغییرات در سرور. لطفا مجددا تلاش کنید.',
-                                    style: TextStyle(
+                                  content: Text(
+                                    strings.profileSaveErrorToast,
+                                    style: const TextStyle(
                                       fontFamily: 'Vazirmatn',
                                     ),
                                   ),

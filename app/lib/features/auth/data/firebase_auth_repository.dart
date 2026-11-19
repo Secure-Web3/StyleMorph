@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../../core/services/referral_service.dart';
+import '../../profile/data/user_preferences.dart';
 import '../domain/auth_repository.dart';
 
 /// Concrete implementation of [AuthRepository] using Firebase Auth, Cloud Firestore,
@@ -179,6 +180,7 @@ class FirebaseAuthRepository implements AuthRepository {
 
       if (!snapshot.exists) {
         final referralCode = ReferralService.generateReferralCode();
+        final initialPreferences = const UserPreferences().toMap();
         await userDoc.set({
           'email': user.email ?? '',
           'role': 'user',
@@ -188,6 +190,7 @@ class FirebaseAuthRepository implements AuthRepository {
           'referralCount': 0,
           'networkTier': 'Starter',
           'coins': 0,
+          'preferences': initialPreferences,
         }, SetOptions(merge: true));
 
         try {

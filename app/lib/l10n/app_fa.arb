@@ -88,6 +88,7 @@
   "saveChanges": "ذخیره تغییرات",
   "noChangesYet": "تغییراتی ثبت نشده",
   "profileSavedToast": "تغییرات پروفایل با موفقیت ذخیره شد.",
+  "profileSaveErrorToast": "خطا در ذخیره تغییرات در سرور. لطفاً مجدداً تلاش کنید.",
   "notificationsTitle": "مرکز اعلان‌ها",
   "markAllRead": "خواندن همه ✓",
   "noNotifications": "اعلانی در این دسته وجود ندارد.",

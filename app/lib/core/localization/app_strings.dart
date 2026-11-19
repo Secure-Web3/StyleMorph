@@ -188,6 +188,7 @@ class AppStrings {
       'saveChanges': 'ذخیره تغییرات',
       'noChangesYet': 'تغییراتی ثبت نشده',
       'profileSavedToast': 'تغییرات پروفایل با موفقیت ذخیره شد.',
+      'profileSaveErrorToast': 'خطا در ذخیره تغییرات در سرور. لطفاً مجدداً تلاش کنید.',
       'notificationsTitle': 'مرکز اعلان‌ها',
       'markAllRead': 'خواندن همه ✓',
       'noNotifications': 'اعلانی در این دسته وجود ندارد.',
@@ -919,6 +920,7 @@ class AppStrings {
       'saveChanges': 'Save Changes',
       'noChangesYet': 'No changes made',
       'profileSavedToast': 'Profile changes saved successfully.',
+      'profileSaveErrorToast': 'Failed to save changes to the server. Please try again.',
       'notificationsTitle': 'Notification Center',
       'markAllRead': 'Mark all read ✓',
       'noNotifications': 'No notifications in this category.',
@@ -1650,6 +1652,7 @@ class AppStrings {
       'saveChanges': 'حفظ التغييرات',
       'noChangesYet': 'لا توجد تغييرات',
       'profileSavedToast': 'تم حفظ تغييرات الملف بنجاح.',
+      'profileSaveErrorToast': 'فشل حفظ التغييرات على الخادم. يرجى المحاولة مرة أخرى.',
       'notificationsTitle': 'مركز الإشعارات',
       'markAllRead': 'قراءة الكل ✓',
       'noNotifications': 'لا توجد إشعارات في هذه الفئة.',
@@ -2381,6 +2384,7 @@ class AppStrings {
       'saveChanges': 'Değişiklikleri Kaydet',
       'noChangesYet': 'Değişiklik yok',
       'profileSavedToast': 'Profil değişiklikleri kaydedildi.',
+      'profileSaveErrorToast': 'Değişiklikler sunucuya kaydedilemedi. Lütfen tekrar deneyin.',
       'notificationsTitle': 'Bildirim Merkezi',
       'markAllRead': 'Tümünü oku ✓',
       'noNotifications': 'Bu kategoride bildirim yok.',
@@ -3159,6 +3163,7 @@ class AppStrings {
   String get saveChanges => get('saveChanges');
   String get noChangesYet => get('noChangesYet');
   String get profileSavedToast => get('profileSavedToast');
+  String get profileSaveErrorToast => get('profileSaveErrorToast');
   String get notificationsTitle => get('notificationsTitle');
   String get markAllRead => get('markAllRead');
   String get noNotifications => get('noNotifications');

@@ -88,6 +88,7 @@
   "saveChanges": "Save Changes",
   "noChangesYet": "No changes made",
   "profileSavedToast": "Profile changes saved successfully.",
+  "profileSaveErrorToast": "Failed to save changes to the server. Please try again.",
   "notificationsTitle": "Notification Center",
   "markAllRead": "Mark all read ✓",
   "noNotifications": "No notifications in this category.",

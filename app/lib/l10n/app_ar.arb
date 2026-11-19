@@ -88,6 +88,7 @@
   "saveChanges": "حفظ التغييرات",
   "noChangesYet": "لا توجد تغييرات",
   "profileSavedToast": "تم حفظ تغييرات الملف بنجاح.",
+  "profileSaveErrorToast": "فشل حفظ التغييرات على الخادم. يرجى المحاولة مرة أخرى.",
   "notificationsTitle": "مركز الإشعارات",
   "markAllRead": "قراءة الكل ✓",
   "noNotifications": "لا توجد إشعارات في هذه الفئة.",

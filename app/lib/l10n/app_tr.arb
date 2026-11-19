@@ -88,6 +88,7 @@
   "saveChanges": "Değişiklikleri Kaydet",
   "noChangesYet": "Değişiklik yok",
   "profileSavedToast": "Profil değişiklikleri kaydedildi.",
+  "profileSaveErrorToast": "Değişiklikler sunucuya kaydedilemedi. Lütfen tekrar deneyin.",
   "notificationsTitle": "Bildirim Merkezi",
   "markAllRead": "Tümünü oku ✓",
   "noNotifications": "Bu kategoride bildirim yok.",
