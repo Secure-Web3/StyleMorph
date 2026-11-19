@@ -74,9 +74,13 @@
       }
     };
     window.resetTurnstileExplicit = function(widgetId) {
-      if (window.turnstile && widgetId) {
+      if (window.turnstile) {
         try {
-          window.turnstile.reset(widgetId);
+          if (widgetId) {
+            window.turnstile.reset(widgetId);
+          } else {
+            window.turnstile.reset();
+          }
         } catch (_) {}
       }
     };

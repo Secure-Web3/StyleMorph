@@ -412,5 +412,7 @@
   "emailVerificationSoftGateDesc": "To use this feature (AI processing and financial transactions), please verify your email address first.",
   "emailVerificationGoToProfile": "Go to Profile & Identity",
   "emailVerificationSuccessToast": "Your email has been verified successfully.",
-  "idUnverified": "Unverified"
+  "idUnverified": "Unverified",
+  "authLockoutCooldown": "Too many failed attempts. Please wait {s}s.",
+  "authLockoutBtn": "Locked ({s}s)"
 }

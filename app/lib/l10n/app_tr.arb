@@ -412,5 +412,7 @@
   "emailVerificationSoftGateDesc": "Bu özelliği (yapay zeka işlemleri ve finansal işlemler) kullanmak için lütfen önce e-posta adresinizi doğrulayın.",
   "emailVerificationGoToProfile": "Profile ve Kimliğe Git",
   "emailVerificationSuccessToast": "E-postanız başarıyla doğrulandı.",
-  "idUnverified": "Doğrulanmadı"
+  "idUnverified": "Doğrulanmadı",
+  "authLockoutCooldown": "Çok fazla başarısız deneme. Lütfen {s} sn bekleyin.",
+  "authLockoutBtn": "Kilitlendi ({s} sn)"
 }

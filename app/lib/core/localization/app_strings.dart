@@ -589,6 +589,8 @@ class AppStrings {
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'تایید امنیتی ورود',
       'authTurnstileRequired': 'لطفاً تایید امنیتی Cloudflare را تکمیل کنید.',
+      'authLockoutCooldown': 'تلاش‌های ناموفق بیش از حد مجاز. لطفاً {s} ثانیه صبر کنید.',
+      'authLockoutBtn': 'قفل موقت ({s} ثانیه)',
       // Biometric Lock
       'setBiometricTitle': 'قفل بیومتریک (اثر انگشت / Face ID)',
       'setBiometricDesc': 'هنگام باز کردن اپلیکیشن، هویت شما با حسگرهای بیومتریک بررسی می‌شود.',
@@ -1123,6 +1125,8 @@ class AppStrings {
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'Security Verification',
       'authTurnstileRequired': 'Please complete the Cloudflare security verification.',
+      'authLockoutCooldown': 'Too many failed attempts. Please wait {s}s.',
+      'authLockoutBtn': 'Locked ({s}s)',
       // Biometric Lock
       'setBiometricTitle': 'Biometric Lock (Fingerprint / Face ID)',
       'setBiometricDesc': 'Require fingerprint or Face ID authentication upon opening the app.',
@@ -1657,6 +1661,8 @@ class AppStrings {
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'التحقق الأمني',
       'authTurnstileRequired': 'يرجى إكمال التحقق الأمني من Cloudflare.',
+      'authLockoutCooldown': 'عدد محاولات غير صحيحة زائد عن الحد. يرجى الانتظار {s} ثانية.',
+      'authLockoutBtn': 'مغلق مؤقتاً ({s} ثانية)',
       // Biometric Lock
       'setBiometricTitle': 'القفل الحيوي (بصمة الإصبع / التعرف على الوجه)',
       'setBiometricDesc': 'طلب التحقق ببصمة الإصبع أو الوجه عند فتح التطبيق.',
@@ -2191,6 +2197,8 @@ class AppStrings {
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'Güvenlik Doğrulaması',
       'authTurnstileRequired': 'Lütfen Cloudflare güvenlik doğrulamasını tamamlayın.',
+      'authLockoutCooldown': 'Çok fazla başarısız deneme. Lütfen {s} sn bekleyin.',
+      'authLockoutBtn': 'Kilitlendi ({s} sn)',
       // Biometric Lock
       'setBiometricTitle': 'Biyometrik Kilit (Parmak İzi / Face ID)',
       'setBiometricDesc': 'Uygulamayı açarken parmak izi veya Face ID doğrulaması iste.',
@@ -2814,6 +2822,20 @@ class AppStrings {
   // Turnstile getters
   String get authTurnstilePrompt => get('authTurnstilePrompt');
   String get authTurnstileRequired => get('authTurnstileRequired');
+  String authLockoutCooldown(int seconds) {
+    final lang = _normalizedLang(localeCode);
+    final secStr = (lang == 'fa' || lang == 'ar')
+        ? formatNumber(seconds)
+        : seconds.toString();
+    return get('authLockoutCooldown').replaceAll('{s}', secStr);
+  }
+  String authLockoutBtn(int seconds) {
+    final lang = _normalizedLang(localeCode);
+    final secStr = (lang == 'fa' || lang == 'ar')
+        ? formatNumber(seconds)
+        : seconds.toString();
+    return get('authLockoutBtn').replaceAll('{s}', secStr);
+  }
 
   // Biometric lock getters
   String get setBiometricTitle => get('setBiometricTitle');

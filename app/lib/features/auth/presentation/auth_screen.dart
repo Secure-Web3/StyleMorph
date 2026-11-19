@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -38,6 +39,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   final TurnstileController _turnstileController = TurnstileController();
   String? _turnstileToken;
 
+  int _consecutiveLoginFailures = 0;
+  int _lockoutSeconds = 0;
+  Timer? _lockoutTimer;
+
   late final AnimationController _animController;
   late final Animation<double> _fadeAnim;
 
@@ -65,6 +70,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
 
   @override
   void dispose() {
+    _lockoutTimer?.cancel();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -82,7 +88,37 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       ..forward();
   }
 
+  void _startLockoutTimer() {
+    _lockoutTimer?.cancel();
+    setState(() {
+      _lockoutSeconds = 30;
+    });
+    _lockoutTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      setState(() {
+        if (_lockoutSeconds > 1) {
+          _lockoutSeconds--;
+        } else {
+          _lockoutSeconds = 0;
+          _consecutiveLoginFailures = 0;
+          timer.cancel();
+        }
+      });
+    });
+  }
+
   Future<void> _handleLogin() async {
+    if (_lockoutSeconds > 0) {
+      AppFeedback.showError(
+        context,
+        context.strings.authLockoutCooldown(_lockoutSeconds),
+      );
+      return;
+    }
+
     if (kIsWeb && (_turnstileToken == null || _turnstileToken!.isEmpty)) {
       AppFeedback.showError(
         context,
@@ -94,17 +130,32 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     final success = await ref.read(authFormProvider.notifier).login();
     if (!mounted) return;
     if (success) {
+      _consecutiveLoginFailures = 0;
+      _lockoutTimer?.cancel();
+      _lockoutSeconds = 0;
       ref.read(appStateProvider.notifier).login();
       Navigator.of(context).popUntil((route) => route.isFirst);
     } else {
       _turnstileController.reset();
-      setState(() => _turnstileToken = null);
-      final code = ref.read(authFormProvider).errorCode;
-      if (code != null) {
+      setState(() {
+        _turnstileToken = null;
+        _consecutiveLoginFailures++;
+      });
+
+      if (_consecutiveLoginFailures >= 3) {
+        _startLockoutTimer();
         AppFeedback.showError(
           context,
-          context.strings.authErrorMessage(code),
+          context.strings.authLockoutCooldown(_lockoutSeconds),
         );
+      } else {
+        final code = ref.read(authFormProvider).errorCode;
+        if (code != null) {
+          AppFeedback.showError(
+            context,
+            context.strings.authErrorMessage(code),
+          );
+        }
       }
     }
   }
@@ -259,6 +310,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           isPasswordVisible: state.isPasswordVisible,
           isSubmitting: state.isSubmitting,
           turnstileController: _turnstileController,
+          isTurnstileVerified:
+              !kIsWeb || (_turnstileToken != null && _turnstileToken!.isNotEmpty),
+          lockoutSeconds: _lockoutSeconds,
           onTurnstileVerified: (token) =>
               setState(() => _turnstileToken = token),
           onTurnstileExpired: () =>
@@ -396,6 +450,8 @@ class _LoginForm extends StatelessWidget {
   final TextEditingController passwordController;
   final bool isPasswordVisible;
   final bool isSubmitting;
+  final bool isTurnstileVerified;
+  final int lockoutSeconds;
   final TurnstileController? turnstileController;
   final ValueChanged<String>? onTurnstileVerified;
   final VoidCallback? onTurnstileExpired;
@@ -414,6 +470,8 @@ class _LoginForm extends StatelessWidget {
     required this.passwordController,
     required this.isPasswordVisible,
     required this.isSubmitting,
+    this.isTurnstileVerified = true,
+    this.lockoutSeconds = 0,
     this.turnstileController,
     this.onTurnstileVerified,
     this.onTurnstileExpired,
@@ -432,6 +490,14 @@ class _LoginForm extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
+    final bool isLocked = lockoutSeconds > 0;
+    final bool isButtonDisabled =
+        isSubmitting || isLocked || !isTurnstileVerified;
+    final String? buttonText = isSubmitting
+        ? null
+        : isLocked
+            ? strings.authLockoutBtn(lockoutSeconds)
+            : strings.authLoginBtn;
 
     return AppCard(
       padding: const EdgeInsetsDirectional.all(AppSpacing.xl),
@@ -500,11 +566,11 @@ class _LoginForm extends StatelessWidget {
             const SizedBox(height: AppSpacing.md),
           ],
 
-          // Primary Login Button (With loading spinner state)
+          // Primary Login Button (With loading spinner and lockout countdown)
           AppButton(
             isFullWidth: true,
-            text: isSubmitting ? null : strings.authLoginBtn,
-            onPressed: isSubmitting ? null : onLogin,
+            text: buttonText,
+            onPressed: isButtonDisabled ? null : onLogin,
             child: isSubmitting
                 ? SizedBox(
                     width: 18,
@@ -561,8 +627,10 @@ class _LoginForm extends StatelessWidget {
           const SizedBox(height: AppSpacing.xl),
 
           // Secondary actions: Sign Up & Forgot Password
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            runSpacing: AppSpacing.xs,
             children: [
               AppTextButton(
                 text: strings.authSwitchToSignup,

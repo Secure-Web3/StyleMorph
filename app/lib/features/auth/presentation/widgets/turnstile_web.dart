@@ -4,7 +4,7 @@ import 'dart:ui_web' as ui_web;
 import 'package:flutter/material.dart';
 import 'package:web/web.dart' as web;
 
-const String kTurnstileSiteKey = '1x00000000000000000000AA';
+const String kTurnstileSiteKey = '0x4AAAAAAGILAS7YQZalDE3k';
 
 @JS('setTurnstileHandler')
 external void _setTurnstileHandler(
@@ -113,11 +113,9 @@ class _TurnstileWidgetState extends State<TurnstileWidget> {
   }
 
   void reset() {
-    if (_widgetId != null) {
-      try {
-        _jsResetTurnstile(_widgetId);
-      } catch (_) {}
-    }
+    try {
+      _jsResetTurnstile(_widgetId);
+    } catch (_) {}
   }
 
   void _registerCallbacks() {

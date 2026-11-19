@@ -412,5 +412,7 @@
   "emailVerificationSoftGateDesc": "لاستخدام هذه الميزة (معالجة الذكاء الاصطناعي والمعاملات المالية)، يرجى تأكيد عنوان بريدك الإلكتروني أولاً.",
   "emailVerificationGoToProfile": "الانتقال إلى الملف الشخصي والهوية",
   "emailVerificationSuccessToast": "تم تأكيد بريدك الإلكتروني بنجاح.",
-  "idUnverified": "غير مؤكد"
+  "idUnverified": "غير مؤكد",
+  "authLockoutCooldown": "عدد محاولات غير صحيحة زائد عن الحد. يرجى الانتظار {s} ثانية.",
+  "authLockoutBtn": "مغلق مؤقتاً ({s} ثانية)"
 }

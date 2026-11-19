@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const String kTurnstileSiteKey = '1x00000000000000000000AA';
+const String kTurnstileSiteKey = '0x4AAAAAAGILAS7YQZalDE3k';
 
 class TurnstileController {
   void reset() {}
