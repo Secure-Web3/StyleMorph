@@ -1,5 +1,6 @@
 ﻿import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/session_service.dart';
@@ -326,10 +327,17 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   /// Loads real user profile from Firestore `users/{uid}`.
   Future<void> loadProfileFromFirestore() async {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
     try {
+      if (Firebase.apps.isEmpty) {
+        state = state.copyWith(isProfileLoaded: true);
+        return;
+      }
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        state = state.copyWith(isProfileLoaded: true);
+        return;
+      }
+
       // Upsert current device session on profile load
       SessionService().upsertSession().catchError((e) {
         debugPrint('[AppStateNotifier] upsertSession error: $e');
@@ -450,6 +458,10 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   /// Persists real profile data directly to Firestore `users/{uid}`.
   Future<bool> saveProfileToFirestore() async {
+    if (Firebase.apps.isEmpty) {
+      saveProfileChanges();
+      return true;
+    }
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       saveProfileChanges();

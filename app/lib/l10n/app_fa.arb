@@ -405,5 +405,12 @@
   "wellMindSheetTitle": "ذهن و آرامش روان",
   "wellFutureSheetTitle": "شبیه‌ساز خودِ آینده (Future Self)",
   "wellCheckinSheetTitle": "ثبت اطلاعات روزانه سلامت",
-  "wellClose": "بستن"
+  "wellClose": "بستن",
+  "emailVerificationBannerTitle": "تأیید ایمیل برای دسترسی کامل",
+  "emailVerificationBannerDesc": "ایمیل شما هنوز تأیید نشده است. برای فعال‌سازی کامل امکانات هوش مصنوعی و تراکنش‌های مالی، لطفاً ایمیل خود را تأیید کنید.",
+  "emailVerificationSoftGateTitle": "نیاز به تأیید آدرس ایمیل",
+  "emailVerificationSoftGateDesc": "برای استفاده از این قابلیت حساس (پردازش‌های هوش مصنوعی و تراکنش‌های مالی)، ابتدا باید آدرس ایمیل خود را تأیید کنید.",
+  "emailVerificationGoToProfile": "رفتن به بخش هویت و پروفایل",
+  "emailVerificationSuccessToast": "ایمیل شما با موفقیت تأیید شد.",
+  "idUnverified": "تأیید نشده"
 }

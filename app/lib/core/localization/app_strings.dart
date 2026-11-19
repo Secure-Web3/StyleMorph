@@ -579,6 +579,13 @@ class AppStrings {
       'authEmailNotVerifiedYet': 'ایمیل شما هنوز تایید نشده است. لطفاً صندوق ورودی یا پوشه هرزنامه (Spam) خود را بررسی کنید.',
       'authVerificationEmailSent': 'ایمیل تایید جدید با موفقیت ارسال شد.',
       'authBackOrSignOut': 'بازگشت و خروج از حساب',
+      'emailVerificationBannerTitle': 'تأیید ایمیل برای دسترسی کامل',
+      'emailVerificationBannerDesc': 'ایمیل شما هنوز تأیید نشده است. برای فعال‌سازی کامل امکانات هوش مصنوعی و تراکنش‌های مالی، لطفاً ایمیل خود را تأیید کنید.',
+      'emailVerificationSoftGateTitle': 'نیاز به تأیید آدرس ایمیل',
+      'emailVerificationSoftGateDesc': 'برای استفاده از این قابلیت حساس (پردازش‌های هوش مصنوعی و تراکنش‌های مالی)، ابتدا باید آدرس ایمیل خود را تأیید کنید.',
+      'emailVerificationGoToProfile': 'رفتن به بخش هویت و پروفایل',
+      'emailVerificationSuccessToast': 'ایمیل شما با موفقیت تأیید شد.',
+      'idUnverified': 'تأیید نشده',
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'تایید امنیتی ورود',
       'authTurnstileRequired': 'لطفاً تایید امنیتی Cloudflare را تکمیل کنید.',
@@ -1106,6 +1113,13 @@ class AppStrings {
       'authEmailNotVerifiedYet': 'Email not verified yet. Please check your inbox or spam folder.',
       'authVerificationEmailSent': 'Verification email sent successfully.',
       'authBackOrSignOut': 'Back / Sign Out',
+      'emailVerificationBannerTitle': 'Verify Email for Full Access',
+      'emailVerificationBannerDesc': 'Your email is not verified yet. Please verify your email to unlock AI generation, smart wardrobe, and financial features.',
+      'emailVerificationSoftGateTitle': 'Email Verification Required',
+      'emailVerificationSoftGateDesc': 'To use this feature (AI processing and financial transactions), please verify your email address first.',
+      'emailVerificationGoToProfile': 'Go to Profile & Identity',
+      'emailVerificationSuccessToast': 'Your email has been verified successfully.',
+      'idUnverified': 'Unverified',
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'Security Verification',
       'authTurnstileRequired': 'Please complete the Cloudflare security verification.',
@@ -1633,6 +1647,13 @@ class AppStrings {
       'authEmailNotVerifiedYet': 'لم يتم تأكيد البريد بعد. يرجى التحقق من صندوق الوارد أو البريد العشوائي (Spam).',
       'authVerificationEmailSent': 'تم إرسال بريد التأكيد بنجاح.',
       'authBackOrSignOut': 'الرجوع / تسجيل الخروج',
+      'emailVerificationBannerTitle': 'تأكيد البريد الإلكتروني للوصول الكامل',
+      'emailVerificationBannerDesc': 'لم يتم تأكيد بريدك الإلكتروني بعد. يرجى تأكيد بريدك لتفعيل ميزات الذکاء الاصطناعي وخزانة الملابس والمعاملات المالية بالكامل.',
+      'emailVerificationSoftGateTitle': 'مطلوب تأكيد البريد الإلكتروني',
+      'emailVerificationSoftGateDesc': 'لاستخدام هذه الميزة (معالجة الذكاء الاصطناعي والمعاملات المالية)، يرجى تأكيد عنوان بريدك الإلكتروني أولاً.',
+      'emailVerificationGoToProfile': 'الانتقال إلى الملف الشخصي والهوية',
+      'emailVerificationSuccessToast': 'تم تأكيد بريدك الإلكتروني بنجاح.',
+      'idUnverified': 'غير مؤكد',
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'التحقق الأمني',
       'authTurnstileRequired': 'يرجى إكمال التحقق الأمني من Cloudflare.',
@@ -2160,6 +2181,13 @@ class AppStrings {
       'authEmailNotVerifiedYet': 'E-posta henüz doğrulanmadı. Lütfen gelen kutunuzu veya spam klasörünüzü kontrol edin.',
       'authVerificationEmailSent': 'Doğrulama e-postası başarıyla gönderildi.',
       'authBackOrSignOut': 'Geri / Çıkış Yap',
+      'emailVerificationBannerTitle': 'Tam Erişim için E-postanızı Doğrulayın',
+      'emailVerificationBannerDesc': 'E-postanız henüz doğrulanmadı. Yapay zeka, akıllı gardırop ve finansal özellikleri etkinleştirmek için lütfen e-postanızı doğrulayın.',
+      'emailVerificationSoftGateTitle': 'E-posta Doğrulaması Gerekli',
+      'emailVerificationSoftGateDesc': 'Bu özelliği (yapay zeka işlemleri ve finansal işlemler) kullanmak için lütfen önce e-posta adresinizi doğrulayın.',
+      'emailVerificationGoToProfile': 'Profile ve Kimliğe Git',
+      'emailVerificationSuccessToast': 'E-postanız başarıyla doğrulandı.',
+      'idUnverified': 'Doğrulanmadı',
       // Turnstile Anti-Bot
       'authTurnstilePrompt': 'Güvenlik Doğrulaması',
       'authTurnstileRequired': 'Lütfen Cloudflare güvenlik doğrulamasını tamamlayın.',
@@ -2775,6 +2803,13 @@ class AppStrings {
   String get authEmailNotVerifiedYet => get('authEmailNotVerifiedYet');
   String get authVerificationEmailSent => get('authVerificationEmailSent');
   String get authBackOrSignOut => get('authBackOrSignOut');
+  String get emailVerificationBannerTitle => get('emailVerificationBannerTitle');
+  String get emailVerificationBannerDesc => get('emailVerificationBannerDesc');
+  String get emailVerificationSoftGateTitle => get('emailVerificationSoftGateTitle');
+  String get emailVerificationSoftGateDesc => get('emailVerificationSoftGateDesc');
+  String get emailVerificationGoToProfile => get('emailVerificationGoToProfile');
+  String get emailVerificationSuccessToast => get('emailVerificationSuccessToast');
+  String get idUnverified => get('idUnverified');
 
   // Turnstile getters
   String get authTurnstilePrompt => get('authTurnstilePrompt');

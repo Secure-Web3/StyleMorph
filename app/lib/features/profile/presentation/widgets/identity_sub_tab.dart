@@ -8,9 +8,10 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_badge.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../auth/presentation/email_verification_provider.dart';
+import 'email_verification_banner.dart';
 
 class IdentitySubTab extends ConsumerStatefulWidget {
   const IdentitySubTab({super.key});
@@ -117,12 +118,17 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
 
     final colors = context.colors;
     final strings = context.strings;
+    final isEmailVerified =
+        ref.watch(emailVerificationProvider.select((s) => s.isVerified));
 
     return Padding(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // Non-blocking Email Verification Status Banner
+          const EmailVerificationBanner(),
+
           AppSectionHeader(
             faIcon: FontAwesomeIcons.userShield,
             title: strings.idHeader,
@@ -213,7 +219,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          // Email with Send Code button
+          // Email with Verification Status Indicator
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -231,21 +237,32 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
-                  AppButton(
-                    size: AppButtonSize.sm,
-                    height: 40,
-                    variant: AppButtonVariant.outline,
-                    text: strings.idSendCode,
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            strings.idCodeSentToast,
-                            style: const TextStyle(fontFamily: 'Vazirmatn'),
-                          ),
+                  AppBadge(
+                    variant: isEmailVerified
+                        ? AppBadgeVariant.success
+                        : AppBadgeVariant.warning,
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        FaIcon(
+                          isEmailVerified
+                              ? FontAwesomeIcons.check
+                              : FontAwesomeIcons.triangleExclamation,
+                          size: 11,
+                          color: isEmailVerified ? colors.ok : colors.wn,
                         ),
-                      );
-                    },
+                        const SizedBox(width: AppSpacing.xs),
+                        Text(
+                          isEmailVerified
+                              ? strings.idVerified
+                              : strings.idUnverified,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),

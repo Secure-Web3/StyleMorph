@@ -405,5 +405,12 @@
   "wellMindSheetTitle": "Mindfulness & Calm",
   "wellFutureSheetTitle": "Future Self Simulator",
   "wellCheckinSheetTitle": "Daily Health Check-In",
-  "wellClose": "Close"
+  "wellClose": "Close",
+  "emailVerificationBannerTitle": "Verify Email for Full Access",
+  "emailVerificationBannerDesc": "Your email is not verified yet. Please verify your email to unlock AI generation, smart wardrobe, and financial features.",
+  "emailVerificationSoftGateTitle": "Email Verification Required",
+  "emailVerificationSoftGateDesc": "To use this feature (AI processing and financial transactions), please verify your email address first.",
+  "emailVerificationGoToProfile": "Go to Profile & Identity",
+  "emailVerificationSuccessToast": "Your email has been verified successfully.",
+  "idUnverified": "Unverified"
 }

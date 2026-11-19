@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/email_verification_gate.dart';
 
 class WalletSubTab extends ConsumerStatefulWidget {
   const WalletSubTab({super.key});
@@ -241,7 +242,9 @@ class _WalletSubTabState extends ConsumerState<WalletSubTab> {
     required AppStrings strings,
   }) {
     return InkWell(
-      onTap: null, // Disabled: payment gateway not connected
+      onTap: () {
+        if (!checkEmailVerificationGate(context, ref)) return;
+      },
       borderRadius: AppRadius.rMd,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
@@ -318,7 +321,9 @@ class _WalletSubTabState extends ConsumerState<WalletSubTab> {
             size: AppButtonSize.sm,
             isFullWidth: true,
             text: price,
-            onPressed: null, // Disabled: payment gateway not connected
+            onPressed: () {
+              if (!checkEmailVerificationGate(context, ref)) return;
+            },
           ),
         ],
       ),

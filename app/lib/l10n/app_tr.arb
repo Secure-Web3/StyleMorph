@@ -405,5 +405,12 @@
   "wellMindSheetTitle": "Zihin ve Huzur",
   "wellFutureSheetTitle": "Gelecekteki Ben Simülatörü",
   "wellCheckinSheetTitle": "Günlük Sağlık Kaydı",
-  "wellClose": "Kapat"
+  "wellClose": "Kapat",
+  "emailVerificationBannerTitle": "Tam Erişim için E-postanızı Doğrulayın",
+  "emailVerificationBannerDesc": "E-postanız henüz doğrulanmadı. Yapay zeka, akıllı gardırop ve finansal özellikleri etkinleştirmek için lütfen e-postanızı doğrulayın.",
+  "emailVerificationSoftGateTitle": "E-posta Doğrulaması Gerekli",
+  "emailVerificationSoftGateDesc": "Bu özelliği (yapay zeka işlemleri ve finansal işlemler) kullanmak için lütfen önce e-posta adresinizi doğrulayın.",
+  "emailVerificationGoToProfile": "Profile ve Kimliğe Git",
+  "emailVerificationSuccessToast": "E-postanız başarıyla doğrulandı.",
+  "idUnverified": "Doğrulanmadı"
 }

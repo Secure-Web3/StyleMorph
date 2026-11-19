@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -7,6 +8,7 @@ import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../auth/presentation/email_verification_provider.dart';
 import 'notification_sheet.dart';
 
 class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
@@ -29,6 +31,8 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
     final strings = context.strings;
     final appState = ref.watch(appStateProvider);
     final isProfileMode = appState.currentTab == AppTab.profile;
+    final isEmailVerified =
+        ref.watch(emailVerificationProvider.select((s) => s.isVerified));
 
     return Container(
       decoration: BoxDecoration(
@@ -70,8 +74,13 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                               Expanded(
                                 child: Builder(
                                   builder: (context) {
-                                    final user = FirebaseAuth.instance.currentUser;
-                                    final isVerified = user?.emailVerified ?? false;
+                                    User? user;
+                                    try {
+                                      if (Firebase.apps.isNotEmpty) {
+                                        user = FirebaseAuth.instance.currentUser;
+                                      }
+                                    } catch (_) {}
+                                    final isVerified = isEmailVerified;
                                     final displayName = appState.userName.isNotEmpty
                                         ? strings.tr(appState.userName)
                                         : (user?.displayName ??

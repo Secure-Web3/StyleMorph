@@ -243,7 +243,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         } catch (_) {}
       }
       if (await _isCurrentDeviceBlocked()) return false;
-      if (user != null && user.emailVerified) {
+      if (user != null) {
         await _ref.read(sessionServiceProvider).upsertSession();
         await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       }
@@ -292,7 +292,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         }
       }
       if (await _isCurrentDeviceBlocked()) return false;
-      if (user != null && user.emailVerified) {
+      if (user != null) {
         await _ref.read(sessionServiceProvider).upsertSession();
         await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
       }
