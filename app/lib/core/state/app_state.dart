@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../features/auth/data/firebase_auth_repository.dart';
 import '../../features/profile/data/kyc_model.dart';
 import '../../features/profile/data/user_preferences.dart';
 import '../localization/locale_provider.dart';
@@ -145,6 +146,7 @@ class AppState {
   final int aiUsageCount;
   final String userName;
   final String userHandle;
+  final String photoUrl;
   final int userLevel;
   final bool isSupportOpen;
   final bool showFloatingSupport;
@@ -191,6 +193,7 @@ class AppState {
     this.aiUsageCount = 0,
     this.userName = '',
     this.userHandle = '',
+    this.photoUrl = '',
     this.userLevel = 1,
     this.isSupportOpen = false,
     this.showFloatingSupport = false,
@@ -235,6 +238,7 @@ class AppState {
     int? aiUsageCount,
     String? userName,
     String? userHandle,
+    String? photoUrl,
     int? userLevel,
     bool? isSupportOpen,
     bool? showFloatingSupport,
@@ -269,6 +273,7 @@ class AppState {
       aiUsageCount: aiUsageCount ?? this.aiUsageCount,
       userName: userName ?? this.userName,
       userHandle: userHandle ?? this.userHandle,
+      photoUrl: photoUrl ?? this.photoUrl,
       userLevel: userLevel ?? this.userLevel,
       isSupportOpen: isSupportOpen ?? this.isSupportOpen,
       showFloatingSupport: showFloatingSupport ?? this.showFloatingSupport,
@@ -521,8 +526,49 @@ class AppStateNotifier extends StateNotifier<AppState> {
             0;
         final currentPlan = data['plan']?.toString() ?? state.currentPlan;
 
-        final first = identity['firstName']?.trim() ?? '';
-        final last = identity['lastName']?.trim() ?? '';
+        final isOAuth = user.providerData.any(
+          (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
+        );
+
+        String first = identity['firstName']?.trim() ?? '';
+        String last = identity['lastName']?.trim() ?? '';
+
+        if (first.isEmpty &&
+            data['firstName'] != null &&
+            data['firstName'].toString().trim().isNotEmpty) {
+          first = data['firstName'].toString().trim();
+          identity['firstName'] = first;
+        }
+        if (last.isEmpty &&
+            data['lastName'] != null &&
+            data['lastName'].toString().trim().isNotEmpty) {
+          last = data['lastName'].toString().trim();
+          identity['lastName'] = last;
+        }
+
+        if (first.isEmpty &&
+            last.isEmpty &&
+            (user.displayName?.trim().isNotEmpty ?? false)) {
+          final (extractedFirst, extractedLast) =
+              FirebaseAuthRepository.splitDisplayName(user.displayName);
+          if (extractedFirst.isNotEmpty) {
+            first = extractedFirst;
+            identity['firstName'] = first;
+          }
+          if (extractedLast.isNotEmpty) {
+            last = extractedLast;
+            identity['lastName'] = last;
+          }
+        }
+
+        final String photoUrl = (data['photoURL'] != null &&
+                data['photoURL'].toString().trim().isNotEmpty)
+            ? data['photoURL'].toString().trim()
+            : (user.photoURL?.trim() ?? '');
+
+        final bool isEmailVerified =
+            isOAuth || user.emailVerified || (data['emailVerified'] == true);
+
         final fullName = '$first $last'.trim();
         final nick =
             identity['nick']?.trim() ?? data['handle']?.toString() ?? '';
@@ -614,25 +660,86 @@ class AppStateNotifier extends StateNotifier<AppState> {
         }
 
         final int aiUsageCount = (data['aiUsageCount'] as num?)?.toInt() ?? 0;
-        final int stylePoints = (data['stylePoints'] as num?)?.toInt() ??
-            LoyaltyService.calculateStylePoints(
-              profileProgress: progress,
-              isEmailVerified: user.emailVerified,
-              referralCount: referralCount,
-              aiUsageCount: aiUsageCount,
-              coinActivity: coins,
-            );
-        final String loyaltyRank = data['loyaltyRank']?.toString() ??
-            LoyaltyService.getRank(stylePoints).nameCapitalized;
+        final int calculatedPoints = LoyaltyService.calculateStylePoints(
+          profileProgress: progress,
+          isEmailVerified: isEmailVerified,
+          referralCount: referralCount,
+          aiUsageCount: aiUsageCount,
+          coinActivity: coins,
+        );
+        final int stylePoints =
+            (data['stylePoints'] as num?)?.toInt() ?? calculatedPoints;
+        final int finalPoints = (stylePoints == 0 ||
+                (isEmailVerified && stylePoints < calculatedPoints))
+            ? calculatedPoints
+            : stylePoints;
+        final String loyaltyRank =
+            LoyaltyService.getRank(finalPoints).nameCapitalized;
+
+        final Map<String, dynamic> backfill = {};
+        if (isOAuth && data['emailVerified'] != true) {
+          backfill['emailVerified'] = true;
+        }
+        if (photoUrl.isNotEmpty &&
+            (data['photoURL'] == null ||
+                data['photoURL'].toString().trim().isEmpty)) {
+          backfill['photoURL'] = photoUrl;
+        }
+        if (first.isNotEmpty &&
+            (data['firstName'] == null ||
+                data['firstName'].toString().trim().isEmpty)) {
+          backfill['firstName'] = first;
+        }
+        if (last.isNotEmpty &&
+            (data['lastName'] == null ||
+                data['lastName'].toString().trim().isEmpty)) {
+          backfill['lastName'] = last;
+        }
+        if (identity.isNotEmpty) {
+          final currentId = data['identity'] is Map
+              ? Map<String, dynamic>.from(data['identity'] as Map)
+              : <String, dynamic>{};
+          bool idChanged = false;
+          if (first.isNotEmpty &&
+              (currentId['firstName'] == null ||
+                  currentId['firstName'].toString().trim().isEmpty)) {
+            currentId['firstName'] = first;
+            idChanged = true;
+          }
+          if (last.isNotEmpty &&
+              (currentId['lastName'] == null ||
+                  currentId['lastName'].toString().trim().isEmpty)) {
+            currentId['lastName'] = last;
+            idChanged = true;
+          }
+          if (idChanged) {
+            backfill['identity'] = currentId;
+          }
+        }
+        if (finalPoints != (data['stylePoints'] as num?)?.toInt()) {
+          backfill['stylePoints'] = finalPoints;
+          backfill['loyaltyRank'] = loyaltyRank;
+        }
+
+        if (backfill.isNotEmpty) {
+          FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .set(backfill, SetOptions(merge: true))
+              .catchError((e) {
+            debugPrint('[loadProfileFromFirestore] backfill error: $e');
+          });
+        }
 
         state = state.copyWith(
+          photoUrl: photoUrl,
           identityValues: identity,
           aiDnaValues: aiDna,
           companionSettings: companion,
           coins: coins,
           currentPlan: currentPlan,
           profileProgress: progress,
-          stylePoints: stylePoints,
+          stylePoints: finalPoints,
           loyaltyRank: loyaltyRank,
           aiUsageCount: aiUsageCount,
           kycData: kyc,
@@ -662,6 +769,17 @@ class AppStateNotifier extends StateNotifier<AppState> {
           });
         }
       } else {
+        final isOAuth = user.providerData.any(
+          (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
+        );
+        final isEmailVerified = isOAuth || user.emailVerified;
+        final (extractedFirst, extractedLast) =
+            FirebaseAuthRepository.splitDisplayName(user.displayName);
+        if (extractedFirst.isNotEmpty) identity['firstName'] = extractedFirst;
+        if (extractedLast.isNotEmpty) identity['lastName'] = extractedLast;
+
+        final photoUrl = user.photoURL?.trim() ?? '';
+
         final progress = calculateProfileProgress(
           identity: identity,
           aiDna: const {},
@@ -670,13 +788,14 @@ class AppStateNotifier extends StateNotifier<AppState> {
         );
         final points = LoyaltyService.calculateStylePoints(
           profileProgress: progress,
-          isEmailVerified: user.emailVerified,
+          isEmailVerified: isEmailVerified,
           referralCount: 0,
           aiUsageCount: 0,
           coinActivity: 0,
         );
         final rank = LoyaltyService.getRank(points).nameCapitalized;
         state = state.copyWith(
+          photoUrl: photoUrl,
           identityValues: identity,
           aiDnaValues: const {},
           coins: 0,
@@ -726,9 +845,14 @@ class AppStateNotifier extends StateNotifier<AppState> {
       final fullName = '$first $last'.trim();
       final nick = state.identityValues['nick']?.trim() ?? state.userHandle;
 
+      final isOAuth = user.providerData.any(
+        (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
+      );
+      final isEmailVerified = isOAuth || user.emailVerified;
+
       final points = LoyaltyService.calculateStylePoints(
         profileProgress: progress,
-        isEmailVerified: user.emailVerified,
+        isEmailVerified: isEmailVerified,
         referralCount: state.referralCount,
         aiUsageCount: state.aiUsageCount,
         coinActivity: state.coins,
@@ -739,6 +863,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
         'email': user.email ?? (state.identityValues['email'] ?? ''),
         'displayName':
             fullName.isNotEmpty ? fullName : (user.displayName ?? ''),
+        'firstName': first,
+        'lastName': last,
         'handle': nick,
         'identity': state.identityValues,
         'aiDna': state.aiDnaValues,

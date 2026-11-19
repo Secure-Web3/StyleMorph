@@ -326,9 +326,12 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                 user = FirebaseAuth.instance.currentUser;
               }
             } catch (_) {}
-            if (user?.photoURL != null && user!.photoURL!.isNotEmpty) {
+            final photoUrl = (user?.photoURL != null && user!.photoURL!.isNotEmpty)
+                ? user.photoURL!
+                : appState.photoUrl;
+            if (photoUrl.isNotEmpty) {
               return Image.network(
-                user.photoURL!,
+                photoUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) =>
                     _buildInitialsWidget(appState, colors),
