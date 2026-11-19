@@ -221,6 +221,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
               Expanded(
                 child: AppTextField(
                   label: strings.idFirstName,
+                  placeholder: strings.idFirstNamePlaceholder,
                   controller: _firstNameController,
                   onChanged: (val) => _onFieldChanged('firstName', val),
                 ),
@@ -229,6 +230,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
               Expanded(
                 child: AppTextField(
                   label: strings.idLastName,
+                  placeholder: strings.idLastNamePlaceholder,
                   controller: _lastNameController,
                   onChanged: (val) => _onFieldChanged('lastName', val),
                 ),
@@ -243,6 +245,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
               Expanded(
                 child: AppTextField(
                   label: strings.idNick,
+                  placeholder: strings.idNickPlaceholder,
                   controller: _nickController,
                   onChanged: (val) => _onFieldChanged('nick', val),
                 ),
@@ -251,6 +254,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
               Expanded(
                 child: AppTextField(
                   label: strings.idNationalId,
+                  placeholder: strings.idNationalIdPlaceholder,
                   controller: _nidController,
                   onChanged: (val) => _onFieldChanged('nid', val),
                 ),
@@ -297,6 +301,8 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                 children: [
                   Expanded(
                     child: AppTextField(
+                      placeholder: strings.idMobilePlaceholder,
+                      keyboardType: TextInputType.phone,
                       controller: _mobileController,
                       onChanged: (val) => _onFieldChanged('mobile', val),
                     ),
@@ -340,6 +346,8 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                 children: [
                   Expanded(
                     child: AppTextField(
+                      placeholder: strings.idEmailPlaceholder,
+                      keyboardType: TextInputType.emailAddress,
                       controller: _emailController,
                       onChanged: (val) => _onFieldChanged('email', val),
                     ),
@@ -505,6 +513,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
               Expanded(
                 child: AppTextField(
                   label: strings.idCountry,
+                  placeholder: strings.idCountryPlaceholder,
                   controller: _countryController,
                   onChanged: (val) => _onFieldChanged('country', val),
                 ),
@@ -513,6 +522,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
               Expanded(
                 child: AppTextField(
                   label: strings.idProvince,
+                  placeholder: strings.idProvincePlaceholder,
                   controller: _provinceController,
                   onChanged: (val) => _onFieldChanged('province', val),
                 ),
@@ -521,6 +531,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
               Expanded(
                 child: AppTextField(
                   label: strings.idCity,
+                  placeholder: strings.idCityPlaceholder,
                   controller: _cityController,
                   onChanged: (val) => _onFieldChanged('city', val),
                 ),
@@ -537,6 +548,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                 flex: 2,
                 child: AppTextField(
                   label: strings.idAddress,
+                  placeholder: strings.idAddressPlaceholder,
                   controller: _addressController,
                   maxLines: 2,
                   onChanged: (val) => _onFieldChanged('address', val),

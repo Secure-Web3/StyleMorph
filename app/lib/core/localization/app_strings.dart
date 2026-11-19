@@ -197,13 +197,18 @@ class AppStrings {
       'newWord': 'جدید',
       'idHeader': 'شناسنامه و اطلاعات هویتی',
       'idFirstName': 'نام',
+      'idFirstNamePlaceholder': 'مثال: علی',
       'idLastName': 'نام خانوادگی',
+      'idLastNamePlaceholder': 'مثال: رضایی',
       'idNick': 'نام مستعار',
+      'idNickPlaceholder': '@ali_style',
       'idNationalId': 'کد ملی',
+      'idNationalIdPlaceholder': 'کد ملی ۱۰ رقمی',
       'idDob': 'تاریخ تولد',
       'idDobPlaceholder': 'انتخاب تاریخ تولد',
       'idDobAgeRequirement': 'حداقل سن قانونی ۱۳ سال است',
       'idMobile': 'شماره موبایل',
+      'idMobilePlaceholder': '+98 912 345 6789',
       'idVerifyMobile': 'تایید',
       'commonComingSoon': 'به زودی',
       'commonGotIt': 'متوجه شدم',
@@ -225,12 +230,17 @@ class AppStrings {
       'idChangeEmailInvalidError': 'لطفاً یک آدرس ایمیل معتبر وارد کنید.',
       'idVerified': 'تایید شده',
       'idEmail': 'ایمیل',
+      'idEmailPlaceholder': 'name@example.com',
       'idSendCode': 'ارسال کد',
       'idCodeSentToast': 'کد تایید به ایمیل شما ارسال شد.',
       'idCountry': 'کشور',
+      'idCountryPlaceholder': 'مثال: ایران',
       'idProvince': 'استان',
+      'idProvincePlaceholder': 'مثال: تهران',
       'idCity': 'شهر',
+      'idCityPlaceholder': 'مثال: تهران',
       'idAddress': 'آدرس پستی',
+      'idAddressPlaceholder': 'خیابان، کوچه، پلاک، واحد',
       'idZip': 'کد پستی',
       'idZipPlaceholder': 'کد پستی / زیپ‌کد',
       'galHeader': 'آلبوم و تصاویر مرجع',
@@ -764,13 +774,18 @@ class AppStrings {
       'newWord': 'new',
       'idHeader': 'Identity & Personal Information',
       'idFirstName': 'First Name',
+      'idFirstNamePlaceholder': 'e.g. Ali',
       'idLastName': 'Last Name',
+      'idLastNamePlaceholder': 'e.g. Rezaei',
       'idNick': 'Handle / Nickname',
+      'idNickPlaceholder': '@ali_style',
       'idNationalId': 'National ID',
+      'idNationalIdPlaceholder': 'National ID number',
       'idDob': 'Date of Birth',
       'idDobPlaceholder': 'Select date of birth',
       'idDobAgeRequirement': 'Minimum legal age is 13 years',
       'idMobile': 'Mobile Number',
+      'idMobilePlaceholder': '+1 234 567 8900',
       'idVerifyMobile': 'Verify',
       'commonComingSoon': 'Coming Soon',
       'commonGotIt': 'Got It',
@@ -792,12 +807,17 @@ class AppStrings {
       'idChangeEmailInvalidError': 'Please enter a valid email address.',
       'idVerified': 'Verified',
       'idEmail': 'Email',
+      'idEmailPlaceholder': 'name@example.com',
       'idSendCode': 'Send Code',
       'idCodeSentToast': 'Verification code sent to your email.',
       'idCountry': 'Country',
+      'idCountryPlaceholder': 'e.g. United States, Canada',
       'idProvince': 'Province',
+      'idProvincePlaceholder': 'e.g. California, Ontario',
       'idCity': 'City',
+      'idCityPlaceholder': 'e.g. New York, Toronto',
       'idAddress': 'Postal Address',
+      'idAddressPlaceholder': 'Street name, building number, suite',
       'idZip': 'Postal / ZIP Code',
       'idZipPlaceholder': 'Postal / ZIP Code',
       'galHeader': 'Media Album & Reference Photos',
@@ -1331,13 +1351,18 @@ class AppStrings {
       'newWord': 'جديد',
       'idHeader': 'الهوية والمعلومات الشخصية',
       'idFirstName': 'الاسم الأول',
+      'idFirstNamePlaceholder': 'مثال: علي',
       'idLastName': 'اسم العائلة',
+      'idLastNamePlaceholder': 'مثال: رضائي',
       'idNick': 'الاسم المستعار',
+      'idNickPlaceholder': '@ali_style',
       'idNationalId': 'الرقم القومي',
+      'idNationalIdPlaceholder': 'الرقم القومي / الهوية الوطنية',
       'idDob': 'تاريخ الميلاد',
       'idDobPlaceholder': 'اختر تاريخ الميلاد',
       'idDobAgeRequirement': 'الحد الأدنى للسن القانوني هو 13 عاماً',
       'idMobile': 'رقم الجوال',
+      'idMobilePlaceholder': '+971 50 123 4567',
       'idVerifyMobile': 'تأكيد',
       'commonComingSoon': 'قريباً',
       'commonGotIt': 'فهمت ذلك',
@@ -1359,12 +1384,17 @@ class AppStrings {
       'idChangeEmailInvalidError': 'يرجى إدخال عنوان بريد إلكتروني صالح.',
       'idVerified': 'موثّق',
       'idEmail': 'البريد الإلكتروني',
+      'idEmailPlaceholder': 'name@example.com',
       'idSendCode': 'إرسال الرمز',
       'idCodeSentToast': 'تم إرسال رمز التحقق إلى بريدك.',
       'idCountry': 'الدولة',
+      'idCountryPlaceholder': 'مثال: الإمارات، مصر',
       'idProvince': 'المحافظة',
+      'idProvincePlaceholder': 'مثال: دبي، القاهرة',
       'idCity': 'المدينة',
+      'idCityPlaceholder': 'مثال: أبوظبي، الجيزة',
       'idAddress': 'العنوان البريدي',
+      'idAddressPlaceholder': 'الشارع، رقم المبنى، الشقة',
       'idZip': 'الرمز البريدي',
       'idZipPlaceholder': 'الرمز البريدي',
       'galHeader': 'ألبوم الوسائط والصور المرجعية',
@@ -1898,13 +1928,18 @@ class AppStrings {
       'newWord': 'yeni',
       'idHeader': 'Kimlik ve Kişisel Bilgiler',
       'idFirstName': 'Ad',
+      'idFirstNamePlaceholder': 'Örn: Ali',
       'idLastName': 'Soyad',
+      'idLastNamePlaceholder': 'Örn: Yılmaz',
       'idNick': 'Kullanıcı Adı',
+      'idNickPlaceholder': '@ali_style',
       'idNationalId': 'Kimlik No',
+      'idNationalIdPlaceholder': 'T.C. Kimlik No',
       'idDob': 'Doğum Tarihi',
       'idDobPlaceholder': 'Doğum tarihini seçin',
       'idDobAgeRequirement': 'Yasal minimum yaş 13\'tür',
       'idMobile': 'Cep Telefonu',
+      'idMobilePlaceholder': '+90 532 123 4567',
       'idVerifyMobile': 'Doğrula',
       'commonComingSoon': 'Yakında',
       'commonGotIt': 'Anladım',
@@ -1926,12 +1961,17 @@ class AppStrings {
       'idChangeEmailInvalidError': 'Lütfen geçerli bir e-posta adresi girin.',
       'idVerified': 'Doğrulandı',
       'idEmail': 'E-posta',
+      'idEmailPlaceholder': 'name@example.com',
       'idSendCode': 'Kod Gönder',
       'idCodeSentToast': 'Doğrulama kodu e-postanıza gönderildi.',
       'idCountry': 'Ülke',
+      'idCountryPlaceholder': 'Örn: Türkiye',
       'idProvince': 'İl',
+      'idProvincePlaceholder': 'Örn: İstanbul',
       'idCity': 'Şehir',
+      'idCityPlaceholder': 'Örn: Kadıköy',
       'idAddress': 'Açık Adres',
+      'idAddressPlaceholder': 'Mahalle, cadde, sokak, no, daire',
       'idZip': 'Posta Kodu',
       'idZipPlaceholder': 'Posta Kodu',
       'galHeader': 'Medya Albümü ve Referanslar',
@@ -2514,13 +2554,18 @@ class AppStrings {
   // Identity
   String get idHeader => get('idHeader');
   String get idFirstName => get('idFirstName');
+  String get idFirstNamePlaceholder => get('idFirstNamePlaceholder');
   String get idLastName => get('idLastName');
+  String get idLastNamePlaceholder => get('idLastNamePlaceholder');
   String get idNick => get('idNick');
+  String get idNickPlaceholder => get('idNickPlaceholder');
   String get idNationalId => get('idNationalId');
+  String get idNationalIdPlaceholder => get('idNationalIdPlaceholder');
   String get idDob => get('idDob');
   String get idDobPlaceholder => get('idDobPlaceholder');
   String get idDobAgeRequirement => get('idDobAgeRequirement');
   String get idMobile => get('idMobile');
+  String get idMobilePlaceholder => get('idMobilePlaceholder');
   String get idVerifyMobile => get('idVerifyMobile');
   String get commonComingSoon => get('commonComingSoon');
   String get commonGotIt => get('commonGotIt');
@@ -2543,12 +2588,17 @@ class AppStrings {
   String get idChangeEmailInvalidError => get('idChangeEmailInvalidError');
   String get idVerified => get('idVerified');
   String get idEmail => get('idEmail');
+  String get idEmailPlaceholder => get('idEmailPlaceholder');
   String get idSendCode => get('idSendCode');
   String get idCodeSentToast => get('idCodeSentToast');
   String get idCountry => get('idCountry');
+  String get idCountryPlaceholder => get('idCountryPlaceholder');
   String get idProvince => get('idProvince');
+  String get idProvincePlaceholder => get('idProvincePlaceholder');
   String get idCity => get('idCity');
+  String get idCityPlaceholder => get('idCityPlaceholder');
   String get idAddress => get('idAddress');
+  String get idAddressPlaceholder => get('idAddressPlaceholder');
   String get idZip => get('idZip');
   String get idZipPlaceholder => get('idZipPlaceholder');
 
