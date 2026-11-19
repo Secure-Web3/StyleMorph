@@ -203,6 +203,8 @@ class AppStrings {
       'idMobile': 'شماره موبایل',
       'idVerifyMobile': 'تایید',
       'commonComingSoon': 'به زودی',
+      'idVerifyEmail': 'تایید ایمیل',
+      'idCheckEmailStatus': 'بررسی تایید',
       'idVerified': 'تایید شده',
       'idEmail': 'ایمیل',
       'idSendCode': 'ارسال کد',
@@ -749,6 +751,8 @@ class AppStrings {
       'idMobile': 'Mobile Number',
       'idVerifyMobile': 'Verify',
       'commonComingSoon': 'Coming Soon',
+      'idVerifyEmail': 'Verify Email',
+      'idCheckEmailStatus': 'Check Status',
       'idVerified': 'Verified',
       'idEmail': 'Email',
       'idSendCode': 'Send Code',
@@ -1295,6 +1299,8 @@ class AppStrings {
       'idMobile': 'رقم الجوال',
       'idVerifyMobile': 'تأكيد',
       'commonComingSoon': 'قريباً',
+      'idVerifyEmail': 'تأكيد البريد',
+      'idCheckEmailStatus': 'التحقق من الحالة',
       'idVerified': 'موثّق',
       'idEmail': 'البريد الإلكتروني',
       'idSendCode': 'إرسال الرمز',
@@ -1841,6 +1847,8 @@ class AppStrings {
       'idMobile': 'Cep Telefonu',
       'idVerifyMobile': 'Doğrula',
       'commonComingSoon': 'Yakında',
+      'idVerifyEmail': 'E-postayı Doğrula',
+      'idCheckEmailStatus': 'Durumu Kontrol Et',
       'idVerified': 'Doğrulandı',
       'idEmail': 'E-posta',
       'idSendCode': 'Kod Gönder',
@@ -2436,6 +2444,8 @@ class AppStrings {
   String get idMobile => get('idMobile');
   String get idVerifyMobile => get('idVerifyMobile');
   String get commonComingSoon => get('commonComingSoon');
+  String get idVerifyEmail => get('idVerifyEmail');
+  String get idCheckEmailStatus => get('idCheckEmailStatus');
   String get idVerified => get('idVerified');
   String get idEmail => get('idEmail');
   String get idSendCode => get('idSendCode');

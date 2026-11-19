@@ -424,5 +424,7 @@
   "authFallbackVerified": "Verified",
   "authFallbackAnswerHint": "Answer",
   "idVerifyMobile": "Verify",
-  "commonComingSoon": "Coming Soon"
+  "commonComingSoon": "Coming Soon",
+  "idVerifyEmail": "Verify Email",
+  "idCheckEmailStatus": "Check Status"
 }

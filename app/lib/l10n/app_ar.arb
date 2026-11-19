@@ -424,5 +424,7 @@
   "authFallbackVerified": "تم التحقق",
   "authFallbackAnswerHint": "الإجابة",
   "idVerifyMobile": "تأكيد",
-  "commonComingSoon": "قريباً"
+  "commonComingSoon": "قريباً",
+  "idVerifyEmail": "تأكيد البريد",
+  "idCheckEmailStatus": "التحقق من الحالة"
 }

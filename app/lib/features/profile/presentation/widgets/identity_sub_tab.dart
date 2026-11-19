@@ -9,6 +9,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../auth/presentation/email_verification_provider.dart';
@@ -125,8 +126,8 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
 
     final colors = context.colors;
     final strings = context.strings;
-    final isEmailVerified =
-        ref.watch(emailVerificationProvider.select((s) => s.isVerified));
+    final verificationState = ref.watch(emailVerificationProvider);
+    final isEmailVerified = verificationState.isVerified;
 
     return Padding(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -229,7 +230,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          // Email with Verification Status Indicator
+          // Email with Smart Verification Status Indicator & Action Buttons
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -276,6 +277,94 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                   ),
                 ],
               ),
+              if (!isEmailVerified) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.xs,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    AppButton(
+                      size: AppButtonSize.sm,
+                      variant: AppButtonVariant.primary,
+                      height: 32,
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: 2,
+                      ),
+                      icon: verificationState.isResending
+                          ? SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: colors.prt,
+                              ),
+                            )
+                          : const FaIcon(FontAwesomeIcons.paperPlane, size: 10),
+                      text: verificationState.cooldownSeconds > 0
+                          ? '${strings.idVerifyEmail} (${verificationState.cooldownSeconds})'
+                          : strings.idVerifyEmail,
+                      onPressed: (verificationState.cooldownSeconds > 0 ||
+                              verificationState.isResending ||
+                              verificationState.isChecking)
+                          ? null
+                          : () async {
+                              final success = await ref
+                                  .read(emailVerificationProvider.notifier)
+                                  .resendVerificationEmail();
+                              if (!context.mounted) return;
+                              if (success) {
+                                AppFeedback.showSuccess(
+                                  context,
+                                  strings.authVerificationEmailSent,
+                                );
+                              }
+                            },
+                    ),
+                    AppButton(
+                      size: AppButtonSize.sm,
+                      variant: AppButtonVariant.outline,
+                      height: 32,
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: 2,
+                      ),
+                      icon: verificationState.isChecking
+                          ? SizedBox(
+                              width: 12,
+                              height: 12,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: colors.mu,
+                              ),
+                            )
+                          : const FaIcon(FontAwesomeIcons.arrowsRotate, size: 10),
+                      text: strings.idCheckEmailStatus,
+                      onPressed: (verificationState.isChecking ||
+                              verificationState.isResending)
+                          ? null
+                          : () async {
+                              final verified = await ref
+                                  .read(emailVerificationProvider.notifier)
+                                  .reloadAndCheckVerification();
+                              if (!context.mounted) return;
+                              if (verified) {
+                                AppFeedback.showSuccess(
+                                  context,
+                                  strings.emailVerificationSuccessToast,
+                                );
+                              } else {
+                                AppFeedback.showError(
+                                  context,
+                                  strings.authEmailNotVerifiedYet,
+                                );
+                              }
+                            },
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
           const SizedBox(height: AppSpacing.sm),

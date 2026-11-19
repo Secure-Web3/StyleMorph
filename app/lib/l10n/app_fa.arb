@@ -424,5 +424,7 @@
   "authFallbackVerified": "تایید شد",
   "authFallbackAnswerHint": "پاسخ",
   "idVerifyMobile": "تایید",
-  "commonComingSoon": "به زودی"
+  "commonComingSoon": "به زودی",
+  "idVerifyEmail": "تایید ایمیل",
+  "idCheckEmailStatus": "بررسی تایید"
 }

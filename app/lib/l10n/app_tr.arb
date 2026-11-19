@@ -424,5 +424,7 @@
   "authFallbackVerified": "Doğrulandı",
   "authFallbackAnswerHint": "Cevap",
   "idVerifyMobile": "Doğrula",
-  "commonComingSoon": "Yakında"
+  "commonComingSoon": "Yakında",
+  "idVerifyEmail": "E-postayı Doğrula",
+  "idCheckEmailStatus": "Durumu Kontrol Et"
 }
