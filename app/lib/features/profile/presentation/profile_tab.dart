@@ -72,6 +72,8 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
         'p-companion',
         strings.tComp,
         FontAwesomeIcons.wandMagicSparkles,
+        isEnabled: false,
+        badgeText: strings.commonComingSoon,
       ),
       _SubTabMeta('p-sessions', strings.tSess, LucideIcons.monitorSmartphone),
       _SubTabMeta('p-settings', strings.tSet, FontAwesomeIcons.sliders),

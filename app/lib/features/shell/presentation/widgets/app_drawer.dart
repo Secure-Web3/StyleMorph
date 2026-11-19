@@ -152,12 +152,8 @@ class AppDrawer extends ConsumerWidget {
                   _DrawerItem(
                     icon: FontAwesomeIcons.wandMagicSparkles,
                     title: strings.tComp,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      ref
-                          .read(appStateProvider.notifier)
-                          .switchProfileTab('p-companion');
-                    },
+                    badgeText: strings.commonComingSoon,
+                    enabled: false,
                   ),
                   _DrawerItem(
                     icon: FontAwesomeIcons.headset,
