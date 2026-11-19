@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -13,6 +14,7 @@ import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../auth/presentation/email_verification_provider.dart';
+import 'change_email_dialog.dart';
 import 'email_verification_banner.dart';
 
 class IdentitySubTab extends ConsumerStatefulWidget {
@@ -128,6 +130,17 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     final strings = context.strings;
     final verificationState = ref.watch(emailVerificationProvider);
     final isEmailVerified = verificationState.isVerified;
+
+    User? user;
+    try {
+      if (Firebase.apps.isNotEmpty) {
+        user = FirebaseAuth.instance.currentUser;
+      }
+    } catch (_) {}
+
+    final bool isSocialUser = user?.providerData.any(
+      (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
+    ) ?? false;
 
     return Padding(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -275,8 +288,41 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                       ],
                     ),
                   ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Tooltip(
+                    message: isSocialUser ? strings.idSocialEmailNote : '',
+                    child: AppButton(
+                      size: AppButtonSize.sm,
+                      variant: AppButtonVariant.outline,
+                      height: 34,
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: 2,
+                      ),
+                      icon: const FaIcon(FontAwesomeIcons.penToSquare, size: 10),
+                      text: strings.idChangeEmail,
+                      onPressed: isSocialUser
+                          ? null
+                          : () => ChangeEmailDialog.show(context, user: user),
+                    ),
+                  ),
                 ],
               ),
+              if (isSocialUser) ...[
+                const SizedBox(height: AppSpacing.xxs),
+                Row(
+                  children: [
+                    Icon(Icons.info_outline, size: 12, color: colors.mu),
+                    const SizedBox(width: AppSpacing.xs),
+                    Expanded(
+                      child: Text(
+                        strings.idSocialEmailNote,
+                        style: AppTypography.caption(color: colors.mu),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
               if (!isEmailVerified) ...[
                 const SizedBox(height: AppSpacing.xs),
                 Wrap(

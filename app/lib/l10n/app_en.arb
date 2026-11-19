@@ -425,6 +425,21 @@
   "authFallbackAnswerHint": "Answer",
   "idVerifyMobile": "Verify",
   "commonComingSoon": "Coming Soon",
+  "commonGotIt": "Got It",
   "idVerifyEmail": "Verify Email",
-  "idCheckEmailStatus": "Check Status"
+  "idCheckEmailStatus": "Check Status",
+  "idChangeEmail": "Change Email",
+  "idSocialEmailNote": "Social login emails are managed by your provider.",
+  "idChangeEmailTitle": "Change Email Address",
+  "idChangeEmailReauthSubtitle": "For security purposes, please re-enter your current password.",
+  "idCurrentPasswordLabel": "Current Password",
+  "idVerifyAndContinue": "Verify & Continue",
+  "idNewEmailLabel": "New Email Address",
+  "idChangeEmailNotice": "Your current email remains active until the verification link sent to your new email is clicked. Firebase also sends a security alert with a revert link to your old email.",
+  "idSendVerificationToNewEmail": "Send Verification Link",
+  "idChangeEmailSuccessTitle": "Verification Link Sent",
+  "idChangeEmailSuccessDesc": "A verification link was sent to {email}. Once clicked, your email will be updated.",
+  "idLostAccessEmailSupport": "Lost access to your old email? Contact Support",
+  "idChangeEmailSameError": "New email cannot be the same as your current email.",
+  "idChangeEmailInvalidError": "Please enter a valid email address."
 }

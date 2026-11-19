@@ -425,6 +425,21 @@
   "authFallbackAnswerHint": "الإجابة",
   "idVerifyMobile": "تأكيد",
   "commonComingSoon": "قريباً",
+  "commonGotIt": "فهمت ذلك",
   "idVerifyEmail": "تأكيد البريد",
-  "idCheckEmailStatus": "التحقق من الحالة"
+  "idCheckEmailStatus": "التحقق من الحالة",
+  "idChangeEmail": "تغيير البريد",
+  "idSocialEmailNote": "تتم إدارة بريد تسجيل الدخول عبر حسابات جوجل وآبل من خلال مزود الخدمة.",
+  "idChangeEmailTitle": "تغيير عنوان البريد الإلكتروني",
+  "idChangeEmailReauthSubtitle": "لأسباب أمنية، يرجى إعادة إدخال كلمة المرور الحالية أولاً.",
+  "idCurrentPasswordLabel": "كلمة المرور الحالية",
+  "idVerifyAndContinue": "تأكيد ومتابعة",
+  "idNewEmailLabel": "عنوان البريد الإلكتروني الجديد",
+  "idChangeEmailNotice": "سيبقى بريدك الحالي نشطاً حتى يتم النقر على رابط التأكيد المرسل إلى بريدك الجديد. سيرسل فايربيس أيضاً تنبيهاً أمنياً مع رابط استعادة إلى بريدك السابق.",
+  "idSendVerificationToNewEmail": "إرسال رابط التأكيد إلى البريد الجديد",
+  "idChangeEmailSuccessTitle": "تم إرسال رابط التأكيد",
+  "idChangeEmailSuccessDesc": "تم إرسال رابط التأكيد إلى {email}. بمجرد النقر عليه، سيتم تحديث بريدك الإلكتروني.",
+  "idLostAccessEmailSupport": "فقدت الوصول إلى بريدك السابق؟ اتصل بالدعم",
+  "idChangeEmailSameError": "لا يمكن أن يكون البريد الجديد هو نفس البريد الحالي.",
+  "idChangeEmailInvalidError": "يرجى إدخال عنوان بريد إلكتروني صالح."
 }

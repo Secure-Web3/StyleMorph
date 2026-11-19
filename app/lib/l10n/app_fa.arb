@@ -425,6 +425,21 @@
   "authFallbackAnswerHint": "پاسخ",
   "idVerifyMobile": "تایید",
   "commonComingSoon": "به زودی",
+  "commonGotIt": "متوجه شدم",
   "idVerifyEmail": "تایید ایمیل",
-  "idCheckEmailStatus": "بررسی تایید"
+  "idCheckEmailStatus": "بررسی تایید",
+  "idChangeEmail": "تغییر ایمیل",
+  "idSocialEmailNote": "ایمیل حساب‌های گوگل و اپل از طریق ارائه‌دهنده سرویس مدیریت می‌شود.",
+  "idChangeEmailTitle": "تغییر آدرس ایمیل",
+  "idChangeEmailReauthSubtitle": "جهت حفظ امنیت حساب، لطفاً ابتدا رمز عبور فعلی خود را وارد کنید.",
+  "idCurrentPasswordLabel": "رمز عبور فعلی",
+  "idVerifyAndContinue": "تایید رمز و ادامه",
+  "idNewEmailLabel": "آدرس ایمیل جدید",
+  "idChangeEmailNotice": "ایمیل فعلی شما تا زمان کلیک روی لینک تایید ارسالی به ایمیل جدید فعال می‌ماند. همچنین فایربیس یک هشدار امنیتی با لینک بازگشت به ایمیل قبلی شما ارسال خواهد کرد.",
+  "idSendVerificationToNewEmail": "ارسال لینک تایید به ایمیل جدید",
+  "idChangeEmailSuccessTitle": "لینک تایید ارسال شد",
+  "idChangeEmailSuccessDesc": "لینک تایید به {email} ارسال شد. پس از کلیک روی لینک، ایمیل شما تغییر خواهد کرد.",
+  "idLostAccessEmailSupport": "به ایمیل قبلی خود دسترسی ندارید؟ تماس با پشتیبانی",
+  "idChangeEmailSameError": "ایمیل جدید نمی‌تواند همان ایمیل قبلی باشد.",
+  "idChangeEmailInvalidError": "لطفاً یک آدرس ایمیل معتبر وارد کنید."
 }

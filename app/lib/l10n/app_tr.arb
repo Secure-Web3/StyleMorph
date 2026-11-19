@@ -425,6 +425,21 @@
   "authFallbackAnswerHint": "Cevap",
   "idVerifyMobile": "Doğrula",
   "commonComingSoon": "Yakında",
+  "commonGotIt": "Anladım",
   "idVerifyEmail": "E-postayı Doğrula",
-  "idCheckEmailStatus": "Durumu Kontrol Et"
+  "idCheckEmailStatus": "Durumu Kontrol Et",
+  "idChangeEmail": "E-postayı Değiştir",
+  "idSocialEmailNote": "Google ve Apple ile giriş yapılan e-postalar sağlayıcı tarafından yönetilir.",
+  "idChangeEmailTitle": "E-posta Adresini Değiştir",
+  "idChangeEmailReauthSubtitle": "Güvenlik nedeniyle lütfen önce mevcut şifrenizi girin.",
+  "idCurrentPasswordLabel": "Mevcut Şifre",
+  "idVerifyAndContinue": "Doğrula ve Devam Et",
+  "idNewEmailLabel": "Yeni E-posta Adresi",
+  "idChangeEmailNotice": "Yeni e-postanıza gönderilen doğrulama bağlantısına tıklanana kadar mevcut e-postanız aktif kalır. Firebase ayrıca eski e-postanıza bir geri alma bağlantısı içeren güvenlik uyarısı gönderir.",
+  "idSendVerificationToNewEmail": "Yeni E-postaya Doğrulama Bağlantısı Gönder",
+  "idChangeEmailSuccessTitle": "Doğrulama Bağlantısı Gönderildi",
+  "idChangeEmailSuccessDesc": "{email} adresine bir doğrulama bağlantısı gönderildi. Bağlantıya tıklandığında e-postanız güncellenecektir.",
+  "idLostAccessEmailSupport": "Eski e-postanıza erişimi mi kaybettiniz? Destek ile İletişime Geçin",
+  "idChangeEmailSameError": "Yeni e-posta mevcut e-postanızla aynı olamaz.",
+  "idChangeEmailInvalidError": "Lütfen geçerli bir e-posta adresi girin."
 }

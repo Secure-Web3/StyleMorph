@@ -203,8 +203,23 @@ class AppStrings {
       'idMobile': 'شماره موبایل',
       'idVerifyMobile': 'تایید',
       'commonComingSoon': 'به زودی',
+      'commonGotIt': 'متوجه شدم',
       'idVerifyEmail': 'تایید ایمیل',
       'idCheckEmailStatus': 'بررسی تایید',
+      'idChangeEmail': 'تغییر ایمیل',
+      'idSocialEmailNote': 'ایمیل حساب‌های گوگل و اپل از طریق ارائه‌دهنده سرویس مدیریت می‌شود.',
+      'idChangeEmailTitle': 'تغییر آدرس ایمیل',
+      'idChangeEmailReauthSubtitle': 'جهت حفظ امنیت حساب، لطفاً ابتدا رمز عبور فعلی خود را وارد کنید.',
+      'idCurrentPasswordLabel': 'رمز عبور فعلی',
+      'idVerifyAndContinue': 'تایید رمز و ادامه',
+      'idNewEmailLabel': 'آدرس ایمیل جدید',
+      'idChangeEmailNotice': 'ایمیل فعلی شما تا زمان کلیک روی لینک تایید ارسالی به ایمیل جدید فعال می‌ماند. همچنین فایربیس یک هشدار امنیتی با لینک بازگشت به ایمیل قبلی شما ارسال خواهد کرد.',
+      'idSendVerificationToNewEmail': 'ارسال لینک تایید به ایمیل جدید',
+      'idChangeEmailSuccessTitle': 'لینک تایید ارسال شد',
+      'idChangeEmailSuccessDesc': 'لینک تایید به {email} ارسال شد. پس از کلیک روی لینک، ایمیل شما تغییر خواهد کرد.',
+      'idLostAccessEmailSupport': 'به ایمیل قبلی خود دسترسی ندارید؟ تماس با پشتیبانی',
+      'idChangeEmailSameError': 'ایمیل جدید نمی‌تواند همان ایمیل قبلی باشد.',
+      'idChangeEmailInvalidError': 'لطفاً یک آدرس ایمیل معتبر وارد کنید.',
       'idVerified': 'تایید شده',
       'idEmail': 'ایمیل',
       'idSendCode': 'ارسال کد',
@@ -751,8 +766,23 @@ class AppStrings {
       'idMobile': 'Mobile Number',
       'idVerifyMobile': 'Verify',
       'commonComingSoon': 'Coming Soon',
+      'commonGotIt': 'Got It',
       'idVerifyEmail': 'Verify Email',
       'idCheckEmailStatus': 'Check Status',
+      'idChangeEmail': 'Change Email',
+      'idSocialEmailNote': 'Social login emails are managed by your provider.',
+      'idChangeEmailTitle': 'Change Email Address',
+      'idChangeEmailReauthSubtitle': 'For security purposes, please re-enter your current password.',
+      'idCurrentPasswordLabel': 'Current Password',
+      'idVerifyAndContinue': 'Verify & Continue',
+      'idNewEmailLabel': 'New Email Address',
+      'idChangeEmailNotice': 'Your current email remains active until the verification link sent to your new email is clicked. Firebase also sends a security alert with a revert link to your old email.',
+      'idSendVerificationToNewEmail': 'Send Verification Link',
+      'idChangeEmailSuccessTitle': 'Verification Link Sent',
+      'idChangeEmailSuccessDesc': 'A verification link was sent to {email}. Once clicked, your email will be updated.',
+      'idLostAccessEmailSupport': 'Lost access to your old email? Contact Support',
+      'idChangeEmailSameError': 'New email cannot be the same as your current email.',
+      'idChangeEmailInvalidError': 'Please enter a valid email address.',
       'idVerified': 'Verified',
       'idEmail': 'Email',
       'idSendCode': 'Send Code',
@@ -1299,8 +1329,23 @@ class AppStrings {
       'idMobile': 'رقم الجوال',
       'idVerifyMobile': 'تأكيد',
       'commonComingSoon': 'قريباً',
+      'commonGotIt': 'فهمت ذلك',
       'idVerifyEmail': 'تأكيد البريد',
       'idCheckEmailStatus': 'التحقق من الحالة',
+      'idChangeEmail': 'تغيير البريد',
+      'idSocialEmailNote': 'تتم إدارة بريد تسجيل الدخول عبر حسابات جوجل وآبل من خلال مزود الخدمة.',
+      'idChangeEmailTitle': 'تغيير عنوان البريد الإلكتروني',
+      'idChangeEmailReauthSubtitle': 'لأسباب أمنية، يرجى إعادة إدخال كلمة المرور الحالية أولاً.',
+      'idCurrentPasswordLabel': 'كلمة المرور الحالية',
+      'idVerifyAndContinue': 'تأكيد ومتابعة',
+      'idNewEmailLabel': 'عنوان البريد الإلكتروني الجديد',
+      'idChangeEmailNotice': 'سيبقى بريدك الحالي نشطاً حتى يتم النقر على رابط التأكيد المرسل إلى بريدك الجديد. سيرسل فايربيس أيضاً تنبيهاً أمنياً مع رابط استعادة إلى بريدك السابق.',
+      'idSendVerificationToNewEmail': 'إرسال رابط التأكيد إلى البريد الجديد',
+      'idChangeEmailSuccessTitle': 'تم إرسال رابط التأكيد',
+      'idChangeEmailSuccessDesc': 'تم إرسال رابط التأكيد إلى {email}. بمجرد النقر عليه، سيتم تحديث بريدك الإلكتروني.',
+      'idLostAccessEmailSupport': 'فقدت الوصول إلى بريدك السابق؟ اتصل بالدعم',
+      'idChangeEmailSameError': 'لا يمكن أن يكون البريد الجديد هو نفس البريد الحالي.',
+      'idChangeEmailInvalidError': 'يرجى إدخال عنوان بريد إلكتروني صالح.',
       'idVerified': 'موثّق',
       'idEmail': 'البريد الإلكتروني',
       'idSendCode': 'إرسال الرمز',
@@ -1847,8 +1892,23 @@ class AppStrings {
       'idMobile': 'Cep Telefonu',
       'idVerifyMobile': 'Doğrula',
       'commonComingSoon': 'Yakında',
+      'commonGotIt': 'Anladım',
       'idVerifyEmail': 'E-postayı Doğrula',
       'idCheckEmailStatus': 'Durumu Kontrol Et',
+      'idChangeEmail': 'E-postayı Değiştir',
+      'idSocialEmailNote': 'Google ve Apple ile giriş yapılan e-postalar sağlayıcı tarafından yönetilir.',
+      'idChangeEmailTitle': 'E-posta Adresini Değiştir',
+      'idChangeEmailReauthSubtitle': 'Güvenlik nedeniyle lütfen önce mevcut şifrenizi girin.',
+      'idCurrentPasswordLabel': 'Mevcut Şifre',
+      'idVerifyAndContinue': 'Doğrula ve Devam Et',
+      'idNewEmailLabel': 'Yeni E-posta Adresi',
+      'idChangeEmailNotice': 'Yeni e-postanıza gönderilen doğrulama bağlantısına tıklanana kadar mevcut e-postanız aktif kalır. Firebase ayrıca eski e-postanıza bir geri alma bağlantısı içeren güvenlik uyarısı gönderir.',
+      'idSendVerificationToNewEmail': 'Yeni E-postaya Doğrulama Bağlantısı Gönder',
+      'idChangeEmailSuccessTitle': 'Doğrulama Bağlantısı Gönderildi',
+      'idChangeEmailSuccessDesc': '{email} adresine bir doğrulama bağlantısı gönderildi. Bağlantıya tıklandığında e-postanız güncellenecektir.',
+      'idLostAccessEmailSupport': 'Eski e-postanıza erişimi mi kaybettiniz? Destek ile İletişime Geçin',
+      'idChangeEmailSameError': 'Yeni e-posta mevcut e-postanızla aynı olamaz.',
+      'idChangeEmailInvalidError': 'Lütfen geçerli bir e-posta adresi girin.',
       'idVerified': 'Doğrulandı',
       'idEmail': 'E-posta',
       'idSendCode': 'Kod Gönder',
@@ -2444,8 +2504,24 @@ class AppStrings {
   String get idMobile => get('idMobile');
   String get idVerifyMobile => get('idVerifyMobile');
   String get commonComingSoon => get('commonComingSoon');
+  String get commonGotIt => get('commonGotIt');
   String get idVerifyEmail => get('idVerifyEmail');
   String get idCheckEmailStatus => get('idCheckEmailStatus');
+  String get idChangeEmail => get('idChangeEmail');
+  String get idSocialEmailNote => get('idSocialEmailNote');
+  String get idChangeEmailTitle => get('idChangeEmailTitle');
+  String get idChangeEmailReauthSubtitle => get('idChangeEmailReauthSubtitle');
+  String get idCurrentPasswordLabel => get('idCurrentPasswordLabel');
+  String get idVerifyAndContinue => get('idVerifyAndContinue');
+  String get idNewEmailLabel => get('idNewEmailLabel');
+  String get idChangeEmailNotice => get('idChangeEmailNotice');
+  String get idSendVerificationToNewEmail => get('idSendVerificationToNewEmail');
+  String get idChangeEmailSuccessTitle => get('idChangeEmailSuccessTitle');
+  String idChangeEmailSuccessDesc(String email) =>
+      get('idChangeEmailSuccessDesc').replaceAll('{email}', email);
+  String get idLostAccessEmailSupport => get('idLostAccessEmailSupport');
+  String get idChangeEmailSameError => get('idChangeEmailSameError');
+  String get idChangeEmailInvalidError => get('idChangeEmailInvalidError');
   String get idVerified => get('idVerified');
   String get idEmail => get('idEmail');
   String get idSendCode => get('idSendCode');
