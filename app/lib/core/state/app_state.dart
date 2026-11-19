@@ -296,7 +296,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
     if ((aiDna['weight'] ?? '').trim().isNotEmpty) anatomyBasics++;
     score += (anatomyBasics / 3.0) * 0.10;
 
-    // Tailoring measurements
+    // Tailoring & Anthropometric measurements
     int tailoringCount = 0;
     const tailoringKeys = [
       'shoulder',
@@ -310,7 +310,14 @@ class AppStateNotifier extends StateNotifier<AppState> {
       'hair',
     ];
     for (final k in tailoringKeys) {
-      if ((aiDna[k] ?? '').trim().isNotEmpty) tailoringCount++;
+      if ((aiDna[k] ?? '').trim().isNotEmpty ||
+          (k == 'belly' && (aiDna['abdomen'] ?? '').trim().isNotEmpty) ||
+          (k == 'bodyShape' && (aiDna['bodySilhouette'] ?? '').trim().isNotEmpty) ||
+          (k == 'hair' &&
+              ((aiDna['hairColor'] ?? '').trim().isNotEmpty ||
+                  (aiDna['hairTexture'] ?? '').trim().isNotEmpty))) {
+        tailoringCount++;
+      }
     }
     score += (tailoringCount / tailoringKeys.length) * 0.10;
 
