@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/localization/locale_provider.dart';
+import '../../../../core/services/welcome_persistence_service.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_provider.dart';
@@ -100,7 +101,8 @@ class WelcomeScreen extends ConsumerWidget {
                         isFullWidth: true,
                         text: strings.authGetStarted,
                         onPressed: () {
-                          Navigator.of(context).push(
+                          ref.read(hasSeenWelcomeProvider.notifier).markSeen();
+                          Navigator.of(context).pushReplacement(
                             MaterialPageRoute(
                               builder: (_) => const AuthScreen(),
                             ),

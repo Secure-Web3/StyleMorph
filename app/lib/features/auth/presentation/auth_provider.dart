@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/firebase_auth_repository.dart';
 import '../../../core/services/session_service.dart';
+import '../../../core/services/welcome_persistence_service.dart';
 import '../../../core/state/app_state.dart';
 import '../domain/auth_repository.dart';
 
@@ -246,6 +247,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       if (user != null) {
         await _ref.read(sessionServiceProvider).upsertSession();
         await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+        _ref.read(hasSeenWelcomeProvider.notifier).markSeen();
       }
       state = state.copyWith(isSubmitting: false);
       return true;
@@ -295,6 +297,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       if (user != null) {
         await _ref.read(sessionServiceProvider).upsertSession();
         await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+        _ref.read(hasSeenWelcomeProvider.notifier).markSeen();
       }
       state = state.copyWith(isSubmitting: false);
       return true;
@@ -321,6 +324,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       if (await _isCurrentDeviceBlocked()) return false;
       await _ref.read(sessionServiceProvider).upsertSession();
       await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+      _ref.read(hasSeenWelcomeProvider.notifier).markSeen();
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
@@ -346,6 +350,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       if (await _isCurrentDeviceBlocked()) return false;
       await _ref.read(sessionServiceProvider).upsertSession();
       await _ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+      _ref.read(hasSeenWelcomeProvider.notifier).markSeen();
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
