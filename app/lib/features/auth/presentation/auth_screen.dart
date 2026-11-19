@@ -15,6 +15,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/app_logo.dart';
+import '../../../../core/widgets/app_switch.dart';
 import '../../../../core/widgets/app_text_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import 'auth_provider.dart';
@@ -309,6 +310,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           passwordController: _passwordController,
           isPasswordVisible: state.isPasswordVisible,
           isSubmitting: state.isSubmitting,
+          rememberMe: state.rememberMe,
+          onRememberMeChanged: (val) =>
+              ref.read(authFormProvider.notifier).setRememberMe(val),
           turnstileController: _turnstileController,
           isTurnstileVerified:
               !kIsWeb || (_turnstileToken != null && _turnstileToken!.isNotEmpty),
@@ -452,6 +456,8 @@ class _LoginForm extends StatelessWidget {
   final bool isSubmitting;
   final bool isTurnstileVerified;
   final int lockoutSeconds;
+  final bool rememberMe;
+  final ValueChanged<bool> onRememberMeChanged;
   final TurnstileController? turnstileController;
   final ValueChanged<String>? onTurnstileVerified;
   final VoidCallback? onTurnstileExpired;
@@ -472,6 +478,8 @@ class _LoginForm extends StatelessWidget {
     required this.isSubmitting,
     this.isTurnstileVerified = true,
     this.lockoutSeconds = 0,
+    this.rememberMe = true,
+    required this.onRememberMeChanged,
     this.turnstileController,
     this.onTurnstileVerified,
     this.onTurnstileExpired,
@@ -551,7 +559,17 @@ class _LoginForm extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: AppSpacing.xl),
+          const SizedBox(height: AppSpacing.sm),
+
+          // Remember Me Checkbox (Luxury Editorial styled)
+          AppCheckboxTile(
+            label: strings.authRememberMe,
+            value: rememberMe,
+            onChanged: onRememberMeChanged,
+            padding: const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.xxs),
+          ),
+
+          const SizedBox(height: AppSpacing.md),
 
           // Cloudflare Turnstile anti-bot verification (Web only)
           if (kIsWeb) ...[

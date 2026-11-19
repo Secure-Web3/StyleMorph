@@ -414,5 +414,6 @@
   "emailVerificationSuccessToast": "تم تأكيد بريدك الإلكتروني بنجاح.",
   "idUnverified": "غير مؤكد",
   "authLockoutCooldown": "عدد محاولات غير صحيحة زائد عن الحد. يرجى الانتظار {s} ثانية.",
-  "authLockoutBtn": "مغلق مؤقتاً ({s} ثانية)"
+  "authLockoutBtn": "مغلق مؤقتاً ({s} ثانية)",
+  "authRememberMe": "تذكرني"
 }

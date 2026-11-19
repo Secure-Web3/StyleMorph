@@ -414,5 +414,6 @@
   "emailVerificationSuccessToast": "Your email has been verified successfully.",
   "idUnverified": "Unverified",
   "authLockoutCooldown": "Too many failed attempts. Please wait {s}s.",
-  "authLockoutBtn": "Locked ({s}s)"
+  "authLockoutBtn": "Locked ({s}s)",
+  "authRememberMe": "Remember Me"
 }

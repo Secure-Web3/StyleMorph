@@ -591,6 +591,7 @@ class AppStrings {
       'authTurnstileRequired': 'لطفاً تایید امنیتی Cloudflare را تکمیل کنید.',
       'authLockoutCooldown': 'تلاش‌های ناموفق بیش از حد مجاز. لطفاً {s} ثانیه صبر کنید.',
       'authLockoutBtn': 'قفل موقت ({s} ثانیه)',
+      'authRememberMe': 'مرا به خاطر بسپار',
       // Biometric Lock
       'setBiometricTitle': 'قفل بیومتریک (اثر انگشت / Face ID)',
       'setBiometricDesc': 'هنگام باز کردن اپلیکیشن، هویت شما با حسگرهای بیومتریک بررسی می‌شود.',
@@ -1127,6 +1128,7 @@ class AppStrings {
       'authTurnstileRequired': 'Please complete the Cloudflare security verification.',
       'authLockoutCooldown': 'Too many failed attempts. Please wait {s}s.',
       'authLockoutBtn': 'Locked ({s}s)',
+      'authRememberMe': 'Remember Me',
       // Biometric Lock
       'setBiometricTitle': 'Biometric Lock (Fingerprint / Face ID)',
       'setBiometricDesc': 'Require fingerprint or Face ID authentication upon opening the app.',
@@ -1663,6 +1665,7 @@ class AppStrings {
       'authTurnstileRequired': 'يرجى إكمال التحقق الأمني من Cloudflare.',
       'authLockoutCooldown': 'عدد محاولات غير صحيحة زائد عن الحد. يرجى الانتظار {s} ثانية.',
       'authLockoutBtn': 'مغلق مؤقتاً ({s} ثانية)',
+      'authRememberMe': 'تذكرني',
       // Biometric Lock
       'setBiometricTitle': 'القفل الحيوي (بصمة الإصبع / التعرف على الوجه)',
       'setBiometricDesc': 'طلب التحقق ببصمة الإصبع أو الوجه عند فتح التطبيق.',
@@ -2199,6 +2202,7 @@ class AppStrings {
       'authTurnstileRequired': 'Lütfen Cloudflare güvenlik doğrulamasını tamamlayın.',
       'authLockoutCooldown': 'Çok fazla başarısız deneme. Lütfen {s} sn bekleyin.',
       'authLockoutBtn': 'Kilitlendi ({s} sn)',
+      'authRememberMe': 'Beni hatırla',
       // Biometric Lock
       'setBiometricTitle': 'Biyometrik Kilit (Parmak İzi / Face ID)',
       'setBiometricDesc': 'Uygulamayı açarken parmak izi veya Face ID doğrulaması iste.',
@@ -2822,6 +2826,7 @@ class AppStrings {
   // Turnstile getters
   String get authTurnstilePrompt => get('authTurnstilePrompt');
   String get authTurnstileRequired => get('authTurnstileRequired');
+  String get authRememberMe => get('authRememberMe');
   String authLockoutCooldown(int seconds) {
     final lang = _normalizedLang(localeCode);
     final secStr = (lang == 'fa' || lang == 'ar')

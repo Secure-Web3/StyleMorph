@@ -10,6 +10,7 @@ import 'core/localization/app_language.dart';
 import 'core/localization/locale_provider.dart';
 import 'core/services/biometric_service.dart';
 import 'core/services/emulator_config.dart';
+import 'core/services/session_persistence_service.dart';
 import 'core/services/welcome_persistence_service.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
@@ -36,6 +37,7 @@ Future<void> main() async {
         FirebaseFirestore.instance.useFirestoreEmulator(host, port);
       },
     );
+    await SessionPersistenceService().checkAndClearNonPersistentSessionOnStartup();
   } catch (e) {
     debugPrint('[FirebaseInit] Notice: $e');
   }

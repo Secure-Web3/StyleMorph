@@ -414,5 +414,6 @@
   "emailVerificationSuccessToast": "ایمیل شما با موفقیت تأیید شد.",
   "idUnverified": "تأیید نشده",
   "authLockoutCooldown": "تلاش‌های ناموفق بیش از حد مجاز. لطفاً {s} ثانیه صبر کنید.",
-  "authLockoutBtn": "قفل موقت ({s} ثانیه)"
+  "authLockoutBtn": "قفل موقت ({s} ثانیه)",
+  "authRememberMe": "مرا به خاطر بسپار"
 }

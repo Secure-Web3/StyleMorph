@@ -414,5 +414,6 @@
   "emailVerificationSuccessToast": "E-postanız başarıyla doğrulandı.",
   "idUnverified": "Doğrulanmadı",
   "authLockoutCooldown": "Çok fazla başarısız deneme. Lütfen {s} sn bekleyin.",
-  "authLockoutBtn": "Kilitlendi ({s} sn)"
+  "authLockoutBtn": "Kilitlendi ({s} sn)",
+  "authRememberMe": "Beni hatırla"
 }

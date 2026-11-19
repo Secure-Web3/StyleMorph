@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/firebase_auth_repository.dart';
+import '../../../core/services/session_persistence_service.dart';
 import '../../../core/services/session_service.dart';
 import '../../../core/services/welcome_persistence_service.dart';
 import '../../../core/state/app_state.dart';
@@ -90,6 +91,7 @@ class AuthFormState {
   final bool isSubmitting;
   final String? errorCode;
   final String? successMessageKey;
+  final bool rememberMe;
 
   const AuthFormState({
     this.mode = AuthMode.login,
@@ -104,6 +106,7 @@ class AuthFormState {
     this.isSubmitting = false,
     this.errorCode,
     this.successMessageKey,
+    this.rememberMe = true,
   });
 
   AuthFormState copyWith({
@@ -121,6 +124,7 @@ class AuthFormState {
     bool clearError = false,
     String? successMessageKey,
     bool clearSuccess = false,
+    bool? rememberMe,
   }) {
     return AuthFormState(
       mode: mode ?? this.mode,
@@ -137,6 +141,7 @@ class AuthFormState {
       errorCode: clearError ? null : (errorCode ?? this.errorCode),
       successMessageKey:
           clearSuccess ? null : (successMessageKey ?? this.successMessageKey),
+      rememberMe: rememberMe ?? this.rememberMe,
     );
   }
 }
@@ -195,6 +200,10 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
     state = state.copyWith(forgotEmail: value.trim(), clearError: true);
   }
 
+  void setRememberMe(bool value) {
+    state = state.copyWith(rememberMe: value);
+  }
+
   void clearMessages() {
     state = state.copyWith(clearError: true, clearSuccess: true);
   }
@@ -233,6 +242,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
 
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
+      await _ref
+          .read(sessionPersistenceServiceProvider)
+          .applyPersistence(state.rememberMe);
       await _repository.signInWithEmailAndPassword(
         email: state.email,
         password: state.password,
@@ -281,6 +293,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
 
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
+      await _ref
+          .read(sessionPersistenceServiceProvider)
+          .applyPersistence(state.rememberMe);
       final credential = await _repository.createUserWithEmailAndPassword(
         email: state.email,
         password: state.password,
@@ -316,6 +331,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
   Future<bool> signInWithGoogle() async {
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
+      await _ref
+          .read(sessionPersistenceServiceProvider)
+          .applyPersistence(state.rememberMe);
       final credential = await _repository.signInWithGoogle();
       if (credential == null) {
         state = state.copyWith(isSubmitting: false, errorCode: 'google-cancelled');
@@ -342,6 +360,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
   Future<bool> signInWithApple() async {
     state = state.copyWith(isSubmitting: true, clearError: true);
     try {
+      await _ref
+          .read(sessionPersistenceServiceProvider)
+          .applyPersistence(state.rememberMe);
       final credential = await _repository.signInWithApple();
       if (credential == null) {
         state = state.copyWith(isSubmitting: false, errorCode: 'apple-cancelled');
