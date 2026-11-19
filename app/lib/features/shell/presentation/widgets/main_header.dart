@@ -80,7 +80,8 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                                         user = FirebaseAuth.instance.currentUser;
                                       }
                                     } catch (_) {}
-                                    final isVerified = isEmailVerified;
+                                    final isKycVerified = appState.kycData.isVerified;
+                                    final isVerified = isKycVerified || isEmailVerified;
                                     final displayName = appState.userName.isNotEmpty
                                         ? strings.tr(appState.userName)
                                         : (user?.displayName ??
@@ -117,7 +118,9 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                                               FaIcon(
                                                 FontAwesomeIcons.circleCheck,
                                                 size: 12,
-                                                color: colors.inColor,
+                                                color: isKycVerified
+                                                    ? colors.ok
+                                                    : colors.inColor,
                                               ),
                                             ],
                                           ],
@@ -125,9 +128,11 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                                         const SizedBox(height: 2),
                                         // Subtitle: verification | @username
                                         Text(
-                                          isVerified
-                                              ? '${strings.verif} | $subtitleHandle'
-                                              : subtitleHandle,
+                                          isKycVerified
+                                              ? '${strings.kycVerifiedBadge} | $subtitleHandle'
+                                              : (isEmailVerified
+                                                  ? '${strings.verif} | $subtitleHandle'
+                                                  : subtitleHandle),
                                           style: TextStyle(
                                             fontFamily: 'Vazirmatn',
                                             fontSize: 11,
@@ -306,7 +311,12 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
             ),
             child: Builder(
               builder: (context) {
-                final user = FirebaseAuth.instance.currentUser;
+                User? user;
+                try {
+                  if (Firebase.apps.isNotEmpty) {
+                    user = FirebaseAuth.instance.currentUser;
+                  }
+                } catch (_) {}
                 if (user?.photoURL != null && user!.photoURL!.isNotEmpty) {
                   return Image.network(
                     user.photoURL!,

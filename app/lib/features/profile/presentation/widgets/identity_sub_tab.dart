@@ -16,6 +16,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import '../../../auth/presentation/email_verification_provider.dart';
 import 'change_email_dialog.dart';
 import 'email_verification_banner.dart';
+import 'kyc_verification_section.dart';
 
 class IdentitySubTab extends ConsumerStatefulWidget {
   const IdentitySubTab({super.key});
@@ -568,6 +569,10 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
               ),
             ],
           ),
+          const SizedBox(height: AppSpacing.lg),
+
+          // KYC Verification Module
+          const KycVerificationSection(),
         ],
       ),
     );

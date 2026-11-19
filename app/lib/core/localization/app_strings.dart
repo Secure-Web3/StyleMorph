@@ -243,6 +243,32 @@ class AppStrings {
       'idAddressPlaceholder': 'خیابان، کوچه، پلاک، واحد',
       'idZip': 'کد پستی',
       'idZipPlaceholder': 'کد پستی / زیپ‌کد',
+      'kycSectionTitle': 'احراز هویت و مدارک شناسایی (KYC)',
+      'kycSectionSubtitle': 'جهت فعال‌سازی قابلیت‌های پیشرفته و امنیت حساب، مدارک هویتی خود را ارسال کنید.',
+      'kycStatusNotSubmitted': 'تایید نشده',
+      'kycStatusPending': 'در حال بررسی',
+      'kycStatusVerified': 'تایید شده',
+      'kycStatusRejected': 'رد شده',
+      'kycVerifiedBadge': 'احراز هویت شده (KYC Verified)',
+      'kycDocNationalId': 'کارت ملی',
+      'kycDocPassport': 'گذرنامه',
+      'kycDocDriversLicense': 'گواهینامه رانندگی',
+      'kycSelectDocType': 'نوع مدرک شناسایی',
+      'kycUploadFront': 'تصویر روی مدرک (الزامی)',
+      'kycUploadBack': 'تصویر پشت مدرک یا سلفی (اختیاری)',
+      'kycTakeCamera': 'دوربین',
+      'kycChooseGallery': 'گالری تصاویر',
+      'kycSubmit': 'ارسال مدرک جهت بررسی',
+      'kycSubmitting': 'در حال آپلود و ثبت...',
+      'kycPreview': 'مشاهده بزرگنمایی',
+      'kycEdit': 'ویرایش یا جایگزینی',
+      'kycDelete': 'حذف مدرک',
+      'kycDeleteConfirmTitle': 'حذف مدرک شناسایی',
+      'kycDeleteConfirmDesc': 'آیا از حذف مدرک شناسایی خود اطمینان دارید؟ در صورت حذف، وضعیت احراز هویت شما ریست خواهد شد.',
+      'kycDeleteSuccess': 'مدرک شناسایی با موفقیت حذف شد.',
+      'kycSubmitSuccess': 'مدارک شما با موفقیت ارسال شد و در صف بررسی کارشناسان قرار گرفت.',
+      'kycRejectionReasonLabel': 'علت عدم تایید مدرک:',
+      'kycFrontRequired': 'لطفاً ابتدا تصویر روی مدرک را بارگذاری نمایید.',
       'galHeader': 'آلبوم و تصاویر مرجع',
       'galScan360': 'اسکن ۳۶۰ درجه بدن',
       'galUploaded': 'آپلود شده',
@@ -820,6 +846,32 @@ class AppStrings {
       'idAddressPlaceholder': 'Street name, building number, suite',
       'idZip': 'Postal / ZIP Code',
       'idZipPlaceholder': 'Postal / ZIP Code',
+      'kycSectionTitle': 'KYC Verification & Identity Documents',
+      'kycSectionSubtitle': 'Submit your identity documents to unlock advanced features and secure your account.',
+      'kycStatusNotSubmitted': 'Not Submitted',
+      'kycStatusPending': 'Pending Review',
+      'kycStatusVerified': 'Verified',
+      'kycStatusRejected': 'Rejected',
+      'kycVerifiedBadge': 'KYC Verified',
+      'kycDocNationalId': 'National ID Card',
+      'kycDocPassport': 'Passport',
+      'kycDocDriversLicense': "Driver's License",
+      'kycSelectDocType': 'Document Type',
+      'kycUploadFront': 'Front of Document (Required)',
+      'kycUploadBack': 'Back of Document or Selfie (Optional)',
+      'kycTakeCamera': 'Camera',
+      'kycChooseGallery': 'Photo Gallery',
+      'kycSubmit': 'Submit Document for Review',
+      'kycSubmitting': 'Uploading & Submitting...',
+      'kycPreview': 'View Full Image',
+      'kycEdit': 'Edit / Replace',
+      'kycDelete': 'Delete Document',
+      'kycDeleteConfirmTitle': 'Delete Identity Document',
+      'kycDeleteConfirmDesc': 'Are you sure you want to delete your submitted document? Your verification status will be reset.',
+      'kycDeleteSuccess': 'Identity document deleted successfully.',
+      'kycSubmitSuccess': 'Your documents were submitted successfully and are pending review.',
+      'kycRejectionReasonLabel': 'Rejection Reason:',
+      'kycFrontRequired': 'Please upload the front image of your document.',
       'galHeader': 'Media Album & Reference Photos',
       'galScan360': '360° Body Scan',
       'galUploaded': 'Uploaded',
@@ -1397,6 +1449,32 @@ class AppStrings {
       'idAddressPlaceholder': 'الشارع، رقم المبنى، الشقة',
       'idZip': 'الرمز البريدي',
       'idZipPlaceholder': 'الرمز البريدي',
+      'kycSectionTitle': 'التحقق من الهوية والوثائق (KYC)',
+      'kycSectionSubtitle': 'أرسل وثائق هويتك لتفعيل الميزات المتقدمة وتأمين حسابك.',
+      'kycStatusNotSubmitted': 'غير مرسل',
+      'kycStatusPending': 'قيد المراجعة',
+      'kycStatusVerified': 'موثّق',
+      'kycStatusRejected': 'مرفوض',
+      'kycVerifiedBadge': 'تم التحقق (KYC)',
+      'kycDocNationalId': 'بطاقة الهوية الوطنية',
+      'kycDocPassport': 'جواز السفر',
+      'kycDocDriversLicense': 'رخصة القيادة',
+      'kycSelectDocType': 'نوع الوثيقة',
+      'kycUploadFront': 'وجه الوثيقة (مطلوب)',
+      'kycUploadBack': 'ظهر الوثيقة أو سيلفي (اختياري)',
+      'kycTakeCamera': 'الكاميرا',
+      'kycChooseGallery': 'معرض الصور',
+      'kycSubmit': 'إرسال الوثيقة للمراجعة',
+      'kycSubmitting': 'جاري الرفع والتسجيل...',
+      'kycPreview': 'عرض الصورة الكاملة',
+      'kycEdit': 'تعديل أو استبدال',
+      'kycDelete': 'حذف الوثيقة',
+      'kycDeleteConfirmTitle': 'حذف وثيقة الهوية',
+      'kycDeleteConfirmDesc': 'هل أنت متأكد من رغبتك في حذف وثيقة الهوية؟ ستتم إعادة تعيين حالة التحقق الخاصة بك.',
+      'kycDeleteSuccess': 'تم حذف وثيقة الهوية بنجاح.',
+      'kycSubmitSuccess': 'تم إرسال وثائقك بنجاح وهي قيد المراجعة.',
+      'kycRejectionReasonLabel': 'سبب الرفض:',
+      'kycFrontRequired': 'يرجى تحميل صورة وجه الوثيقة أولاً.',
       'galHeader': 'ألبوم الوسائط والصور المرجعية',
       'galScan360': 'مسح ٣٦٠ درجة للجسم',
       'galUploaded': 'تم التحميل',
@@ -1974,6 +2052,32 @@ class AppStrings {
       'idAddressPlaceholder': 'Mahalle, cadde, sokak, no, daire',
       'idZip': 'Posta Kodu',
       'idZipPlaceholder': 'Posta Kodu',
+      'kycSectionTitle': 'Kimlik Doğrulama & Belgeler (KYC)',
+      'kycSectionSubtitle': 'Gelişmiş özellikleri etkinleştirmek ve hesabınızı güvenceye almak için kimlik belgelerinizi gönderin.',
+      'kycStatusNotSubmitted': 'Gönderilmedi',
+      'kycStatusPending': 'İncelemede',
+      'kycStatusVerified': 'Doğrulandı',
+      'kycStatusRejected': 'Reddedildi',
+      'kycVerifiedBadge': 'KYC Doğrulandı',
+      'kycDocNationalId': 'Kimlik Kartı',
+      'kycDocPassport': 'Pasaport',
+      'kycDocDriversLicense': 'Sürücü Belgesi',
+      'kycSelectDocType': 'Belge Türü',
+      'kycUploadFront': 'Belgenin Ön Yüzü (Zorunlu)',
+      'kycUploadBack': 'Belgenin Arka Yüzü veya Selfie (İsteğe Bağlı)',
+      'kycTakeCamera': 'Kamera',
+      'kycChooseGallery': 'Fotoğraf Galerisi',
+      'kycSubmit': 'Belgeyi İnceleme için Gönder',
+      'kycSubmitting': 'Yükleniyor ve Gönderiliyor...',
+      'kycPreview': 'Tam Resmi Görüntüle',
+      'kycEdit': 'Düzenle / Değiştir',
+      'kycDelete': 'Belgeyi Sil',
+      'kycDeleteConfirmTitle': 'Kimlik Belgesini Sil',
+      'kycDeleteConfirmDesc': 'Gönderilen kimlik belgenizi silmek istediğinizden emin misiniz? Doğrulama durumunuz sıfırlanacaktır.',
+      'kycDeleteSuccess': 'Kimlik belgesi başarıyla silindi.',
+      'kycSubmitSuccess': 'Belgeleriniz başarıyla gönderildi ve inceleme kuyruğuna alındı.',
+      'kycRejectionReasonLabel': 'Reddetme Nedeni:',
+      'kycFrontRequired': 'Lütfen önce belgenizin ön yüzünün fotoğrafını yükleyin.',
       'galHeader': 'Medya Albümü ve Referanslar',
       'galScan360': '360° Vücut Taraması',
       'galUploaded': 'Yüklendi',
@@ -2601,6 +2705,34 @@ class AppStrings {
   String get idAddressPlaceholder => get('idAddressPlaceholder');
   String get idZip => get('idZip');
   String get idZipPlaceholder => get('idZipPlaceholder');
+
+  // KYC
+  String get kycSectionTitle => get('kycSectionTitle');
+  String get kycSectionSubtitle => get('kycSectionSubtitle');
+  String get kycStatusNotSubmitted => get('kycStatusNotSubmitted');
+  String get kycStatusPending => get('kycStatusPending');
+  String get kycStatusVerified => get('kycStatusVerified');
+  String get kycStatusRejected => get('kycStatusRejected');
+  String get kycVerifiedBadge => get('kycVerifiedBadge');
+  String get kycDocNationalId => get('kycDocNationalId');
+  String get kycDocPassport => get('kycDocPassport');
+  String get kycDocDriversLicense => get('kycDocDriversLicense');
+  String get kycSelectDocType => get('kycSelectDocType');
+  String get kycUploadFront => get('kycUploadFront');
+  String get kycUploadBack => get('kycUploadBack');
+  String get kycTakeCamera => get('kycTakeCamera');
+  String get kycChooseGallery => get('kycChooseGallery');
+  String get kycSubmit => get('kycSubmit');
+  String get kycSubmitting => get('kycSubmitting');
+  String get kycPreview => get('kycPreview');
+  String get kycEdit => get('kycEdit');
+  String get kycDelete => get('kycDelete');
+  String get kycDeleteConfirmTitle => get('kycDeleteConfirmTitle');
+  String get kycDeleteConfirmDesc => get('kycDeleteConfirmDesc');
+  String get kycDeleteSuccess => get('kycDeleteSuccess');
+  String get kycSubmitSuccess => get('kycSubmitSuccess');
+  String get kycRejectionReasonLabel => get('kycRejectionReasonLabel');
+  String get kycFrontRequired => get('kycFrontRequired');
 
   // Gallery
   String get galHeader => get('galHeader');

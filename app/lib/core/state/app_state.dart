@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../features/profile/data/kyc_model.dart';
 import '../services/session_service.dart';
 
 enum AppTab {
@@ -153,6 +154,7 @@ class AppState {
   // AI DNA & Tailoring field source tracking ('AI' or 'USER')
   final Map<String, String> aiDnaSources;
   final Map<String, String> aiDnaValues;
+  final KycData kycData;
 
   // Gate-level pre-fetch flag: true once loadProfileFromFirestore() completes
   final bool isProfileLoaded;
@@ -184,6 +186,7 @@ class AppState {
     ],
     this.aiDnaSources = const {},
     this.aiDnaValues = const {},
+    this.kycData = const KycData(),
     this.isProfileLoaded = false,
   });
 
@@ -211,6 +214,7 @@ class AppState {
     List<SupportMessage>? supportMessages,
     Map<String, String>? aiDnaSources,
     Map<String, String>? aiDnaValues,
+    KycData? kycData,
     bool? isProfileLoaded,
   }) {
     return AppState(
@@ -235,6 +239,7 @@ class AppState {
       supportMessages: supportMessages ?? this.supportMessages,
       aiDnaSources: aiDnaSources ?? this.aiDnaSources,
       aiDnaValues: aiDnaValues ?? this.aiDnaValues,
+      kycData: kycData ?? this.kycData,
       isProfileLoaded: isProfileLoaded ?? this.isProfileLoaded,
     );
   }
@@ -422,6 +427,11 @@ class AppStateNotifier extends StateNotifier<AppState> {
           aiDna: aiDna,
         );
 
+        KycData kyc = const KycData();
+        if (data['kyc'] is Map) {
+          kyc = KycData.fromMap(Map<String, dynamic>.from(data['kyc'] as Map));
+        }
+
         state = state.copyWith(
           identityValues: identity,
           aiDnaValues: aiDna,
@@ -429,6 +439,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
           coins: coins,
           currentPlan: currentPlan,
           profileProgress: progress,
+          kycData: kyc,
           userName: fullName.isNotEmpty
               ? fullName
               : (user.displayName ?? (user.email?.split('@').first ?? '')),
@@ -570,6 +581,10 @@ class AppStateNotifier extends StateNotifier<AppState> {
       profileProgress: progress,
       hasUnsavedProfileChanges: true,
     );
+  }
+
+  void updateKycData(KycData kyc) {
+    state = state.copyWith(kycData: kyc);
   }
 
   void updateCompanionSettings(CompanionSettings settings) {

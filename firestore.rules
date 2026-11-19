@@ -93,6 +93,11 @@ service cloud.firestore {
       match /blocked_devices/{deviceId} {
         allow read, write: if isOwner(userId);
       }
+
+      // User KYC documents & verification metadata
+      match /kyc/{docId} {
+        allow read, write: if isOwner(userId) && hasValidSessionForUser(userId);
+      }
     }
 
     // Global Immutable Financial Ledger: 100% forbidden for client writes.
