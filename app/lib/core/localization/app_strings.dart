@@ -486,6 +486,26 @@ class AppStrings {
       'setLangLabel': 'زبان برنامه (Language)',
       'setShowSupport': 'نمایش ویجت شناور پشتیبانی',
       'setShowHeaderCoins': 'نمایش موجودی سکه در هدر',
+      'setShowEmailInHeader': 'نمایش آدرس ایمیل در هدر',
+      'rankBronze': 'برنز',
+      'rankSilver': 'نقره‌ای',
+      'rankGold': 'طلایی',
+      'rankDiamond': 'الماس',
+      'loyaltyTitle': 'سطح وفاداری و StylePoints',
+      'pts': 'امتیاز',
+      'pointsToNextRank': '{pts} امتیاز تا سطح بعدی',
+      'maxRankReached': 'بالاترین سطح وفاداری کسب شده است',
+      'howToEarnPoints': 'نحوه کسب StylePoints',
+      'earnProfileRule': 'تکمیل پروفایل: تا ۳۰۰ امتیاز بر اساس درصد پیشرفت',
+      'earnEmailRule': 'تأیید ایمیل: ۱۰۰+ امتیاز یک‌باره',
+      'earnReferralRule': 'دعوت موفق دوستان: ۱۵۰+ امتیاز به ازای هر دعوت',
+      'earnAiRule': 'استفاده از هوش مصنوعی (پرو و استایلیست): ۱۰+ امتیاز هر نشست',
+      'earnWalletRule': 'فعالیت کیف پول: ۱+ امتیاز به ازای هر ۱۰ سکه',
+      'loyaltyPerksTitle': 'مزایای سطوح وفاداری',
+      'perkBronze': 'دسترسی استاندارد به تمامی امکانات پایه',
+      'perkSilver': 'کاهش ۵۰ درصدی تبلیغات + اولویت صف پردازش هوش مصنوعی',
+      'perkGold': 'حذف کامل بنرهای تبلیغاتی + ۱۰٪ تخفیف سکه در خدمات ویژه',
+      'perkDiamond': 'تجربه ۱۰۰٪ بدون تبلیغات + دسترسی زودهنگام به مدل‌های جدید هوش مصنوعی و هدایای دوره‌ای سکه',
       'setBackupLabel': 'پشتیبان‌گیری خودکار داده‌ها',
       'setBackupWeekly': 'هفتگی (پیشنهادی)',
       'setBackupMonthly': 'ماهانه',
@@ -1218,6 +1238,26 @@ class AppStrings {
       'setLangLabel': 'App Language',
       'setShowSupport': 'Show Floating Support Widget',
       'setShowHeaderCoins': 'Show Coin Balance in Header',
+      'setShowEmailInHeader': 'Show Email in Header',
+      'rankBronze': 'Bronze',
+      'rankSilver': 'Silver',
+      'rankGold': 'Gold',
+      'rankDiamond': 'Diamond',
+      'loyaltyTitle': 'Loyalty Rank & StylePoints',
+      'pts': 'pts',
+      'pointsToNextRank': '{pts} pts to next rank',
+      'maxRankReached': 'Maximum rank achieved',
+      'howToEarnPoints': 'How to Earn StylePoints',
+      'earnProfileRule': 'Profile completion: up to 300 pts based on progress',
+      'earnEmailRule': 'Verified email: +100 pts one-time',
+      'earnReferralRule': 'Friend referrals: +150 pts per invited friend',
+      'earnAiRule': 'AI services (Try-On & Stylist): +10 pts per session',
+      'earnWalletRule': 'Coin activity: +1 pt per 10 coins earned/spent',
+      'loyaltyPerksTitle': 'Loyalty Rank Perks',
+      'perkBronze': 'Standard access to all base features',
+      'perkSilver': '50% ad reduction + priority AI queue',
+      'perkGold': 'Zero banner ads + 10% coin discount on premium AI',
+      'perkDiamond': '100% ad-free + early access to new AI models & periodic coin gifts',
       'setBackupLabel': 'Auto Data Backup',
       'setBackupWeekly': 'Weekly (Recommended)',
       'setBackupMonthly': 'Monthly',
@@ -1950,6 +1990,26 @@ class AppStrings {
       'setLangLabel': 'لغة التطبيق',
       'setShowSupport': 'إظهار زر الدعم العائم',
       'setShowHeaderCoins': 'إظهار رصيد العملات في الرأس',
+      'setShowEmailInHeader': 'إظهار البريد الإلكتروني في الترويسة',
+      'rankBronze': 'برونزي',
+      'rankSilver': 'فضي',
+      'rankGold': 'ذهبي',
+      'rankDiamond': 'ماسي',
+      'loyaltyTitle': 'مستوى الولاء ونقاط الأناقة',
+      'pts': 'نقطة',
+      'pointsToNextRank': '{pts} نقطة إلى المستوى التالي',
+      'maxRankReached': 'تم الوصول إلى أعلى مستوى ولاء',
+      'howToEarnPoints': 'كيفية كسب نقاط StylePoints',
+      'earnProfileRule': 'إكمال الملف الشخصي: ما يصل إلى ۳۰۰ نقطة حسب التقدم',
+      'earnEmailRule': 'تأكيد البريد الإلكتروني: +۱۰۰ نقطة لمرة واحدة',
+      'earnReferralRule': 'دعوة الأصدقاء: +۱٥۰ نقطة لكل صديق منضم',
+      'earnAiRule': 'استخدام الذكاء الاصطناعي: +۱۰ نقاط لكل جلسة',
+      'earnWalletRule': 'نشاط المحفظة: +۱ نقطة لكل ۱۰ عملات',
+      'loyaltyPerksTitle': 'مزايا مستويات الولاء',
+      'perkBronze': 'وصول قياسي إلى كافة الميزات الأساسية',
+      'perkSilver': 'تقليل الإعلانات بنسبة ٥۰٪ + أولوية في طابور الذكاء الاصطناعي',
+      'perkGold': 'إزالة كاملة للإعلانات الصورية + خصم ۱۰٪ على العملات',
+      'perkDiamond': 'تجربة خالية تماماً من الإعلانات + وصول مبكر لنماذج الذكاء الاصطناعي وهدايا دورية',
       'setBackupLabel': 'النسخ الاحتياطي التلقائي',
       'setBackupWeekly': 'أسبوعي (موصى به)',
       'setBackupMonthly': 'شهري',
@@ -2682,6 +2742,26 @@ class AppStrings {
       'setLangLabel': 'Uygulama Dili (Language)',
       'setShowSupport': 'Yüzen Destek Butonunu Göster',
       'setShowHeaderCoins': 'Üst Kısımda Jeton Bakiyesini Göster',
+      'setShowEmailInHeader': 'Başlıkta E-postayı Göster',
+      'rankBronze': 'Bronz',
+      'rankSilver': 'Gümüş',
+      'rankGold': 'Altın',
+      'rankDiamond': 'Elmas',
+      'loyaltyTitle': 'Sadakat Seviyesi ve StylePoints',
+      'pts': 'puan',
+      'pointsToNextRank': 'Sonraki seviyeye {pts} puan',
+      'maxRankReached': 'Maksimum seviyeye ulaşıldı',
+      'howToEarnPoints': 'StylePoints Nasıl Kazanılır',
+      'earnProfileRule': 'Profil tamamlama: ilerlemeye göre 300 puana kadar',
+      'earnEmailRule': 'Doğrulanmış e-posta: bir kerelik +100 puan',
+      'earnReferralRule': 'Arkadaş davetleri: davet edilen her arkadaş için +150 puan',
+      'earnAiRule': 'Yapay zeka servisleri (Deneme ve Stilist): seans başına +10 puan',
+      'earnWalletRule': 'Cüzdan aktivitesi: kazanılan/harcanan her 10 jeton için +1 puan',
+      'loyaltyPerksTitle': 'Sadakat Seviyesi Avantajları',
+      'perkBronze': 'Tüm temel özelliklere standart erişim',
+      'perkSilver': '%50 reklam azaltma + öncelikli yapay zeka sırası',
+      'perkGold': 'Sıfır banner reklamı + premium yapay zekada %10 jeton indirimi',
+      'perkDiamond': '%100 reklamsız + yeni yapay zeka modellerine erken erişim ve periyodik jeton hediyeleri',
       'setBackupLabel': 'Otomatik Veri Yedekleme',
       'setBackupWeekly': 'Haftalık (Önerilen)',
       'setBackupMonthly': 'Aylık',
@@ -3497,6 +3577,27 @@ class AppStrings {
   String get setLangLabel => get('setLangLabel');
   String get setShowSupport => get('setShowSupport');
   String get setShowHeaderCoins => get('setShowHeaderCoins');
+  String get setShowEmailInHeader => get('setShowEmailInHeader');
+  String get rankBronze => get('rankBronze');
+  String get rankSilver => get('rankSilver');
+  String get rankGold => get('rankGold');
+  String get rankDiamond => get('rankDiamond');
+  String get loyaltyTitle => get('loyaltyTitle');
+  String get pts => get('pts');
+  String pointsToNextRank(String count) =>
+      get('pointsToNextRank').replaceAll('{pts}', count);
+  String get maxRankReached => get('maxRankReached');
+  String get howToEarnPoints => get('howToEarnPoints');
+  String get earnProfileRule => get('earnProfileRule');
+  String get earnEmailRule => get('earnEmailRule');
+  String get earnReferralRule => get('earnReferralRule');
+  String get earnAiRule => get('earnAiRule');
+  String get earnWalletRule => get('earnWalletRule');
+  String get loyaltyPerksTitle => get('loyaltyPerksTitle');
+  String get perkBronze => get('perkBronze');
+  String get perkSilver => get('perkSilver');
+  String get perkGold => get('perkGold');
+  String get perkDiamond => get('perkDiamond');
   String get setBackupLabel => get('setBackupLabel');
   String get setBackupWeekly => get('setBackupWeekly');
   String get setBackupMonthly => get('setBackupMonthly');

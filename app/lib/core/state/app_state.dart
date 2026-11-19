@@ -8,6 +8,7 @@ import '../../features/profile/data/kyc_model.dart';
 import '../../features/profile/data/user_preferences.dart';
 import '../localization/locale_provider.dart';
 import '../services/biometric_service.dart';
+import '../services/loyalty_service.dart';
 import '../services/referral_service.dart';
 import '../services/session_service.dart';
 import '../theme/app_colors.dart';
@@ -139,6 +140,9 @@ class AppState {
   final String currentProfileTab;
   final int coins;
   final double profileProgress;
+  final int stylePoints;
+  final String loyaltyRank;
+  final int aiUsageCount;
   final String userName;
   final String userHandle;
   final int userLevel;
@@ -182,6 +186,9 @@ class AppState {
     this.currentProfileTab = 'p-identity',
     this.coins = 0,
     this.profileProgress = 0.10,
+    this.stylePoints = 0,
+    this.loyaltyRank = 'Bronze',
+    this.aiUsageCount = 0,
     this.userName = '',
     this.userHandle = '',
     this.userLevel = 1,
@@ -223,6 +230,9 @@ class AppState {
     String? currentProfileTab,
     int? coins,
     double? profileProgress,
+    int? stylePoints,
+    String? loyaltyRank,
+    int? aiUsageCount,
     String? userName,
     String? userHandle,
     int? userLevel,
@@ -254,6 +264,9 @@ class AppState {
       currentProfileTab: currentProfileTab ?? this.currentProfileTab,
       coins: coins ?? this.coins,
       profileProgress: profileProgress ?? this.profileProgress,
+      stylePoints: stylePoints ?? this.stylePoints,
+      loyaltyRank: loyaltyRank ?? this.loyaltyRank,
+      aiUsageCount: aiUsageCount ?? this.aiUsageCount,
       userName: userName ?? this.userName,
       userHandle: userHandle ?? this.userHandle,
       userLevel: userLevel ?? this.userLevel,
@@ -281,6 +294,20 @@ class AppState {
       isProfileLoaded: isProfileLoaded ?? this.isProfileLoaded,
     );
   }
+
+  /// Forwarding convenience method to [AppStateNotifier.calculateProfileProgress].
+  static double calculateProfileProgress({
+    required Map<String, String> identity,
+    required Map<String, String> aiDna,
+    String personaMode = 'full_body',
+    Map<String, String> mediaSlots = const {},
+  }) =>
+      AppStateNotifier.calculateProfileProgress(
+        identity: identity,
+        aiDna: aiDna,
+        personaMode: personaMode,
+        mediaSlots: mediaSlots,
+      );
 }
 
 final appStateProvider = StateNotifierProvider<AppStateNotifier, AppState>((ref) {
@@ -294,40 +321,43 @@ class AppStateNotifier extends StateNotifier<AppState> {
     loadProfileFromFirestore();
   }
 
-  /// Calculates profile completion percentage based on real filled fields.
-  /// Starts near 10% (when only email is present) and increases dynamically.
+  /// Calculates profile completion percentage using the exact weighted formula:
+  /// - 40% Weight: Anatomy (Anatomy & DNA Specs)
+  /// - 35% Weight: Media (Media Album & Reference Photos based on persona mode)
+  /// - 25% Weight: Identity (Identity & Personal Information)
   static double calculateProfileProgress({
     required Map<String, String> identity,
     required Map<String, String> aiDna,
     String personaMode = 'full_body',
     Map<String, String> mediaSlots = const {},
   }) {
-    double score = 0.0;
-    if ((identity['email'] ?? '').trim().isNotEmpty) score += 0.10;
-    if ((identity['firstName'] ?? '').trim().isNotEmpty) score += 0.10;
-    if ((identity['lastName'] ?? '').trim().isNotEmpty) score += 0.10;
-    if ((identity['nick'] ?? '').trim().isNotEmpty) score += 0.08;
-    if ((identity['mobile'] ?? '').trim().isNotEmpty) score += 0.08;
-    if ((identity['nid'] ?? '').trim().isNotEmpty) score += 0.08;
-    if ((identity['dob'] ?? '').trim().isNotEmpty) score += 0.08;
+    // 1. Identity Component (25% Weight = 0.25 total)
+    // 9 distinct items: email, first, last, nick, mobile, nid, dob, country/city, address/zip
+    int identityFilled = 0;
+    if ((identity['email'] ?? '').trim().isNotEmpty) identityFilled++;
+    if ((identity['firstName'] ?? '').trim().isNotEmpty) identityFilled++;
+    if ((identity['lastName'] ?? '').trim().isNotEmpty) identityFilled++;
+    if ((identity['nick'] ?? '').trim().isNotEmpty) identityFilled++;
+    if ((identity['mobile'] ?? '').trim().isNotEmpty) identityFilled++;
+    if ((identity['nid'] ?? '').trim().isNotEmpty) identityFilled++;
+    if ((identity['dob'] ?? '').trim().isNotEmpty) identityFilled++;
     if ((identity['country'] ?? '').trim().isNotEmpty ||
         (identity['city'] ?? '').trim().isNotEmpty) {
-      score += 0.09;
+      identityFilled++;
     }
     if ((identity['address'] ?? '').trim().isNotEmpty ||
         (identity['zip'] ?? '').trim().isNotEmpty) {
-      score += 0.09;
+      identityFilled++;
     }
+    final identityScore = (identityFilled / 9.0) * 0.25;
 
-    // Anatomy basics (Gender, Height, Weight)
-    int anatomyBasics = 0;
-    if ((aiDna['gender'] ?? '').trim().isNotEmpty) anatomyBasics++;
-    if ((aiDna['height'] ?? '').trim().isNotEmpty) anatomyBasics++;
-    if ((aiDna['weight'] ?? '').trim().isNotEmpty) anatomyBasics++;
-    score += (anatomyBasics / 3.0) * 0.10;
+    // 2. Anatomy Component (40% Weight = 0.40 total)
+    // 3 basic fields + 9 tailoring/SMPL specs = 12 items total
+    int anatomyFilled = 0;
+    if ((aiDna['gender'] ?? '').trim().isNotEmpty) anatomyFilled++;
+    if ((aiDna['height'] ?? '').trim().isNotEmpty) anatomyFilled++;
+    if ((aiDna['weight'] ?? '').trim().isNotEmpty) anatomyFilled++;
 
-    // Tailoring & Anthropometric measurements
-    int tailoringCount = 0;
     const tailoringKeys = [
       'shoulder',
       'chest',
@@ -342,41 +372,42 @@ class AppStateNotifier extends StateNotifier<AppState> {
     for (final k in tailoringKeys) {
       if ((aiDna[k] ?? '').trim().isNotEmpty ||
           (k == 'belly' && (aiDna['abdomen'] ?? '').trim().isNotEmpty) ||
-          (k == 'bodyShape' && (aiDna['bodySilhouette'] ?? '').trim().isNotEmpty) ||
+          (k == 'bodyShape' &&
+              (aiDna['bodySilhouette'] ?? '').trim().isNotEmpty) ||
           (k == 'hair' &&
               ((aiDna['hairColor'] ?? '').trim().isNotEmpty ||
                   (aiDna['hairTexture'] ?? '').trim().isNotEmpty))) {
-        tailoringCount++;
+        anatomyFilled++;
       }
     }
-    score += (tailoringCount / tailoringKeys.length) * 0.10;
+    final anatomyScore = (anatomyFilled / 12.0) * 0.40;
 
-    // Media references progress
+    // 3. Media Component (35% Weight = 0.35 total)
     double mediaScore = 0.0;
     if (personaMode == 'privacy_avatar') {
       int filled = 0;
       if ((mediaSlots['front_face'] ?? '').trim().isNotEmpty) filled++;
       if ((mediaSlots['side_face'] ?? '').trim().isNotEmpty) filled++;
-      mediaScore = (filled / 2.0) * 0.20;
+      mediaScore = (filled / 2.0) * 0.35;
     } else {
       int reqFilled = 0;
       if ((mediaSlots['front_face'] ?? '').trim().isNotEmpty) reqFilled++;
       if ((mediaSlots['side_face'] ?? '').trim().isNotEmpty) reqFilled++;
       if ((mediaSlots['body_front'] ?? '').trim().isNotEmpty) reqFilled++;
       if ((mediaSlots['body_side'] ?? '').trim().isNotEmpty) reqFilled++;
-      final reqScore = (reqFilled / 4.0) * 0.15;
+      final reqScore = (reqFilled / 4.0) * 0.25;
 
       int optFilled = 0;
       if ((mediaSlots['body_back'] ?? '').trim().isNotEmpty) optFilled++;
       if ((mediaSlots['hand_skin'] ?? '').trim().isNotEmpty) optFilled++;
       if ((mediaSlots['scan_360'] ?? '').trim().isNotEmpty) optFilled++;
-      final optScore = (optFilled / 3.0) * 0.05;
+      final optScore = (optFilled / 3.0) * 0.10;
 
       mediaScore = reqScore + optScore;
     }
-    score += mediaScore;
 
-    return score.clamp(0.0, 1.0);
+    final totalScore = identityScore + anatomyScore + mediaScore;
+    return totalScore.clamp(0.0, 1.0);
   }
 
   /// Only allow staying on Profile module while other modules are disabled.
@@ -582,6 +613,18 @@ class AppStateNotifier extends StateNotifier<AppState> {
           _ref.read(biometricServiceProvider).setBiometricLockEnabled(preferences.biometricLock);
         }
 
+        final int aiUsageCount = (data['aiUsageCount'] as num?)?.toInt() ?? 0;
+        final int stylePoints = (data['stylePoints'] as num?)?.toInt() ??
+            LoyaltyService.calculateStylePoints(
+              profileProgress: progress,
+              isEmailVerified: user.emailVerified,
+              referralCount: referralCount,
+              aiUsageCount: aiUsageCount,
+              coinActivity: coins,
+            );
+        final String loyaltyRank = data['loyaltyRank']?.toString() ??
+            LoyaltyService.getRank(stylePoints).nameCapitalized;
+
         state = state.copyWith(
           identityValues: identity,
           aiDnaValues: aiDna,
@@ -589,6 +632,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
           coins: coins,
           currentPlan: currentPlan,
           profileProgress: progress,
+          stylePoints: stylePoints,
+          loyaltyRank: loyaltyRank,
+          aiUsageCount: aiUsageCount,
           kycData: kyc,
           personaMode: personaMode,
           mediaSlots: mediaSlots,
@@ -622,11 +668,22 @@ class AppStateNotifier extends StateNotifier<AppState> {
           personaMode: 'full_body',
           mediaSlots: const {},
         );
+        final points = LoyaltyService.calculateStylePoints(
+          profileProgress: progress,
+          isEmailVerified: user.emailVerified,
+          referralCount: 0,
+          aiUsageCount: 0,
+          coinActivity: 0,
+        );
+        final rank = LoyaltyService.getRank(points).nameCapitalized;
         state = state.copyWith(
           identityValues: identity,
           aiDnaValues: const {},
           coins: 0,
           profileProgress: progress,
+          stylePoints: points,
+          loyaltyRank: rank,
+          aiUsageCount: 0,
           personaMode: 'full_body',
           mediaSlots: const {},
           userName: user.displayName ?? (user.email?.split('@').first ?? ''),
@@ -669,6 +726,15 @@ class AppStateNotifier extends StateNotifier<AppState> {
       final fullName = '$first $last'.trim();
       final nick = state.identityValues['nick']?.trim() ?? state.userHandle;
 
+      final points = LoyaltyService.calculateStylePoints(
+        profileProgress: progress,
+        isEmailVerified: user.emailVerified,
+        referralCount: state.referralCount,
+        aiUsageCount: state.aiUsageCount,
+        coinActivity: state.coins,
+      );
+      final rank = LoyaltyService.getRank(points).nameCapitalized;
+
       final dataToSave = <String, dynamic>{
         'email': user.email ?? (state.identityValues['email'] ?? ''),
         'displayName':
@@ -693,6 +759,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
           'dailyTipEnabled': state.companionSettings.dailyTipEnabled,
         },
         'profileProgress': progress,
+        'stylePoints': points,
+        'loyaltyRank': rank,
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
@@ -733,6 +801,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
         hasUnsavedProfileChanges: false,
         preferences: updatedPreferences,
         profileProgress: progress,
+        stylePoints: points,
+        loyaltyRank: rank,
         userName: fullName.isNotEmpty ? fullName : state.userName,
         userHandle: nick.isNotEmpty ? nick : state.userHandle,
       );
@@ -742,6 +812,23 @@ class AppStateNotifier extends StateNotifier<AppState> {
       state = state.copyWith(isSavingProfile: false);
       return false;
     }
+  }
+
+  int _computeCurrentPoints(double progress) {
+    bool isEmailVerified = false;
+    try {
+      if (Firebase.apps.isNotEmpty) {
+        isEmailVerified =
+            FirebaseAuth.instance.currentUser?.emailVerified ?? false;
+      }
+    } catch (_) {}
+    return LoyaltyService.calculateStylePoints(
+      profileProgress: progress,
+      isEmailVerified: isEmailVerified,
+      referralCount: state.referralCount,
+      aiUsageCount: state.aiUsageCount,
+      coinActivity: state.coins,
+    );
   }
 
   void saveProfileChanges() {
@@ -756,10 +843,14 @@ class AppStateNotifier extends StateNotifier<AppState> {
       personaMode: state.personaMode,
       mediaSlots: state.mediaSlots,
     );
+    final points = _computeCurrentPoints(progress);
+    final rank = LoyaltyService.getRank(points).nameCapitalized;
 
     state = state.copyWith(
       hasUnsavedProfileChanges: false,
       profileProgress: progress,
+      stylePoints: points,
+      loyaltyRank: rank,
       userName: fullName.isNotEmpty ? fullName : state.userName,
       userHandle: nick.isNotEmpty ? nick : state.userHandle,
     );
@@ -773,9 +864,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
       personaMode: state.personaMode,
       mediaSlots: state.mediaSlots,
     );
+    final points = _computeCurrentPoints(progress);
+    final rank = LoyaltyService.getRank(points).nameCapitalized;
     state = state.copyWith(
       identityValues: updated,
       profileProgress: progress,
+      stylePoints: points,
+      loyaltyRank: rank,
       hasUnsavedProfileChanges: true,
     );
   }
@@ -791,9 +886,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
       personaMode: mode,
       mediaSlots: state.mediaSlots,
     );
+    final points = _computeCurrentPoints(progress);
+    final rank = LoyaltyService.getRank(points).nameCapitalized;
     state = state.copyWith(
       personaMode: mode,
       profileProgress: progress,
+      stylePoints: points,
+      loyaltyRank: rank,
       hasUnsavedProfileChanges: true,
     );
   }
@@ -806,9 +905,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
       personaMode: state.personaMode,
       mediaSlots: updated,
     );
+    final points = _computeCurrentPoints(progress);
+    final rank = LoyaltyService.getRank(points).nameCapitalized;
     state = state.copyWith(
       mediaSlots: updated,
       profileProgress: progress,
+      stylePoints: points,
+      loyaltyRank: rank,
     );
   }
 
@@ -820,9 +923,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
       personaMode: state.personaMode,
       mediaSlots: updated,
     );
+    final points = _computeCurrentPoints(progress);
+    final rank = LoyaltyService.getRank(points).nameCapitalized;
     state = state.copyWith(
       mediaSlots: updated,
       profileProgress: progress,
+      stylePoints: points,
+      loyaltyRank: rank,
     );
   }
 
@@ -849,10 +956,14 @@ class AppStateNotifier extends StateNotifier<AppState> {
       personaMode: state.personaMode,
       mediaSlots: state.mediaSlots,
     );
+    final points = _computeCurrentPoints(progress);
+    final rank = LoyaltyService.getRank(points).nameCapitalized;
     state = state.copyWith(
       aiDnaValues: updatedValues,
       aiDnaSources: updatedSources,
       profileProgress: progress,
+      stylePoints: points,
+      loyaltyRank: rank,
       hasUnsavedProfileChanges: true,
     );
   }
@@ -874,6 +985,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
     state = state.copyWith(
       showHeaderCoins: show,
       preferences: state.preferences.copyWith(showHeaderCoins: show),
+      hasUnsavedProfileChanges: true,
+    );
+  }
+
+  void toggleShowEmailInHeader(bool show) {
+    state = state.copyWith(
+      preferences: state.preferences.copyWith(showEmailInHeader: show),
       hasUnsavedProfileChanges: true,
     );
   }
@@ -965,6 +1083,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
       aiDnaValues: const {},
       coins: 0,
       profileProgress: 0.10,
+      stylePoints: 0,
+      loyaltyRank: 'Bronze',
+      aiUsageCount: 0,
       userName: '',
       userHandle: '',
       personaMode: 'full_body',

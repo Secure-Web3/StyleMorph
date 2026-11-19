@@ -200,6 +200,17 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                     ref.read(appStateProvider.notifier).markProfileDirty();
                   },
                 ),
+                Divider(height: 1, color: colors.bd),
+                AppSwitchTile(
+                  label: strings.setShowEmailInHeader,
+                  value: appState.preferences.showEmailInHeader,
+                  onChanged: (val) {
+                    ref
+                        .read(appStateProvider.notifier)
+                        .toggleShowEmailInHeader(val);
+                    ref.read(appStateProvider.notifier).markProfileDirty();
+                  },
+                ),
               ],
             ),
           ),

@@ -8,6 +8,7 @@ class UserPreferences {
   final String appLanguage;
   final bool showFloatingSupport;
   final bool showHeaderCoins;
+  final bool showEmailInHeader;
   final bool biometricLock;
   final String autoDataBackup;
 
@@ -17,6 +18,7 @@ class UserPreferences {
     this.appLanguage = 'en',
     this.showFloatingSupport = false,
     this.showHeaderCoins = false,
+    this.showEmailInHeader = false,
     this.biometricLock = false,
     this.autoDataBackup = 'weekly',
   });
@@ -28,6 +30,7 @@ class UserPreferences {
       'appLanguage': appLanguage,
       'showFloatingSupport': showFloatingSupport,
       'showHeaderCoins': showHeaderCoins,
+      'showEmailInHeader': showEmailInHeader,
       'biometricLock': biometricLock,
       'autoDataBackup': autoDataBackup,
     };
@@ -51,6 +54,7 @@ class UserPreferences {
       showHeaderCoins: map['showHeaderCoins'] as bool? ??
           map['headerCoins'] as bool? ??
           false,
+      showEmailInHeader: map['showEmailInHeader'] as bool? ?? false,
       biometricLock: map['biometricLock'] as bool? ??
           map['biometricEnabled'] as bool? ??
           false,
@@ -66,6 +70,7 @@ class UserPreferences {
     String? appLanguage,
     bool? showFloatingSupport,
     bool? showHeaderCoins,
+    bool? showEmailInHeader,
     bool? biometricLock,
     String? autoDataBackup,
   }) {
@@ -75,6 +80,7 @@ class UserPreferences {
       appLanguage: appLanguage ?? this.appLanguage,
       showFloatingSupport: showFloatingSupport ?? this.showFloatingSupport,
       showHeaderCoins: showHeaderCoins ?? this.showHeaderCoins,
+      showEmailInHeader: showEmailInHeader ?? this.showEmailInHeader,
       biometricLock: biometricLock ?? this.biometricLock,
       autoDataBackup: autoDataBackup ?? this.autoDataBackup,
     );
@@ -90,6 +96,7 @@ class UserPreferences {
           appLanguage == other.appLanguage &&
           showFloatingSupport == other.showFloatingSupport &&
           showHeaderCoins == other.showHeaderCoins &&
+          showEmailInHeader == other.showEmailInHeader &&
           biometricLock == other.biometricLock &&
           autoDataBackup == other.autoDataBackup;
 
@@ -100,6 +107,7 @@ class UserPreferences {
       appLanguage.hashCode ^
       showFloatingSupport.hashCode ^
       showHeaderCoins.hashCode ^
+      showEmailInHeader.hashCode ^
       biometricLock.hashCode ^
       autoDataBackup.hashCode;
 }

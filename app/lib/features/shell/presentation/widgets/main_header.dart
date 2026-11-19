@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/services/loyalty_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../auth/presentation/email_verification_provider.dart';
+import '../../../profile/presentation/widgets/loyalty_rank_modal.dart';
 import 'notification_sheet.dart';
 
 class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
@@ -87,10 +89,8 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                                         : (user?.displayName ??
                                             (user?.email?.split('@').first ??
                                                 'کاربر جدید'));
-                                    final subtitleHandle =
-                                        appState.userHandle.isNotEmpty
-                                            ? appState.userHandle
-                                            : (user?.email ?? '');
+                                    final userEmail = user?.email ??
+                                        (appState.identityValues['email'] ?? '');
 
                                     return Column(
                                       crossAxisAlignment:
@@ -123,23 +123,41 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                                                     : colors.inColor,
                                               ),
                                             ],
+                                            const SizedBox(width: AppSpacing.xs),
+                                            _buildRankPointsBadge(
+                                              context,
+                                              colors,
+                                              strings,
+                                              appState,
+                                            ),
                                           ],
                                         ),
                                         const SizedBox(height: 2),
                                         // Subtitle: verification | @username
-                                        Text(
-                                          isKycVerified
-                                              ? '${strings.kycVerifiedBadge} | $subtitleHandle'
-                                              : (isEmailVerified
-                                                  ? '${strings.verif} | $subtitleHandle'
-                                                  : subtitleHandle),
-                                          style: TextStyle(
-                                            fontFamily: 'Vazirmatn',
-                                            fontSize: 11,
-                                            color: colors.mu,
+                                        if (appState.preferences.showEmailInHeader &&
+                                            userEmail.isNotEmpty) ...[
+                                          Text(
+                                            userEmail,
+                                            style: TextStyle(
+                                              fontFamily: 'Vazirmatn',
+                                              fontSize: 11,
+                                              color: colors.mu,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
                                           ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
+                                        ] else if (appState.userHandle.isNotEmpty) ...[
+                                          Text(
+                                            isKycVerified
+                                                ? '${strings.kycVerifiedBadge} | ${appState.userHandle}'
+                                                : appState.userHandle,
+                                            style: TextStyle(
+                                              fontFamily: 'Vazirmatn',
+                                              fontSize: 11,
+                                              color: colors.mu,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
                                       ],
                                     );
                                   },
@@ -270,85 +288,114 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  // ── Avatar with conic-gradient ring + LVL badge ──────────────────────────
+  // ── Avatar with Loyalty Rank border (no conic ring, no Lv1 badge) ──────
   Widget _buildAvatar(AppColors colors, AppStrings strings, AppState appState) {
     const double avatarSize = 40.0;
+    final rank = LoyaltyRankExtension.fromString(appState.loyaltyRank);
+    final rankColor = rank.color;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: avatarSize,
-          height: avatarSize,
-          padding: const EdgeInsets.all(2.5),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: SweepGradient(
-              colors: [
-                colors.pr,
-                colors.pr,
-                colors.bd,
-                colors.bd,
-              ],
-              stops: [
-                0.0,
-                appState.profileProgress,
-                appState.profileProgress,
-                1.0,
-              ],
-              transform: const GradientRotation(-1.5708), // start from top
-            ),
+    return Container(
+      width: avatarSize,
+      height: avatarSize,
+      padding: const EdgeInsets.all(2.0),
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: rankColor,
+          width: 2.0,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: rankColor.withOpacity(0.22),
+            blurRadius: 5,
+            spreadRadius: 1,
           ),
-          child: Container(
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: colors.sf,
-            ),
-            child: Builder(
-              builder: (context) {
-                User? user;
-                try {
-                  if (Firebase.apps.isNotEmpty) {
-                    user = FirebaseAuth.instance.currentUser;
-                  }
-                } catch (_) {}
-                if (user?.photoURL != null && user!.photoURL!.isNotEmpty) {
-                  return Image.network(
-                    user.photoURL!,
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) =>
-                        _buildInitialsWidget(appState, colors),
-                  );
-                }
-                return _buildInitialsWidget(appState, colors);
-              },
-            ),
+        ],
+      ),
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: colors.sf,
+        ),
+        child: Builder(
+          builder: (context) {
+            User? user;
+            try {
+              if (Firebase.apps.isNotEmpty) {
+                user = FirebaseAuth.instance.currentUser;
+              }
+            } catch (_) {}
+            if (user?.photoURL != null && user!.photoURL!.isNotEmpty) {
+              return Image.network(
+                user.photoURL!,
+                fit: BoxFit.cover,
+                errorBuilder: (_, _, _) =>
+                    _buildInitialsWidget(appState, colors),
+              );
+            }
+            return _buildInitialsWidget(appState, colors);
+          },
+        ),
+      ),
+    );
+  }
+
+  // ── Minimal, tappable Loyalty Rank + Points badge ────────────────────────
+  Widget _buildRankPointsBadge(
+    BuildContext context,
+    AppColors colors,
+    AppStrings strings,
+    AppState appState,
+  ) {
+    final rank = LoyaltyRankExtension.fromString(appState.loyaltyRank);
+    final rankColor = rank.color;
+    final rankLabel = rank.getLocalizedName(strings);
+    final ptsText =
+        '${strings.formatNumber(appState.stylePoints)} ${strings.pts}';
+
+    return GestureDetector(
+      onTap: () {
+        LoyaltyModalSheet.show(
+          context,
+          points: appState.stylePoints,
+          rank: rank,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+        decoration: BoxDecoration(
+          color: rankColor.withOpacity(0.12),
+          borderRadius: AppRadius.rFull,
+          border: Border.all(
+            color: rankColor.withOpacity(0.45),
+            width: 1,
           ),
         ),
-        // LVL badge — always shown
-        PositionedDirectional(
-          bottom: -2,
-          end: -4,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-            decoration: BoxDecoration(
-              color: colors.wnb,
-              borderRadius: AppRadius.rFull,
-              border: Border.all(color: colors.sf, width: 1.5),
-            ),
-            child: Text(
-              'Lv${strings.formatNumber(appState.userLevel)}',
-              style: TextStyle(
-                fontFamily: 'Vazirmatn',
-                fontSize: 9,
-                fontWeight: FontWeight.w800,
-                color: colors.wn,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 5,
+              height: 5,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: rankColor,
               ),
             ),
-          ),
+            const SizedBox(width: 4),
+            Text(
+              '$rankLabel • $ptsText',
+              style: TextStyle(
+                fontFamily: 'Vazirmatn',
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: colors.tx,
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -401,96 +448,61 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
   ) {
     return Row(
       children: [
-        // Progress label & plan chip
-        Flexible(
+        // 1. Pin "Profile completion" to start edge
+        Text(
+          strings.pcT,
+          style: TextStyle(
+            fontFamily: 'Vazirmatn',
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: colors.tx,
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+
+        // 2. Middle span fills the entire space: Expanded progress bar + percentage
+        Expanded(
           child: Row(
-            mainAxisSize: MainAxisSize.min,
             children: [
-              Flexible(
-                child: Text(
-                  strings.pcT,
-                  style: TextStyle(
-                    fontFamily: 'Vazirmatn',
-                    fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: colors.tx,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(width: 4),
-              Container(
-                padding: const EdgeInsetsDirectional.symmetric(
-                  horizontal: 6,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.wnb,
-                  borderRadius: AppRadius.rFull,
-                  border: Border.all(color: colors.bd),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+              Expanded(
+                child: Stack(
                   children: [
-                    FaIcon(
-                      FontAwesomeIcons.crown,
-                      size: 9,
-                      color: colors.wn,
+                    Container(
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: colors.bd,
+                        borderRadius: AppRadius.rFull,
+                      ),
                     ),
-                    const SizedBox(width: 3),
-                    Text(
-                      strings.tr(appState.currentPlan),
-                      style: TextStyle(
-                        fontFamily: 'Vazirmatn',
-                        fontSize: 9,
-                        fontWeight: FontWeight.w500,
-                        color: colors.tx,
+                    FractionallySizedBox(
+                      widthFactor: appState.profileProgress.clamp(0.0, 1.0),
+                      child: Container(
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: colors.pr,
+                          borderRadius: AppRadius.rFull,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 6),
-        // Completion progress bar
-        SizedBox(
-          width: 50,
-          child: Stack(
-            children: [
-              Container(
-                height: 5,
-                decoration: BoxDecoration(
-                  color: colors.bd,
-                  borderRadius: AppRadius.rFull,
-                ),
-              ),
-              FractionallySizedBox(
-                widthFactor: appState.profileProgress,
-                child: Container(
-                  height: 5,
-                  decoration: BoxDecoration(
-                    color: colors.pr,
-                    borderRadius: AppRadius.rFull,
-                  ),
+              const SizedBox(width: AppSpacing.xs),
+              Text(
+                strings.formatPercent((appState.profileProgress * 100).round()),
+                style: TextStyle(
+                  fontFamily: 'Vazirmatn',
+                  fontSize: 10,
+                  fontWeight: FontWeight.w700,
+                  color: colors.tx,
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(width: 4),
-        Text(
-          strings.formatPercent((appState.profileProgress * 100).round()),
-          style: TextStyle(
-            fontFamily: 'Vazirmatn',
-            fontSize: 10,
-            fontWeight: FontWeight.w700,
-            color: colors.tx,
-          ),
-        ),
-        const SizedBox(width: 6),
-        // Complete documents button
+        const SizedBox(width: AppSpacing.sm),
+
+        // 3. Pin "Complete" action button to end edge
         InkWell(
           onTap: () {
             ref
@@ -499,7 +511,7 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
           },
           borderRadius: AppRadius.rSm,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
             decoration: BoxDecoration(
               color: colors.pr,
               borderRadius: AppRadius.rSm,
