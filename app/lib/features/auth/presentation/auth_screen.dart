@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/localization/locale_provider.dart';
+import '../../../../core/services/referral_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -37,6 +38,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   late final TextEditingController _passwordController;
   late final TextEditingController _confirmPasswordController;
   late final TextEditingController _forgotEmailController;
+  late final TextEditingController _referralCodeController;
 
   final TurnstileController _turnstileController = TurnstileController();
   final FallbackChallengeController _fallbackController =
@@ -62,6 +64,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
         TextEditingController(text: initialState.confirmPassword);
     _forgotEmailController =
         TextEditingController(text: initialState.forgotEmail);
+    _referralCodeController =
+        TextEditingController(text: initialState.referralCode);
+    if (_referralCodeController.text.isEmpty) {
+      ReferralService().getPendingReferralCode().then((code) {
+        if (code != null && code.isNotEmpty && mounted) {
+          _referralCodeController.text = code;
+          ref.read(authFormProvider.notifier).setReferralCode(code);
+        }
+      }).catchError((_) {});
+    }
 
     _animController = AnimationController(
       vsync: this,
@@ -83,6 +95,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     _forgotEmailController.dispose();
+    _referralCodeController.dispose();
     _animController.dispose();
     super.dispose();
   }
@@ -379,6 +392,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           emailController: _emailController,
           passwordController: _passwordController,
           confirmPasswordController: _confirmPasswordController,
+          referralCodeController: _referralCodeController,
           isPasswordVisible: state.isPasswordVisible,
           isConfirmPasswordVisible: state.isConfirmPasswordVisible,
           validationState: state.passwordValidation,
@@ -408,6 +422,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
               ref.read(authFormProvider.notifier).setPassword(val),
           onConfirmPasswordChanged: (val) =>
               ref.read(authFormProvider.notifier).setConfirmPassword(val),
+          onReferralCodeChanged: (val) =>
+              ref.read(authFormProvider.notifier).setReferralCode(val),
           onTogglePasswordVisibility: () => ref
               .read(authFormProvider.notifier)
               .togglePasswordVisibility(),
@@ -734,6 +750,7 @@ class _SignupForm extends StatelessWidget {
   final TextEditingController emailController;
   final TextEditingController passwordController;
   final TextEditingController confirmPasswordController;
+  final TextEditingController? referralCodeController;
   final bool isPasswordVisible;
   final bool isConfirmPasswordVisible;
   final PasswordValidationState validationState;
@@ -749,6 +766,7 @@ class _SignupForm extends StatelessWidget {
   final ValueChanged<String> onEmailChanged;
   final ValueChanged<String> onPasswordChanged;
   final ValueChanged<String> onConfirmPasswordChanged;
+  final ValueChanged<String>? onReferralCodeChanged;
   final VoidCallback onTogglePasswordVisibility;
   final VoidCallback onToggleConfirmPasswordVisibility;
   final VoidCallback onSignup;
@@ -760,6 +778,7 @@ class _SignupForm extends StatelessWidget {
     required this.emailController,
     required this.passwordController,
     required this.confirmPasswordController,
+    this.referralCodeController,
     required this.isPasswordVisible,
     required this.isConfirmPasswordVisible,
     required this.validationState,
@@ -775,6 +794,7 @@ class _SignupForm extends StatelessWidget {
     required this.onEmailChanged,
     required this.onPasswordChanged,
     required this.onConfirmPasswordChanged,
+    this.onReferralCodeChanged,
     required this.onTogglePasswordVisibility,
     required this.onToggleConfirmPasswordVisibility,
     required this.onSignup,
@@ -890,6 +910,16 @@ class _SignupForm extends StatelessWidget {
               ],
             ),
           ],
+
+          // 4. Optional Referral Code Field
+          const SizedBox(height: AppSpacing.md),
+          AppTextField(
+            label: strings.authReferralCodeLabel,
+            placeholder: strings.authReferralCodeHint,
+            controller: referralCodeController,
+            onChanged: onReferralCodeChanged,
+            prefix: Icon(Icons.card_giftcard_rounded, size: 16, color: colors.mu),
+          ),
 
           const SizedBox(height: AppSpacing.xl),
 

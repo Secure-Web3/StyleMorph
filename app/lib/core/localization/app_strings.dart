@@ -445,6 +445,17 @@ class AppStrings {
       'refJoinedTitle': 'آخرین اعضای ملحق‌شده به شبکه شما',
       'refRuleInfo': 'با دعوت از هر دوست، ۱۰۰ سکه به شما و ۵۰ سکه هدیه به دوست شما تعلق می‌گیرد.',
       'refMembersUnit': 'نفر',
+      'refShare': 'اشتراک‌گذاری',
+      'refSharedToast': 'لینک اختصاصی دعوت در کلیپ‌بورد کپی شد!',
+      'refEmptyFriends': 'هنوز دوستی با کد شما ثبت‌نام نکرده است',
+      'refTierStarter': 'پایه',
+      'refTierSilver': 'نقره‌ای',
+      'refTierGold': 'طلایی',
+      'refTierAmbassador': 'سفیر',
+      'authReferralCodeLabel': 'کد معرف (اختیاری)',
+      'authReferralCodeHint': 'کد معرف ۸ حرفی',
+      'authReferralSelfError': 'امکان استفاده از کد معرف خودتان وجود ندارد',
+      'authReferralInvalidError': 'کد معرف وارد شده معتبر نیست',
       'perHeader': 'شخصیت همراه و دستیار هوشمند',
       'perSub': 'شخصیت، لحن گفتگو و سطح سختگیری دستیار هوش مصنوعی را مطابق سلیقه خود تنظیم کنید.',
       'perSelectTitle': 'انتخاب شخصیت همراه',
@@ -1165,6 +1176,17 @@ class AppStrings {
       'refJoinedTitle': 'Recently Joined Friends',
       'refRuleInfo': 'Earn 100 coins and gift 50 bonus coins for every friend who signs up.',
       'refMembersUnit': 'friends',
+      'refShare': 'Share',
+      'refSharedToast': 'Invite link copied to clipboard!',
+      'refEmptyFriends': 'No friends have joined using your referral code yet',
+      'refTierStarter': 'Starter',
+      'refTierSilver': 'Silver',
+      'refTierGold': 'Gold',
+      'refTierAmbassador': 'Ambassador',
+      'authReferralCodeLabel': 'Referral Code (Optional)',
+      'authReferralCodeHint': '8-character referral code',
+      'authReferralSelfError': 'You cannot use your own referral code',
+      'authReferralInvalidError': 'The entered referral code is invalid',
       'perHeader': 'AI Companion & Persona Settings',
       'perSub': 'Customize your AI companion character, conversation tone, and critique strictness.',
       'perSelectTitle': 'Select Companion Character',
@@ -1885,6 +1907,17 @@ class AppStrings {
       'refJoinedTitle': 'أحدث الأصدقاء المنضمين لشبكتك',
       'refRuleInfo': 'احصل على ١٠٠ عملة و٥٠ عملة هدية لصديقك عند كل دعوة.',
       'refMembersUnit': 'أصدقاء',
+      'refShare': 'مشاركة',
+      'refSharedToast': 'تم نسخ رابط الدعوة!',
+      'refEmptyFriends': 'لم ينضم أي صديق باستخدام رمز الإحالة الخاص بك بعد',
+      'refTierStarter': 'مبتدئ',
+      'refTierSilver': 'فضي',
+      'refTierGold': 'ذهبي',
+      'refTierAmbassador': 'سفير',
+      'authReferralCodeLabel': 'رمز الإحالة (اختياري)',
+      'authReferralCodeHint': 'رمز الإحالة المكوّن من ٨ أحرف',
+      'authReferralSelfError': 'لا يمكنك استخدام رمز الإحالة الخاص بك',
+      'authReferralInvalidError': 'رمز الإحالة المدخل غير صالح',
       'perHeader': 'شخصية المرافق الذكي',
       'perSub': 'خصّص شخصية المساعد ونبرة الحديث ومستوى الصرامة في تقييم الأسلوب.',
       'perSelectTitle': 'اختيار شخصية المرافق',
@@ -2605,6 +2638,17 @@ class AppStrings {
       'refJoinedTitle': 'Ağınıza Son Katılanlar',
       'refRuleInfo': 'Her arkadaş davetinizde size 100 jeton, arkadaşınıza 50 hediye jeton verilir.',
       'refMembersUnit': 'kişi',
+      'refShare': 'Paylaş',
+      'refSharedToast': 'Davet bağlantısı panoya kopyalandı!',
+      'refEmptyFriends': 'Henüz davet kodunuzla katılan bir arkadaşınız yok',
+      'refTierStarter': 'Başlangıç',
+      'refTierSilver': 'Gümüş',
+      'refTierGold': 'Altın',
+      'refTierAmbassador': 'Elçi',
+      'authReferralCodeLabel': 'Davet Kodu (İsteğe bağlı)',
+      'authReferralCodeHint': '8 haneli davet kodu',
+      'authReferralSelfError': 'Kendi davet kodunuzu kullanamazsınız',
+      'authReferralInvalidError': 'Girilen davet kodu geçersiz',
       'perHeader': 'Yapay Zeka Asistanı Kişiliği',
       'perSub': 'Asistan karakterini, konuşma üslubunu ve stil eleştiri sertliğini ayarlayın.',
       'perSelectTitle': 'Asistan Karakterini Seçin',
@@ -3390,6 +3434,31 @@ class AppStrings {
   String get refJoinedTitle => get('refJoinedTitle');
   String get refRuleInfo => get('refRuleInfo');
   String get refMembersUnit => get('refMembersUnit');
+  String get refShare => get('refShare');
+  String get refSharedToast => get('refSharedToast');
+  String get refEmptyFriends => get('refEmptyFriends');
+  String get refTierStarter => get('refTierStarter');
+  String get refTierSilver => get('refTierSilver');
+  String get refTierGold => get('refTierGold');
+  String get refTierAmbassador => get('refTierAmbassador');
+  String get authReferralCodeLabel => get('authReferralCodeLabel');
+  String get authReferralCodeHint => get('authReferralCodeHint');
+  String get authReferralSelfError => get('authReferralSelfError');
+  String get authReferralInvalidError => get('authReferralInvalidError');
+
+  String getTierLabel(String tier) {
+    switch (tier.toLowerCase()) {
+      case 'silver':
+        return refTierSilver;
+      case 'gold':
+        return refTierGold;
+      case 'ambassador':
+        return refTierAmbassador;
+      case 'starter':
+      default:
+        return refTierStarter;
+    }
+  }
 
   // Persona
   String get perHeader => get('perHeader');

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/profile/data/kyc_model.dart';
+import '../services/referral_service.dart';
 import '../services/session_service.dart';
 
 enum AppTab {
@@ -160,6 +161,12 @@ class AppState {
   final String personaMode;
   final Map<String, String> mediaSlots;
 
+  // Referral network & rewards
+  final String referralCode;
+  final int referralCount;
+  final String networkTier;
+  final List<ReferralEntry> referrals;
+
   // Gate-level pre-fetch flag: true once loadProfileFromFirestore() completes
   final bool isProfileLoaded;
 
@@ -193,6 +200,10 @@ class AppState {
     this.kycData = const KycData(),
     this.personaMode = 'full_body',
     this.mediaSlots = const {},
+    this.referralCode = '',
+    this.referralCount = 0,
+    this.networkTier = 'Starter',
+    this.referrals = const [],
     this.isProfileLoaded = false,
   });
 
@@ -223,6 +234,10 @@ class AppState {
     KycData? kycData,
     String? personaMode,
     Map<String, String>? mediaSlots,
+    String? referralCode,
+    int? referralCount,
+    String? networkTier,
+    List<ReferralEntry>? referrals,
     bool? isProfileLoaded,
   }) {
     return AppState(
@@ -250,6 +265,10 @@ class AppState {
       kycData: kycData ?? this.kycData,
       personaMode: personaMode ?? this.personaMode,
       mediaSlots: mediaSlots ?? this.mediaSlots,
+      referralCode: referralCode ?? this.referralCode,
+      referralCount: referralCount ?? this.referralCount,
+      networkTier: networkTier ?? this.networkTier,
+      referrals: referrals ?? this.referrals,
       isProfileLoaded: isProfileLoaded ?? this.isProfileLoaded,
     );
   }
@@ -489,6 +508,22 @@ class AppStateNotifier extends StateNotifier<AppState> {
           kyc = KycData.fromMap(Map<String, dynamic>.from(data['kyc'] as Map));
         }
 
+        final referralCode = data['referralCode']?.toString() ?? '';
+        final referralCount = (data['referralCount'] as num?)?.toInt() ?? 0;
+        final networkTier = data['networkTier']?.toString() ??
+            ReferralService.calculateTier(referralCount);
+
+        List<ReferralEntry> referralEntries = [];
+        try {
+          final snap = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .collection('referrals')
+              .orderBy('createdAt', descending: true)
+              .get();
+          referralEntries = snap.docs.map(ReferralEntry.fromFirestore).toList();
+        } catch (_) {}
+
         state = state.copyWith(
           identityValues: identity,
           aiDnaValues: aiDna,
@@ -499,12 +534,26 @@ class AppStateNotifier extends StateNotifier<AppState> {
           kycData: kyc,
           personaMode: personaMode,
           mediaSlots: mediaSlots,
+          referralCode: referralCode,
+          referralCount: referralCount,
+          networkTier: networkTier,
+          referrals: referralEntries,
           userName: fullName.isNotEmpty
               ? fullName
               : (user.displayName ?? (user.email?.split('@').first ?? '')),
           userHandle: nick.isNotEmpty ? nick : '',
           hasUnsavedProfileChanges: false,
         );
+
+        if (referralCode.isEmpty) {
+          Future.microtask(() async {
+            try {
+              final newCode =
+                  await ReferralService().ensureUserReferralCode(user.uid);
+              state = state.copyWith(referralCode: newCode);
+            } catch (_) {}
+          });
+        }
       } else {
         final progress = calculateProfileProgress(
           identity: identity,
@@ -777,6 +826,20 @@ class AppStateNotifier extends StateNotifier<AppState> {
     loadProfileFromFirestore();
   }
 
+  void setReferralData({
+    String? referralCode,
+    int? referralCount,
+    String? networkTier,
+    List<ReferralEntry>? referrals,
+  }) {
+    state = state.copyWith(
+      referralCode: referralCode,
+      referralCount: referralCount,
+      networkTier: networkTier,
+      referrals: referrals,
+    );
+  }
+
   void logout() {
     state = state.copyWith(
       isLoggedIn: false,
@@ -788,6 +851,10 @@ class AppStateNotifier extends StateNotifier<AppState> {
       userHandle: '',
       personaMode: 'full_body',
       mediaSlots: const {},
+      referralCode: '',
+      referralCount: 0,
+      networkTier: 'Starter',
+      referrals: const [],
       hasUnsavedProfileChanges: false,
       isProfileLoaded: false,
     );

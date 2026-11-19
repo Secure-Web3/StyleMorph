@@ -7,6 +7,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import '../../../core/services/referral_service.dart';
 import '../domain/auth_repository.dart';
 
 /// Concrete implementation of [AuthRepository] using Firebase Auth, Cloud Firestore,
@@ -177,12 +178,24 @@ class FirebaseAuthRepository implements AuthRepository {
       final snapshot = await userDoc.get();
 
       if (!snapshot.exists) {
+        final referralCode = ReferralService.generateReferralCode();
         await userDoc.set({
           'email': user.email ?? '',
           'role': 'user',
           'createdAt': FieldValue.serverTimestamp(),
           'authProvider': authProvider,
+          'referralCode': referralCode,
+          'referralCount': 0,
+          'networkTier': 'Starter',
+          'coins': 0,
         }, SetOptions(merge: true));
+
+        try {
+          await _firestore.collection('referral_codes').doc(referralCode).set({
+            'uid': user.uid,
+            'createdAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (_) {}
       }
     } catch (e) {
       // Log the exact Firestore error without blocking the auth flow.

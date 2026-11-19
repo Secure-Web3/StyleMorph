@@ -598,5 +598,16 @@
   "idErrInvalidZipIran": "يجب أن يتكون الرمز البريدي من ١٠ أرقام",
   "idErrInvalidZipTurkey": "يجب أن يتكون الرمز البريدي التركي من ٥ أرقام",
   "idErrInvalidZipInternational": "الرمز البريدي غير صالح (٣-١٢ حرف)",
-  "idErrInvalidMobile": "رقم الجوال غير صالح للدولة المحددة"
+  "idErrInvalidMobile": "رقم الجوال غير صالح للدولة المحددة",
+  "refShare": "مشاركة",
+  "refSharedToast": "تم نسخ رابط الدعوة!",
+  "refEmptyFriends": "لم ينضم أي صديق باستخدام رمز الإحالة الخاص بك بعد",
+  "refTierStarter": "مبتدئ",
+  "refTierSilver": "فضي",
+  "refTierGold": "ذهبي",
+  "refTierAmbassador": "سفير",
+  "authReferralCodeLabel": "رمز الإحالة (اختياري)",
+  "authReferralCodeHint": "رمز الإحالة المكوّن من ٨ أحرف",
+  "authReferralSelfError": "لا يمكنك استخدام رمز الإحالة الخاص بك",
+  "authReferralInvalidError": "رمز الإحالة المدخل غير صالح"
 }

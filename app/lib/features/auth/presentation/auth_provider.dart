@@ -2,6 +2,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/firebase_auth_repository.dart';
+import '../../../core/services/referral_service.dart';
 import '../../../core/services/session_persistence_service.dart';
 import '../../../core/services/session_service.dart';
 import '../../../core/services/welcome_persistence_service.dart';
@@ -92,6 +93,7 @@ class AuthFormState {
   final String? errorCode;
   final String? successMessageKey;
   final bool rememberMe;
+  final String referralCode;
 
   const AuthFormState({
     this.mode = AuthMode.login,
@@ -107,6 +109,7 @@ class AuthFormState {
     this.errorCode,
     this.successMessageKey,
     this.rememberMe = true,
+    this.referralCode = '',
   });
 
   AuthFormState copyWith({
@@ -125,6 +128,7 @@ class AuthFormState {
     String? successMessageKey,
     bool clearSuccess = false,
     bool? rememberMe,
+    String? referralCode,
   }) {
     return AuthFormState(
       mode: mode ?? this.mode,
@@ -142,6 +146,7 @@ class AuthFormState {
       successMessageKey:
           clearSuccess ? null : (successMessageKey ?? this.successMessageKey),
       rememberMe: rememberMe ?? this.rememberMe,
+      referralCode: referralCode ?? this.referralCode,
     );
   }
 }
@@ -202,6 +207,13 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
 
   void setRememberMe(bool value) {
     state = state.copyWith(rememberMe: value);
+  }
+
+  void setReferralCode(String value) {
+    state = state.copyWith(
+      referralCode: value.trim().toUpperCase(),
+      clearError: true,
+    );
   }
 
   void clearMessages() {
@@ -302,6 +314,22 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       );
       final user = credential.user ?? FirebaseAuth.instance.currentUser;
       if (user != null) {
+        if (state.referralCode.isNotEmpty) {
+          try {
+            final applied =
+                await _ref.read(referralServiceProvider).applyReferralOnSignUp(
+                      newUserUid: user.uid,
+                      newEmail: user.email ?? state.email,
+                      displayName: user.displayName,
+                      referralCode: state.referralCode,
+                    );
+            if (applied) {
+              _ref.read(appStateProvider.notifier).addCoins(50);
+            }
+          } catch (e) {
+            debugPrint('[AuthFormNotifier] applyReferralOnSignUp notice: $e');
+          }
+        }
         try {
           await user.sendEmailVerification();
         } catch (e) {

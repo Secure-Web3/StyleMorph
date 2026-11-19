@@ -10,6 +10,7 @@ import 'core/localization/app_language.dart';
 import 'core/localization/locale_provider.dart';
 import 'core/services/biometric_service.dart';
 import 'core/services/emulator_config.dart';
+import 'core/services/referral_service.dart';
 import 'core/services/session_persistence_service.dart';
 import 'core/services/welcome_persistence_service.dart';
 import 'core/theme/app_theme.dart';
@@ -38,6 +39,7 @@ Future<void> main() async {
       },
     );
     await SessionPersistenceService().checkAndClearNonPersistentSessionOnStartup();
+    await ReferralService().captureReferralFromUri(Uri.base);
   } catch (e) {
     debugPrint('[FirebaseInit] Notice: $e');
   }

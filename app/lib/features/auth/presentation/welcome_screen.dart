@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/localization/locale_provider.dart';
+import '../../../../core/services/referral_service.dart';
 import '../../../../core/services/welcome_persistence_service.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
@@ -38,6 +39,14 @@ class WelcomeScreen extends ConsumerStatefulWidget {
 
 class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   ImageProvider? _precachedProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    ReferralService().captureReferralFromUri(Uri.base).catchError((e) {
+      debugPrint('[WelcomeScreen] captureReferral error: $e');
+    });
+  }
 
   @override
   void didChangeDependencies() {

@@ -598,5 +598,16 @@
   "idErrInvalidZipIran": "کد پستی باید ۱۰ رقم عددی معتبر باشد",
   "idErrInvalidZipTurkey": "کد پستی ترکیه باید ۵ رقم عددی باشد",
   "idErrInvalidZipInternational": "کد پستی نامعتبر است (۳ تا ۱۲ کاراکتر)",
-  "idErrInvalidMobile": "شماره موبایل وارد شده برای این کشور نامعتبر است"
+  "idErrInvalidMobile": "شماره موبایل وارد شده برای این کشور نامعتبر است",
+  "refShare": "اشتراک‌گذاری",
+  "refSharedToast": "لینک اختصاصی دعوت در کلیپ‌بورد کپی شد!",
+  "refEmptyFriends": "هنوز دوستی با کد شما ثبت‌نام نکرده است",
+  "refTierStarter": "پایه",
+  "refTierSilver": "نقره‌ای",
+  "refTierGold": "طلایی",
+  "refTierAmbassador": "سفیر",
+  "authReferralCodeLabel": "کد معرف (اختیاری)",
+  "authReferralCodeHint": "کد معرف ۸ حرفی",
+  "authReferralSelfError": "امکان استفاده از کد معرف خودتان وجود ندارد",
+  "authReferralInvalidError": "کد معرف وارد شده معتبر نیست"
 }

@@ -598,5 +598,16 @@
   "idErrInvalidZipIran": "Postal code must be 10 valid digits",
   "idErrInvalidZipTurkey": "Turkish postal code must be 5 digits",
   "idErrInvalidZipInternational": "Invalid Postal/ZIP Code (3-12 characters)",
-  "idErrInvalidMobile": "Invalid mobile number for selected country"
+  "idErrInvalidMobile": "Invalid mobile number for selected country",
+  "refShare": "Share",
+  "refSharedToast": "Invite link copied to clipboard!",
+  "refEmptyFriends": "No friends have joined using your referral code yet",
+  "refTierStarter": "Starter",
+  "refTierSilver": "Silver",
+  "refTierGold": "Gold",
+  "refTierAmbassador": "Ambassador",
+  "authReferralCodeLabel": "Referral Code (Optional)",
+  "authReferralCodeHint": "8-character referral code",
+  "authReferralSelfError": "You cannot use your own referral code",
+  "authReferralInvalidError": "The entered referral code is invalid"
 }

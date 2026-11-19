@@ -598,5 +598,16 @@
   "idErrInvalidZipIran": "Posta kodu 10 haneli geçerli olmalıdır",
   "idErrInvalidZipTurkey": "Türkiye posta kodu 5 haneli olmalıdır",
   "idErrInvalidZipInternational": "Geçersiz Posta Kodu (3-12 karakter)",
-  "idErrInvalidMobile": "Seçilen ülke için geçersiz cep telefonu"
+  "idErrInvalidMobile": "Seçilen ülke için geçersiz cep telefonu",
+  "refShare": "Paylaş",
+  "refSharedToast": "Davet bağlantısı panoya kopyalandı!",
+  "refEmptyFriends": "Henüz davet kodunuzla katılan bir arkadaşınız yok",
+  "refTierStarter": "Başlangıç",
+  "refTierSilver": "Gümüş",
+  "refTierGold": "Altın",
+  "refTierAmbassador": "Elçi",
+  "authReferralCodeLabel": "Davet Kodu (İsteğe bağlı)",
+  "authReferralCodeHint": "8 haneli davet kodu",
+  "authReferralSelfError": "Kendi davet kodunuzu kullanamazsınız",
+  "authReferralInvalidError": "Girilen davet kodu geçersiz"
 }

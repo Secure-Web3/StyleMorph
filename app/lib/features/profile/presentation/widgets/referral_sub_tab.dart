@@ -4,17 +4,32 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/services/referral_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
 
-class ReferralSubTab extends ConsumerWidget {
+class ReferralSubTab extends ConsumerStatefulWidget {
   const ReferralSubTab({super.key});
+
+  @override
+  ConsumerState<ReferralSubTab> createState() => _ReferralSubTabState();
+}
+
+class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   void _copyLink(BuildContext context, String link, AppStrings strings) {
     if (link.isEmpty) return;
@@ -30,20 +45,40 @@ class ReferralSubTab extends ConsumerWidget {
     );
   }
 
+  void _shareLink(BuildContext context, String link, AppStrings strings) {
+    if (link.isEmpty) return;
+    Clipboard.setData(ClipboardData(text: link));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          strings.refSharedToast,
+          style: const TextStyle(fontFamily: 'Vazirmatn'),
+        ),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
-    final user = FirebaseAuth.instance.currentUser;
-    final uid = user?.uid ?? '';
-    final handle = ref
-        .watch(appStateProvider.select((s) => s.userHandle))
-        .replaceAll('@', '')
-        .trim();
-    final refCode =
-        handle.isNotEmpty ? handle : (uid.length >= 8 ? uid.substring(0, 8) : uid);
-    final referralLink =
-        refCode.isNotEmpty ? 'https://stylemorph.app/r/$refCode' : '';
+    final appState = ref.watch(appStateProvider);
+    String uid = '';
+    try {
+      uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    } catch (_) {
+      uid = '';
+    }
+
+    final refCode = appState.referralCode.isNotEmpty
+        ? appState.referralCode
+        : (uid.length >= 8 ? uid.substring(0, 8).toUpperCase() : uid);
+    final referralLink = refCode.isNotEmpty
+        ? 'https://stylemorph-preview.web.app/?ref=$refCode'
+        : 'https://stylemorph-preview.web.app/?ref=...';
+
+    final referrals = appState.referrals;
 
     return Padding(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -59,29 +94,33 @@ class ReferralSubTab extends ConsumerWidget {
           // 3-Column Stats Grid
           Row(
             children: [
-              // Invited Count (Real default: 0)
+              // Invited Count
               Expanded(
                 child: _buildStatCard(
                   label: strings.refInvited,
-                  value: strings.countWithUnit(0, strings.refMembersUnit),
+                  value: strings.countWithUnit(
+                    appState.referralCount,
+                    strings.refMembersUnit,
+                  ),
                   colors: colors,
                 ),
               ),
               const SizedBox(width: 6),
-              // Bonus Earned (Real default: 0)
+              // Bonus Earned
               Expanded(
                 child: _buildStatCard(
                   label: strings.refBonus,
-                  value: '۰ ${strings.coin}',
+                  value:
+                      '${strings.formatNumber(appState.referralCount * 100)} ${strings.coin}',
                   colors: colors,
                 ),
               ),
               const SizedBox(width: 6),
-              // Network Tier (Default starter tier)
+              // Network Tier
               Expanded(
                 child: _buildStatCard(
                   label: strings.refTier,
-                  value: strings.tr('پایه'),
+                  value: strings.getTierLabel(appState.networkTier),
                   valueColor: colors.wn,
                   colors: colors,
                 ),
@@ -111,9 +150,7 @@ class ReferralSubTab extends ConsumerWidget {
                     border: Border.all(color: colors.bd),
                   ),
                   child: Text(
-                    referralLink.isNotEmpty
-                        ? referralLink
-                        : 'https://stylemorph.app/r/...',
+                    referralLink,
                     style: TextStyle(
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 12,
@@ -125,7 +162,7 @@ class ReferralSubTab extends ConsumerWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
+              const SizedBox(width: AppSpacing.xs),
               AppButton(
                 size: AppButtonSize.sm,
                 height: 40,
@@ -133,6 +170,20 @@ class ReferralSubTab extends ConsumerWidget {
                 text: strings.refCopy,
                 onPressed: referralLink.isNotEmpty
                     ? () => _copyLink(context, referralLink, strings)
+                    : null,
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              AppButton(
+                size: AppButtonSize.sm,
+                height: 40,
+                icon: FaIcon(
+                  FontAwesomeIcons.shareNodes,
+                  size: 12,
+                  color: colors.prt,
+                ),
+                text: strings.refShare,
+                onPressed: referralLink.isNotEmpty
+                    ? () => _shareLink(context, referralLink, strings)
                     : null,
               ),
             ],
@@ -151,34 +202,63 @@ class ReferralSubTab extends ConsumerWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
 
-          // Clean Empty State for Friends List (Purged fake members)
+          // Fixed-Height Container (~240px) with independent inner scrolling only
           Container(
+            height: 240,
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
             decoration: BoxDecoration(
               color: colors.sf,
               borderRadius: AppRadius.rMd,
               border: Border.all(color: colors.bd),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FaIcon(
-                  FontAwesomeIcons.userGroup,
-                  size: 20,
-                  color: colors.mu,
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  'هنوز دوستی با کد شما ثبت‌نام نکرده است',
-                  style: TextStyle(
-                    fontFamily: 'Vazirmatn',
-                    fontSize: 11,
-                    color: colors.mu,
+            clipBehavior: Clip.antiAlias,
+            child: referrals.isEmpty
+                ? Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          FaIcon(
+                            FontAwesomeIcons.userGroup,
+                            size: 24,
+                            color: colors.mu,
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            strings.refEmptyFriends,
+                            style: TextStyle(
+                              fontFamily: 'Vazirmatn',
+                              fontSize: 12,
+                              color: colors.mu,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                : Scrollbar(
+                    controller: _scrollController,
+                    thumbVisibility: true,
+                    child: ListView.separated(
+                      controller: _scrollController,
+                      physics: const ClampingScrollPhysics(),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.md,
+                        vertical: AppSpacing.xs,
+                      ),
+                      itemCount: referrals.length,
+                      separatorBuilder: (_, _) => Divider(
+                        height: 1,
+                        color: colors.bd.withValues(alpha: 0.5),
+                      ),
+                      itemBuilder: (context, index) {
+                        final item = referrals[index];
+                        return _buildFriendItem(item, colors, strings);
+                      },
+                    ),
                   ),
-                ),
-              ],
-            ),
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -188,7 +268,11 @@ class ReferralSubTab extends ConsumerWidget {
             padding: const EdgeInsetsDirectional.all(AppSpacing.md),
             child: Row(
               children: [
-                FaIcon(FontAwesomeIcons.circleQuestion, size: 14, color: colors.wn),
+                FaIcon(
+                  FontAwesomeIcons.circleQuestion,
+                  size: 14,
+                  color: colors.wn,
+                ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Text(
@@ -202,6 +286,63 @@ class ReferralSubTab extends ConsumerWidget {
                 ),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFriendItem(
+    ReferralEntry item,
+    AppColors colors,
+    AppStrings strings,
+  ) {
+    final name = item.displayName.isNotEmpty
+        ? item.displayName
+        : (item.email.isNotEmpty ? item.email.split('@').first : 'User');
+    final coinsStr = strings.formatNumber(item.rewardEarned);
+    final badgeText = '+ $coinsStr ${strings.coin}';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Row 1: Name on start side, Earned Coins Badge on end side
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  name,
+                  style: TextStyle(
+                    fontFamily: 'Vazirmatn',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: colors.tx,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              AppBadge(
+                variant: AppBadgeVariant.success,
+                size: AppBadgeSize.sm,
+                child: Text(badgeText),
+              ),
+            ],
+          ),
+          const SizedBox(height: 2),
+          // Row 2: Invitee email address in clean, compact, smaller muted font directly underneath
+          Text(
+            item.email,
+            style: TextStyle(
+              fontFamily: AppTypography.fontFamily,
+              fontSize: 11,
+              color: colors.mu,
+            ),
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
