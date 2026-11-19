@@ -547,7 +547,10 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                 flex: 1,
                 child: AppTextField(
                   label: strings.idZip,
+                  placeholder: strings.idZipPlaceholder,
                   controller: _zipController,
+                  keyboardType: TextInputType.text,
+                  maxLength: 12,
                   onChanged: (val) => _onFieldChanged('zip', val),
                 ),
               ),

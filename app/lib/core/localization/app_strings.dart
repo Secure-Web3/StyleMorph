@@ -231,7 +231,8 @@ class AppStrings {
       'idProvince': 'استان',
       'idCity': 'شهر',
       'idAddress': 'آدرس پستی',
-      'idZip': 'کد پستی ۱۰ رقمی',
+      'idZip': 'کد پستی',
+      'idZipPlaceholder': 'کد پستی / زیپ‌کد',
       'galHeader': 'آلبوم و تصاویر مرجع',
       'galScan360': 'اسکن ۳۶۰ درجه بدن',
       'galUploaded': 'آپلود شده',
@@ -797,7 +798,8 @@ class AppStrings {
       'idProvince': 'Province',
       'idCity': 'City',
       'idAddress': 'Postal Address',
-      'idZip': '10-Digit Postal Code',
+      'idZip': 'Postal / ZIP Code',
+      'idZipPlaceholder': 'Postal / ZIP Code',
       'galHeader': 'Media Album & Reference Photos',
       'galScan360': '360° Body Scan',
       'galUploaded': 'Uploaded',
@@ -1363,7 +1365,8 @@ class AppStrings {
       'idProvince': 'المحافظة',
       'idCity': 'المدينة',
       'idAddress': 'العنوان البريدي',
-      'idZip': 'الرمز البريدي (١٠ أرقام)',
+      'idZip': 'الرمز البريدي',
+      'idZipPlaceholder': 'الرمز البريدي',
       'galHeader': 'ألبوم الوسائط والصور المرجعية',
       'galScan360': 'مسح ٣٦٠ درجة للجسم',
       'galUploaded': 'تم التحميل',
@@ -1929,7 +1932,8 @@ class AppStrings {
       'idProvince': 'İl',
       'idCity': 'Şehir',
       'idAddress': 'Açık Adres',
-      'idZip': '10 Haneli Posta Kodu',
+      'idZip': 'Posta Kodu',
+      'idZipPlaceholder': 'Posta Kodu',
       'galHeader': 'Medya Albümü ve Referanslar',
       'galScan360': '360° Vücut Taraması',
       'galUploaded': 'Yüklendi',
@@ -2546,6 +2550,7 @@ class AppStrings {
   String get idCity => get('idCity');
   String get idAddress => get('idAddress');
   String get idZip => get('idZip');
+  String get idZipPlaceholder => get('idZipPlaceholder');
 
   // Gallery
   String get galHeader => get('galHeader');
