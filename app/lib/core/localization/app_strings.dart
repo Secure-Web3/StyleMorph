@@ -296,6 +296,29 @@ class AppStrings {
       'galRecorded': 'ثبت شد',
       'galUploadSlot3': 'آپلود قاب ۳',
       'galTip': 'تصاویر مرجع برای افزایش دقت پرو مجازی لباس و تحلیل اندام استفاده می‌شوند.',
+      'galPersonaModeTitle': 'حالت مدل‌سازی پرسونای هوش مصنوعی',
+      'galModePrivacy': 'آواتار حریم خصوصی (چهره و مو)',
+      'galModePrivacyDesc': 'بدون نیاز به عکس قدی؛ چهره و موی شما با مانکن سه‌بعدی آناتومی ترکیب می‌شود.',
+      'galModeFullBody': 'پرسونای کامل اندام واقعی',
+      'galModeFullBodyDesc': 'شامل ۷ زاویه مرجع برای حداکثر دقت در تن‌خور و شبیه‌سازی سه‌بعدی پرو مجازی.',
+      'galSlotFrontFace': 'چهره و مو از روبرو',
+      'galSlotSideFace': 'نیمرخ چهره و مو (۹۰ درجه)',
+      'galSlotBodyFront': 'تمام‌قد روبرو (حالت A-Pose)',
+      'galSlotBodySide': 'تمام‌قد نیمرخ (۹۰ درجه)',
+      'galSlotBodyBack': 'تمام‌قد از پشت سر',
+      'galSlotHandSkin': 'کلوزآپ دست و رنگ پوست',
+      'galSlotScan360': 'اسکن ویدیویی ۳۶۰ درجه بدن',
+      'galRequired': 'الزامی',
+      'galOptional': 'اختیاری',
+      'galProSlot': 'پیشرفته (PRO)',
+      'galAwaitingUpload': 'در انتظار بارگذاری',
+      'galClickToScan': 'برای بارگذاری یا ضبط ویدیو ۳۶۰ درجه کلیک کنید',
+      'galTakeCameraWithGuide': 'عکاسی با راهنمای زاویه',
+      'galUploadFromGallery': 'انتخاب از گالری',
+      'galAlignmentGuideTitle': 'راهنمای زاویه و کادربندی',
+      'galReadyToCapture': 'آماده عکاسی',
+      'galDeleteConfirmTitle': 'حذف فایل مرجع',
+      'galDeleteConfirmDesc': 'آیا از حذف این فایل مرجع اطمینان دارید؟ در صورت حذف، دقت مدل‌سازی هوش مصنوعی کاهش می‌یابد.',
       'aiHeader': 'آناتومی و مشخصات DNA',
       'aiEditable': 'قابل ویرایش',
       'aiNote': 'مقادیر توسط هوش مصنوعی استخراج شده‌اند. با ویرایش هر فیلد، برچسب آن به USER تغییر می‌کند.',
@@ -912,6 +935,29 @@ class AppStrings {
       'galRecorded': 'Added',
       'galUploadSlot3': 'Upload Frame 3',
       'galTip': 'Reference photos are used to improve virtual try-on accuracy and body modeling.',
+      'galPersonaModeTitle': 'AI Persona Modeling Architecture',
+      'galModePrivacy': 'Privacy Face & Hair Avatar',
+      'galModePrivacyDesc': 'No full-body photo needed; your face and hair are combined with the 3D parametric mannequin.',
+      'galModeFullBody': 'Full Real-Body Persona',
+      'galModeFullBodyDesc': 'Includes 7 reference angles for maximum draping accuracy and 3D virtual try-on.',
+      'galSlotFrontFace': 'Front Face & Hair',
+      'galSlotSideFace': 'Side Profile Face & Hair (90°)',
+      'galSlotBodyFront': 'Full Body Front (A-Pose)',
+      'galSlotBodySide': 'Full Body Side Profile (90°)',
+      'galSlotBodyBack': 'Full Body Back View',
+      'galSlotHandSkin': 'Hand & Skin Tone Close-up',
+      'galSlotScan360': '360° Body Scan Video',
+      'galRequired': 'Required',
+      'galOptional': 'Optional',
+      'galProSlot': 'Advanced (PRO)',
+      'galAwaitingUpload': 'Awaiting Upload',
+      'galClickToScan': 'Click to record or upload 360° video',
+      'galTakeCameraWithGuide': 'Camera with Alignment Guide',
+      'galUploadFromGallery': 'Upload from Gallery',
+      'galAlignmentGuideTitle': 'Pose & Alignment Guide',
+      'galReadyToCapture': 'Ready to Capture',
+      'galDeleteConfirmTitle': 'Delete Reference Media',
+      'galDeleteConfirmDesc': 'Are you sure you want to delete this reference media? AI simulation accuracy will be reduced.',
       'aiHeader': 'Anatomy & DNA Specs',
       'aiEditable': 'Editable',
       'aiNote': 'Values were extracted by AI. Editing any field switches its badge to USER.',
@@ -1528,6 +1574,29 @@ class AppStrings {
       'galRecorded': 'تم الحفظ',
       'galUploadSlot3': 'تحميل الإطار ٣',
       'galTip': 'تُستخدم الصور المرجعية لرفع دقة القياس الافتراضي وتحليل القوام.',
+      'galPersonaModeTitle': 'وضع نمذجة شخصية الذكاء الاصطناعي',
+      'galModePrivacy': 'رمزية الوجه والشعر الخاصة (بدون جسم)',
+      'galModePrivacyDesc': 'لا حاجة لصور الجسم الكامل؛ يدمج وجهك وشعرك مع المانيكان ثلاثي الأبعاد.',
+      'galModeFullBody': 'شخصية الجسم الكامل الحقيقي',
+      'galModeFullBodyDesc': 'يتضمن ٧ زوايا مرجعية لتحقيق أقصى دقة في قياس ومحاكاة الملابس ثلاثية الأبعاد.',
+      'galSlotFrontFace': 'الوجه والشعر من الأمام',
+      'galSlotSideFace': 'الملف الجانبي للوجه والشعر (٩٠ درجة)',
+      'galSlotBodyFront': 'الجسم بالكامل من الأمام (وضع A)',
+      'galSlotBodySide': 'الجسم بالكامل جانبي (٩٠ درجة)',
+      'galSlotBodyBack': 'الجسم بالكامل من الخلف',
+      'galSlotHandSkin': 'لقطة مقربة لليد ولون البشرة',
+      'galSlotScan360': 'فيديو مسح ٣٦٠ درجة للجسم',
+      'galRequired': 'مطلوب',
+      'galOptional': 'اختياري',
+      'galProSlot': 'متقدم (PRO)',
+      'galAwaitingUpload': 'بانتظار التحميل',
+      'galClickToScan': 'انقر لتسجيل أو تحميل فيديو ٣٦٠ درجة',
+      'galTakeCameraWithGuide': 'التصوير مع دليل المحاذاة',
+      'galUploadFromGallery': 'اختيار من المعرض',
+      'galAlignmentGuideTitle': 'دليل المحاذاة والوضعية',
+      'galReadyToCapture': 'جاهز للتصوير',
+      'galDeleteConfirmTitle': 'حذف الملف المرجعي',
+      'galDeleteConfirmDesc': 'هل أنت متأكد من حذف هذا الملف المرجعي؟ ستقل دقة محاكاة الذكاء الاصطناعي.',
       'aiHeader': 'التشريح ومواصفات DNA',
       'aiEditable': 'قابل للتعديل',
       'aiNote': 'تم استخراج القيم بالذكاء الاصطناعي. تعديل أي حقل يغيّر وسْمه إلى USER.',
@@ -2144,6 +2213,29 @@ class AppStrings {
       'galRecorded': 'Eklendi',
       'galUploadSlot3': 'Kare 3 Yükle',
       'galTip': 'Referans fotoğraflar sanal deneme ve vücut analizi doğruluğunu artırır.',
+      'galPersonaModeTitle': 'Yapay Zeka Persona Modelleme Mimarisi',
+      'galModePrivacy': 'Gizlilik Yüz ve Saç Avatarı',
+      'galModePrivacyDesc': 'Tam vücut fotoğrafına gerek yok; yüzünüz ve saçınız 3D parametrik mankenle birleştirilir.',
+      'galModeFullBody': 'Tam Gerçek Beden Personası',
+      'galModeFullBodyDesc': 'Maksimum döküm ve 3D sanal prova doğruluğu için 7 referans açısı içerir.',
+      'galSlotFrontFace': 'Önden Yüz ve Saç',
+      'galSlotSideFace': 'Yan Profil Yüz ve Saç (90°)',
+      'galSlotBodyFront': 'Tam Boy Ön (A-Duruşu)',
+      'galSlotBodySide': 'Tam Boy Yan Profil (90°)',
+      'galSlotBodyBack': 'Tam Boy Arka Görünüm',
+      'galSlotHandSkin': 'El ve Ten Rengi Yakın Çekim',
+      'galSlotScan360': '360° Vücut Tarama Videosu',
+      'galRequired': 'Zorunlu',
+      'galOptional': 'İsteğe Bağlı',
+      'galProSlot': 'Gelişmiş (PRO)',
+      'galAwaitingUpload': 'Yükleme Bekleniyor',
+      'galClickToScan': '360° video kaydetmek veya yüklemek için tıklayın',
+      'galTakeCameraWithGuide': 'Hizalama Kılavuzu ile Kamera',
+      'galUploadFromGallery': 'Galeriden Yükle',
+      'galAlignmentGuideTitle': 'Poz ve Hizalama Kılavuzu',
+      'galReadyToCapture': 'Fotoğraf Çekmeye Hazır',
+      'galDeleteConfirmTitle': 'Referans Dosyasını Sil',
+      'galDeleteConfirmDesc': 'Bu referans dosyasını silmek istediğinizden emin misiniz? Yapay zeka simülasyon doğruluğu azalacaktır.',
       'aiHeader': 'Anatomi ve DNA Ölçüleri',
       'aiEditable': 'Düzenlenebilir',
       'aiNote': 'Değerler Yapay Zeka ile çıkarıldı. Düzenlenen alan USER olarak işaretlenir.',
@@ -2814,6 +2906,29 @@ class AppStrings {
   String get galRecorded => get('galRecorded');
   String get galUploadSlot3 => get('galUploadSlot3');
   String get galTip => get('galTip');
+  String get galPersonaModeTitle => get('galPersonaModeTitle');
+  String get galModePrivacy => get('galModePrivacy');
+  String get galModePrivacyDesc => get('galModePrivacyDesc');
+  String get galModeFullBody => get('galModeFullBody');
+  String get galModeFullBodyDesc => get('galModeFullBodyDesc');
+  String get galSlotFrontFace => get('galSlotFrontFace');
+  String get galSlotSideFace => get('galSlotSideFace');
+  String get galSlotBodyFront => get('galSlotBodyFront');
+  String get galSlotBodySide => get('galSlotBodySide');
+  String get galSlotBodyBack => get('galSlotBodyBack');
+  String get galSlotHandSkin => get('galSlotHandSkin');
+  String get galSlotScan360 => get('galSlotScan360');
+  String get galRequired => get('galRequired');
+  String get galOptional => get('galOptional');
+  String get galProSlot => get('galProSlot');
+  String get galAwaitingUpload => get('galAwaitingUpload');
+  String get galClickToScan => get('galClickToScan');
+  String get galTakeCameraWithGuide => get('galTakeCameraWithGuide');
+  String get galUploadFromGallery => get('galUploadFromGallery');
+  String get galAlignmentGuideTitle => get('galAlignmentGuideTitle');
+  String get galReadyToCapture => get('galReadyToCapture');
+  String get galDeleteConfirmTitle => get('galDeleteConfirmTitle');
+  String get galDeleteConfirmDesc => get('galDeleteConfirmDesc');
 
   // AI DNA
   String get aiHeader => get('aiHeader');

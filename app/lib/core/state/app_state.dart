@@ -156,6 +156,10 @@ class AppState {
   final Map<String, String> aiDnaValues;
   final KycData kycData;
 
+  // Media persona mode ('full_body' or 'privacy_avatar') & slots (slotKey -> url)
+  final String personaMode;
+  final Map<String, String> mediaSlots;
+
   // Gate-level pre-fetch flag: true once loadProfileFromFirestore() completes
   final bool isProfileLoaded;
 
@@ -187,6 +191,8 @@ class AppState {
     this.aiDnaSources = const {},
     this.aiDnaValues = const {},
     this.kycData = const KycData(),
+    this.personaMode = 'full_body',
+    this.mediaSlots = const {},
     this.isProfileLoaded = false,
   });
 
@@ -215,6 +221,8 @@ class AppState {
     Map<String, String>? aiDnaSources,
     Map<String, String>? aiDnaValues,
     KycData? kycData,
+    String? personaMode,
+    Map<String, String>? mediaSlots,
     bool? isProfileLoaded,
   }) {
     return AppState(
@@ -240,6 +248,8 @@ class AppState {
       aiDnaSources: aiDnaSources ?? this.aiDnaSources,
       aiDnaValues: aiDnaValues ?? this.aiDnaValues,
       kycData: kycData ?? this.kycData,
+      personaMode: personaMode ?? this.personaMode,
+      mediaSlots: mediaSlots ?? this.mediaSlots,
       isProfileLoaded: isProfileLoaded ?? this.isProfileLoaded,
     );
   }
@@ -259,6 +269,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
   static double calculateProfileProgress({
     required Map<String, String> identity,
     required Map<String, String> aiDna,
+    String personaMode = 'full_body',
+    Map<String, String> mediaSlots = const {},
   }) {
     double score = 0.0;
     if ((identity['email'] ?? '').trim().isNotEmpty) score += 0.10;
@@ -301,6 +313,31 @@ class AppStateNotifier extends StateNotifier<AppState> {
       if ((aiDna[k] ?? '').trim().isNotEmpty) tailoringCount++;
     }
     score += (tailoringCount / tailoringKeys.length) * 0.10;
+
+    // Media references progress
+    double mediaScore = 0.0;
+    if (personaMode == 'privacy_avatar') {
+      int filled = 0;
+      if ((mediaSlots['front_face'] ?? '').trim().isNotEmpty) filled++;
+      if ((mediaSlots['side_face'] ?? '').trim().isNotEmpty) filled++;
+      mediaScore = (filled / 2.0) * 0.20;
+    } else {
+      int reqFilled = 0;
+      if ((mediaSlots['front_face'] ?? '').trim().isNotEmpty) reqFilled++;
+      if ((mediaSlots['side_face'] ?? '').trim().isNotEmpty) reqFilled++;
+      if ((mediaSlots['body_front'] ?? '').trim().isNotEmpty) reqFilled++;
+      if ((mediaSlots['body_side'] ?? '').trim().isNotEmpty) reqFilled++;
+      final reqScore = (reqFilled / 4.0) * 0.15;
+
+      int optFilled = 0;
+      if ((mediaSlots['body_back'] ?? '').trim().isNotEmpty) optFilled++;
+      if ((mediaSlots['hand_skin'] ?? '').trim().isNotEmpty) optFilled++;
+      if ((mediaSlots['scan_360'] ?? '').trim().isNotEmpty) optFilled++;
+      final optScore = (optFilled / 3.0) * 0.05;
+
+      mediaScore = reqScore + optScore;
+    }
+    score += mediaScore;
 
     return score.clamp(0.0, 1.0);
   }
@@ -422,9 +459,22 @@ class AppStateNotifier extends StateNotifier<AppState> {
         final nick =
             identity['nick']?.trim() ?? data['handle']?.toString() ?? '';
 
+        final personaMode = data['personaMode']?.toString() ?? 'full_body';
+        final Map<String, String> mediaSlots = {};
+        if (data['mediaSlots'] is Map) {
+          final mMap = Map<String, dynamic>.from(data['mediaSlots'] as Map);
+          mMap.forEach((k, v) {
+            if (v != null && v.toString().isNotEmpty) {
+              mediaSlots[k] = v.toString();
+            }
+          });
+        }
+
         final progress = calculateProfileProgress(
           identity: identity,
           aiDna: aiDna,
+          personaMode: personaMode,
+          mediaSlots: mediaSlots,
         );
 
         KycData kyc = const KycData();
@@ -440,6 +490,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
           currentPlan: currentPlan,
           profileProgress: progress,
           kycData: kyc,
+          personaMode: personaMode,
+          mediaSlots: mediaSlots,
           userName: fullName.isNotEmpty
               ? fullName
               : (user.displayName ?? (user.email?.split('@').first ?? '')),
@@ -450,12 +502,16 @@ class AppStateNotifier extends StateNotifier<AppState> {
         final progress = calculateProfileProgress(
           identity: identity,
           aiDna: const {},
+          personaMode: 'full_body',
+          mediaSlots: const {},
         );
         state = state.copyWith(
           identityValues: identity,
           aiDnaValues: const {},
           coins: 0,
           profileProgress: progress,
+          personaMode: 'full_body',
+          mediaSlots: const {},
           userName: user.displayName ?? (user.email?.split('@').first ?? ''),
           userHandle: '',
           hasUnsavedProfileChanges: false,
@@ -487,6 +543,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
       final progress = calculateProfileProgress(
         identity: state.identityValues,
         aiDna: state.aiDnaValues,
+        personaMode: state.personaMode,
+        mediaSlots: state.mediaSlots,
       );
 
       final first = state.identityValues['firstName']?.trim() ?? '';
@@ -501,6 +559,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
         'handle': nick,
         'identity': state.identityValues,
         'aiDna': state.aiDnaValues,
+        'personaMode': state.personaMode,
+        'mediaSlots': state.mediaSlots,
         'companion': {
           'characterId': state.companionSettings.characterId,
           'customName': state.companionSettings.customName,
@@ -560,6 +620,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
     final progress = calculateProfileProgress(
       identity: state.identityValues,
       aiDna: state.aiDnaValues,
+      personaMode: state.personaMode,
+      mediaSlots: state.mediaSlots,
     );
 
     state = state.copyWith(
@@ -575,6 +637,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
     final progress = calculateProfileProgress(
       identity: updated,
       aiDna: state.aiDnaValues,
+      personaMode: state.personaMode,
+      mediaSlots: state.mediaSlots,
     );
     state = state.copyWith(
       identityValues: updated,
@@ -585,6 +649,48 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   void updateKycData(KycData kyc) {
     state = state.copyWith(kycData: kyc);
+  }
+
+  void setPersonaMode(String mode) {
+    final progress = calculateProfileProgress(
+      identity: state.identityValues,
+      aiDna: state.aiDnaValues,
+      personaMode: mode,
+      mediaSlots: state.mediaSlots,
+    );
+    state = state.copyWith(
+      personaMode: mode,
+      profileProgress: progress,
+      hasUnsavedProfileChanges: true,
+    );
+  }
+
+  void updateMediaSlot(String slotKey, String url) {
+    final updated = Map<String, String>.from(state.mediaSlots)..[slotKey] = url;
+    final progress = calculateProfileProgress(
+      identity: state.identityValues,
+      aiDna: state.aiDnaValues,
+      personaMode: state.personaMode,
+      mediaSlots: updated,
+    );
+    state = state.copyWith(
+      mediaSlots: updated,
+      profileProgress: progress,
+    );
+  }
+
+  void deleteMediaSlot(String slotKey) {
+    final updated = Map<String, String>.from(state.mediaSlots)..remove(slotKey);
+    final progress = calculateProfileProgress(
+      identity: state.identityValues,
+      aiDna: state.aiDnaValues,
+      personaMode: state.personaMode,
+      mediaSlots: updated,
+    );
+    state = state.copyWith(
+      mediaSlots: updated,
+      profileProgress: progress,
+    );
   }
 
   void updateCompanionSettings(CompanionSettings settings) {
@@ -607,6 +713,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
     final progress = calculateProfileProgress(
       identity: state.identityValues,
       aiDna: updatedValues,
+      personaMode: state.personaMode,
+      mediaSlots: state.mediaSlots,
     );
     state = state.copyWith(
       aiDnaValues: updatedValues,
@@ -671,6 +779,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
       profileProgress: 0.10,
       userName: '',
       userHandle: '',
+      personaMode: 'full_body',
+      mediaSlots: const {},
       hasUnsavedProfileChanges: false,
       isProfileLoaded: false,
     );
