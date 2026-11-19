@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/services/session_service.dart';
 import '../../../../core/state/app_state.dart';
@@ -75,7 +74,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
         isEnabled: false,
         badgeText: strings.commonComingSoon,
       ),
-      _SubTabMeta('p-sessions', strings.tSess, LucideIcons.monitorSmartphone),
+      _SubTabMeta('p-sessions', strings.tSess, Icons.devices_rounded),
       _SubTabMeta('p-settings', strings.tSet, FontAwesomeIcons.sliders),
     ];
 
@@ -272,107 +271,110 @@ class _SidebarTabButton extends StatelessWidget {
               ),
             ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Stack(
+            clipBehavior: Clip.none,
             children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  if (tab.icon is FaIconData)
-                    FaIcon(
-                      tab.icon as FaIconData,
-                      size: 18,
-                      color: !isEnabled
-                          ? colors.mu
-                          : (effectiveIsActive ? colors.pr : colors.mu),
-                    )
-                  else
-                    Icon(
-                      tab.icon,
-                      size: 18,
-                      color: !isEnabled
-                          ? colors.mu
-                          : (effectiveIsActive ? colors.pr : colors.mu),
+              Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (tab.icon is FaIconData)
+                      FaIcon(
+                        tab.icon as FaIconData,
+                        size: 18,
+                        color: !isEnabled
+                            ? colors.mu
+                            : (effectiveIsActive ? colors.pr : colors.mu),
+                      )
+                    else
+                      Icon(
+                        tab.icon,
+                        size: 18,
+                        color: !isEnabled
+                            ? colors.mu
+                            : (effectiveIsActive ? colors.pr : colors.mu),
+                      ),
+                    const SizedBox(height: 4),
+                    Text(
+                      tab.label,
+                      style: TextStyle(
+                        fontFamily: 'Vazirmatn',
+                        fontSize: 10,
+                        fontWeight:
+                            effectiveIsActive ? FontWeight.w700 : FontWeight.w500,
+                        color: !isEnabled
+                            ? colors.mu
+                            : (effectiveIsActive ? colors.pr : colors.mu),
+                        height: 1.15,
+                      ),
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  if (badgeCount != null && badgeCount! > 0)
-                    PositionedDirectional(
-                      top: -5,
-                      end: -8,
-                      child: Container(
+                    if (tab.badgeText != null) ...[
+                      const SizedBox(height: 3),
+                      Container(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 4,
-                          vertical: 1,
+                          vertical: 1.5,
                         ),
                         decoration: BoxDecoration(
-                          color: colors.ok,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        constraints: const BoxConstraints(
-                          minWidth: 14,
-                          minHeight: 14,
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          strings.formatNumber(badgeCount!),
-                          style: TextStyle(
-                            fontFamily: 'Vazirmatn',
-                            fontSize: 9,
-                            fontWeight: FontWeight.w700,
-                            color: colors.prt,
-                            height: 1.1,
+                          color: colors.mu.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(
+                            color: colors.bd.withValues(alpha: 0.8),
+                            width: 0.8,
                           ),
                         ),
+                        child: Text(
+                          tab.badgeText!,
+                          style: TextStyle(
+                            fontFamily: 'Vazirmatn',
+                            fontSize: 8,
+                            fontWeight: FontWeight.w600,
+                            color: colors.mu,
+                            height: 1.1,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (badgeCount != null && badgeCount! > 0)
+                PositionedDirectional(
+                  top: 0,
+                  end: 2,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4.5,
+                      vertical: 1,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.ok,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 15,
+                      minHeight: 14,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      strings.formatNumber(badgeCount!),
+                      style: TextStyle(
+                        fontFamily: 'Vazirmatn',
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: colors.prt,
+                        height: 1.1,
                       ),
                     ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                tab.label,
-                style: TextStyle(
-                  fontFamily: 'Vazirmatn',
-                  fontSize: 10,
-                  fontWeight: effectiveIsActive ? FontWeight.w700 : FontWeight.w500,
-                  color: !isEnabled
-                      ? colors.mu
-                      : (effectiveIsActive ? colors.pr : colors.mu),
-                  height: 1.15,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              if (tab.badgeText != null) ...[
-                const SizedBox(height: 3),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 1.5,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.mu.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(4),
-                    border: Border.all(
-                      color: colors.bd.withValues(alpha: 0.8),
-                      width: 0.8,
-                    ),
-                  ),
-                  child: Text(
-                    tab.badgeText!,
-                    style: TextStyle(
-                      fontFamily: 'Vazirmatn',
-                      fontSize: 8,
-                      fontWeight: FontWeight.w600,
-                      color: colors.mu,
-                      height: 1.1,
-                    ),
-                    textAlign: TextAlign.center,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ],
             ],
           ),
         ),
