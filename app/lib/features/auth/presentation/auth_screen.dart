@@ -21,6 +21,7 @@ import '../../../../core/widgets/app_text_field.dart';
 import 'auth_provider.dart';
 import 'widgets/auth_footer.dart';
 import 'widgets/auth_top_bar.dart';
+import 'widgets/fallback_security_challenge.dart';
 import 'widgets/turnstile_widget.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -38,7 +39,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   late final TextEditingController _forgotEmailController;
 
   final TurnstileController _turnstileController = TurnstileController();
+  final FallbackChallengeController _fallbackController =
+      FallbackChallengeController();
   String? _turnstileToken;
+  bool _useSecurityFallback = false;
+  Timer? _turnstileTimeoutTimer;
 
   int _consecutiveLoginFailures = 0;
   int _lockoutSeconds = 0;
@@ -67,10 +72,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       curve: Curves.easeInOut,
     );
     _animController.forward();
+    _startTurnstileTimeoutTimer();
   }
 
   @override
   void dispose() {
+    _turnstileTimeoutTimer?.cancel();
     _lockoutTimer?.cancel();
     _emailController.dispose();
     _passwordController.dispose();
@@ -80,9 +87,29 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     super.dispose();
   }
 
+  void _startTurnstileTimeoutTimer() {
+    _turnstileTimeoutTimer?.cancel();
+    if (kIsWeb &&
+        !_useSecurityFallback &&
+        (_turnstileToken == null || _turnstileToken!.isEmpty)) {
+      _turnstileTimeoutTimer = Timer(const Duration(seconds: 8), () {
+        if (!mounted) return;
+        if (_turnstileToken == null || _turnstileToken!.isEmpty) {
+          setState(() {
+            _useSecurityFallback = true;
+          });
+        }
+      });
+    }
+  }
+
   void _switchMode(AuthMode mode) {
+    _turnstileTimeoutTimer?.cancel();
     _turnstileController.reset();
+    _fallbackController.reset();
     _turnstileToken = null;
+    _useSecurityFallback = false;
+    _startTurnstileTimeoutTimer();
     ref.read(authFormProvider.notifier).setMode(mode);
     _animController
       ..reset()
@@ -138,6 +165,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       Navigator.of(context).popUntil((route) => route.isFirst);
     } else {
       _turnstileController.reset();
+      _fallbackController.reset();
       setState(() {
         _turnstileToken = null;
         _consecutiveLoginFailures++;
@@ -177,6 +205,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       Navigator.of(context).popUntil((route) => route.isFirst);
     } else {
       _turnstileController.reset();
+      _fallbackController.reset();
       setState(() => _turnstileToken = null);
       final code = ref.read(authFormProvider).errorCode;
       if (code != null) {
@@ -314,15 +343,24 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           onRememberMeChanged: (val) =>
               ref.read(authFormProvider.notifier).setRememberMe(val),
           turnstileController: _turnstileController,
+          fallbackController: _fallbackController,
+          useSecurityFallback: _useSecurityFallback,
           isTurnstileVerified:
               !kIsWeb || (_turnstileToken != null && _turnstileToken!.isNotEmpty),
           lockoutSeconds: _lockoutSeconds,
-          onTurnstileVerified: (token) =>
-              setState(() => _turnstileToken = token),
+          onTurnstileVerified: (token) {
+            _turnstileTimeoutTimer?.cancel();
+            setState(() => _turnstileToken = token);
+          },
           onTurnstileExpired: () =>
               setState(() => _turnstileToken = null),
-          onTurnstileError: () =>
-              setState(() => _turnstileToken = null),
+          onTurnstileError: () {
+            _turnstileTimeoutTimer?.cancel();
+            setState(() {
+              _turnstileToken = null;
+              _useSecurityFallback = true;
+            });
+          },
           onEmailChanged: (val) =>
               ref.read(authFormProvider.notifier).setEmail(val),
           onPasswordChanged: (val) =>
@@ -347,12 +385,23 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           passwordsMatch: state.passwordsMatch,
           isSubmitting: state.isSubmitting,
           turnstileController: _turnstileController,
-          onTurnstileVerified: (token) =>
-              setState(() => _turnstileToken = token),
+          fallbackController: _fallbackController,
+          useSecurityFallback: _useSecurityFallback,
+          isTurnstileVerified:
+              !kIsWeb || (_turnstileToken != null && _turnstileToken!.isNotEmpty),
+          onTurnstileVerified: (token) {
+            _turnstileTimeoutTimer?.cancel();
+            setState(() => _turnstileToken = token);
+          },
           onTurnstileExpired: () =>
               setState(() => _turnstileToken = null),
-          onTurnstileError: () =>
-              setState(() => _turnstileToken = null),
+          onTurnstileError: () {
+            _turnstileTimeoutTimer?.cancel();
+            setState(() {
+              _turnstileToken = null;
+              _useSecurityFallback = true;
+            });
+          },
           onEmailChanged: (val) =>
               ref.read(authFormProvider.notifier).setEmail(val),
           onPasswordChanged: (val) =>
@@ -455,10 +504,12 @@ class _LoginForm extends StatelessWidget {
   final bool isPasswordVisible;
   final bool isSubmitting;
   final bool isTurnstileVerified;
+  final bool useSecurityFallback;
   final int lockoutSeconds;
   final bool rememberMe;
   final ValueChanged<bool> onRememberMeChanged;
   final TurnstileController? turnstileController;
+  final FallbackChallengeController? fallbackController;
   final ValueChanged<String>? onTurnstileVerified;
   final VoidCallback? onTurnstileExpired;
   final VoidCallback? onTurnstileError;
@@ -477,10 +528,12 @@ class _LoginForm extends StatelessWidget {
     required this.isPasswordVisible,
     required this.isSubmitting,
     this.isTurnstileVerified = true,
+    this.useSecurityFallback = false,
     this.lockoutSeconds = 0,
     this.rememberMe = true,
     required this.onRememberMeChanged,
     this.turnstileController,
+    this.fallbackController,
     this.onTurnstileVerified,
     this.onTurnstileExpired,
     this.onTurnstileError,
@@ -571,15 +624,20 @@ class _LoginForm extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.md),
 
-          // Cloudflare Turnstile anti-bot verification (Web only)
+          // Cloudflare Turnstile anti-bot verification or Smart Fallback (Web only)
           if (kIsWeb) ...[
             Center(
-              child: TurnstileWidget(
-                controller: turnstileController,
-                onVerified: onTurnstileVerified ?? (_) {},
-                onExpired: onTurnstileExpired,
-                onError: onTurnstileError,
-              ),
+              child: useSecurityFallback
+                  ? FallbackSecurityChallenge(
+                      controller: fallbackController,
+                      onVerified: onTurnstileVerified ?? (_) {},
+                    )
+                  : TurnstileWidget(
+                      controller: turnstileController,
+                      onVerified: onTurnstileVerified ?? (_) {},
+                      onExpired: onTurnstileExpired,
+                      onError: onTurnstileError,
+                    ),
             ),
             const SizedBox(height: AppSpacing.md),
           ],
@@ -681,7 +739,10 @@ class _SignupForm extends StatelessWidget {
   final PasswordValidationState validationState;
   final bool passwordsMatch;
   final bool isSubmitting;
+  final bool isTurnstileVerified;
+  final bool useSecurityFallback;
   final TurnstileController? turnstileController;
+  final FallbackChallengeController? fallbackController;
   final ValueChanged<String>? onTurnstileVerified;
   final VoidCallback? onTurnstileExpired;
   final VoidCallback? onTurnstileError;
@@ -704,7 +765,10 @@ class _SignupForm extends StatelessWidget {
     required this.validationState,
     required this.passwordsMatch,
     required this.isSubmitting,
+    this.isTurnstileVerified = true,
+    this.useSecurityFallback = false,
     this.turnstileController,
+    this.fallbackController,
     this.onTurnstileVerified,
     this.onTurnstileExpired,
     this.onTurnstileError,
@@ -829,15 +893,20 @@ class _SignupForm extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Cloudflare Turnstile anti-bot verification (Web only)
+          // Cloudflare Turnstile anti-bot verification or Smart Fallback (Web only)
           if (kIsWeb) ...[
             Center(
-              child: TurnstileWidget(
-                controller: turnstileController,
-                onVerified: onTurnstileVerified ?? (_) {},
-                onExpired: onTurnstileExpired,
-                onError: onTurnstileError,
-              ),
+              child: useSecurityFallback
+                  ? FallbackSecurityChallenge(
+                      controller: fallbackController,
+                      onVerified: onTurnstileVerified ?? (_) {},
+                    )
+                  : TurnstileWidget(
+                      controller: turnstileController,
+                      onVerified: onTurnstileVerified ?? (_) {},
+                      onExpired: onTurnstileExpired,
+                      onError: onTurnstileError,
+                    ),
             ),
             const SizedBox(height: AppSpacing.md),
           ],
@@ -846,7 +915,7 @@ class _SignupForm extends StatelessWidget {
           AppButton(
             isFullWidth: true,
             text: isSubmitting ? null : strings.authSignupBtn,
-            onPressed: isSubmitting ? null : onSignup,
+            onPressed: (isSubmitting || !isTurnstileVerified) ? null : onSignup,
             child: isSubmitting
                 ? SizedBox(
                     width: 18,

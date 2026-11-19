@@ -590,6 +590,10 @@ class AppStrings {
       'authTurnstilePrompt': 'تایید امنیتی ورود',
       'authTurnstileRequired': 'لطفاً تایید امنیتی Cloudflare را تکمیل کنید.',
       'authTurnstileChecking': 'در حال بررسی امنیتی...',
+      'authFallbackSecurityTitle': 'تایید امنیتی جایگزین',
+      'authFallbackMathQuestion': '{a} + {b} = ؟',
+      'authFallbackVerified': 'تایید شد',
+      'authFallbackAnswerHint': 'پاسخ',
       'authLockoutCooldown': 'تلاش‌های ناموفق بیش از حد مجاز. لطفاً {s} ثانیه صبر کنید.',
       'authLockoutBtn': 'قفل موقت ({s} ثانیه)',
       'authRememberMe': 'مرا به خاطر بسپار',
@@ -1130,6 +1134,10 @@ class AppStrings {
       'authTurnstilePrompt': 'Security Verification',
       'authTurnstileRequired': 'Please complete the Cloudflare security verification.',
       'authTurnstileChecking': 'Performing security check...',
+      'authFallbackSecurityTitle': 'Security Verification',
+      'authFallbackMathQuestion': '{a} + {b} = ?',
+      'authFallbackVerified': 'Verified',
+      'authFallbackAnswerHint': 'Answer',
       'authLockoutCooldown': 'Too many failed attempts. Please wait {s}s.',
       'authLockoutBtn': 'Locked ({s}s)',
       'authRememberMe': 'Remember Me',
@@ -1670,6 +1678,10 @@ class AppStrings {
       'authTurnstilePrompt': 'التحقق الأمني',
       'authTurnstileRequired': 'يرجى إكمال التحقق الأمني من Cloudflare.',
       'authTurnstileChecking': 'جارٍ التحقق من الأمان...',
+      'authFallbackSecurityTitle': 'التحقق الأمني البديل',
+      'authFallbackMathQuestion': '{a} + {b} = ؟',
+      'authFallbackVerified': 'تم التحقق',
+      'authFallbackAnswerHint': 'الإجابة',
       'authLockoutCooldown': 'عدد محاولات غير صحيحة زائد عن الحد. يرجى الانتظار {s} ثانية.',
       'authLockoutBtn': 'مغلق مؤقتاً ({s} ثانية)',
       'authRememberMe': 'تذكرني',
@@ -2210,6 +2222,10 @@ class AppStrings {
       'authTurnstilePrompt': 'Güvenlik Doğrulaması',
       'authTurnstileRequired': 'Lütfen Cloudflare güvenlik doğrulamasını tamamlayın.',
       'authTurnstileChecking': 'Güvenlik kontrolü yapılıyor...',
+      'authFallbackSecurityTitle': 'Güvenlik Doğrulaması',
+      'authFallbackMathQuestion': '{a} + {b} = ?',
+      'authFallbackVerified': 'Doğrulandı',
+      'authFallbackAnswerHint': 'Cevap',
       'authLockoutCooldown': 'Çok fazla başarısız deneme. Lütfen {s} sn bekleyin.',
       'authLockoutBtn': 'Kilitlendi ({s} sn)',
       'authRememberMe': 'Beni hatırla',
@@ -2839,6 +2855,19 @@ class AppStrings {
   String get authTurnstilePrompt => get('authTurnstilePrompt');
   String get authTurnstileRequired => get('authTurnstileRequired');
   String get authTurnstileChecking => get('authTurnstileChecking');
+  String get authFallbackSecurityTitle => get('authFallbackSecurityTitle');
+  String get authFallbackVerified => get('authFallbackVerified');
+  String get authFallbackAnswerHint => get('authFallbackAnswerHint');
+  String authFallbackMathQuestion(int a, int b) {
+    final lang = _normalizedLang(localeCode);
+    final aStr =
+        (lang == 'fa' || lang == 'ar') ? formatNumber(a) : a.toString();
+    final bStr =
+        (lang == 'fa' || lang == 'ar') ? formatNumber(b) : b.toString();
+    return get('authFallbackMathQuestion')
+        .replaceAll('{a}', aStr)
+        .replaceAll('{b}', bStr);
+  }
   String get authRememberMe => get('authRememberMe');
   String get authSessionExpired => get('authSessionExpired');
   String get authSessionTerminatedConcurrent => get('authSessionTerminatedConcurrent');

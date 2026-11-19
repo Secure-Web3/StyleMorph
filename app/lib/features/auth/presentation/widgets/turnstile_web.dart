@@ -187,6 +187,9 @@ class _TurnstileWidgetState extends State<TurnstileWidget> {
       _renderTimer = Timer(const Duration(milliseconds: 250), () {
         _scheduleRender(attempt + 1);
       });
+    } else {
+      debugPrint('[TurnstileWeb] Turnstile load timeout. Calling onError.');
+      widget.onError?.call();
     }
   }
 
