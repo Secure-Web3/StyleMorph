@@ -13,60 +13,143 @@ import 'auth_screen.dart';
 import 'widgets/auth_footer.dart';
 import 'widgets/auth_top_bar.dart';
 
-class WelcomeScreen extends ConsumerWidget {
+class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
 
   static const String defaultAssetBackground = 'assets/images/welcome_bg.jpg';
 
+  static Widget buildFadeFrame(
+    BuildContext context,
+    Widget child,
+    int? frame,
+    bool wasSynchronouslyLoaded,
+  ) {
+    return _WelcomeScreenState._fadeFrameBuilder(
+      context,
+      child,
+      frame,
+      wasSynchronouslyLoaded,
+    );
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
+  ImageProvider? _precachedProvider;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final remoteUrl = ref.read(welcomeBackgroundUrlProvider);
+    final ImageProvider provider = remoteUrl != null
+        ? NetworkImage(remoteUrl)
+        : const AssetImage(WelcomeScreen.defaultAssetBackground);
+
+    if (_precachedProvider != provider) {
+      _precachedProvider = provider;
+      precacheImage(provider, context).catchError((e) {
+        debugPrint('[WelcomeScreen] precacheImage notice: $e');
+      });
+    }
+  }
+
+  static Widget _fadeFrameBuilder(
+    BuildContext context,
+    Widget child,
+    int? frame,
+    bool wasSynchronouslyLoaded,
+  ) {
+    if (wasSynchronouslyLoaded) {
+      return child;
+    }
+    return AnimatedOpacity(
+      opacity: frame == null ? 0.0 : 1.0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeOutCubic,
+      child: child,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     ref.watch(themeProvider);
     ref.watch(localeProvider);
     final strings = context.strings;
     final remoteUrl = ref.watch(welcomeBackgroundUrlProvider);
 
-    final ImageProvider backgroundImage = remoteUrl != null
-        ? NetworkImage(remoteUrl)
-        : const AssetImage(defaultAssetBackground);
-
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: backgroundImage,
-            fit: BoxFit.cover,
-          ),
-        ),
-        child: Container(
-          // Dark vertical gradient overlay at the bottom to ensure text readability
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: const [0.0, 0.35, 0.68, 1.0],
-              colors: [
-                Colors.black.withValues(alpha: 0.20),
-                Colors.black.withValues(alpha: 0.30),
-                Colors.black.withValues(alpha: 0.70),
-                Colors.black.withValues(alpha: 0.92),
-              ],
+      backgroundColor: const Color(0xFF141210),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          // ── 1. Luxury Editorial Base Gradient (Zero white flash on slow connections) ──
+          Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFF141210),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFF1E1B18), // Warm editorial surface
+                  Color(0xFF141210), // Deep editorial background
+                  Color(0xFF0D0C0A), // Shadowed base
+                ],
+              ),
             ),
           ),
-          child: SafeArea(
+
+          // ── 2. Hero Background Image with Smooth Fade-in ──
+          Positioned.fill(
+            child: remoteUrl != null
+                ? Image.network(
+                    remoteUrl,
+                    fit: BoxFit.cover,
+                    frameBuilder: _fadeFrameBuilder,
+                    errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                  )
+                : Image.asset(
+                    WelcomeScreen.defaultAssetBackground,
+                    fit: BoxFit.cover,
+                    frameBuilder: _fadeFrameBuilder,
+                    errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                  ),
+          ),
+
+          // ── 3. Dark Readability Gradient Overlay ──
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  stops: const [0.0, 0.35, 0.68, 1.0],
+                  colors: [
+                    Colors.black.withValues(alpha: 0.20),
+                    Colors.black.withValues(alpha: 0.30),
+                    Colors.black.withValues(alpha: 0.70),
+                    Colors.black.withValues(alpha: 0.92),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // ── 4. Main Content (TopBar, Branding, CTA, Footer) ──
+          SafeArea(
             child: Column(
               children: [
-                // ── 1. Universal Top Header (Pinned at top) ─────────────
+                // Universal Top Header (Pinned at top)
                 const AuthTopBar(isTransparent: true),
 
-                // ── 2. Branding (Logo & App Title) below top bar ─────────
+                // Branding (Logo & App Title) below top bar
                 _WelcomeBranding(strings: strings),
 
-                // ── 3. Spacer to push bottom content down ────────────────
+                // Spacer to push bottom content down
                 const Spacer(),
 
-                // ── 4. Bottom Content Section ────────────────────────────
+                // Bottom Content Section
                 Padding(
                   padding: const EdgeInsetsDirectional.fromSTEB(
                     AppSpacing.xl,
@@ -113,12 +196,12 @@ class WelcomeScreen extends ConsumerWidget {
                   ),
                 ),
 
-                // ── 5. Universal Footer (Pinned at bottom) ───────────────
+                // Universal Footer (Pinned at bottom)
                 const AuthFooter(isTransparent: true),
               ],
             ),
           ),
-        ),
+        ],
       ),
     );
   }

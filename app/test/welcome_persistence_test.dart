@@ -97,5 +97,50 @@ void main() {
       // Verify that navigation replaced WelcomeScreen with AuthScreen
       expect(find.byType(AuthScreen), findsOneWidget);
     });
+
+    testWidgets('WelcomeScreen renders Luxury Editorial base gradient and smooth fade-in image',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        ProviderScope(
+          child: MaterialApp(
+            theme: testTheme,
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('fa')],
+            locale: const Locale('fa'),
+            home: const WelcomeScreen(),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Find Scaffold with editorial background
+      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+      expect(scaffold.backgroundColor, const Color(0xFF141210));
+
+      // Test fadeFrameBuilder with asynchronous load (frame == null)
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Builder(
+            builder: (context) {
+              return WelcomeScreen.buildFadeFrame(
+                context,
+                const Text('image_child'),
+                null,
+                false,
+              );
+            },
+          ),
+        ),
+      );
+
+      expect(find.byType(AnimatedOpacity), findsOneWidget);
+      final opacity =
+          tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
+      expect(opacity.opacity, 0.0);
+    });
   });
 }
