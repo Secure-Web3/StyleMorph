@@ -41,8 +41,11 @@ class SellerRedirectSheet extends StatelessWidget {
             flex: 2,
             child: AppButton(
               isFullWidth: true,
-              icon: Icon(Icons.arrow_outward_rounded,
-                  size: 16, color: colors.prt),
+              icon: Icon(
+                Icons.arrow_outward_rounded,
+                size: 16,
+                color: colors.prt,
+              ),
               text: strings.shopRedirectBtn,
               onPressed: () {
                 Navigator.pop(context);

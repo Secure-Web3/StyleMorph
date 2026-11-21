@@ -15,13 +15,7 @@ import '../../../../core/widgets/app_section_header.dart';
 import 'about_actions.dart';
 import 'legal_doc_modal_sheet.dart';
 
-enum UpdateCheckStatus {
-  idle,
-  checking,
-  upToDate,
-  updateAvailable,
-  error,
-}
+enum UpdateCheckStatus { idle, checking, upToDate, updateAvailable, error }
 
 class AboutSubTab extends ConsumerStatefulWidget {
   const AboutSubTab({super.key});
@@ -30,7 +24,8 @@ class AboutSubTab extends ConsumerStatefulWidget {
   static const int currentBuildNumber = 100;
   static const String officialWebsite = 'https://stylemorph.app';
   static const String officialSupportEmail = 'support@stylemorph.app';
-  static const String officialInstagram = 'https://instagram.com/stylemorph.app';
+  static const String officialInstagram =
+      'https://instagram.com/stylemorph.app';
   static const String officialTelegram = 'https://t.me/stylemorph';
 
   @override
@@ -54,13 +49,16 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
 
         if (doc.exists && doc.data() != null) {
           final data = doc.data()!;
-          final remoteVersion = data['latestVersion']?.toString() ??
+          final remoteVersion =
+              data['latestVersion']?.toString() ??
               data['version']?.toString() ??
               '';
-          final remoteBuild = (data['latestBuild'] as num?)?.toInt() ??
+          final remoteBuild =
+              (data['latestBuild'] as num?)?.toInt() ??
               (data['build'] as num?)?.toInt() ??
               0;
-          final store = data['storeUrl']?.toString() ??
+          final store =
+              data['storeUrl']?.toString() ??
               data['downloadUrl']?.toString() ??
               AboutSubTab.officialWebsite;
 
@@ -205,10 +203,7 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
             height: 64,
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [
-                  colors.prt,
-                  colors.pr,
-                ],
+                colors: [colors.prt, colors.pr],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -423,15 +418,20 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
               decoration: BoxDecoration(
                 color: colors.orColor.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(AppRadius.sm),
-                border: Border.all(color: colors.orColor.withValues(alpha: 0.3)),
+                border: Border.all(
+                  color: colors.orColor.withValues(alpha: 0.3),
+                ),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.system_update_rounded,
-                          size: 16, color: colors.orColor),
+                      Icon(
+                        Icons.system_update_rounded,
+                        size: 16,
+                        color: colors.orColor,
+                      ),
                       const SizedBox(width: AppSpacing.xs),
                       Expanded(
                         child: Text(
@@ -482,27 +482,27 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
       (
         strings.aboutChangelog1Title,
         strings.aboutChangelog1Desc,
-        FontAwesomeIcons.wandMagicSparkles
+        FontAwesomeIcons.wandMagicSparkles,
       ),
       (
         strings.aboutChangelog2Title,
         strings.aboutChangelog2Desc,
-        FontAwesomeIcons.shirt
+        FontAwesomeIcons.shirt,
       ),
       (
         strings.aboutChangelog3Title,
         strings.aboutChangelog3Desc,
-        FontAwesomeIcons.boltLightning
+        FontAwesomeIcons.boltLightning,
       ),
       (
         strings.aboutChangelog4Title,
         strings.aboutChangelog4Desc,
-        FontAwesomeIcons.award
+        FontAwesomeIcons.award,
       ),
       (
         strings.aboutChangelog5Title,
         strings.aboutChangelog5Desc,
-        FontAwesomeIcons.userShield
+        FontAwesomeIcons.userShield,
       ),
     ];
 

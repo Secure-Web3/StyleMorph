@@ -25,18 +25,16 @@ void main() {
         cooldownSeconds: 0,
       );
 
-      final updated = state.copyWith(
-        isVerified: true,
-        cooldownSeconds: 45,
-      );
+      final updated = state.copyWith(isVerified: true, cooldownSeconds: 45);
 
       expect(updated.isVerified, isTrue);
       expect(updated.cooldownSeconds, 45);
       expect(updated.isChecking, isFalse);
     });
 
-    testWidgets('EmailVerificationBanner displays when unverified',
-        (WidgetTester tester) async {
+    testWidgets('EmailVerificationBanner displays when unverified', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -57,9 +55,7 @@ void main() {
             ],
             supportedLocales: const [Locale('fa')],
             locale: const Locale('fa'),
-            home: const Scaffold(
-              body: EmailVerificationBanner(),
-            ),
+            home: const Scaffold(body: EmailVerificationBanner()),
           ),
         ),
       );
@@ -72,8 +68,9 @@ void main() {
       expect(find.text(strings.authEmailCheckBtn), findsOneWidget);
     });
 
-    testWidgets('EmailVerificationBanner hides when verified',
-        (WidgetTester tester) async {
+    testWidgets('EmailVerificationBanner hides when verified', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
@@ -88,9 +85,7 @@ void main() {
             ],
             supportedLocales: const [Locale('fa')],
             locale: const Locale('fa'),
-            home: const Scaffold(
-              body: EmailVerificationBanner(),
-            ),
+            home: const Scaffold(body: EmailVerificationBanner()),
           ),
         ),
       );
@@ -101,57 +96,64 @@ void main() {
       expect(find.text(strings.emailVerificationBannerTitle), findsNothing);
     });
 
-    testWidgets('Soft-gate prompt opens when checking email verification gate while unverified',
-        (WidgetTester tester) async {
-      late BuildContext capturedContext;
-      late WidgetRef capturedRef;
+    testWidgets(
+      'Soft-gate prompt opens when checking email verification gate while unverified',
+      (WidgetTester tester) async {
+        late BuildContext capturedContext;
+        late WidgetRef capturedRef;
 
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            emailVerificationProvider.overrideWith(
-              (ref) => EmailVerificationNotifier(ref)
-                ..state = const EmailVerificationState(
-                  isVerified: false,
-                  cooldownSeconds: 0,
-                ),
-            ),
-          ],
-          child: MaterialApp(
-            theme: testTheme,
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              emailVerificationProvider.overrideWith(
+                (ref) => EmailVerificationNotifier(ref)
+                  ..state = const EmailVerificationState(
+                    isVerified: false,
+                    cooldownSeconds: 0,
+                  ),
+              ),
             ],
-            supportedLocales: const [Locale('fa')],
-            locale: const Locale('fa'),
-            home: Scaffold(
-              body: Consumer(
-                builder: (context, ref, _) {
-                  capturedContext = context;
-                  capturedRef = ref;
-                  return const Text('Test Screen');
-                },
+            child: MaterialApp(
+              theme: testTheme,
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [Locale('fa')],
+              locale: const Locale('fa'),
+              home: Scaffold(
+                body: Consumer(
+                  builder: (context, ref, _) {
+                    capturedContext = context;
+                    capturedRef = ref;
+                    return const Text('Test Screen');
+                  },
+                ),
               ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // Calling checkEmailVerificationGate with isVerified = false triggers soft gate modal
-      final allowed = checkEmailVerificationGate(capturedContext, capturedRef);
-      expect(allowed, isFalse);
+        // Calling checkEmailVerificationGate with isVerified = false triggers soft gate modal
+        final allowed = checkEmailVerificationGate(
+          capturedContext,
+          capturedRef,
+        );
+        expect(allowed, isFalse);
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      final strings = AppStrings('fa');
-      // The soft-gate dialog is shown
-      expect(find.text(strings.emailVerificationSoftGateTitle), findsOneWidget);
-      expect(find.text(strings.emailVerificationGoToProfile), findsOneWidget);
-      expect(find.text(strings.authEmailCheckBtn), findsOneWidget);
-    });
+        final strings = AppStrings('fa');
+        // The soft-gate dialog is shown
+        expect(
+          find.text(strings.emailVerificationSoftGateTitle),
+          findsOneWidget,
+        );
+        expect(find.text(strings.emailVerificationGoToProfile), findsOneWidget);
+        expect(find.text(strings.authEmailCheckBtn), findsOneWidget);
+      },
+    );
   });
 }
-

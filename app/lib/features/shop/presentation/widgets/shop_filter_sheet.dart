@@ -82,7 +82,11 @@ class _ShopFilterSheetState extends State<ShopFilterSheet> {
     _f = widget.initialFilter;
   }
 
-  void _toggleInList(List<String> list, String item, void Function(List<String>) update) {
+  void _toggleInList(
+    List<String> list,
+    String item,
+    void Function(List<String>) update,
+  ) {
     final next = List<String>.from(list);
     if (next.contains(item)) {
       next.remove(item);
@@ -130,19 +134,19 @@ class _ShopFilterSheetState extends State<ShopFilterSheet> {
           Wrap(
             spacing: 6,
             runSpacing: 6,
-            children: [
-              ('all', strings.allText),
-              ('app', strings.shopSaleApp),
-              ('site', strings.shopSaleSite),
-            ].map((opt) {
-              return AppChip(
-                label: opt.$2,
-                isSelected: _f.saleType == opt.$1,
-                onTap: () => setState(
-                  () => _f = _f.copyWith(saleType: opt.$1),
-                ),
-              );
-            }).toList(),
+            children:
+                [
+                  ('all', strings.allText),
+                  ('app', strings.shopSaleApp),
+                  ('site', strings.shopSaleSite),
+                ].map((opt) {
+                  return AppChip(
+                    label: opt.$2,
+                    isSelected: _f.saleType == opt.$1,
+                    onTap: () =>
+                        setState(() => _f = _f.copyWith(saleType: opt.$1)),
+                  );
+                }).toList(),
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -151,20 +155,20 @@ class _ShopFilterSheetState extends State<ShopFilterSheet> {
           Wrap(
             spacing: 6,
             runSpacing: 6,
-            children: [
-              ('all', strings.allText),
-              ('w', strings.shopGenderW),
-              ('m', strings.shopGenderM),
-              ('u', strings.shopGenderU),
-            ].map((opt) {
-              return AppChip(
-                label: opt.$2,
-                isSelected: _f.gender == opt.$1,
-                onTap: () => setState(
-                  () => _f = _f.copyWith(gender: opt.$1),
-                ),
-              );
-            }).toList(),
+            children:
+                [
+                  ('all', strings.allText),
+                  ('w', strings.shopGenderW),
+                  ('m', strings.shopGenderM),
+                  ('u', strings.shopGenderU),
+                ].map((opt) {
+                  return AppChip(
+                    label: opt.$2,
+                    isSelected: _f.gender == opt.$1,
+                    onTap: () =>
+                        setState(() => _f = _f.copyWith(gender: opt.$1)),
+                  );
+                }).toList(),
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -184,7 +188,9 @@ class _ShopFilterSheetState extends State<ShopFilterSheet> {
             inactiveColor: colors.bd,
             onChanged: (v) {
               setState(() {
-                _f = _f.copyWith(maxPrice: v.toInt() >= 3000000 ? 0 : v.toInt());
+                _f = _f.copyWith(
+                  maxPrice: v.toInt() >= 3000000 ? 0 : v.toInt(),
+                );
               });
             },
           ),
@@ -260,23 +266,18 @@ class _ShopFilterSheetState extends State<ShopFilterSheet> {
           AppSwitchTile(
             label: strings.shopToggleAvail,
             value: _f.availableOnly,
-            onChanged: (v) => setState(
-              () => _f = _f.copyWith(availableOnly: v),
-            ),
+            onChanged: (v) =>
+                setState(() => _f = _f.copyWith(availableOnly: v)),
           ),
           AppSwitchTile(
             label: strings.shopToggleDisc,
             value: _f.discountOnly,
-            onChanged: (v) => setState(
-              () => _f = _f.copyWith(discountOnly: v),
-            ),
+            onChanged: (v) => setState(() => _f = _f.copyWith(discountOnly: v)),
           ),
           AppSwitchTile(
             label: strings.shopToggleVerified,
             value: _f.verifiedOnly,
-            onChanged: (v) => setState(
-              () => _f = _f.copyWith(verifiedOnly: v),
-            ),
+            onChanged: (v) => setState(() => _f = _f.copyWith(verifiedOnly: v)),
           ),
         ],
       ),
@@ -294,10 +295,7 @@ class _SectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Text(
-        title,
-        style: AppTypography.inputLabel(color: colors.tx),
-      ),
+      child: Text(title, style: AppTypography.inputLabel(color: colors.tx)),
     );
   }
 }

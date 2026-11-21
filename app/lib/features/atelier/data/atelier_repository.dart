@@ -103,7 +103,8 @@ class AtelierRepository {
       usage: 5,
       colorHexes: ['#c2547a', '#2f3438'],
       icons: [Icons.dry_cleaning_rounded, Icons.replay_rounded],
-      description: 'ویدیوی چرخشی که استایل شما را از تمام زوایا به نمایش می‌گذارد.',
+      description:
+          'ویدیوی چرخشی که استایل شما را از تمام زوایا به نمایش می‌گذارد.',
       proOptions: ['پس‌زمینه', 'لباس کمد', 'کادر'],
       outputSpecs: '۸ ثانیه · ۶۰ فریم ۱۰۸۰p',
       timeEstimate: '۲۵ دقیقه',

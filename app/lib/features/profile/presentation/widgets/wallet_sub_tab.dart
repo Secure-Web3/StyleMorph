@@ -96,7 +96,8 @@ class _WalletSubTabState extends ConsumerState<WalletSubTab> {
                     Expanded(
                       child: _buildPlanButton(
                         planName: 'Plus',
-                        price: '${strings.formatCurrency(99000)} / ${strings.walMonthShort}',
+                        price:
+                            '${strings.formatCurrency(99000)} / ${strings.walMonthShort}',
                         isHighlighted: false,
                         colors: colors,
                         strings: strings,
@@ -106,7 +107,8 @@ class _WalletSubTabState extends ConsumerState<WalletSubTab> {
                     Expanded(
                       child: _buildPlanButton(
                         planName: 'Pro',
-                        price: '${strings.formatCurrency(199000)} / ${strings.walMonthShort}',
+                        price:
+                            '${strings.formatCurrency(199000)} / ${strings.walMonthShort}',
                         isHighlighted: true,
                         colors: colors,
                         strings: strings,
@@ -116,7 +118,8 @@ class _WalletSubTabState extends ConsumerState<WalletSubTab> {
                     Expanded(
                       child: _buildPlanButton(
                         planName: 'Ultra',
-                        price: '${strings.formatCurrency(299000)} / ${strings.walMonthShort}',
+                        price:
+                            '${strings.formatCurrency(299000)} / ${strings.walMonthShort}',
                         isHighlighted: false,
                         colors: colors,
                         strings: strings,
@@ -182,7 +185,8 @@ class _WalletSubTabState extends ConsumerState<WalletSubTab> {
                 size: AppButtonSize.sm,
                 height: 40,
                 text: strings.walApply,
-                onPressed: null, // Disabled: promo / payment gateways not connected
+                onPressed:
+                    null, // Disabled: promo / payment gateways not connected
               ),
             ],
           ),
@@ -251,9 +255,7 @@ class _WalletSubTabState extends ConsumerState<WalletSubTab> {
         decoration: BoxDecoration(
           color: isHighlighted ? colors.pr : colors.bg,
           borderRadius: AppRadius.rMd,
-          border: Border.all(
-            color: isHighlighted ? colors.pr : colors.bd,
-          ),
+          border: Border.all(color: isHighlighted ? colors.pr : colors.bd),
         ),
         child: Column(
           children: [
@@ -272,7 +274,9 @@ class _WalletSubTabState extends ConsumerState<WalletSubTab> {
               style: TextStyle(
                 fontFamily: 'Vazirmatn',
                 fontSize: 9,
-                color: isHighlighted ? colors.prt.withValues(alpha: 0.8) : colors.mu,
+                color: isHighlighted
+                    ? colors.prt.withValues(alpha: 0.8)
+                    : colors.mu,
               ),
               textAlign: TextAlign.center,
             ),

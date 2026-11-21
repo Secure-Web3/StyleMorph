@@ -82,17 +82,11 @@ class _EmailVerificationScreenState
         // 4. Force authStateChangesProvider refresh
         ref.invalidate(authStateChangesProvider);
       } else {
-        AppFeedback.showError(
-          context,
-          context.strings.authEmailNotVerifiedYet,
-        );
+        AppFeedback.showError(context, context.strings.authEmailNotVerifiedYet);
       }
     } catch (e) {
       if (mounted) {
-        AppFeedback.showError(
-          context,
-          context.strings.authErrGeneric,
-        );
+        AppFeedback.showError(context, context.strings.authErrGeneric);
       }
     } finally {
       if (mounted) {
@@ -114,10 +108,7 @@ class _EmailVerificationScreenState
       );
     } catch (e) {
       if (mounted) {
-        AppFeedback.showError(
-          context,
-          context.strings.authErrGeneric,
-        );
+        AppFeedback.showError(context, context.strings.authErrGeneric);
       }
     } finally {
       if (mounted) {
@@ -179,7 +170,9 @@ class _EmailVerificationScreenState
                           // Title
                           Text(
                             strings.authEmailVerifyTitle,
-                            style: AppTypography.headlineMedium(color: colors.tx),
+                            style: AppTypography.headlineMedium(
+                              color: colors.tx,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: AppSpacing.sm),
@@ -206,8 +199,11 @@ class _EmailVerificationScreenState
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.email_outlined,
-                                    size: 16, color: colors.mu),
+                                Icon(
+                                  Icons.email_outlined,
+                                  size: 16,
+                                  color: colors.mu,
+                                ),
                                 const SizedBox(width: AppSpacing.xs),
                                 Flexible(
                                   child: Text(
@@ -252,7 +248,9 @@ class _EmailVerificationScreenState
                             isFullWidth: true,
                             variant: AppButtonVariant.outline,
                             text: _cooldownSeconds > 0
-                                ? strings.authEmailResendCooldown(_cooldownSeconds)
+                                ? strings.authEmailResendCooldown(
+                                    _cooldownSeconds,
+                                  )
                                 : strings.authEmailResendBtn,
                             onPressed: (_isResending || _cooldownSeconds > 0)
                                 ? null
@@ -264,8 +262,11 @@ class _EmailVerificationScreenState
                           Center(
                             child: TextButton.icon(
                               onPressed: _signOut,
-                              icon: Icon(Icons.arrow_back,
-                                  size: 14, color: colors.mu),
+                              icon: Icon(
+                                Icons.arrow_back,
+                                size: 14,
+                                color: colors.mu,
+                              ),
                               label: Text(
                                 strings.authBackOrSignOut,
                                 style: TextStyle(

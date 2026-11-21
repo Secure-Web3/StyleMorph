@@ -60,19 +60,25 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     final initialState = ref.read(authFormProvider);
     _emailController = TextEditingController(text: initialState.email);
     _passwordController = TextEditingController(text: initialState.password);
-    _confirmPasswordController =
-        TextEditingController(text: initialState.confirmPassword);
-    _forgotEmailController =
-        TextEditingController(text: initialState.forgotEmail);
-    _referralCodeController =
-        TextEditingController(text: initialState.referralCode);
+    _confirmPasswordController = TextEditingController(
+      text: initialState.confirmPassword,
+    );
+    _forgotEmailController = TextEditingController(
+      text: initialState.forgotEmail,
+    );
+    _referralCodeController = TextEditingController(
+      text: initialState.referralCode,
+    );
     if (_referralCodeController.text.isEmpty) {
-      ReferralService().getPendingReferralCode().then((code) {
-        if (code != null && code.isNotEmpty && mounted) {
-          _referralCodeController.text = code;
-          ref.read(authFormProvider.notifier).setReferralCode(code);
-        }
-      }).catchError((_) {});
+      ReferralService()
+          .getPendingReferralCode()
+          .then((code) {
+            if (code != null && code.isNotEmpty && mounted) {
+              _referralCodeController.text = code;
+              ref.read(authFormProvider.notifier).setReferralCode(code);
+            }
+          })
+          .catchError((_) {});
     }
 
     _animController = AnimationController(
@@ -161,10 +167,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     }
 
     if (kIsWeb && (_turnstileToken == null || _turnstileToken!.isEmpty)) {
-      AppFeedback.showError(
-        context,
-        context.strings.authTurnstileRequired,
-      );
+      AppFeedback.showError(context, context.strings.authTurnstileRequired);
       return;
     }
 
@@ -204,10 +207,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
 
   Future<void> _handleSignup() async {
     if (kIsWeb && (_turnstileToken == null || _turnstileToken!.isEmpty)) {
-      AppFeedback.showError(
-        context,
-        context.strings.authTurnstileRequired,
-      );
+      AppFeedback.showError(context, context.strings.authTurnstileRequired);
       return;
     }
 
@@ -222,17 +222,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       setState(() => _turnstileToken = null);
       final code = ref.read(authFormProvider).errorCode;
       if (code != null) {
-        AppFeedback.showError(
-          context,
-          context.strings.authErrorMessage(code),
-        );
+        AppFeedback.showError(context, context.strings.authErrorMessage(code));
       }
     }
   }
 
   Future<void> _handleGoogleSignIn() async {
-    final success =
-        await ref.read(authFormProvider.notifier).signInWithGoogle();
+    final success = await ref
+        .read(authFormProvider.notifier)
+        .signInWithGoogle();
     if (!mounted) return;
     if (success) {
       ref.read(appStateProvider.notifier).login();
@@ -240,10 +238,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     } else {
       final code = ref.read(authFormProvider).errorCode;
       if (code != null && code != 'google-cancelled') {
-        AppFeedback.showError(
-          context,
-          context.strings.authErrorMessage(code),
-        );
+        AppFeedback.showError(context, context.strings.authErrorMessage(code));
       }
     }
   }
@@ -257,31 +252,23 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     } else {
       final code = ref.read(authFormProvider).errorCode;
       if (code != null && code != 'apple-cancelled') {
-        AppFeedback.showError(
-          context,
-          context.strings.authErrorMessage(code),
-        );
+        AppFeedback.showError(context, context.strings.authErrorMessage(code));
       }
     }
   }
 
   Future<void> _handleResetPassword() async {
-    final success =
-        await ref.read(authFormProvider.notifier).sendPasswordResetEmail();
+    final success = await ref
+        .read(authFormProvider.notifier)
+        .sendPasswordResetEmail();
     if (!mounted) return;
     if (success) {
-      AppFeedback.showSuccess(
-        context,
-        context.strings.authResetEmailSent,
-      );
+      AppFeedback.showSuccess(context, context.strings.authResetEmailSent);
       _switchMode(AuthMode.login);
     } else {
       final code = ref.read(authFormProvider).errorCode;
       if (code != null) {
-        AppFeedback.showError(
-          context,
-          context.strings.authErrorMessage(code),
-        );
+        AppFeedback.showError(context, context.strings.authErrorMessage(code));
       }
     }
   }
@@ -340,11 +327,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     );
   }
 
-  Widget _buildForm(
-    AuthFormState state,
-    AppColors colors,
-    AppStrings strings,
-  ) {
+  Widget _buildForm(AuthFormState state, AppColors colors, AppStrings strings) {
     switch (state.mode) {
       case AuthMode.login:
         return _LoginForm(
@@ -359,14 +342,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           fallbackController: _fallbackController,
           useSecurityFallback: _useSecurityFallback,
           isTurnstileVerified:
-              !kIsWeb || (_turnstileToken != null && _turnstileToken!.isNotEmpty),
+              !kIsWeb ||
+              (_turnstileToken != null && _turnstileToken!.isNotEmpty),
           lockoutSeconds: _lockoutSeconds,
           onTurnstileVerified: (token) {
             _turnstileTimeoutTimer?.cancel();
             setState(() => _turnstileToken = token);
           },
-          onTurnstileExpired: () =>
-              setState(() => _turnstileToken = null),
+          onTurnstileExpired: () => setState(() => _turnstileToken = null),
           onTurnstileError: () {
             _turnstileTimeoutTimer?.cancel();
             setState(() {
@@ -378,9 +361,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
               ref.read(authFormProvider.notifier).setEmail(val),
           onPasswordChanged: (val) =>
               ref.read(authFormProvider.notifier).setPassword(val),
-          onTogglePasswordVisibility: () => ref
-              .read(authFormProvider.notifier)
-              .togglePasswordVisibility(),
+          onTogglePasswordVisibility: () =>
+              ref.read(authFormProvider.notifier).togglePasswordVisibility(),
           onLogin: _handleLogin,
           onGoogleLogin: _handleGoogleSignIn,
           onAppleLogin: _handleAppleSignIn,
@@ -402,13 +384,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           fallbackController: _fallbackController,
           useSecurityFallback: _useSecurityFallback,
           isTurnstileVerified:
-              !kIsWeb || (_turnstileToken != null && _turnstileToken!.isNotEmpty),
+              !kIsWeb ||
+              (_turnstileToken != null && _turnstileToken!.isNotEmpty),
           onTurnstileVerified: (token) {
             _turnstileTimeoutTimer?.cancel();
             setState(() => _turnstileToken = token);
           },
-          onTurnstileExpired: () =>
-              setState(() => _turnstileToken = null),
+          onTurnstileExpired: () => setState(() => _turnstileToken = null),
           onTurnstileError: () {
             _turnstileTimeoutTimer?.cancel();
             setState(() {
@@ -424,9 +406,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
               ref.read(authFormProvider.notifier).setConfirmPassword(val),
           onReferralCodeChanged: (val) =>
               ref.read(authFormProvider.notifier).setReferralCode(val),
-          onTogglePasswordVisibility: () => ref
-              .read(authFormProvider.notifier)
-              .togglePasswordVisibility(),
+          onTogglePasswordVisibility: () =>
+              ref.read(authFormProvider.notifier).togglePasswordVisibility(),
           onToggleConfirmPasswordVisibility: () => ref
               .read(authFormProvider.notifier)
               .toggleConfirmPasswordVisibility(),
@@ -499,10 +480,7 @@ class _LabelDivider extends StatelessWidget {
           padding: const EdgeInsetsDirectional.symmetric(
             horizontal: AppSpacing.md,
           ),
-          child: Text(
-            label,
-            style: AppTypography.caption(color: colors.mu),
-          ),
+          child: Text(label, style: AppTypography.caption(color: colors.mu)),
         ),
         Expanded(child: Divider(color: colors.bd, height: 1)),
       ],
@@ -573,8 +551,8 @@ class _LoginForm extends StatelessWidget {
     final String? buttonText = isSubmitting
         ? null
         : isLocked
-            ? strings.authLockoutBtn(lockoutSeconds)
-            : strings.authLoginBtn;
+        ? strings.authLockoutBtn(lockoutSeconds)
+        : strings.authLoginBtn;
 
     return AppCard(
       padding: const EdgeInsetsDirectional.all(AppSpacing.xl),
@@ -614,8 +592,11 @@ class _LoginForm extends StatelessWidget {
             controller: passwordController,
             onChanged: onPasswordChanged,
             obscureText: !isPasswordVisible,
-            prefix:
-                Icon(Icons.lock_outline_rounded, size: 16, color: colors.mu),
+            prefix: Icon(
+              Icons.lock_outline_rounded,
+              size: 16,
+              color: colors.mu,
+            ),
             suffix: GestureDetector(
               onTap: onTogglePasswordVisibility,
               child: Icon(
@@ -635,7 +616,9 @@ class _LoginForm extends StatelessWidget {
             label: strings.authRememberMe,
             value: rememberMe,
             onChanged: onRememberMeChanged,
-            padding: const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.xxs),
+            padding: const EdgeInsetsDirectional.symmetric(
+              vertical: AppSpacing.xxs,
+            ),
           ),
 
           const SizedBox(height: AppSpacing.md),
@@ -847,8 +830,11 @@ class _SignupForm extends StatelessWidget {
             controller: passwordController,
             onChanged: onPasswordChanged,
             obscureText: !isPasswordVisible,
-            prefix:
-                Icon(Icons.lock_outline_rounded, size: 16, color: colors.mu),
+            prefix: Icon(
+              Icons.lock_outline_rounded,
+              size: 16,
+              color: colors.mu,
+            ),
             suffix: GestureDetector(
               onTap: onTogglePasswordVisibility,
               child: Icon(
@@ -898,8 +884,11 @@ class _SignupForm extends StatelessWidget {
             const SizedBox(height: AppSpacing.xs),
             Row(
               children: [
-                Icon(Icons.error_outline_rounded,
-                    size: 14, color: colors.orColor),
+                Icon(
+                  Icons.error_outline_rounded,
+                  size: 14,
+                  color: colors.orColor,
+                ),
                 const SizedBox(width: AppSpacing.xs),
                 Expanded(
                   child: Text(
@@ -918,7 +907,11 @@ class _SignupForm extends StatelessWidget {
             placeholder: strings.authReferralCodeHint,
             controller: referralCodeController,
             onChanged: onReferralCodeChanged,
-            prefix: Icon(Icons.card_giftcard_rounded, size: 16, color: colors.mu),
+            prefix: Icon(
+              Icons.card_giftcard_rounded,
+              size: 16,
+              color: colors.mu,
+            ),
           ),
 
           const SizedBox(height: AppSpacing.xl),

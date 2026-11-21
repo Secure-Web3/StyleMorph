@@ -16,16 +16,14 @@ import 'notification_sheet.dart';
 class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
   final VoidCallback? onOpenDrawer;
 
-  const MainHeader({
-    super.key,
-    this.onOpenDrawer,
-  });
+  const MainHeader({super.key, this.onOpenDrawer});
 
   static const double _baseHeight = 58.0;
   static const double _profileExtraHeight = 52.0;
 
   @override
-  Size get preferredSize => const Size.fromHeight(_baseHeight + _profileExtraHeight);
+  Size get preferredSize =>
+      const Size.fromHeight(_baseHeight + _profileExtraHeight);
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,15 +31,14 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
     final strings = context.strings;
     final appState = ref.watch(appStateProvider);
     final isProfileMode = appState.currentTab == AppTab.profile;
-    final isEmailVerified =
-        ref.watch(emailVerificationProvider.select((s) => s.isVerified));
+    final isEmailVerified = ref.watch(
+      emailVerificationProvider.select((s) => s.isVerified),
+    );
 
     return Container(
       decoration: BoxDecoration(
         color: colors.sf,
-        border: Border(
-          bottom: BorderSide(color: colors.bd),
-        ),
+        border: Border(bottom: BorderSide(color: colors.bd)),
       ),
       child: SafeArea(
         bottom: false,
@@ -79,18 +76,24 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                                     User? user;
                                     try {
                                       if (Firebase.apps.isNotEmpty) {
-                                        user = FirebaseAuth.instance.currentUser;
+                                        user =
+                                            FirebaseAuth.instance.currentUser;
                                       }
                                     } catch (_) {}
-                                    final isKycVerified = appState.kycData.isVerified;
-                                    final isVerified = isKycVerified || isEmailVerified;
-                                    final displayName = appState.userName.isNotEmpty
+                                    final isKycVerified =
+                                        appState.kycData.isVerified;
+                                    final isVerified =
+                                        isKycVerified || isEmailVerified;
+                                    final displayName =
+                                        appState.userName.isNotEmpty
                                         ? strings.tr(appState.userName)
                                         : (user?.displayName ??
-                                            (user?.email?.split('@').first ??
-                                                strings.newUser));
-                                    final userEmail = user?.email ??
-                                        (appState.identityValues['email'] ?? '');
+                                              (user?.email?.split('@').first ??
+                                                  strings.newUser));
+                                    final userEmail =
+                                        user?.email ??
+                                        (appState.identityValues['email'] ??
+                                            '');
 
                                     return Column(
                                       crossAxisAlignment:
@@ -114,7 +117,9 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                                               ),
                                             ),
                                             if (isVerified) ...[
-                                              const SizedBox(width: AppSpacing.xs),
+                                              const SizedBox(
+                                                width: AppSpacing.xs,
+                                              ),
                                               FaIcon(
                                                 FontAwesomeIcons.circleCheck,
                                                 size: 12,
@@ -123,18 +128,24 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                                                     : colors.inColor,
                                               ),
                                             ],
-                                            const SizedBox(width: AppSpacing.xs),
-                                            _buildRankPointsBadge(
-                                              context,
-                                              colors,
-                                              strings,
-                                              appState,
+                                            const SizedBox(
+                                              width: AppSpacing.xs,
+                                            ),
+                                            Flexible(
+                                              child: _buildRankPointsBadge(
+                                                context,
+                                                colors,
+                                                strings,
+                                                appState,
+                                              ),
                                             ),
                                           ],
                                         ),
                                         const SizedBox(height: 2),
                                         // Subtitle: verification | @username
-                                        if (appState.preferences.showEmailInHeader &&
+                                        if (appState
+                                                .preferences
+                                                .showEmailInHeader &&
                                             userEmail.isNotEmpty) ...[
                                           Text(
                                             userEmail,
@@ -145,7 +156,9 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                                             ),
                                             overflow: TextOverflow.ellipsis,
                                           ),
-                                        ] else if (appState.userHandle.isNotEmpty) ...[
+                                        ] else if (appState
+                                            .userHandle
+                                            .isNotEmpty) ...[
                                           Text(
                                             isKycVerified
                                                 ? '${strings.kycVerifiedBadge} | ${appState.userHandle}'
@@ -176,7 +189,8 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                         // StyleCoin Chip
                         if (appState.showHeaderCoins) ...[
                           InkWell(
-                            onTap: null, // Tap navigation disabled while Wallet & Plan is temporarily disabled
+                            onTap:
+                                null, // Tap navigation disabled while Wallet & Plan is temporarily disabled
                             borderRadius: AppRadius.rFull,
                             child: Container(
                               padding: const EdgeInsetsDirectional.symmetric(
@@ -300,13 +314,10 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
       padding: const EdgeInsets.all(2.0),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(
-          color: rankColor,
-          width: 2.0,
-        ),
+        border: Border.all(color: rankColor, width: 2.0),
         boxShadow: [
           BoxShadow(
-            color: rankColor.withOpacity(0.22),
+            color: rankColor.withValues(alpha: 0.22),
             blurRadius: 5,
             spreadRadius: 1,
           ),
@@ -314,10 +325,7 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
       ),
       child: Container(
         clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: colors.sf,
-        ),
+        decoration: BoxDecoration(shape: BoxShape.circle, color: colors.sf),
         child: Builder(
           builder: (context) {
             User? user;
@@ -326,7 +334,8 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                 user = FirebaseAuth.instance.currentUser;
               }
             } catch (_) {}
-            final photoUrl = (user?.photoURL != null && user!.photoURL!.isNotEmpty)
+            final photoUrl =
+                (user?.photoURL != null && user!.photoURL!.isNotEmpty)
                 ? user.photoURL!
                 : appState.photoUrl;
             if (photoUrl.isNotEmpty) {
@@ -334,10 +343,10 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                 photoUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) =>
-                    _buildInitialsWidget(appState, colors),
+                    _buildInitialsWidget(appState, colors, strings),
               );
             }
-            return _buildInitialsWidget(appState, colors);
+            return _buildInitialsWidget(appState, colors, strings);
           },
         ),
       ),
@@ -368,10 +377,10 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
         decoration: BoxDecoration(
-          color: rankColor.withOpacity(0.12),
+          color: rankColor.withValues(alpha: 0.12),
           borderRadius: AppRadius.rFull,
           border: Border.all(
-            color: rankColor.withOpacity(0.45),
+            color: rankColor.withValues(alpha: 0.45),
             width: 1,
           ),
         ),
@@ -387,13 +396,16 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
               ),
             ),
             const SizedBox(width: 4),
-            Text(
-              '$rankLabel • $ptsText',
-              style: TextStyle(
-                fontFamily: 'Vazirmatn',
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: colors.tx,
+            Flexible(
+              child: Text(
+                '$rankLabel • $ptsText',
+                style: TextStyle(
+                  fontFamily: 'Vazirmatn',
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: colors.tx,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -402,21 +414,34 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  Widget _buildInitialsWidget(AppState appState, AppColors colors) {
+  Widget _buildInitialsWidget(
+    AppState appState,
+    AppColors colors,
+    AppStrings strings,
+  ) {
     String initials = 'SM';
     final first = appState.identityValues['firstName']?.trim() ?? '';
     final last = appState.identityValues['lastName']?.trim() ?? '';
-    if (first.isNotEmpty && last.isNotEmpty) {
-      initials = '${first.characters.first}${last.characters.first}'.toUpperCase();
-    } else if (first.isNotEmpty) {
-      initials = first.characters.take(2).toString().toUpperCase();
-    } else if (appState.userName.isNotEmpty) {
-      final parts = appState.userName.trim().split(RegExp(r'\s+'));
+    final resolvedName = appState.userName.isNotEmpty
+        ? strings.tr(appState.userName)
+        : '';
+
+    if (resolvedName.isNotEmpty) {
+      final parts = resolvedName.trim().split(RegExp(r'\s+'));
       if (parts.length >= 2) {
-        initials = '${parts[0].characters.first}${parts[1].characters.first}'.toUpperCase();
+        initials = '${parts[0].characters.first}${parts[1].characters.first}'
+            .toUpperCase();
       } else {
         initials = parts[0].characters.take(2).toString().toUpperCase();
       }
+    } else if (first.isNotEmpty && last.isNotEmpty) {
+      final localizedFirst = strings.tr(first);
+      final localizedLast = strings.tr(last);
+      initials =
+          '${localizedFirst.characters.first}${localizedLast.characters.first}'
+              .toUpperCase();
+    } else if (first.isNotEmpty) {
+      initials = strings.tr(first).characters.take(2).toString().toUpperCase();
     } else {
       String email = '';
       try {
@@ -425,7 +450,13 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
         }
       } catch (_) {}
       if (email.isNotEmpty) {
-        initials = email.split('@').first.characters.take(2).toString().toUpperCase();
+        initials = email
+            .split('@')
+            .first
+            .characters
+            .take(2)
+            .toString()
+            .toUpperCase();
       }
     }
 
@@ -508,9 +539,7 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
         // 3. Pin "Complete" action button to end edge
         InkWell(
           onTap: () {
-            ref
-                .read(appStateProvider.notifier)
-                .switchProfileTab('p-identity');
+            ref.read(appStateProvider.notifier).switchProfileTab('p-identity');
           },
           borderRadius: AppRadius.rSm,
           child: Container(

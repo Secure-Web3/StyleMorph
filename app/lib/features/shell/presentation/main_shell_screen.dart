@@ -61,10 +61,12 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     final currentLang = ref.watch(localeProvider);
     final isDark = themeState.resolveIsDark(context);
     final currentTab = ref.watch(appStateProvider.select((s) => s.currentTab));
-    final showFloatingSupport =
-        ref.watch(appStateProvider.select((s) => s.showFloatingSupport));
-    final isSupportOpen =
-        ref.watch(appStateProvider.select((s) => s.isSupportOpen));
+    final showFloatingSupport = ref.watch(
+      appStateProvider.select((s) => s.showFloatingSupport),
+    );
+    final isSupportOpen = ref.watch(
+      appStateProvider.select((s) => s.isSupportOpen),
+    );
 
     // Outer background: slightly darker than surface for desktop web frame effect.
     final outerColor = isDark
@@ -95,8 +97,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                   key: _scaffoldKey,
                   backgroundColor: colors.bg,
                   appBar: MainHeader(
-                    onOpenDrawer: () =>
-                        _scaffoldKey.currentState?.openDrawer(),
+                    onOpenDrawer: () => _scaffoldKey.currentState?.openDrawer(),
                   ),
                   drawer: const AppDrawer(),
                   body: LayoutBuilder(

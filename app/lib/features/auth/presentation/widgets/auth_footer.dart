@@ -9,10 +9,7 @@ import '../../../../core/theme/app_typography.dart';
 class AuthFooter extends StatelessWidget {
   final bool isTransparent;
 
-  const AuthFooter({
-    super.key,
-    this.isTransparent = false,
-  });
+  const AuthFooter({super.key, this.isTransparent = false});
 
   @override
   Widget build(BuildContext context) {

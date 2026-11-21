@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'ai_http_response.dart';
 import 'ai_http_transport_stub.dart'
-    if (dart.library.io) 'ai_http_transport_io.dart' as http_transport;
+    if (dart.library.io) 'ai_http_transport_io.dart'
+    as http_transport;
 import 'emulator_config.dart';
 
 export 'ai_http_response.dart';
@@ -84,13 +85,14 @@ class AiGenerationResult {
   int get anatomicalScorePercent => (anatomicalScore * 100).round();
 }
 
-typedef AiTransportInvoker = Future<AiHttpResponse> Function({
-  required String method,
-  required Uri uri,
-  Map<String, String>? headers,
-  String? body,
-  Duration timeout,
-});
+typedef AiTransportInvoker =
+    Future<AiHttpResponse> Function({
+      required String method,
+      required Uri uri,
+      Map<String, String>? headers,
+      String? body,
+      Duration timeout,
+    });
 
 /// Client connecting Flutter AI modules (Stylist, Atelier, Wellness) to the
 /// local/Cloud Run `ai-gateway` microservice with seamless offline fallback.
@@ -98,12 +100,12 @@ class AiGatewayClient {
   final String baseUrl;
   final AiTransportInvoker _send;
 
-  AiGatewayClient({
-    String? baseUrl,
-    AiTransportInvoker? transportInvoker,
-  })  : baseUrl = (baseUrl ?? EmulatorConfig.aiGatewayUrl)
-            .replaceAll(RegExp(r'/+$'), ''),
-        _send = transportInvoker ?? http_transport.sendHttpRequest;
+  AiGatewayClient({String? baseUrl, AiTransportInvoker? transportInvoker})
+    : baseUrl = (baseUrl ?? EmulatorConfig.aiGatewayUrl).replaceAll(
+        RegExp(r'/+$'),
+        '',
+      ),
+      _send = transportInvoker ?? http_transport.sendHttpRequest;
 
   static int _seq = 0;
 
@@ -128,10 +130,12 @@ class AiGatewayClient {
       h3 = ((h3 ^ (b + 31)) * 0x01000193) & 0xffffffff;
       h4 = ((h4 ^ (b + 53)) * 0x01000193) & 0xffffffff;
     }
-    return [h1, h2, h3, h4]
-        .map((v) => v.toRadixString(16).padLeft(8, '0'))
-        .join()
-        .padRight(64, '0');
+    return [
+      h1,
+      h2,
+      h3,
+      h4,
+    ].map((v) => v.toRadixString(16).padLeft(8, '0')).join().padRight(64, '0');
   }
 
   Future<bool> checkHealth() async {
@@ -218,8 +222,8 @@ class AiGatewayClient {
           idempotencyKey: idemKey,
           serviceType: serviceType,
           qualityTier: qualityTier,
-          coinCost: (json['coinCost'] as num?)?.toInt() ??
-              qualityTier.defaultCoins,
+          coinCost:
+              (json['coinCost'] as num?)?.toInt() ?? qualityTier.defaultCoins,
           modelId: (json['modelId'] as String?) ?? 'gemini-2.5-flash-image',
           keyIdUsed: (json['keyIdUsed'] as String?) ?? 'gateway',
           cacheHit: (json['cacheHit'] as bool?) ?? false,
@@ -232,7 +236,8 @@ class AiGatewayClient {
               (validation['garmentAlignmentScore'] as num?)?.toDouble() ?? 0.91,
           watermarkText:
               (artifact['watermarkText'] as String?) ?? kMandatoryAiWatermark,
-          mediaUrl: (artifact['mediaUrl'] as String?) ??
+          mediaUrl:
+              (artifact['mediaUrl'] as String?) ??
               'https://storage.stylemorph.local/mock/$userId/$idemKey.webp',
           captureTxId: (json['captureTxId'] as String?) ?? 'tx_$idemKey',
           source: AiExecutionSource.gateway,
@@ -290,8 +295,8 @@ class AiGatewayClient {
     final anatomicalScore = qualityTier == AiQualityTier.cinematic
         ? 0.96
         : qualityTier == AiQualityTier.standard
-            ? 0.92
-            : 0.87;
+        ? 0.92
+        : 0.87;
     final ext = serviceType == AiServiceType.atelierVideo ? 'mp4' : 'webp';
 
     return AiGenerationResult(
@@ -304,8 +309,8 @@ class AiGatewayClient {
       modelId: qualityTier == AiQualityTier.cinematic
           ? 'imagen-3.0-ultra'
           : qualityTier == AiQualityTier.standard
-              ? 'imagen-3.0-generate'
-              : 'gemini-2.5-flash-image',
+          ? 'imagen-3.0-generate'
+          : 'gemini-2.5-flash-image',
       keyIdUsed: 'local-fallback',
       cacheHit: false,
       inputHash: inputHash,

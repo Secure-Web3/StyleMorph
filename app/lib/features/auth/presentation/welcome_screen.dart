@@ -173,9 +173,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                       // Localized tagline
                       Text(
                         strings.authWelcomeTagline,
-                        style: AppTypography.titleMedium(
-                          color: Colors.white,
-                        ),
+                        style: AppTypography.titleMedium(color: Colors.white),
                         textAlign: TextAlign.start,
                       ),
                       const SizedBox(height: AppSpacing.xs),

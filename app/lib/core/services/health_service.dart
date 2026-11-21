@@ -5,7 +5,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Supported wearable hardware & health platforms
 enum WearableDeviceType {
   appleHealth('apple_health', 'Apple HealthKit', 'Apple Watch'),
-  healthConnect('health_connect', 'Google Health Connect', 'Pixel / Android Health'),
+  healthConnect(
+    'health_connect',
+    'Google Health Connect',
+    'Pixel / Android Health',
+  ),
   galaxyWatch('galaxy_watch', 'Samsung Health', 'Galaxy Watch 6 / 7'),
   miBand('mi_band', 'Xiaomi Fitness', 'Mi Smart Band 8 / 9');
 
@@ -117,17 +121,23 @@ class HealthDnaSnapshot {
   Map<String, dynamic> toGatewayContext() {
     return <String, dynamic>{
       'sourceDevice': sourceDevice.wireValue,
-      if (consentedScopes.contains(HealthPermissionScope.steps) && steps != null)
+      if (consentedScopes.contains(HealthPermissionScope.steps) &&
+          steps != null)
         'steps': steps,
-      if (consentedScopes.contains(HealthPermissionScope.sleep) && sleepHours != null)
+      if (consentedScopes.contains(HealthPermissionScope.sleep) &&
+          sleepHours != null)
         'sleepHours': sleepHours,
-      if (consentedScopes.contains(HealthPermissionScope.sleep) && deepSleepHours != null)
+      if (consentedScopes.contains(HealthPermissionScope.sleep) &&
+          deepSleepHours != null)
         'deepSleepHours': deepSleepHours,
-      if (consentedScopes.contains(HealthPermissionScope.heartRate) && heartRateBpm != null)
+      if (consentedScopes.contains(HealthPermissionScope.heartRate) &&
+          heartRateBpm != null)
         'heartRateBpm': heartRateBpm,
-      if (consentedScopes.contains(HealthPermissionScope.weight) && weightKg != null)
+      if (consentedScopes.contains(HealthPermissionScope.weight) &&
+          weightKg != null)
         'weightTrendKg': weightKg,
-      if (consentedScopes.contains(HealthPermissionScope.calories) && activeCalories != null)
+      if (consentedScopes.contains(HealthPermissionScope.calories) &&
+          activeCalories != null)
         'activeCalories': activeCalories,
       'energyReadinessScore': energyReadinessScore,
       'stylistBiometricHint': stylistBiometricHint,
@@ -136,13 +146,16 @@ class HealthDnaSnapshot {
 }
 
 class HealthService extends StateNotifier<HealthDnaSnapshot> {
-  static const MethodChannel _platformChannel =
-      MethodChannel('com.stylemorph.app/health_bridge');
+  static const MethodChannel _platformChannel = MethodChannel(
+    'com.stylemorph.app/health_bridge',
+  );
 
   HealthService()
-      : super(HealthDnaSnapshot(
+    : super(
+        HealthDnaSnapshot(
           lastSyncedAt: DateTime.now().subtract(const Duration(minutes: 18)),
-        ));
+        ),
+      );
 
   /// Switches active wearable device source
   void setSourceDevice(WearableDeviceType device) {
@@ -197,14 +210,16 @@ class HealthService extends StateNotifier<HealthDnaSnapshot> {
               defaultTargetPlatform == TargetPlatform.iOS)) {
         // Attempt native platform channel if available on physical device
         try {
-          final result = await _platformChannel.invokeMapMethod<String, dynamic>(
-            'fetchLatestMetrics',
-            <String, dynamic>{
-              'sourceDevice': state.sourceDevice.wireValue,
-              'consentedScopes':
-                  state.consentedScopes.map((s) => s.wireValue).toList(),
-            },
-          );
+          final result = await _platformChannel
+              .invokeMapMethod<String, dynamic>(
+                'fetchLatestMetrics',
+                <String, dynamic>{
+                  'sourceDevice': state.sourceDevice.wireValue,
+                  'consentedScopes': state.consentedScopes
+                      .map((s) => s.wireValue)
+                      .toList(),
+                },
+              );
 
           if (result != null) {
             _applySyncedData(
@@ -225,7 +240,8 @@ class HealthService extends StateNotifier<HealthDnaSnapshot> {
       // Realistic Wearable Simulator for Windows / Web / Desktop / Test
       await Future<void>.delayed(const Duration(milliseconds: 300));
 
-      final baseSteps = overrideSteps ??
+      final baseSteps =
+          overrideSteps ??
           switch (state.sourceDevice) {
             WearableDeviceType.appleHealth => 9200,
             WearableDeviceType.healthConnect => 8150,
@@ -233,7 +249,8 @@ class HealthService extends StateNotifier<HealthDnaSnapshot> {
             WearableDeviceType.miBand => 7800,
           };
 
-      final baseSleep = overrideSleep ??
+      final baseSleep =
+          overrideSleep ??
           switch (state.sourceDevice) {
             WearableDeviceType.appleHealth => 5.1,
             WearableDeviceType.healthConnect => 7.2,
@@ -241,7 +258,8 @@ class HealthService extends StateNotifier<HealthDnaSnapshot> {
             WearableDeviceType.miBand => 6.5,
           };
 
-      final baseHeartRate = overrideHeartRate ??
+      final baseHeartRate =
+          overrideHeartRate ??
           switch (state.sourceDevice) {
             WearableDeviceType.appleHealth => 66,
             WearableDeviceType.healthConnect => 72,
@@ -277,12 +295,24 @@ class HealthService extends StateNotifier<HealthDnaSnapshot> {
   }) {
     final scopes = state.consentedScopes;
 
-    final effectiveSteps = scopes.contains(HealthPermissionScope.steps) ? steps : null;
-    final effectiveSleep = scopes.contains(HealthPermissionScope.sleep) ? sleepHours : null;
-    final effectiveDeepSleep = scopes.contains(HealthPermissionScope.sleep) ? deepSleepHours : null;
-    final effectiveHeartRate = scopes.contains(HealthPermissionScope.heartRate) ? heartRateBpm : null;
-    final effectiveWeight = scopes.contains(HealthPermissionScope.weight) ? weightKg : null;
-    final effectiveCalories = scopes.contains(HealthPermissionScope.calories) ? activeCalories : null;
+    final effectiveSteps = scopes.contains(HealthPermissionScope.steps)
+        ? steps
+        : null;
+    final effectiveSleep = scopes.contains(HealthPermissionScope.sleep)
+        ? sleepHours
+        : null;
+    final effectiveDeepSleep = scopes.contains(HealthPermissionScope.sleep)
+        ? deepSleepHours
+        : null;
+    final effectiveHeartRate = scopes.contains(HealthPermissionScope.heartRate)
+        ? heartRateBpm
+        : null;
+    final effectiveWeight = scopes.contains(HealthPermissionScope.weight)
+        ? weightKg
+        : null;
+    final effectiveCalories = scopes.contains(HealthPermissionScope.calories)
+        ? activeCalories
+        : null;
 
     final readiness = _computeReadiness(
       sleepHours: effectiveSleep,
@@ -379,11 +409,7 @@ class HealthService extends StateNotifier<HealthDnaSnapshot> {
     return ((weightedSum / totalWeight) * 100).round().clamp(0, 100);
   }
 
-  String _deriveHint({
-    double? sleepHours,
-    int? steps,
-    required int readiness,
-  }) {
+  String _deriveHint({double? sleepHours, int? steps, required int readiness}) {
     if (sleepHours != null && sleepHours < 5.5) {
       return 'low_sleep_comfort_mode';
     }
@@ -402,5 +428,5 @@ class HealthService extends StateNotifier<HealthDnaSnapshot> {
 
 final healthServiceProvider =
     StateNotifierProvider<HealthService, HealthDnaSnapshot>((ref) {
-  return HealthService();
-});
+      return HealthService();
+    });

@@ -57,10 +57,7 @@ class AppChip extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTypography.chipLabel(
-                color: fg,
-                isSelected: isSelected,
-              ),
+              style: AppTypography.chipLabel(color: fg, isSelected: isSelected),
             ),
           ],
         ),

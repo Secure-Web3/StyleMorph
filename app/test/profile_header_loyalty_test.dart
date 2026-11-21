@@ -73,10 +73,16 @@ void main() {
 
     test('calculateProgressToNextRank calculates exact progression', () {
       // Bronze (0 - 500 threshold): at 250 pts = 50%
-      expect(LoyaltyService.calculateProgressToNextRank(250), closeTo(0.5, 0.001));
+      expect(
+        LoyaltyService.calculateProgressToNextRank(250),
+        closeTo(0.5, 0.001),
+      );
 
       // Silver (500 - 1500 threshold): at 1000 pts = 50%
-      expect(LoyaltyService.calculateProgressToNextRank(1000), closeTo(0.5, 0.001));
+      expect(
+        LoyaltyService.calculateProgressToNextRank(1000),
+        closeTo(0.5, 0.001),
+      );
 
       // Diamond: max tier returns 1.0
       expect(LoyaltyService.calculateProgressToNextRank(4500), equals(1.0));
@@ -229,16 +235,14 @@ void main() {
             GlobalWidgetsLocalizations.delegate,
             GlobalCupertinoLocalizations.delegate,
           ],
-          home: Scaffold(
-            appBar: const MainHeader(),
-            body: Container(),
-          ),
+          home: Scaffold(appBar: const MainHeader(), body: Container()),
         ),
       );
     }
 
-    testWidgets('Lv1 badge and Basic verification text are removed',
-        (tester) async {
+    testWidgets('Lv1 badge and Basic verification text are removed', (
+      tester,
+    ) async {
       final state = AppState(
         isLoggedIn: true,
         currentTab: AppTab.profile,
@@ -262,8 +266,9 @@ void main() {
       expect(find.textContaining('تأیید پایه'), findsNothing);
     });
 
-    testWidgets('Tappable Loyalty Rank & Points badge is displayed',
-        (tester) async {
+    testWidgets('Tappable Loyalty Rank & Points badge is displayed', (
+      tester,
+    ) async {
       final state = AppState(
         isLoggedIn: true,
         currentTab: AppTab.profile,
@@ -314,33 +319,34 @@ void main() {
     });
 
     testWidgets(
-        'Profile completion section has no Basic (Free) plan chip and expands across width',
-        (tester) async {
-      final state = AppState(
-        isLoggedIn: true,
-        currentTab: AppTab.profile,
-        profileProgress: 0.75,
-      );
+      'Profile completion section has no Basic (Free) plan chip and expands across width',
+      (tester) async {
+        final state = AppState(
+          isLoggedIn: true,
+          currentTab: AppTab.profile,
+          profileProgress: 0.75,
+        );
 
-      await tester.pumpWidget(buildHeaderHarness(state));
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(buildHeaderHarness(state));
+        await tester.pumpAndSettle();
 
-      // "Basic (Free)" plan chip is completely removed
-      expect(find.text('Basic (Free)'), findsNothing);
-      expect(find.text('عادی (رایگان)'), findsNothing);
+        // "Basic (Free)" plan chip is completely removed
+        expect(find.text('Basic (Free)'), findsNothing);
+        expect(find.text('عادی (رایگان)'), findsNothing);
 
-      // Contains "Profile completion" label, percentage, and "Complete" button
-      expect(find.text('Profile completion'), findsOneWidget);
-      expect(find.text('75%'), findsOneWidget);
-      expect(find.text('Complete'), findsOneWidget);
-    });
+        // Contains "Profile completion" label, percentage, and "Complete" button
+        expect(find.text('Profile completion'), findsOneWidget);
+        expect(find.text('75%'), findsOneWidget);
+        expect(find.text('Complete'), findsOneWidget);
+      },
+    );
 
     testWidgets('Tapping Rank badge opens LoyaltyModalSheet', (tester) async {
-      tester.binding.window.physicalSizeTestValue = const Size(800, 1200);
-      tester.binding.window.devicePixelRatioTestValue = 1.0;
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
       addTearDown(() {
-        tester.binding.window.clearPhysicalSizeTestValue();
-        tester.binding.window.clearDevicePixelRatioTestValue();
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
       });
 
       final state = AppState(

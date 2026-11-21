@@ -22,10 +22,7 @@ import '../../../../core/widgets/app_text_field.dart';
 class ChangeEmailDialog extends StatefulWidget {
   final User? user;
 
-  const ChangeEmailDialog({
-    super.key,
-    this.user,
-  });
+  const ChangeEmailDialog({super.key, this.user});
 
   static Future<void> show(BuildContext context, {User? user}) {
     final colors = context.colors;
@@ -141,7 +138,9 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
     final newEmail = _newEmailController.text.trim();
     final strings = context.strings;
 
-    if (newEmail.isEmpty || !newEmail.contains('@') || !newEmail.contains('.')) {
+    if (newEmail.isEmpty ||
+        !newEmail.contains('@') ||
+        !newEmail.contains('.')) {
       setState(() {
         _errorMessage = strings.idChangeEmailInvalidError;
       });
@@ -171,9 +170,9 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
               .collection('users')
               .doc(user.uid)
               .set({
-            'pendingEmail': newEmail,
-            'pendingEmailRequestedAt': FieldValue.serverTimestamp(),
-          }, SetOptions(merge: true));
+                'pendingEmail': newEmail,
+                'pendingEmailRequestedAt': FieldValue.serverTimestamp(),
+              }, SetOptions(merge: true));
         } catch (e) {
           debugPrint('[ChangeEmailDialog] Firestore update note: $e');
         }
@@ -205,10 +204,7 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
 
   void _onContactSupport() {
     Navigator.of(context).pop();
-    AppFeedback.showSuccess(
-      context,
-      context.strings.supHi,
-    );
+    AppFeedback.showSuccess(context, context.strings.supHi);
   }
 
   @override
@@ -299,10 +295,7 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
                     style: AppTypography.cardTitle(color: colors.tx),
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    '1 / 2',
-                    style: AppTypography.caption(color: colors.mu),
-                  ),
+                  Text('1 / 2', style: AppTypography.caption(color: colors.mu)),
                 ],
               ),
             ),
@@ -376,7 +369,11 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
-              Icon(Icons.error_outline_rounded, size: 14, color: colors.orColor),
+              Icon(
+                Icons.error_outline_rounded,
+                size: 14,
+                color: colors.orColor,
+              ),
               const SizedBox(width: AppSpacing.xs),
               Expanded(
                 child: Text(
@@ -397,7 +394,9 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
               child: AppButton(
                 variant: AppButtonVariant.outline,
                 text: strings.back,
-                onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+                onPressed: _isLoading
+                    ? null
+                    : () => Navigator.of(context).pop(),
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
@@ -456,10 +455,7 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
                     style: AppTypography.cardTitle(color: colors.tx),
                   ),
                   const SizedBox(height: 2),
-                  Text(
-                    '2 / 2',
-                    style: AppTypography.caption(color: colors.mu),
-                  ),
+                  Text('2 / 2', style: AppTypography.caption(color: colors.mu)),
                 ],
               ),
             ),
@@ -477,7 +473,11 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
           placeholder: 'name@example.com',
           controller: _newEmailController,
           keyboardType: TextInputType.emailAddress,
-          prefix: Icon(Icons.mark_email_unread_outlined, size: 16, color: colors.mu),
+          prefix: Icon(
+            Icons.mark_email_unread_outlined,
+            size: 16,
+            color: colors.mu,
+          ),
           onSubmitted: _isLoading ? null : _handleSendVerification,
         ),
 
@@ -512,7 +512,11 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
-              Icon(Icons.error_outline_rounded, size: 14, color: colors.orColor),
+              Icon(
+                Icons.error_outline_rounded,
+                size: 14,
+                color: colors.orColor,
+              ),
               const SizedBox(width: AppSpacing.xs),
               Expanded(
                 child: Text(
@@ -533,7 +537,9 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
               child: AppButton(
                 variant: AppButtonVariant.outline,
                 text: strings.back,
-                onPressed: _isLoading ? null : () => setState(() => _currentStep = 1),
+                onPressed: _isLoading
+                    ? null
+                    : () => setState(() => _currentStep = 1),
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
@@ -593,7 +599,9 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
         Text(
           strings.idChangeEmailSuccessDesc(_submittedNewEmail ?? ''),
           textAlign: TextAlign.center,
-          style: AppTypography.bodySmall(color: colors.mu).copyWith(height: 1.45),
+          style: AppTypography.bodySmall(
+            color: colors.mu,
+          ).copyWith(height: 1.45),
         ),
         const SizedBox(height: AppSpacing.xl),
         AppButton(

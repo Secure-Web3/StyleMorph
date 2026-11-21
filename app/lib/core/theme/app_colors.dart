@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
 
-enum AppPalette {
-  white,
-  beige,
-  slate,
-  obsidian,
-  editorial,
-}
+enum AppPalette { white, beige, slate, obsidian, editorial }
 
 @immutable
 class AppColors extends ThemeExtension<AppColors> {
@@ -305,5 +299,6 @@ class AppColors extends ThemeExtension<AppColors> {
 }
 
 extension AppColorsExtension on BuildContext {
-  AppColors get colors => Theme.of(this).extension<AppColors>() ?? AppColors.lightWhite;
+  AppColors get colors =>
+      Theme.of(this).extension<AppColors>() ?? AppColors.lightWhite;
 }

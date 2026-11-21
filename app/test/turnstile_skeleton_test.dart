@@ -15,80 +15,95 @@ void main() {
   );
 
   group('Turnstile Shimmer Skeleton Tests', () {
-    test('AppStrings provides correct authTurnstileChecking in all 4 languages', () {
-      expect(AppStrings('fa').authTurnstileChecking, equals('در حال بررسی امنیتی...'));
-      expect(AppStrings('en').authTurnstileChecking, equals('Performing security check...'));
-      expect(AppStrings('ar').authTurnstileChecking, equals('جارٍ التحقق من الأمان...'));
-      expect(AppStrings('tr').authTurnstileChecking, equals('Güvenlik kontrolü yapılıyor...'));
-    });
+    test(
+      'AppStrings provides correct authTurnstileChecking in all 4 languages',
+      () {
+        expect(
+          AppStrings('fa').authTurnstileChecking,
+          equals('در حال بررسی امنیتی...'),
+        );
+        expect(
+          AppStrings('en').authTurnstileChecking,
+          equals('Performing security check...'),
+        );
+        expect(
+          AppStrings('ar').authTurnstileChecking,
+          equals('جارٍ التحقق من الأمان...'),
+        );
+        expect(
+          AppStrings('tr').authTurnstileChecking,
+          equals('Güvenlik kontrolü yapılıyor...'),
+        );
+      },
+    );
 
-    testWidgets('TurnstileSkeleton renders with exact 65px height, shield icon, and localized text',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: testTheme,
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          locale: const Locale('en'),
-          home: const Scaffold(
-            body: Center(
-              child: TurnstileSkeleton(width: 300, height: 65),
+    testWidgets(
+      'TurnstileSkeleton renders with exact 65px height, shield icon, and localized text',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: testTheme,
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            locale: const Locale('en'),
+            home: const Scaffold(
+              body: Center(child: TurnstileSkeleton(width: 300, height: 65)),
             ),
           ),
-        ),
-      );
+        );
 
-      // Verify the widget is rendered
-      final skeletonFinder = find.byType(TurnstileSkeleton);
-      expect(skeletonFinder, findsOneWidget);
+        // Verify the widget is rendered
+        final skeletonFinder = find.byType(TurnstileSkeleton);
+        expect(skeletonFinder, findsOneWidget);
 
-      // Verify exact dimensions (300 x 65) to guarantee zero layout shift
-      final renderBox = tester.renderObject(skeletonFinder) as RenderBox;
-      expect(renderBox.size.width, equals(300.0));
-      expect(renderBox.size.height, equals(65.0));
+        // Verify exact dimensions (300 x 65) to guarantee zero layout shift
+        final renderBox = tester.renderObject(skeletonFinder) as RenderBox;
+        expect(renderBox.size.width, equals(300.0));
+        expect(renderBox.size.height, equals(65.0));
 
-      // Verify shield icon is present
-      expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
+        // Verify shield icon is present
+        expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
 
-      // Verify localized checking text is present
-      expect(find.text('Performing security check...'), findsOneWidget);
+        // Verify localized checking text is present
+        expect(find.text('Performing security check...'), findsOneWidget);
 
-      // Pump animation forward to verify smooth pulsing
-      await tester.pump(const Duration(milliseconds: 600));
-      expect(find.byType(TurnstileSkeleton), findsOneWidget);
+        // Pump animation forward to verify smooth pulsing
+        await tester.pump(const Duration(milliseconds: 600));
+        expect(find.byType(TurnstileSkeleton), findsOneWidget);
 
-      await tester.pump(const Duration(milliseconds: 600));
-      expect(find.byType(TurnstileSkeleton), findsOneWidget);
-    });
+        await tester.pump(const Duration(milliseconds: 600));
+        expect(find.byType(TurnstileSkeleton), findsOneWidget);
+      },
+    );
 
-    testWidgets('TurnstileSkeleton renders in Persian with RTL directionality and Persian text',
-        (tester) async {
-      await tester.pumpWidget(
-        MaterialApp(
-          theme: testTheme,
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [Locale('fa'), Locale('en')],
-          locale: const Locale('fa'),
-          home: const Directionality(
-            textDirection: TextDirection.rtl,
-            child: Scaffold(
-              body: Center(
-                child: TurnstileSkeleton(width: 300, height: 65),
+    testWidgets(
+      'TurnstileSkeleton renders in Persian with RTL directionality and Persian text',
+      (tester) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: testTheme,
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [Locale('fa'), Locale('en')],
+            locale: const Locale('fa'),
+            home: const Directionality(
+              textDirection: TextDirection.rtl,
+              child: Scaffold(
+                body: Center(child: TurnstileSkeleton(width: 300, height: 65)),
               ),
             ),
           ),
-        ),
-      );
+        );
 
-      expect(find.text('در حال بررسی امنیتی...'), findsOneWidget);
-      expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
-    });
+        expect(find.text('در حال بررسی امنیتی...'), findsOneWidget);
+        expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
+      },
+    );
   });
 }

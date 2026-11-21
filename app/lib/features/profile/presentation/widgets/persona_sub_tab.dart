@@ -154,10 +154,7 @@ class _PersonaSubTabState extends ConsumerState<PersonaSubTab> {
             title: strings.perHeader,
           ),
           const SizedBox(height: AppSpacing.sm),
-          Text(
-            strings.perSub,
-            style: AppTypography.caption(color: colors.mu),
-          ),
+          Text(strings.perSub, style: AppTypography.caption(color: colors.mu)),
           const SizedBox(height: AppSpacing.md),
 
           // 1. Companion Selection Card
@@ -345,17 +342,18 @@ class _PersonaSubTabState extends ConsumerState<PersonaSubTab> {
                 AppDropdown<String>(
                   label: strings.perToneLabel,
                   value: settings.tone,
-                  items: const [
-                    'صمیمی و دوستانه',
-                    'رسمی و تخصصی',
-                    'منتقد صریح و رک',
-                    'الهام‌بخش و انگیزشی',
-                  ].map((t) {
-                    return DropdownMenuItem(
-                      value: t,
-                      child: Text(strings.tr(t)),
-                    );
-                  }).toList(),
+                  items:
+                      const [
+                        'صمیمی و دوستانه',
+                        'رسمی و تخصصی',
+                        'منتقد صریح و رک',
+                        'الهام‌بخش و انگیزشی',
+                      ].map((t) {
+                        return DropdownMenuItem(
+                          value: t,
+                          child: Text(strings.tr(t)),
+                        );
+                      }).toList(),
                   onChanged: (val) {
                     if (val != null) {
                       notifier.updateCompanionSettings(
@@ -383,7 +381,9 @@ class _PersonaSubTabState extends ConsumerState<PersonaSubTab> {
                       variant: AppBadgeVariant.info,
                       size: AppBadgeSize.sm,
                       child: Text(
-                        strings.tr(_strictnessLabel(settings.critiqueStrictness)),
+                        strings.tr(
+                          _strictnessLabel(settings.critiqueStrictness),
+                        ),
                       ),
                     ),
                   ],
@@ -434,16 +434,17 @@ class _PersonaSubTabState extends ConsumerState<PersonaSubTab> {
                 AppDropdown<String>(
                   label: strings.perScopeLabel,
                   value: settings.activeScope,
-                  items: const [
-                    'همه بخش‌ها',
-                    'فقط تندرستی و استایلیست',
-                    'خاموش',
-                  ].map((scope) {
-                    return DropdownMenuItem(
-                      value: scope,
-                      child: Text(strings.tr(scope)),
-                    );
-                  }).toList(),
+                  items:
+                      const [
+                        'همه بخش‌ها',
+                        'فقط تندرستی و استایلیست',
+                        'خاموش',
+                      ].map((scope) {
+                        return DropdownMenuItem(
+                          value: scope,
+                          child: Text(strings.tr(scope)),
+                        );
+                      }).toList(),
                   onChanged: (val) {
                     if (val != null) {
                       notifier.updateCompanionSettings(
@@ -557,10 +558,7 @@ class _SectionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          AppSectionHeader(
-            faIcon: icon,
-            title: title,
-          ),
+          AppSectionHeader(faIcon: icon, title: title),
           const SizedBox(height: AppSpacing.md),
           child,
         ],

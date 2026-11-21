@@ -2,12 +2,7 @@ import 'package:flutter/material.dart';
 import '../localization/app_strings.dart';
 
 /// 4 Progressive Loyalty Ranks based on StylePoints.
-enum LoyaltyRank {
-  bronze,
-  silver,
-  gold,
-  diamond,
-}
+enum LoyaltyRank { bronze, silver, gold, diamond }
 
 extension LoyaltyRankExtension on LoyaltyRank {
   String get nameCapitalized {

@@ -62,9 +62,8 @@ final referralServiceProvider = Provider<ReferralService>((ref) {
 class ReferralService {
   final FirebaseFirestore? _customFirestore;
 
-  ReferralService({
-    FirebaseFirestore? firestore,
-  }) : _customFirestore = firestore;
+  ReferralService({FirebaseFirestore? firestore})
+    : _customFirestore = firestore;
 
   FirebaseFirestore? get _firestore {
     if (_customFirestore != null) return _customFirestore;
@@ -97,7 +96,10 @@ class ReferralService {
   }
 
   /// Ensures a referral code exists for [uid], generating and indexing one if missing.
-  Future<String> ensureUserReferralCode(String uid, {String? existingCode}) async {
+  Future<String> ensureUserReferralCode(
+    String uid, {
+    String? existingCode,
+  }) async {
     if (uid.isEmpty) return '';
     final firestore = _firestore;
     if (firestore == null) {
@@ -117,26 +119,20 @@ class ReferralService {
       // Generate unique 8-char code
       String code = generateReferralCode();
       for (int i = 0; i < 5; i++) {
-        final existing =
-            await firestore.collection('referral_codes').doc(code).get();
+        final existing = await firestore
+            .collection('referral_codes')
+            .doc(code)
+            .get();
         if (!existing.exists) break;
         code = generateReferralCode();
       }
 
       final batch = firestore.batch();
-      batch.set(
-        userDocRef,
-        {'referralCode': code},
-        SetOptions(merge: true),
-      );
-      batch.set(
-        firestore.collection('referral_codes').doc(code),
-        {
-          'uid': uid,
-          'createdAt': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
+      batch.set(userDocRef, {'referralCode': code}, SetOptions(merge: true));
+      batch.set(firestore.collection('referral_codes').doc(code), {
+        'uid': uid,
+        'createdAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
       await batch.commit();
       return code;
     } catch (e) {
@@ -155,8 +151,10 @@ class ReferralService {
     if (firestore == null) return null;
 
     try {
-      final doc =
-          await firestore.collection('referral_codes').doc(cleanCode).get();
+      final doc = await firestore
+          .collection('referral_codes')
+          .doc(cleanCode)
+          .get();
       if (doc.exists) {
         return doc.data()?['uid']?.toString();
       }
@@ -183,8 +181,10 @@ class ReferralService {
     if (firestore == null) return false;
 
     try {
-      final codeDoc =
-          await firestore.collection('referral_codes').doc(cleanCode).get();
+      final codeDoc = await firestore
+          .collection('referral_codes')
+          .doc(cleanCode)
+          .get();
       if (!codeDoc.exists) return false;
 
       final inviterUid = codeDoc.data()?['uid']?.toString() ?? '';
@@ -200,8 +200,10 @@ class ReferralService {
         return false;
       }
 
-      final inviterSnap =
-          await firestore.collection('users').doc(inviterUid).get();
+      final inviterSnap = await firestore
+          .collection('users')
+          .doc(inviterUid)
+          .get();
       if (!inviterSnap.exists) {
         return false;
       }
@@ -217,29 +219,21 @@ class ReferralService {
       // 1. Save referral entry under users/{inviterUid}/referrals/{newUserUid}
       // Note: Financial rewards and inviter referralCount/networkTier are processed
       // via Cloud Function in Slice 2 to adhere to Zero-Trust client write rules.
-      batch.set(
-        referralRecordRef,
-        {
-          'inviteeUid': newUserUid,
-          'displayName': (displayName != null && displayName.isNotEmpty)
-              ? displayName
-              : newEmail.split('@').first,
-          'email': newEmail,
-          'rewardEarned': 100,
-          'createdAt': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
+      batch.set(referralRecordRef, {
+        'inviteeUid': newUserUid,
+        'displayName': (displayName != null && displayName.isNotEmpty)
+            ? displayName
+            : newEmail.split('@').first,
+        'email': newEmail,
+        'rewardEarned': 100,
+        'createdAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
 
       // 2. Set referredBy metadata on new user
-      batch.set(
-        newUserRef,
-        {
-          'referredBy': inviterUid,
-          'referredByCode': cleanCode,
-        },
-        SetOptions(merge: true),
-      );
+      batch.set(newUserRef, {
+        'referredBy': inviterUid,
+        'referredByCode': cleanCode,
+      }, SetOptions(merge: true));
 
       await batch.commit();
       await clearPendingReferralCode();

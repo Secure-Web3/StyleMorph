@@ -82,9 +82,7 @@ class HealthConsentSheet extends ConsumerWidget {
                   width: (MediaQuery.sizeOf(context).width - 48) / 2,
                   padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
                   decoration: BoxDecoration(
-                    color: isSelected
-                        ? colors.pr.withAlpha(20)
-                        : colors.sf,
+                    color: isSelected ? colors.pr.withAlpha(20) : colors.sf,
                     borderRadius: AppRadius.rCard,
                     border: Border.all(
                       color: isSelected ? colors.pr : colors.bd,
@@ -95,8 +93,7 @@ class HealthConsentSheet extends ConsumerWidget {
                     children: [
                       Icon(
                         switch (device) {
-                          WearableDeviceType.appleHealth =>
-                            Icons.watch_rounded,
+                          WearableDeviceType.appleHealth => Icons.watch_rounded,
                           WearableDeviceType.healthConnect =>
                             Icons.health_and_safety_rounded,
                           WearableDeviceType.galaxyWatch =>
@@ -185,8 +182,9 @@ class HealthConsentSheet extends ConsumerWidget {
                   subtitle: healthState.steps != null
                       ? '${strings.formatNumber(healthState.steps!)} گام'
                       : 'غیرفعال',
-                  value: healthState.consentedScopes
-                      .contains(HealthPermissionScope.steps),
+                  value: healthState.consentedScopes.contains(
+                    HealthPermissionScope.steps,
+                  ),
                   onChanged: (val) => healthNotifier.setScopeConsent(
                     HealthPermissionScope.steps,
                     val,
@@ -198,8 +196,9 @@ class HealthConsentSheet extends ConsumerWidget {
                   subtitle: healthState.sleepHours != null
                       ? '${strings.formatNumber(healthState.sleepHours!)} ساعت'
                       : 'غیرفعال',
-                  value: healthState.consentedScopes
-                      .contains(HealthPermissionScope.sleep),
+                  value: healthState.consentedScopes.contains(
+                    HealthPermissionScope.sleep,
+                  ),
                   onChanged: (val) => healthNotifier.setScopeConsent(
                     HealthPermissionScope.sleep,
                     val,
@@ -211,8 +210,9 @@ class HealthConsentSheet extends ConsumerWidget {
                   subtitle: healthState.heartRateBpm != null
                       ? '${strings.formatNumber(healthState.heartRateBpm!)} BPM'
                       : 'غیرفعال',
-                  value: healthState.consentedScopes
-                      .contains(HealthPermissionScope.heartRate),
+                  value: healthState.consentedScopes.contains(
+                    HealthPermissionScope.heartRate,
+                  ),
                   onChanged: (val) => healthNotifier.setScopeConsent(
                     HealthPermissionScope.heartRate,
                     val,
@@ -224,8 +224,9 @@ class HealthConsentSheet extends ConsumerWidget {
                   subtitle: healthState.weightKg != null
                       ? '${strings.formatNumber(healthState.weightKg!)} kg'
                       : 'غیرفعال',
-                  value: healthState.consentedScopes
-                      .contains(HealthPermissionScope.weight),
+                  value: healthState.consentedScopes.contains(
+                    HealthPermissionScope.weight,
+                  ),
                   onChanged: (val) => healthNotifier.setScopeConsent(
                     HealthPermissionScope.weight,
                     val,
@@ -237,8 +238,9 @@ class HealthConsentSheet extends ConsumerWidget {
                   subtitle: healthState.activeCalories != null
                       ? '${strings.formatNumber(healthState.activeCalories!)} kcal'
                       : 'غیرفعال',
-                  value: healthState.consentedScopes
-                      .contains(HealthPermissionScope.calories),
+                  value: healthState.consentedScopes.contains(
+                    HealthPermissionScope.calories,
+                  ),
                   onChanged: (val) => healthNotifier.setScopeConsent(
                     HealthPermissionScope.calories,
                     val,

@@ -86,9 +86,7 @@ class AppBottomSheetShell extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.sf,
         borderRadius: AppRadius.rSheetTop,
-        border: Border(
-          top: BorderSide(color: colors.bd, width: 1.0),
-        ),
+        border: Border(top: BorderSide(color: colors.bd, width: 1.0)),
       ),
       child: SafeArea(
         top: false,
@@ -157,20 +155,22 @@ class AppBottomSheetShell extends StatelessWidget {
               Flexible(
                 child: scrollable
                     ? SingleChildScrollView(
-                        padding: contentPadding ??
+                        padding:
+                            contentPadding ??
                             const EdgeInsetsDirectional.all(AppSpacing.lg),
                         child: child,
                       )
                     : Padding(
-                        padding: contentPadding ??
+                        padding:
+                            contentPadding ??
                             const EdgeInsetsDirectional.all(AppSpacing.lg),
                         child: child,
                       ),
               ),
 
               // Standardized Sticky Bottom Action Bar
-                    if (bottomBar != null)
-                      Container(
+              if (bottomBar != null)
+                Container(
                   padding: const EdgeInsetsDirectional.fromSTEB(
                     AppSpacing.lg,
                     AppSpacing.md,

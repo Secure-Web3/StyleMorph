@@ -44,52 +44,55 @@ void main() {
       expect(themeData.scaffoldBackgroundColor, const Color(0xFFFAF8F5));
     });
 
-    test('ThemeNotifier persists and updates palette and mode changes', () async {
-      final notifier = ThemeNotifier();
-      notifier.setPalette(AppPalette.slate);
-      notifier.setThemeMode(ThemeMode.dark);
+    test(
+      'ThemeNotifier persists and updates palette and mode changes',
+      () async {
+        final notifier = ThemeNotifier();
+        notifier.setPalette(AppPalette.slate);
+        notifier.setThemeMode(ThemeMode.dark);
 
-      expect(notifier.state.palette, AppPalette.slate);
-      expect(notifier.state.mode, ThemeMode.dark);
-      expect(notifier.state.isDark, isTrue);
+        expect(notifier.state.palette, AppPalette.slate);
+        expect(notifier.state.mode, ThemeMode.dark);
+        expect(notifier.state.isDark, isTrue);
 
-      await Future<void>.delayed(const Duration(milliseconds: 50));
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getString(ThemeNotifier.keyThemePalette), 'slate');
-      expect(prefs.getString(ThemeNotifier.keyThemeMode), 'dark');
-    });
+        await Future<void>.delayed(const Duration(milliseconds: 50));
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getString(ThemeNotifier.keyThemePalette), 'slate');
+        expect(prefs.getString(ThemeNotifier.keyThemeMode), 'dark');
+      },
+    );
 
-    testWidgets('Widget tree under themeProvider receives editorial colors by default',
-        (WidgetTester tester) async {
-      late AppColors capturedColors;
+    testWidgets(
+      'Widget tree under themeProvider receives editorial colors by default',
+      (WidgetTester tester) async {
+        late AppColors capturedColors;
 
-      await tester.pumpWidget(
-        ProviderScope(
-          child: Consumer(
-            builder: (context, ref, child) {
-              final themeState = ref.watch(themeProvider);
-              return MaterialApp(
-                theme: AppTheme.buildTheme(
-                  palette: themeState.palette,
-                  isDark: false,
-                ),
-                home: Builder(
-                  builder: (ctx) {
-                    capturedColors = ctx.colors;
-                    return const Scaffold(
-                      body: Text('Editorial Test'),
-                    );
-                  },
-                ),
-              );
-            },
+        await tester.pumpWidget(
+          ProviderScope(
+            child: Consumer(
+              builder: (context, ref, child) {
+                final themeState = ref.watch(themeProvider);
+                return MaterialApp(
+                  theme: AppTheme.buildTheme(
+                    palette: themeState.palette,
+                    isDark: false,
+                  ),
+                  home: Builder(
+                    builder: (ctx) {
+                      capturedColors = ctx.colors;
+                      return const Scaffold(body: Text('Editorial Test'));
+                    },
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(capturedColors.bg, const Color(0xFFFAF8F5));
-      expect(capturedColors.pr, const Color(0xFF8C6D46));
-    });
+        expect(capturedColors.bg, const Color(0xFFFAF8F5));
+        expect(capturedColors.pr, const Color(0xFF8C6D46));
+      },
+    );
   });
 }

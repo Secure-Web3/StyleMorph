@@ -136,7 +136,9 @@ class _BiometricLockScreenState extends ConsumerState<BiometricLockScreen> {
                           icon: _isAuthenticating
                               ? null
                               : const Icon(Icons.lock_open_rounded, size: 16),
-                          onPressed: _isAuthenticating ? null : _promptBiometric,
+                          onPressed: _isAuthenticating
+                              ? null
+                              : _promptBiometric,
                           child: _isAuthenticating
                               ? SizedBox(
                                   width: 18,
@@ -154,8 +156,11 @@ class _BiometricLockScreenState extends ConsumerState<BiometricLockScreen> {
                         Center(
                           child: TextButton.icon(
                             onPressed: _signOut,
-                            icon: Icon(Icons.logout_rounded,
-                                size: 14, color: colors.mu),
+                            icon: Icon(
+                              Icons.logout_rounded,
+                              size: 14,
+                              color: colors.mu,
+                            ),
                             label: Text(
                               strings.authBackOrSignOut,
                               style: TextStyle(

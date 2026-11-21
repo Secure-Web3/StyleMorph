@@ -12,7 +12,8 @@ import 'session_storage.dart';
 class SessionInfo {
   final String sessionId;
   final String deviceId;
-  final String deviceType; // 'mobile_web' | 'desktop_web' | 'mobile_app' | 'desktop_app'
+  final String
+  deviceType; // 'mobile_web' | 'desktop_web' | 'mobile_app' | 'desktop_app'
   final String deviceName;
   final String deviceModel;
   final String platform;
@@ -61,20 +62,20 @@ class SessionInfo {
   }
 
   Map<String, dynamic> toMap() => {
-        'sessionId': sessionId,
-        'deviceId': deviceId,
-        'deviceType': deviceType,
-        'deviceName': deviceName,
-        'deviceModel': deviceModel,
-        'platform': platform,
-        'osVersion': osVersion,
-        'userAgent': userAgent,
-        'isPrimary': isPrimary,
-        'isBlocked': isBlocked,
-        'isActive': isActive,
-        'createdAt': Timestamp.fromDate(createdAt),
-        'lastActiveAt': Timestamp.fromDate(lastActiveAt),
-      };
+    'sessionId': sessionId,
+    'deviceId': deviceId,
+    'deviceType': deviceType,
+    'deviceName': deviceName,
+    'deviceModel': deviceModel,
+    'platform': platform,
+    'osVersion': osVersion,
+    'userAgent': userAgent,
+    'isPrimary': isPrimary,
+    'isBlocked': isBlocked,
+    'isActive': isActive,
+    'createdAt': Timestamp.fromDate(createdAt),
+    'lastActiveAt': Timestamp.fromDate(lastActiveAt),
+  };
 
   SessionInfo copyWith({
     String? sessionId,
@@ -132,8 +133,8 @@ class SessionService {
   set lastActivityWriteTime(DateTime? val) => _lastActivityWriteTime = val;
 
   SessionService({FirebaseFirestore? firestore, FirebaseAuth? auth})
-      : _customFirestore = firestore,
-        _customAuth = auth;
+    : _customFirestore = firestore,
+      _customAuth = auth;
 
   // ── Persistent IDs ────────────────────────────────────────────────────────
 
@@ -197,7 +198,10 @@ class SessionService {
       String os = 'Web';
       if (ua.contains('Android')) {
         os = 'Android';
-      } else if (RegExp(r'iPhone|iPad|iPod', caseSensitive: false).hasMatch(ua)) {
+      } else if (RegExp(
+        r'iPhone|iPad|iPod',
+        caseSensitive: false,
+      ).hasMatch(ua)) {
         os = 'iOS';
       } else if (ua.contains('Windows')) {
         os = 'Windows';
@@ -313,7 +317,8 @@ class SessionService {
           .doc(deviceId)
           .get();
 
-      final isDeviceBlocked = blockedSnap.exists &&
+      final isDeviceBlocked =
+          blockedSnap.exists &&
           (blockedSnap.data()?['isBlocked'] as bool? ?? false);
 
       // 2. Fetch all existing sessions to handle Primary Device assignment
@@ -334,10 +339,7 @@ class SessionService {
         // If an existing session is primary, keep this session's existing isPrimary value
         final existingCurrentDoc = existingSessions
             .cast<QueryDocumentSnapshot<Map<String, dynamic>>?>()
-            .firstWhere(
-              (doc) => doc?.id == sessionId,
-              orElse: () => null,
-            );
+            .firstWhere((doc) => doc?.id == sessionId, orElse: () => null);
         isThisSessionPrimary =
             existingCurrentDoc?.data()['isPrimary'] as bool? ?? false;
       } else {
@@ -350,7 +352,7 @@ class SessionService {
               existingSessions.first;
           DateTime earliestTime =
               (earliestDoc.data()['createdAt'] as Timestamp?)?.toDate() ??
-                  DateTime.now();
+              DateTime.now();
 
           for (final doc in existingSessions) {
             final t = (doc.data()['createdAt'] as Timestamp?)?.toDate();
@@ -406,7 +408,8 @@ class SessionService {
         };
 
         // Throttle lastActiveAt updates to at most once every 15 minutes
-        final shouldUpdateLastActive = _lastActivityWriteTime == null ||
+        final shouldUpdateLastActive =
+            _lastActivityWriteTime == null ||
             now.toDate().difference(_lastActivityWriteTime!) >=
                 lastActiveThrottle;
 
@@ -439,7 +442,9 @@ class SessionService {
       // Enforce maximum of 5 concurrent active sessions upon login
       await enforceMaxActiveSessions(user.uid, sessionId);
 
-      debugPrint('[SessionService] Session upserted: $sessionId (primary: $isThisSessionPrimary)');
+      debugPrint(
+        '[SessionService] Session upserted: $sessionId (primary: $isThisSessionPrimary)',
+      );
     } catch (e) {
       debugPrint('[SessionService] upsertSession error: $e');
     }
@@ -471,10 +476,7 @@ class SessionService {
       }
 
       final batch = _firestore.batch();
-      batch.update(targetDocRef, {
-        'isBlocked': true,
-        'isActive': false,
-      });
+      batch.update(targetDocRef, {'isBlocked': true, 'isActive': false});
 
       final blockedDocRef = _firestore
           .collection('users')
@@ -491,7 +493,9 @@ class SessionService {
       });
 
       await batch.commit();
-      debugPrint('[SessionService] Blocked device $targetDeviceId on session $targetSessionId');
+      debugPrint(
+        '[SessionService] Blocked device $targetDeviceId on session $targetSessionId',
+      );
       return true;
     } catch (e) {
       debugPrint('[SessionService] blockDevice error: $e');
@@ -558,8 +562,10 @@ class SessionService {
         .collection('blocked_devices')
         .doc(deviceId)
         .snapshots()
-        .map((snap) =>
-            snap.exists && (snap.data()?['isBlocked'] as bool? ?? false));
+        .map(
+          (snap) =>
+              snap.exists && (snap.data()?['isBlocked'] as bool? ?? false),
+        );
   }
 
   // ── Revoke sessions ───────────────────────────────────────────────────────
@@ -618,7 +624,9 @@ class SessionService {
   // ── Streams ───────────────────────────────────────────────────────────────
 
   Stream<DocumentSnapshot<Map<String, dynamic>>?> watchCurrentSession(
-      String uid, String sessionId) {
+    String uid,
+    String sessionId,
+  ) {
     return _firestore
         .collection('users')
         .doc(uid)
@@ -683,7 +691,9 @@ class SessionService {
         return true;
       }
     } catch (e) {
-      debugPrint('[SessionService] checkSessionExpiryAndSignOutIfExpired error: $e');
+      debugPrint(
+        '[SessionService] checkSessionExpiryAndSignOutIfExpired error: $e',
+      );
     }
     return false;
   }
@@ -710,14 +720,17 @@ class SessionService {
       }).toList();
 
       if (activeDocs.length > maxConcurrentSessions) {
-        final nonCurrent =
-            activeDocs.where((d) => d.id != currentSessionId).toList();
+        final nonCurrent = activeDocs
+            .where((d) => d.id != currentSessionId)
+            .toList();
 
         nonCurrent.sort((a, b) {
-          final tA = (a.data()['lastActiveAt'] as Timestamp?)?.toDate() ??
+          final tA =
+              (a.data()['lastActiveAt'] as Timestamp?)?.toDate() ??
               (a.data()['createdAt'] as Timestamp?)?.toDate() ??
               DateTime.fromMillisecondsSinceEpoch(0);
-          final tB = (b.data()['lastActiveAt'] as Timestamp?)?.toDate() ??
+          final tB =
+              (b.data()['lastActiveAt'] as Timestamp?)?.toDate() ??
               (b.data()['createdAt'] as Timestamp?)?.toDate() ??
               DateTime.fromMillisecondsSinceEpoch(0);
           return tA.compareTo(tB);
@@ -766,9 +779,7 @@ class SessionService {
 
       final doc = await docRef.get();
       if (doc.exists && (doc.data()?['isActive'] as bool? ?? true)) {
-        await docRef.update({
-          'lastActiveAt': FieldValue.serverTimestamp(),
-        });
+        await docRef.update({'lastActiveAt': FieldValue.serverTimestamp()});
         _lastActivityWriteTime = DateTime.now();
         debugPrint(
           '[SessionService] Throttled lastActiveAt updated in Firestore for $sessionId',

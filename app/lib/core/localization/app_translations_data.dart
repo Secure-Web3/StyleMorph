@@ -2,31 +2,15 @@
 /// mock catalog items, dropdown values, and dynamic labels whose canonical ID is Persian.
 const Map<String, Map<String, String>> kDomainTranslations = {
   // ── User / Plan / Shell ─────────────────────────────────────────────────
-  'سارا احمدی': {
-    'en': 'Sara Ahmadi',
-    'ar': 'سارة أحمدي',
-    'tr': 'Sara Ahmadi',
-  },
+  'سارا احمدی': {'en': 'Sara Ahmadi', 'ar': 'سارة أحمدي', 'tr': 'Sara Ahmadi'},
   'عادی (رایگان)': {
     'en': 'Basic (Free)',
     'ar': 'عادي (مجاني)',
     'tr': 'Temel (Ücretsiz)',
   },
-  'پلن Plus': {
-    'en': 'Plus Plan',
-    'ar': 'خطة Plus',
-    'tr': 'Plus Planı',
-  },
-  'پلن Pro': {
-    'en': 'Pro Plan',
-    'ar': 'خطة Pro',
-    'tr': 'Pro Planı',
-  },
-  'پلن Ultra': {
-    'en': 'Ultra Plan',
-    'ar': 'خطة Ultra',
-    'tr': 'Ultra Planı',
-  },
+  'پلن Plus': {'en': 'Plus Plan', 'ar': 'خطة Plus', 'tr': 'Plus Planı'},
+  'پلن Pro': {'en': 'Pro Plan', 'ar': 'خطة Pro', 'tr': 'Pro Planı'},
+  'پلن Ultra': {'en': 'Ultra Plan', 'ar': 'خطة Ultra', 'tr': 'Ultra Planı'},
   'سلام! چطور می‌تونم کمکتون کنم؟': {
     'en': 'Hello! How can I help you?',
     'ar': 'مرحباً! كيف يمكنني مساعدتك؟',
@@ -44,11 +28,7 @@ const Map<String, Map<String, String>> kDomainTranslations = {
     'ar': 'انتقل إلى إبداعاتي للمشاهدة والتحميل والمشاركة.',
     'tr': 'Görüntülemek, indirmek ve paylaşmak için Tasarımlarım’a gidin.',
   },
-  '۵ دقیقه پیش': {
-    'en': '5 min ago',
-    'ar': 'منذ ٥ دقائق',
-    'tr': '5 dk önce',
-  },
+  '۵ دقیقه پیش': {'en': '5 min ago', 'ar': 'منذ ٥ دقائق', 'tr': '5 dk önce'},
   'کت کتان بژ در لیست علاقه‌مندی‌های شما ۲۰٪ تخفیف خورد!': {
     'en': 'Beige linen coat in your wishlist is 20% off!',
     'ar': 'معطف الكتان البيج في قائمة رغباتك عليه خصم ٢٠٪!',
@@ -80,20 +60,20 @@ const Map<String, Map<String, String>> kDomainTranslations = {
     'tr': '1 saat önce',
   },
   'هوای امروز ۱۸ درجه و آفتابی است؛ رامین یک ست جدید از کمدتان آماده کرده!': {
-    'en': 'Today is 18°C & sunny; Ramin prepared a new outfit from your wardrobe!',
+    'en':
+        'Today is 18°C & sunny; Ramin prepared a new outfit from your wardrobe!',
     'ar': 'الطقس اليوم ١٨ درجة ومشمس؛ رامين جهّز لك إطلالة جديدة من خزانتك!',
-    'tr': 'Bugün hava 18°C ve güneşli; Ramin gardırobunuzdan yeni bir kombin hazırladı!',
+    'tr':
+        'Bugün hava 18°C ve güneşli; Ramin gardırobunuzdan yeni bir kombin hazırladı!',
   },
   'ست پیشنهادی بر اساس برنامه روزمره و پالت رنگی شما چیده شده است.': {
-    'en': 'Recommended outfit curated for your daily schedule and color palette.',
+    'en':
+        'Recommended outfit curated for your daily schedule and color palette.',
     'ar': 'تم تنسيق الإطلالة بناءً على جدولك اليومي ولوحة ألوانك.',
-    'tr': 'Günlük programınız ve renk paletinize göre önerilen kombin hazırlandı.',
+    'tr':
+        'Günlük programınız ve renk paletinize göre önerilen kombin hazırlandı.',
   },
-  '۲ ساعت پیش': {
-    'en': '2 hours ago',
-    'ar': 'منذ ساعتين',
-    'tr': '2 saat önce',
-  },
+  '۲ ساعت پیش': {'en': '2 hours ago', 'ar': 'منذ ساعتين', 'tr': '2 saat önce'},
 
   // ── Identity / AI DNA / Persona / Wallet / Referral Values ─────────────
   'سارا': {'en': 'Sara', 'ar': 'سارة', 'tr': 'Sara'},
@@ -105,16 +85,8 @@ const Map<String, Map<String, String>> kDomainTranslations = {
     'ar': 'شارع وليعصر، أعلى ساحة ونك، رقم ٢٤',
     'tr': 'Valiasr Cad., Vanak Meydanı yukarısı, No: 24',
   },
-  'گندمی روشن': {
-    'en': 'Light Wheat',
-    'ar': 'حنطي فاتح',
-    'tr': 'Açık Buğday',
-  },
-  'ساعت شنی': {
-    'en': 'Hourglass',
-    'ar': 'الساعة الرملية',
-    'tr': 'Kum Saati',
-  },
+  'گندمی روشن': {'en': 'Light Wheat', 'ar': 'حنطي فاتح', 'tr': 'Açık Buğday'},
+  'ساعت شنی': {'en': 'Hourglass', 'ar': 'الساعة الرملية', 'tr': 'Kum Saati'},
   'بیضی': {'en': 'Oval', 'ar': 'بيضاوي', 'tr': 'Oval'},
   'قهوه‌ای تیره - متوسط': {
     'en': 'Dark Brown - Medium',
@@ -346,18 +318,10 @@ const Map<String, Map<String, String>> kDomainTranslations = {
     'tr': 'Pamuk / Polyester',
   },
   'ویسکوز': {'en': 'Viscose', 'ar': 'فيسكوز', 'tr': 'Viskon'},
-  'چرم مصنوعی': {
-    'en': 'Faux Leather',
-    'ar': 'جلد صناعي',
-    'tr': 'Suni Deri',
-  },
+  'چرم مصنوعی': {'en': 'Faux Leather', 'ar': 'جلد صناعي', 'tr': 'Suni Deri'},
   'چرم': {'en': 'Leather', 'ar': 'جلد', 'tr': 'Deri'},
   'نایلون': {'en': 'Nylon', 'ar': 'نايلون', 'tr': 'Naylon'},
-  'چرم لاکی': {
-    'en': 'Patent Leather',
-    'ar': 'جلد لامع',
-    'tr': 'Rugan Deri',
-  },
+  'چرم لاکی': {'en': 'Patent Leather', 'ar': 'جلد لامع', 'tr': 'Rugan Deri'},
   'طلا': {'en': 'Gold', 'ar': 'ذهب', 'tr': 'Altın'},
   'نقره': {'en': 'Silver', 'ar': 'فضة', 'tr': 'Gümüş'},
   'پلاستیک': {'en': 'Acetate / Plastic', 'ar': 'بلاستيك', 'tr': 'Plastik'},
@@ -383,11 +347,7 @@ const Map<String, Map<String, String>> kDomainTranslations = {
     'ar': 'فستان سهرة أحمر',
     'tr': 'Kırmızı Abiye Elbise',
   },
-  'هودی طوسی': {
-    'en': 'Gray Hoodie',
-    'ar': 'هودي رمادي',
-    'tr': 'Gri Kapüşonlu',
-  },
+  'هودی طوسی': {'en': 'Gray Hoodie', 'ar': 'هودي رمادي', 'tr': 'Gri Kapüşonlu'},
   'مانتو بژ': {
     'en': 'Beige Trench Coat',
     'ar': 'معطف بيج',
@@ -463,16 +423,8 @@ const Map<String, Map<String, String>> kDomainTranslations = {
     'ar': 'نظارة شمسية',
     'tr': 'Güneş Gözlüğü',
   },
-  'شال سبز': {
-    'en': 'Green Wool Scarf',
-    'ar': 'وشاح أخضر',
-    'tr': 'Yeşil Şal',
-  },
-  'کمربند چرمی': {
-    'en': 'Leather Belt',
-    'ar': 'حزام جلدي',
-    'tr': 'Deri Kemer',
-  },
+  'شال سبز': {'en': 'Green Wool Scarf', 'ar': 'وشاح أخضر', 'tr': 'Yeşil Şal'},
+  'کمربند چرمی': {'en': 'Leather Belt', 'ar': 'حزام جلدي', 'tr': 'Deri Kemer'},
 
   // ── Shop Catalog ────────────────────────────────────────────────────────
   'پیراهن کتان آستین‌بلند': {
@@ -567,19 +519,55 @@ const Map<String, Map<String, String>> kDomainTranslations = {
   'ماوی': {'en': 'Mavi', 'ar': 'مافي', 'tr': 'Mavi'},
   'ری‌بن': {'en': 'Ray-Ban', 'ar': 'راي بان', 'tr': 'Ray-Ban'},
   'آدیداس': {'en': 'Adidas', 'ar': 'أديداس', 'tr': 'Adidas'},
-  'فروشگاه زارا': {'en': 'Zara Store', 'ar': 'متجر زارا', 'tr': 'Zara Mağazası'},
-  'بوتیک آرمان': {'en': 'Arman Boutique', 'ar': 'بوتيك أرمان', 'tr': 'Arman Butik'},
+  'فروشگاه زارا': {
+    'en': 'Zara Store',
+    'ar': 'متجر زارا',
+    'tr': 'Zara Mağazası',
+  },
+  'بوتیک آرمان': {
+    'en': 'Arman Boutique',
+    'ar': 'بوتيك أرمان',
+    'tr': 'Arman Butik',
+  },
   'دیجی‌استایل': {'en': 'DigiStyle', 'ar': 'ديجي ستايل', 'tr': 'DigiStyle'},
-  'نمایندگی نایک': {'en': 'Nike Official', 'ar': 'توكيل نايك', 'tr': 'Nike Yetkili Satıcı'},
+  'نمایندگی نایک': {
+    'en': 'Nike Official',
+    'ar': 'توكيل نايك',
+    'tr': 'Nike Yetkili Satıcı',
+  },
   'اسپرت‌لند': {'en': 'SportLand', 'ar': 'سبورت لاند', 'tr': 'SportLand'},
-  'گالری چرم رز': {'en': 'Rose Leather Gallery', 'ar': 'معرض جلد روز', 'tr': 'Rose Deri Galeri'},
+  'گالری چرم رز': {
+    'en': 'Rose Leather Gallery',
+    'ar': 'معرض جلد روز',
+    'tr': 'Rose Deri Galeri',
+  },
   'زمان‌سنج': {'en': 'ZamanSanj', 'ar': 'زمان سنج', 'tr': 'ZamanSanj'},
   'ساعت‌پلاس': {'en': 'SaatPlus', 'ar': 'ساعة بلس', 'tr': 'SaatPlus'},
-  'مد و مانتو سارا': {'en': 'Sara Fashion', 'ar': 'أزياء سارة', 'tr': 'Sara Moda'},
-  'آرایشی نگار': {'en': 'Negar Cosmetics', 'ar': 'مستحضرات نغار', 'tr': 'Negar Kozmetik'},
-  'نمایندگی ماوی': {'en': 'Mavi Official', 'ar': 'توكيل مافي', 'tr': 'Mavi Yetkili Satıcı'},
-  'گالری اپتیک': {'en': 'Optic Gallery', 'ar': 'معرض البصريات', 'tr': 'Optik Galeri'},
-  'نمایندگی آدیداس': {'en': 'Adidas Official', 'ar': 'توكيل أديداس', 'tr': 'Adidas Yetkili Satıcı'},
+  'مد و مانتو سارا': {
+    'en': 'Sara Fashion',
+    'ar': 'أزياء سارة',
+    'tr': 'Sara Moda',
+  },
+  'آرایشی نگار': {
+    'en': 'Negar Cosmetics',
+    'ar': 'مستحضرات نغار',
+    'tr': 'Negar Kozmetik',
+  },
+  'نمایندگی ماوی': {
+    'en': 'Mavi Official',
+    'ar': 'توكيل مافي',
+    'tr': 'Mavi Yetkili Satıcı',
+  },
+  'گالری اپتیک': {
+    'en': 'Optic Gallery',
+    'ar': 'معرض البصريات',
+    'tr': 'Optik Galeri',
+  },
+  'نمایندگی آدیداس': {
+    'en': 'Adidas Official',
+    'ar': 'توكيل أديداس',
+    'tr': 'Adidas Yetkili Satıcı',
+  },
   '۱ تا ۲ روز': {'en': '1-2 days', 'ar': '١ إلى ٢ يوم', 'tr': '1-2 gün'},
   '۲ تا ۳ روز': {'en': '2-3 days', 'ar': '٢ إلى ٣ أيام', 'tr': '2-3 gün'},
   '۳ تا ۵ روز': {'en': '3-5 days', 'ar': '٣ إلى ٥ أيام', 'tr': '3-5 gün'},
@@ -596,27 +584,83 @@ const Map<String, Map<String, String>> kDomainTranslations = {
     'ar': 'بوليستر بحشوة صناعية',
     'tr': 'Sentetik dolgulu polyester',
   },
-  'چرم طبیعی': {'en': 'Genuine Leather', 'ar': 'جلد طبيعي', 'tr': 'Hakiki Deri'},
-  'پارچه ضدآب': {'en': 'Waterproof fabric', 'ar': 'قماش مقاوم للماء', 'tr': 'Su geçirmez kumaş'},
-  'استیل ضدزنگ': {'en': 'Stainless steel', 'ar': 'فولاذ مقاوم للصدأ', 'tr': 'Paslanmaz çelik'},
-  'مس با آبکاری طلا': {'en': 'Gold-plated brass', 'ar': 'نحاس مطلي بالذهب', 'tr': 'Altın kaplama pirinç'},
+  'چرم طبیعی': {
+    'en': 'Genuine Leather',
+    'ar': 'جلد طبيعي',
+    'tr': 'Hakiki Deri',
+  },
+  'پارچه ضدآب': {
+    'en': 'Waterproof fabric',
+    'ar': 'قماش مقاوم للماء',
+    'tr': 'Su geçirmez kumaş',
+  },
+  'استیل ضدزنگ': {
+    'en': 'Stainless steel',
+    'ar': 'فولاذ مقاوم للصدأ',
+    'tr': 'Paslanmaz çelik',
+  },
+  'مس با آبکاری طلا': {
+    'en': 'Gold-plated brass',
+    'ar': 'نحاس مطلي بالذهب',
+    'tr': 'Altın kaplama pirinç',
+  },
   'نخ ۱۰۰٪': {'en': '100% Cotton', 'ar': 'قطن ١٠٠٪', 'tr': '%100 Pamuk'},
-  'جین ۹۸٪ پنبه': {'en': '98% Cotton Denim', 'ar': 'جينز ٩٨٪ قطن', 'tr': '%98 Pamuklu Kot'},
-  'فرمول مات ضدلک': {'en': 'Smudge-proof matte formula', 'ar': 'تركيبة مطفية ثابتة', 'tr': 'Leke bırakmayan mat formül'},
-  'پودری پیگمنت بالا': {'en': 'High-pigment powder', 'ar': 'بودرة عالية التصبغ', 'tr': 'Yüksek pigmentli pudra'},
-  'ترکیب پشم و پلی‌استر': {'en': 'Wool & polyester blend', 'ar': 'مزيج صوف وبوليستر', 'tr': 'Yün ve polyester karışımı'},
-  'فریم فلزی، لنز پلاریزه': {'en': 'Metal frame, polarized lens', 'ar': 'إطار معدني وعدسة مستقطبة', 'tr': 'Metal çerçeve, polarize cam'},
-  'نخ و پلی‌استر': {'en': 'Cotton & polyester', 'ar': 'قطن وبوليستر', 'tr': 'Pamuk ve polyester'},
+  'جین ۹۸٪ پنبه': {
+    'en': '98% Cotton Denim',
+    'ar': 'جينز ٩٨٪ قطن',
+    'tr': '%98 Pamuklu Kot',
+  },
+  'فرمول مات ضدلک': {
+    'en': 'Smudge-proof matte formula',
+    'ar': 'تركيبة مطفية ثابتة',
+    'tr': 'Leke bırakmayan mat formül',
+  },
+  'پودری پیگمنت بالا': {
+    'en': 'High-pigment powder',
+    'ar': 'بودرة عالية التصبغ',
+    'tr': 'Yüksek pigmentli pudra',
+  },
+  'ترکیب پشم و پلی‌استر': {
+    'en': 'Wool & polyester blend',
+    'ar': 'مزيج صوف وبوليستر',
+    'tr': 'Yün ve polyester karışımı',
+  },
+  'فریم فلزی، لنز پلاریزه': {
+    'en': 'Metal frame, polarized lens',
+    'ar': 'إطار معدني وعدسة مستقطبة',
+    'tr': 'Metal çerçeve, polarize cam',
+  },
+  'نخ و پلی‌استر': {
+    'en': 'Cotton & polyester',
+    'ar': 'قطن وبوليستر',
+    'tr': 'Pamuk ve polyester',
+  },
   'شلوار جین آبی': {'en': 'Blue jeans', 'ar': 'جينز أزرق', 'tr': 'Mavi kot'},
-  'کیف دوشی بژ': {'en': 'Beige shoulder bag', 'ar': 'حقيبة كتف بيج', 'tr': 'Bej omuz çantası'},
-  'ست ورزشی مشکی': {'en': 'Black sport set', 'ar': 'طقم رياضي أسود', 'tr': 'Siyah spor takımı'},
-  'کفش ورزشی سفید': {'en': 'White sneakers', 'ar': 'حذاء رياضي أبيض', 'tr': 'Beyaz spor ayakkabı'},
+  'کیف دوشی بژ': {
+    'en': 'Beige shoulder bag',
+    'ar': 'حقيبة كتف بيج',
+    'tr': 'Bej omuz çantası',
+  },
+  'ست ورزشی مشکی': {
+    'en': 'Black sport set',
+    'ar': 'طقم رياضي أسود',
+    'tr': 'Siyah spor takımı',
+  },
+  'کفش ورزشی سفید': {
+    'en': 'White sneakers',
+    'ar': 'حذاء رياضي أبيض',
+    'tr': 'Beyaz spor ayakkabı',
+  },
   'پیراهن کتان': {'en': 'Linen shirt', 'ar': 'قميص كتان', 'tr': 'Keten gömlek'},
   'شال نخی': {'en': 'Cotton scarf', 'ar': 'وشاح قطني', 'tr': 'Pamuklu şal'},
   'کت اسپرت': {'en': 'Casual blazer', 'ar': 'بليزر كاجوال', 'tr': 'Spor ceket'},
   'کیف دوشی': {'en': 'Shoulder bag', 'ar': 'حقيبة كتف', 'tr': 'Omuz çantası'},
   'شلوار جین': {'en': 'Denim jeans', 'ar': 'بنطال جينز', 'tr': 'Kot pantolon'},
-  'ساعت کلاسیک': {'en': 'Classic watch', 'ar': 'ساعة كلاسيكية', 'tr': 'Klasik saat'},
+  'ساعت کلاسیک': {
+    'en': 'Classic watch',
+    'ar': 'ساعة كلاسيكية',
+    'tr': 'Klasik saat',
+  },
 
   // ── Stylist Catalog ─────────────────────────────────────────────────────
   'ست راحت شهری': {
@@ -713,9 +757,12 @@ const Map<String, Map<String, String>> kDomainTranslations = {
     'tr': 'Ultra detaylı işleme ve stüdyo aydınlatması',
   },
   'سلام سارا عزیز! امروز هوا ۱۸ درجه و آفتابی‌ست. با توجه به برنامه کاری امروز، این ست راحت و شیک شهری را از کمد خودتان پیشنهاد می‌کنم.': {
-    'en': 'Hi Sara! Today is 18°C and sunny. Based on your schedule, I recommend this chic urban casual outfit from your wardrobe.',
-    'ar': 'مرحباً سارة! الطقس اليوم ١٨ درجة ومشمس. بناءً على جدولك، أقترح هذه الإطلالة الأنيقة من خزانتك.',
-    'tr': 'Merhaba Sara! Bugün hava 18°C ve güneşli. Programına göre gardırobundan bu şık şehir kombinini öneriyorum.',
+    'en':
+        'Hi Sara! Today is 18°C and sunny. Based on your schedule, I recommend this chic urban casual outfit from your wardrobe.',
+    'ar':
+        'مرحباً سارة! الطقس اليوم ١٨ درجة ومشمس. بناءً على جدولك، أقترح هذه الإطلالة الأنيقة من خزانتك.',
+    'tr':
+        'Merhaba Sara! Bugün hava 18°C ve güneşli. Programına göre gardırobundan bu şık şehir kombinini öneriyorum.',
   },
   'یک گزینه رسمی‌تر هم برای جلسه عصر در نظر داری؟': {
     'en': 'Do you have a more formal option for the evening meeting?',
@@ -723,9 +770,12 @@ const Map<String, Map<String, String>> kDomainTranslations = {
     'tr': 'Akşam toplantısı için daha resmi bir seçeneğin var mı?',
   },
   'بله حتماً! می‌توانیم کت سرمه‌ای را با کفش رسمی طوسی جایگزین کنیم تا کاملاً حالت کاری و فاخر به خود بگیرد.': {
-    'en': 'Absolutely! We can swap in a navy blazer and gray formal shoes for a sharp executive look.',
-    'ar': 'بالتأكيد! يمكننا استبدال السترة الكحلية مع حذاء رمادي رسمي لإطلالة عمل أنيقة.',
-    'tr': 'Elbette! Lacivert ceket ve gri klasik ayakkabı ile tam bir iş görünümü elde edebiliriz.',
+    'en':
+        'Absolutely! We can swap in a navy blazer and gray formal shoes for a sharp executive look.',
+    'ar':
+        'بالتأكيد! يمكننا استبدال السترة الكحلية مع حذاء رمادي رسمي لإطلالة عمل أنيقة.',
+    'tr':
+        'Elbette! Lacivert ceket ve gri klasik ayakkabı ile tam bir iş görünümü elde edebiliriz.',
   },
 
   // ── Atelier Templates & Statuses ────────────────────────────────────────
@@ -878,7 +928,11 @@ const Map<String, Map<String, String>> kDomainTranslations = {
   },
   'پس‌زمینه': {'en': 'Background', 'ar': 'الخلفية', 'tr': 'Arka Plan'},
   'نورپردازی': {'en': 'Lighting', 'ar': 'الإضاءة', 'tr': 'Aydınlatma'},
-  'نسبت ابعاد': {'en': 'Aspect Ratio', 'ar': 'نسبة العرض', 'tr': 'En-Boy Oranı'},
+  'نسبت ابعاد': {
+    'en': 'Aspect Ratio',
+    'ar': 'نسبة العرض',
+    'tr': 'En-Boy Oranı',
+  },
   'نور': {'en': 'Light', 'ar': 'الإضاءة', 'tr': 'Işık'},
   'لباس': {'en': 'Outfit', 'ar': 'الملابس', 'tr': 'Kıyafet'},
   'نسبت تصویر': {'en': 'Ratio', 'ar': 'النسبة', 'tr': 'Oran'},
@@ -887,7 +941,11 @@ const Map<String, Map<String, String>> kDomainTranslations = {
   'محیط شهر': {'en': 'City Scene', 'ar': 'مشهد المدينة', 'tr': 'Şehir Ortamı'},
   'نور طلایی': {'en': 'Golden Hour', 'ar': 'الضوء الذهبي', 'tr': 'Altın Saat'},
   'لباس کمد': {'en': 'Wardrobe Fit', 'ar': 'من خزانتك', 'tr': 'Gardıroptan'},
-  'کادر عمودی': {'en': 'Portrait Frame', 'ar': 'إطار عمودي', 'tr': 'Dikey Kadraj'},
+  'کادر عمودی': {
+    'en': 'Portrait Frame',
+    'ar': 'إطار عمودي',
+    'tr': 'Dikey Kadraj',
+  },
   'کادر': {'en': 'Framing', 'ar': 'الإطار', 'tr': 'Kadraj'},
   'موقعیت کافه': {'en': 'Café Scene', 'ar': 'موقع المقهى', 'tr': 'Kafe Ortamı'},
   'نور عصر': {'en': 'Evening Light', 'ar': 'ضوء المساء', 'tr': 'Akşam Işığı'},
@@ -896,7 +954,11 @@ const Map<String, Map<String, String>> kDomainTranslations = {
   'باشگاه': {'en': 'Gym', 'ar': 'النادي', 'tr': 'Spor Salonu'},
   'نور نئونی': {'en': 'Neon Light', 'ar': 'إضاءة نيون', 'tr': 'Neon Işık'},
   'اکسسوری': {'en': 'Accessories', 'ar': 'إكسسوارات', 'tr': 'Aksesuar'},
-  'تغییر ست': {'en': 'Outfit Switch', 'ar': 'تبديل الإطلالة', 'tr': 'Kombin Geçişi'},
+  'تغییر ست': {
+    'en': 'Outfit Switch',
+    'ar': 'تبديل الإطلالة',
+    'tr': 'Kombin Geçişi',
+  },
   'نسبت ۹:۱۶': {'en': '9:16 Ratio', 'ar': 'نسبة ٩:١٦', 'tr': '9:16 Oran'},
   'در صف': {'en': 'Queued', 'ar': 'في الانتظار', 'tr': 'Sırada'},
   'در حال ساخت': {'en': 'Rendering', 'ar': 'قيد الإنشاء', 'tr': 'İşleniyor'},
@@ -1133,11 +1195,17 @@ const Map<String, Map<String, String>> kDomainTranslations = {
   },
   'وضعیت خوب': {'en': 'Good Status', 'ar': 'حالة جيدة', 'tr': 'İyi Durum'},
   'بر اساس روتین مراقبت و عکس‌های پروفایل شما؛ قضاوتی درباره چهره نیست.': {
-    'en': 'Based on your skincare routine & profile photos; non-judgmental assessment.',
+    'en':
+        'Based on your skincare routine & profile photos; non-judgmental assessment.',
     'ar': 'بناءً على روتين العناية وصور ملفك؛ تقييم موضوعي بدون أحكام.',
-    'tr': 'Bakım rutininiz ve profil fotoğraflarınıza dayalı; yargılamayan analiz.',
+    'tr':
+        'Bakım rutininiz ve profil fotoğraflarınıza dayalı; yargılamayan analiz.',
   },
-  'مراقبت منظم': {'en': 'Routine Consistency', 'ar': 'انتظام العناية', 'tr': 'Düzenli Bakım'},
+  'مراقبت منظم': {
+    'en': 'Routine Consistency',
+    'ar': 'انتظام العناية',
+    'tr': 'Düzenli Bakım',
+  },
   'وضعیت پوست': {'en': 'Skin Health', 'ar': 'حالة البشرة', 'tr': 'Cilt Durumu'},
   'وضعیت مو': {'en': 'Hair Health', 'ar': 'حالة الشعر', 'tr': 'Saç Durumu'},
   'روتین‌های امروز شما': {
@@ -1196,9 +1264,17 @@ const Map<String, Map<String, String>> kDomainTranslations = {
     'ar': 'بناءً على نومك وتغذيتك ونشاطك خلال الأسبوع الماضي.',
     'tr': 'Son haftadaki uyku, beslenme ve aktivitenize göre.',
   },
-  'کیفیت خواب': {'en': 'Sleep Quality', 'ar': 'جودة النوم', 'tr': 'Uyku Kalitesi'},
+  'کیفیت خواب': {
+    'en': 'Sleep Quality',
+    'ar': 'جودة النوم',
+    'tr': 'Uyku Kalitesi',
+  },
   'تغذیه': {'en': 'Nutrition', 'ar': 'التغذية', 'tr': 'Beslenme'},
-  'فعالیت بدنی': {'en': 'Physical Activity', 'ar': 'النشاط البدني', 'tr': 'Fiziksel Aktivite'},
+  'فعالیت بدنی': {
+    'en': 'Physical Activity',
+    'ar': 'النشاط البدني',
+    'tr': 'Fiziksel Aktivite',
+  },
   'خواب': {'en': 'Sleep', 'ar': 'النوم', 'tr': 'Uyku'},
   'ورزش': {'en': 'Workout', 'ar': 'التمارين', 'tr': 'Egzersiz'},
   'پیشنهاد وعده غذایی سالم': {
@@ -1259,15 +1335,28 @@ const Map<String, Map<String, String>> kDomainTranslations = {
     'ar': 'سجّل مزاجك اليوم',
     'tr': 'Bugünkü Ruh Halini Kaydet',
   },
-  'وضعیت متعادل': {'en': 'Balanced', 'ar': 'حالة متوازنة', 'tr': 'Dengeli Durum'},
+  'وضعیت متعادل': {
+    'en': 'Balanced',
+    'ar': 'حالة متوازنة',
+    'tr': 'Dengeli Durum',
+  },
   'بر اساس ثبت خلق‌وخو، خواب و استرس روزانه؛ تشخیص پزشکی نیست.': {
     'en': 'Based on daily mood, sleep & stress logs; not a medical diagnosis.',
     'ar': 'بناءً على تسجيل المزاج والنوم والتوتر؛ ليس تشخيصاً طبياً.',
-    'tr': 'Günlük ruh hali, uyku ve stres verilerine göre; tıbbi tanı değildir.',
+    'tr':
+        'Günlük ruh hali, uyku ve stres verilerine göre; tıbbi tanı değildir.',
   },
   'خلق‌وخو': {'en': 'Mood', 'ar': 'المزاج', 'tr': 'Ruh Hali'},
-  'کنترل استرس': {'en': 'Stress Control', 'ar': 'إدارة التوتر', 'tr': 'Stres Kontrolü'},
-  'کیفیت استراحت': {'en': 'Rest Quality', 'ar': 'جودة الراحة', 'tr': 'Dinlenme Kalitesi'},
+  'کنترل استرس': {
+    'en': 'Stress Control',
+    'ar': 'إدارة التوتر',
+    'tr': 'Stres Kontrolü',
+  },
+  'کیفیت استراحت': {
+    'en': 'Rest Quality',
+    'ar': 'جودة الراحة',
+    'tr': 'Dinlenme Kalitesi',
+  },
   'تمرین تنفس ۳ دقیقه‌ای': {
     'en': '3-Minute Breathing Exercise',
     'ar': 'تمرين تنفس لمدة ٣ دقائق',
@@ -1309,25 +1398,45 @@ const Map<String, Map<String, String>> kDomainTranslations = {
     'tr': 'Onayla ve Simülatörü Başlat',
   },
   'اگر به اهداف ورزشی و روتین‌های مراقبتی خود متعهد بمانید، چهره و اندام شما چه تغییری می‌کند؟': {
-    'en': 'If you stay consistent with your workouts and care routines, how will your face and posture evolve?',
-    'ar': 'إذا التزمت بأهدافك الرياضية وروتين العناية، كيف سيتغير مظهرك وقوامك؟',
-    'tr': 'Egzersiz ve bakım rutinlerinize bağlı kalırsanız yüzünüz ve duruşunuz nasıl gelişir?',
+    'en':
+        'If you stay consistent with your workouts and care routines, how will your face and posture evolve?',
+    'ar':
+        'إذا التزمت بأهدافك الرياضية وروتين العناية، كيف سيتغير مظهرك وقوامك؟',
+    'tr':
+        'Egzersiz ve bakım rutinlerinize bağlı kalırsanız yüzünüz ve duruşunuz nasıl gelişir?',
   },
   '۳ ماه': {'en': '3 Months', 'ar': '٣ أشهر', 'tr': '3 Ay'},
   '۶ ماه': {'en': '6 Months', 'ar': '٦ أشهر', 'tr': '6 Ay'},
   '۱ سال': {'en': '1 Year', 'ar': 'سنة واحدة', 'tr': '1 Yıl'},
-  'وضعیت فعلی': {'en': 'Current State', 'ar': 'الحالة الحالية', 'tr': 'Mevcut Durum'},
-  'خودِ آینده': {'en': 'Future Self', 'ar': 'ذاتك المستقبلية', 'tr': 'Gelecekteki Ben'},
-  'پیش‌نمایش آینده': {'en': 'Future Preview', 'ar': 'معاينة المستقبل', 'tr': 'Gelecek Önizlemesi'},
+  'وضعیت فعلی': {
+    'en': 'Current State',
+    'ar': 'الحالة الحالية',
+    'tr': 'Mevcut Durum',
+  },
+  'خودِ آینده': {
+    'en': 'Future Self',
+    'ar': 'ذاتك المستقبلية',
+    'tr': 'Gelecekteki Ben',
+  },
+  'پیش‌نمایش آینده': {
+    'en': 'Future Preview',
+    'ar': 'معاينة المستقبل',
+    'tr': 'Gelecek Önizlemesi',
+  },
   'تغییرات پیش‌بینی‌شده کاملاً فیزیولوژیک و واقع‌بینانه هستند و هرگز چهره غیرواقعی تولید نمی‌کنند. این تحلیل جایگزین مشاوره پزشکی نیست.': {
-    'en': 'Projected changes are strictly physiological and realistic without artificial facial distortion. Not a substitute for medical advice.',
-    'ar': 'التغييرات المتوقعة فيزيولوجية وواقعية تماماً ولا تنتج ملامح غير طبيعية، ولا تغني عن الاستشارة الطبية.',
-    'tr': 'Öngörülen değişimler tamamen fizyolojik ve gerçekçidir; tıbbi tavsiye yerine geçmez.',
+    'en':
+        'Projected changes are strictly physiological and realistic without artificial facial distortion. Not a substitute for medical advice.',
+    'ar':
+        'التغييرات المتوقعة فيزيولوجية وواقعية تماماً ولا تنتج ملامح غير طبيعية، ولا تغني عن الاستشارة الطبية.',
+    'tr':
+        'Öngörülen değişimler tamamen fizyolojik ve gerçekçidir; tıbbi tavsiye yerine geçmez.',
   },
   'می‌پذیرم که ۱۰ سکه کسر شود و نتیجه یک شبیه‌سازی آماری است.': {
-    'en': 'I agree to deduct 10 Coins and acknowledge this is a statistical simulation.',
+    'en':
+        'I agree to deduct 10 Coins and acknowledge this is a statistical simulation.',
     'ar': 'أوافق على خصم ١٠ عملات وأقرّ بأن النتيجة محاكاة إحصائية.',
-    'tr': '10 Jeton düşülmesini ve sonucun istatistiksel bir simülasyon olduğunu kabul ediyorum.',
+    'tr':
+        '10 Jeton düşülmesini ve sonucun istatistiksel bir simülasyon olduğunu kabul ediyorum.',
   },
   'ذخیره در پرونده سلامت': {
     'en': 'Save to Health Record',
@@ -1356,9 +1465,21 @@ const Map<String, Map<String, String>> kDomainTranslations = {
     'ar': 'ساعات النوم ليلة أمس',
     'tr': 'Dün Geceki Uyku Süresi',
   },
-  'کمتر از ۶ ساعت': {'en': 'Under 6 hours', 'ar': 'أقل من ٦ ساعات', 'tr': '6 saatten az'},
-  '۶ تا ۸ ساعت': {'en': '6 to 8 hours', 'ar': '٦ إلى ٨ ساعات', 'tr': '6 - 8 saat'},
-  'بیشتر از ۸ ساعت': {'en': 'Over 8 hours', 'ar': 'أكثر من ٨ ساعات', 'tr': '8 saatten fazla'},
+  'کمتر از ۶ ساعت': {
+    'en': 'Under 6 hours',
+    'ar': 'أقل من ٦ ساعات',
+    'tr': '6 saatten az',
+  },
+  '۶ تا ۸ ساعت': {
+    'en': '6 to 8 hours',
+    'ar': '٦ إلى ٨ ساعات',
+    'tr': '6 - 8 saat',
+  },
+  'بیشتر از ۸ ساعت': {
+    'en': 'Over 8 hours',
+    'ar': 'أكثر من ٨ ساعات',
+    'tr': '8 saatten fazla',
+  },
   'وزن امروز (کیلوگرم - اختیاری)': {
     'en': 'Today’s Weight (kg - optional)',
     'ar': 'الوزن اليوم (كجم - اختياري)',

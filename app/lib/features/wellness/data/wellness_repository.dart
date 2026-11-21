@@ -5,31 +5,19 @@ class WellnessRepository {
   static const WellnessScore _beautyScore = WellnessScore(
     total: 80,
     status: 'خوب',
-    subScores: {
-      'مراقبت منظم': 75,
-      'وضعیت پوست': 82,
-      'وضعیت مو': 84,
-    },
+    subScores: {'مراقبت منظم': 75, 'وضعیت پوست': 82, 'وضعیت مو': 84},
   );
 
   static const WellnessScore _healthScore = WellnessScore(
     total: 85,
     status: 'خوب',
-    subScores: {
-      'کیفیت خواب': 88,
-      'تغذیه سالم': 80,
-      'فعالیت بدنی': 82,
-    },
+    subScores: {'کیفیت خواب': 88, 'تغذیه سالم': 80, 'فعالیت بدنی': 82},
   );
 
   static const WellnessScore _mindScore = WellnessScore(
     total: 70,
     status: 'متوسط',
-    subScores: {
-      'خلق‌وخو': 72,
-      'کنترل استرس': 65,
-      'کیفیت استراحت': 74,
-    },
+    subScores: {'خلق‌وخو': 72, 'کنترل استرس': 65, 'کیفیت استراحت': 74},
   );
 
   static final List<WellnessTask> _initialTasks = [

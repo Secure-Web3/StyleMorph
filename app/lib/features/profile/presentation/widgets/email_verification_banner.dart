@@ -73,9 +73,9 @@ class EmailVerificationBanner extends ConsumerWidget {
               const SizedBox(height: AppSpacing.sm),
               Text(
                 strings.emailVerificationBannerDesc,
-                style: AppTypography.caption(color: colors.mu).copyWith(
-                  height: 1.45,
-                ),
+                style: AppTypography.caption(
+                  color: colors.mu,
+                ).copyWith(height: 1.45),
               ),
               const SizedBox(height: AppSpacing.md),
               Wrap(
@@ -91,16 +91,18 @@ class EmailVerificationBanner extends ConsumerWidget {
                     text: verificationState.isResending
                         ? null
                         : (verificationState.cooldownSeconds > 0
-                            ? strings.authEmailResendCooldown(
-                                verificationState.cooldownSeconds)
-                            : strings.authEmailResendBtn),
-                    onPressed: (verificationState.cooldownSeconds > 0 ||
+                              ? strings.authEmailResendCooldown(
+                                  verificationState.cooldownSeconds,
+                                )
+                              : strings.authEmailResendBtn),
+                    onPressed:
+                        (verificationState.cooldownSeconds > 0 ||
                             verificationState.isResending ||
                             verificationState.isChecking)
                         ? null
                         : () async {
-                            final success =
-                                await notifier.resendVerificationEmail();
+                            final success = await notifier
+                                .resendVerificationEmail();
                             if (!context.mounted) return;
                             if (success) {
                               AppFeedback.showSuccess(
@@ -133,12 +135,13 @@ class EmailVerificationBanner extends ConsumerWidget {
                     text: verificationState.isChecking
                         ? null
                         : strings.authEmailCheckBtn,
-                    onPressed: (verificationState.isChecking ||
+                    onPressed:
+                        (verificationState.isChecking ||
                             verificationState.isResending)
                         ? null
                         : () async {
-                            final verified =
-                                await notifier.reloadAndCheckVerification();
+                            final verified = await notifier
+                                .reloadAndCheckVerification();
                             if (!context.mounted) return;
                             if (verified) {
                               AppFeedback.showSuccess(

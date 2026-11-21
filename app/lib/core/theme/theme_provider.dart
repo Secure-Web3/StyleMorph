@@ -26,11 +26,7 @@ class ThemeState {
     return mode == ThemeMode.dark;
   }
 
-  ThemeState copyWith({
-    AppPalette? palette,
-    ThemeMode? mode,
-    bool? isDark,
-  }) {
+  ThemeState copyWith({AppPalette? palette, ThemeMode? mode, bool? isDark}) {
     return ThemeState(
       palette: palette ?? this.palette,
       mode: mode ?? this.mode,
@@ -49,13 +45,13 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   StreamSubscription<User?>? _authSubscription;
 
   ThemeNotifier()
-      : super(
-          const ThemeState(
-            palette: AppPalette.editorial, // Luxury Editorial Default
-            mode: ThemeMode.light,        // Light Mode Default
-            isDark: false,
-          ),
-        ) {
+    : super(
+        const ThemeState(
+          palette: AppPalette.editorial, // Luxury Editorial Default
+          mode: ThemeMode.light, // Light Mode Default
+          isDark: false,
+        ),
+      ) {
     _loadFromLocalPrefs();
     _initAuthListener();
   }
@@ -111,8 +107,9 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   void _initAuthListener() {
     try {
       if (Firebase.apps.isNotEmpty) {
-        _authSubscription =
-            FirebaseAuth.instance.authStateChanges().listen((user) {
+        _authSubscription = FirebaseAuth.instance.authStateChanges().listen((
+          user,
+        ) {
           if (user != null) {
             _loadUserThemeFromFirestore(user.uid);
           }
@@ -124,8 +121,10 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   Future<void> _loadUserThemeFromFirestore(String uid) async {
     try {
       if (Firebase.apps.isEmpty) return;
-      final doc =
-          await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .get();
       final data = doc.data();
       if (data != null) {
         Map<String, dynamic>? themeMap;
@@ -142,39 +141,39 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
           final paletteStr = themeMap['palette']?.toString();
           final modeStr = themeMap['mode']?.toString();
 
-        AppPalette? palette;
-        if (paletteStr != null) {
-          for (final p in AppPalette.values) {
-            if (p.name == paletteStr) {
-              palette = p;
-              break;
+          AppPalette? palette;
+          if (paletteStr != null) {
+            for (final p in AppPalette.values) {
+              if (p.name == paletteStr) {
+                palette = p;
+                break;
+              }
             }
           }
-        }
 
-        ThemeMode? mode;
-        if (modeStr != null) {
-          for (final m in ThemeMode.values) {
-            if (m.name == modeStr) {
-              mode = m;
-              break;
+          ThemeMode? mode;
+          if (modeStr != null) {
+            for (final m in ThemeMode.values) {
+              if (m.name == modeStr) {
+                mode = m;
+                break;
+              }
             }
           }
-        }
 
-        if (palette != null || mode != null) {
-          final newPalette = palette ?? state.palette;
-          final newMode = mode ?? state.mode;
-          state = state.copyWith(
-            palette: newPalette,
-            mode: newMode,
-            isDark: _resolveDarkFlag(newMode),
-          );
-          _saveToLocalPrefs();
+          if (palette != null || mode != null) {
+            final newPalette = palette ?? state.palette;
+            final newMode = mode ?? state.mode;
+            state = state.copyWith(
+              palette: newPalette,
+              mode: newMode,
+              isDark: _resolveDarkFlag(newMode),
+            );
+            _saveToLocalPrefs();
+          }
         }
       }
-    }
-  } catch (e) {
+    } catch (e) {
       debugPrint('[ThemeNotifier] _loadUserThemeFromFirestore error: $e');
     }
   }
@@ -195,10 +194,7 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
-        'theme': {
-          'palette': state.palette.name,
-          'mode': state.mode.name,
-        },
+        'theme': {'palette': state.palette.name, 'mode': state.mode.name},
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
     } catch (e) {
@@ -234,10 +230,7 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
   }
 
   void setThemeMode(ThemeMode mode) {
-    state = state.copyWith(
-      mode: mode,
-      isDark: _resolveDarkFlag(mode),
-    );
+    state = state.copyWith(mode: mode, isDark: _resolveDarkFlag(mode));
     _saveToLocalPrefs();
     _saveUserThemeToFirestore();
   }

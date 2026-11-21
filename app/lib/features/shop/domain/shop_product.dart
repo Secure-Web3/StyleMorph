@@ -76,7 +76,8 @@ class ShopProduct {
     int maxDisc = 0;
     for (final s in sellers) {
       if (s.originalPrice != null && s.originalPrice! > s.price) {
-        final d = ((s.originalPrice! - s.price) / s.originalPrice! * 100).round();
+        final d = ((s.originalPrice! - s.price) / s.originalPrice! * 100)
+            .round();
         if (d > maxDisc) maxDisc = d;
       }
     }

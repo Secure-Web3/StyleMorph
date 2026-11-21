@@ -103,9 +103,7 @@ class WardrobeState {
 
   int countByCategory(String cat) {
     if (cat == 'all') return items.where((e) => !e.isArchived).length;
-    return items
-        .where((e) => e.category == cat && !e.isArchived)
-        .length;
+    return items.where((e) => e.category == cat && !e.isArchived).length;
   }
 }
 
@@ -113,30 +111,21 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
   final WardrobeRepository _repo;
 
   WardrobeNotifier(this._repo)
-      : super(
-          WardrobeState(
-            items: _repo.getItems(),
-            filter: const WardrobeFilter(),
-          ),
-        );
+    : super(
+        WardrobeState(items: _repo.getItems(), filter: const WardrobeFilter()),
+      );
 
   void setCategory(String cat) {
-    state = state.copyWith(
-      filter: state.filter.copyWith(category: cat),
-    );
+    state = state.copyWith(filter: state.filter.copyWith(category: cat));
   }
 
   void setSearch(String query) {
-    state = state.copyWith(
-      filter: state.filter.copyWith(searchQuery: query),
-    );
+    state = state.copyWith(filter: state.filter.copyWith(searchQuery: query));
   }
 
   void setColorFilter(String hex) {
     final newHex = state.filter.colorFilter == hex ? '' : hex;
-    state = state.copyWith(
-      filter: state.filter.copyWith(colorFilter: newHex),
-    );
+    state = state.copyWith(filter: state.filter.copyWith(colorFilter: newHex));
   }
 
   void setSeasonFilter(String season) {
@@ -199,7 +188,6 @@ final wardrobeRepositoryProvider = Provider<WardrobeRepository>(
   (_) => WardrobeRepository(),
 );
 
-final wardrobeProvider =
-    StateNotifierProvider<WardrobeNotifier, WardrobeState>(
+final wardrobeProvider = StateNotifierProvider<WardrobeNotifier, WardrobeState>(
   (ref) => WardrobeNotifier(ref.read(wardrobeRepositoryProvider)),
 );

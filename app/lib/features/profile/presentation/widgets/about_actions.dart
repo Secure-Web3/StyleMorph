@@ -1,5 +1,6 @@
 import 'about_actions_stub.dart'
-    if (dart.library.js_interop) 'about_actions_web.dart' as platform;
+    if (dart.library.js_interop) 'about_actions_web.dart'
+    as platform;
 
 void reloadAppWindow() => platform.reloadAppWindow();
 

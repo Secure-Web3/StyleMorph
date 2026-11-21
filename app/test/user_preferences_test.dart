@@ -26,9 +26,7 @@ class _TestAppStateNotifier extends AppStateNotifier {
   @override
   Future<bool> saveProfileToFirestore() async {
     saveCalled = true;
-    state = state.copyWith(
-      hasUnsavedProfileChanges: false,
-    );
+    state = state.copyWith(hasUnsavedProfileChanges: false);
     return true;
   }
 }
@@ -116,12 +114,8 @@ void main() {
       return ProviderScope(
         overrides: [
           appStateProvider.overrideWith((ref) => notifier),
-          themeProvider.overrideWith(
-            (ref) => ThemeNotifier(),
-          ),
-          localeProvider.overrideWith(
-            (ref) => LocaleNotifier(),
-          ),
+          themeProvider.overrideWith((ref) => ThemeNotifier()),
+          localeProvider.overrideWith((ref) => LocaleNotifier()),
         ],
         child: MaterialApp(
           theme: testTheme,
@@ -138,82 +132,96 @@ void main() {
             GlobalCupertinoLocalizations.delegate,
           ],
           home: const Scaffold(
-            body: SingleChildScrollView(
-              child: SettingsSubTab(),
-            ),
+            body: SingleChildScrollView(child: SettingsSubTab()),
           ),
         ),
       );
     }
 
-    testWidgets('Renders all setting controls and Save Changes button in Persian',
-        (tester) async {
-      await tester.binding.setSurfaceSize(const Size(800, 1400));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
+    testWidgets(
+      'Renders all setting controls and Save Changes button in Persian',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(800, 1400));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
 
-      final testNotifier = _TestAppStateNotifier(const AppState());
+        final testNotifier = _TestAppStateNotifier(const AppState());
 
-      await tester.pumpWidget(
-        buildTestWidget(notifier: testNotifier, locale: const Locale('fa')),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildTestWidget(notifier: testNotifier, locale: const Locale('fa')),
+        );
+        await tester.pumpAndSettle();
 
-      // Verify sections rendered in Persian
-      expect(find.text('تنظیمات و سفارشی‌سازی'), findsOneWidget);
-      expect(find.text('قالب و پالت رنگی مد (Theme Palette)'), findsOneWidget);
-      expect(find.text('حالت روشنایی (Light / Dark / System)'), findsOneWidget);
-      expect(find.text('زبان برنامه (Language)'), findsOneWidget);
-      expect(find.text('نمایش ویجت شناور پشتیبانی'), findsOneWidget);
-      expect(find.text('نمایش موجودی سکه در هدر'), findsOneWidget);
-      expect(find.text('پشتیبان‌گیری خودکار داده‌ها'), findsOneWidget);
+        // Verify sections rendered in Persian
+        expect(find.text('تنظیمات و سفارشی‌سازی'), findsOneWidget);
+        expect(
+          find.text('قالب و پالت رنگی مد (Theme Palette)'),
+          findsOneWidget,
+        );
+        expect(
+          find.text('حالت روشنایی (Light / Dark / System)'),
+          findsOneWidget,
+        );
+        expect(find.text('زبان برنامه (Language)'), findsOneWidget);
+        expect(find.text('نمایش ویجت شناور پشتیبانی'), findsOneWidget);
+        expect(find.text('نمایش موجودی سکه در هدر'), findsOneWidget);
+        expect(find.text('پشتیبان‌گیری خودکار داده‌ها'), findsOneWidget);
 
-      // Verify Save Changes button is visible
-      final saveBtnFinder = find.text('ذخیره تغییرات');
-      expect(saveBtnFinder, findsOneWidget);
+        // Verify Save Changes button is visible
+        final saveBtnFinder = find.text('ذخیره تغییرات');
+        expect(saveBtnFinder, findsOneWidget);
 
-      // Tap Save Changes button
-      await tester.tap(saveBtnFinder);
-      await tester.pump();
+        // Tap Save Changes button
+        await tester.tap(saveBtnFinder);
+        await tester.pump();
 
-      // Verify saveProfileToFirestore was triggered and success toast is displayed
-      expect(testNotifier.saveCalled, isTrue);
-      expect(find.text('تغییرات پروفایل با موفقیت ذخیره شد.'), findsOneWidget);
-    });
+        // Verify saveProfileToFirestore was triggered and success toast is displayed
+        expect(testNotifier.saveCalled, isTrue);
+        expect(
+          find.text('تغییرات پروفایل با موفقیت ذخیره شد.'),
+          findsOneWidget,
+        );
+      },
+    );
 
-    testWidgets('Renders all setting controls and Save Changes button in English',
-        (tester) async {
-      await tester.binding.setSurfaceSize(const Size(800, 1400));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
+    testWidgets(
+      'Renders all setting controls and Save Changes button in English',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(800, 1400));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
 
-      final testNotifier = _TestAppStateNotifier(const AppState());
+        final testNotifier = _TestAppStateNotifier(const AppState());
 
-      await tester.pumpWidget(
-        buildTestWidget(notifier: testNotifier, locale: const Locale('en')),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildTestWidget(notifier: testNotifier, locale: const Locale('en')),
+        );
+        await tester.pumpAndSettle();
 
-      // Verify sections rendered in English
-      expect(find.text('Settings & Customization'), findsOneWidget);
-      expect(find.text('Fashion Theme Palette'), findsOneWidget);
-      expect(
-        find.text('Brightness Mode (Light / Dark / System)'),
-        findsOneWidget,
-      );
-      expect(find.text('App Language'), findsOneWidget);
-      expect(find.text('Show Floating Support Widget'), findsOneWidget);
-      expect(find.text('Show Coin Balance in Header'), findsOneWidget);
-      expect(find.text('Auto Data Backup'), findsOneWidget);
+        // Verify sections rendered in English
+        expect(find.text('Settings & Customization'), findsOneWidget);
+        expect(find.text('Fashion Theme Palette'), findsOneWidget);
+        expect(
+          find.text('Brightness Mode (Light / Dark / System)'),
+          findsOneWidget,
+        );
+        expect(find.text('App Language'), findsOneWidget);
+        expect(find.text('Show Floating Support Widget'), findsOneWidget);
+        expect(find.text('Show Coin Balance in Header'), findsOneWidget);
+        expect(find.text('Auto Data Backup'), findsOneWidget);
 
-      // Verify Save Changes button in English
-      final saveBtnFinder = find.text('Save Changes');
-      expect(saveBtnFinder, findsOneWidget);
+        // Verify Save Changes button in English
+        final saveBtnFinder = find.text('Save Changes');
+        expect(saveBtnFinder, findsOneWidget);
 
-      // Tap Save Changes
-      await tester.tap(saveBtnFinder);
-      await tester.pump();
+        // Tap Save Changes
+        await tester.tap(saveBtnFinder);
+        await tester.pump();
 
-      expect(testNotifier.saveCalled, isTrue);
-      expect(find.text('Profile changes saved successfully.'), findsOneWidget);
-    });
+        expect(testNotifier.saveCalled, isTrue);
+        expect(
+          find.text('Profile changes saved successfully.'),
+          findsOneWidget,
+        );
+      },
+    );
   });
 }

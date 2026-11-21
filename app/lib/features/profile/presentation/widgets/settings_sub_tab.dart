@@ -37,10 +37,10 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
   }
 
   Future<void> _loadBiometricPref() async {
-    final enabled =
-        await ref.read(biometricServiceProvider).isBiometricLockEnabled();
-    final prefBiometric =
-        ref.read(appStateProvider).preferences.biometricLock;
+    final enabled = await ref
+        .read(biometricServiceProvider)
+        .isBiometricLockEnabled();
+    final prefBiometric = ref.read(appStateProvider).preferences.biometricLock;
     if (mounted) {
       setState(() => _biometricLockEnabled = enabled || prefBiometric);
     }
@@ -118,7 +118,9 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
             onChanged: (palette) {
               if (palette != null) {
                 ref.read(themeProvider.notifier).setPalette(palette);
-                ref.read(appStateProvider.notifier).setFashionThemePalette(palette.name);
+                ref
+                    .read(appStateProvider.notifier)
+                    .setFashionThemePalette(palette.name);
               }
             },
           ),
@@ -145,7 +147,9 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
             onChanged: (mode) {
               if (mode != null) {
                 ref.read(themeProvider.notifier).setThemeMode(mode);
-                ref.read(appStateProvider.notifier).setBrightnessMode(mode.name);
+                ref
+                    .read(appStateProvider.notifier)
+                    .setBrightnessMode(mode.name);
               }
             },
           ),
@@ -194,9 +198,7 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                   label: strings.setShowHeaderCoins,
                   value: appState.showHeaderCoins,
                   onChanged: (val) {
-                    ref
-                        .read(appStateProvider.notifier)
-                        .toggleHeaderCoins(val);
+                    ref.read(appStateProvider.notifier).toggleHeaderCoins(val);
                     ref.read(appStateProvider.notifier).markProfileDirty();
                   },
                 ),
@@ -255,10 +257,7 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                 value: 'monthly',
                 child: Text(strings.setBackupMonthly),
               ),
-              DropdownMenuItem(
-                value: 'off',
-                child: Text(strings.setBackupOff),
-              ),
+              DropdownMenuItem(value: 'off', child: Text(strings.setBackupOff)),
             ],
             onChanged: (val) {
               if (val != null) {

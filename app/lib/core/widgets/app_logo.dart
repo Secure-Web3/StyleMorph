@@ -17,9 +17,7 @@ class AppLogo extends StatelessWidget {
         color: colors.pr,
         borderRadius: BorderRadius.circular(size * 0.25),
       ),
-      child: CustomPaint(
-        painter: _LogoPainter(color: colors.prt),
-      ),
+      child: CustomPaint(painter: _LogoPainter(color: colors.prt)),
     );
   }
 }
@@ -70,18 +68,25 @@ class _LogoPainter extends CustomPainter {
     final wavePath = Path();
     wavePath.moveTo(15 * scale, 37 * scale);
     wavePath.cubicTo(
-      18 * scale, 34.6 * scale,
-      20.4 * scale, 39.4 * scale,
-      24 * scale, 37 * scale,
+      18 * scale,
+      34.6 * scale,
+      20.4 * scale,
+      39.4 * scale,
+      24 * scale,
+      37 * scale,
     );
     wavePath.cubicTo(
-      27.6 * scale, 34.6 * scale,
-      30 * scale, 39.4 * scale,
-      33 * scale, 37 * scale,
+      27.6 * scale,
+      34.6 * scale,
+      30 * scale,
+      39.4 * scale,
+      33 * scale,
+      37 * scale,
     );
     canvas.drawPath(wavePath, wavePaint);
   }
 
   @override
-  bool shouldRepaint(covariant _LogoPainter oldDelegate) => oldDelegate.color != color;
+  bool shouldRepaint(covariant _LogoPainter oldDelegate) =>
+      oldDelegate.color != color;
 }

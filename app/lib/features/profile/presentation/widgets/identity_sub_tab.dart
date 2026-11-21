@@ -78,7 +78,8 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     // Resolve Country & Province from saved data
     final savedCountryCode = values['countryCode'] ?? '';
     final savedCountryName = values['country'] ?? '';
-    _selectedCountry = IsoLocationData.findByCode(savedCountryCode) ??
+    _selectedCountry =
+        IsoLocationData.findByCode(savedCountryCode) ??
         IsoLocationData.findByName(savedCountryName) ??
         IsoLocationData.defaultCountry;
 
@@ -99,8 +100,9 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     final rawMobile = values['mobile'] ?? '';
     final parsedMobile = IdentityValidator.parseE164(rawMobile);
     _mobileCountry = parsedMobile.country;
-    _mobileSubscriberController =
-        TextEditingController(text: parsedMobile.subscriber);
+    _mobileSubscriberController = TextEditingController(
+      text: parsedMobile.subscriber,
+    );
 
     _firstNameController = TextEditingController(text: initialFirst);
     _lastNameController = TextEditingController(text: initialLast);
@@ -379,7 +381,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                     surface: colors.sf,
                     onSurface: colors.tx,
                   ),
-            dialogBackgroundColor: colors.sf,
+            dialogTheme: DialogThemeData(backgroundColor: colors.sf),
           ),
           child: child ?? const SizedBox.shrink(),
         );
@@ -415,9 +417,11 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
       }
     } catch (_) {}
 
-    final bool isSocialUser = user?.providerData.any(
-      (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
-    ) ?? false;
+    final bool isSocialUser =
+        user?.providerData.any(
+          (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
+        ) ??
+        false;
 
     return Padding(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -495,10 +499,9 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
             label: strings.idDob,
             labelTrailing: Text(
               strings.idDobAgeRequirement,
-              style: TextStyle(
-                fontSize: 10,
-                color: colors.mu,
-              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 10, color: colors.mu),
             ),
             placeholder: strings.idDobPlaceholder,
             controller: _dobController,
@@ -534,7 +537,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                     child: Container(
                       height: 40,
                       padding: const EdgeInsetsDirectional.symmetric(
-                        horizontal: AppSpacing.sm,
+                        horizontal: 6,
                       ),
                       decoration: BoxDecoration(
                         color: colors.bg,
@@ -548,7 +551,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                             _mobileCountry.flag,
                             style: const TextStyle(fontSize: 16),
                           ),
-                          const SizedBox(width: 4),
+                          const SizedBox(width: 3),
                           Text(
                             _mobileCountry.dialCode,
                             style: TextStyle(
@@ -558,14 +561,17 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                               color: colors.tx,
                             ),
                           ),
-                          const SizedBox(width: 2),
-                          Icon(Icons.arrow_drop_down,
-                              size: 16, color: colors.mu),
+                          const SizedBox(width: 1),
+                          Icon(
+                            Icons.arrow_drop_down,
+                            size: 16,
+                            color: colors.mu,
+                          ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.xs),
+                  const SizedBox(width: 4),
 
                   // Numeric Subscriber Input
                   Expanded(
@@ -586,23 +592,31 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                       },
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
+                  const SizedBox(width: 4),
 
                   // Mobile Verification Button (Disabled + Coming Soon)
                   AppButton(
                     size: AppButtonSize.sm,
                     variant: AppButtonVariant.outline,
                     onPressed: null,
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     text: strings.idVerifyMobile,
                   ),
-                  const SizedBox(width: AppSpacing.xs),
+                  const SizedBox(width: 3),
                   AppBadge(
                     variant: AppBadgeVariant.standard,
                     size: AppBadgeSize.sm,
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: 6,
+                      vertical: 2,
+                    ),
                     child: Text(
                       strings.commonComingSoon,
                       style: TextStyle(
-                        fontSize: 10,
+                        fontSize: 9,
                         color: colors.mu,
                         fontWeight: FontWeight.w600,
                       ),
@@ -633,14 +647,14 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                       onChanged: (val) => _onFieldChanged('email', val),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
+                  const SizedBox(width: AppSpacing.xs),
                   AppBadge(
                     variant: isEmailVerified
                         ? AppBadgeVariant.success
                         : AppBadgeVariant.warning,
                     padding: const EdgeInsetsDirectional.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.sm,
+                      horizontal: AppSpacing.xs,
+                      vertical: 4,
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -649,30 +663,34 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                           isEmailVerified
                               ? FontAwesomeIcons.check
                               : FontAwesomeIcons.triangleExclamation,
-                          size: 11,
+                          size: 10,
                           color: isEmailVerified ? colors.ok : colors.wn,
                         ),
-                        const SizedBox(width: AppSpacing.xs),
+                        const SizedBox(width: 4),
                         Text(
                           isEmailVerified
                               ? strings.idVerified
                               : strings.idUnverified,
+                          style: const TextStyle(fontSize: 10),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.xs),
+                  const SizedBox(width: AppSpacing.xxs),
                   Tooltip(
                     message: isSocialUser ? strings.idSocialEmailNote : '',
                     child: AppButton(
                       size: AppButtonSize.sm,
                       variant: AppButtonVariant.outline,
-                      height: 34,
+                      height: 32,
                       padding: const EdgeInsetsDirectional.symmetric(
-                        horizontal: AppSpacing.sm,
+                        horizontal: AppSpacing.xs,
                         vertical: 2,
                       ),
-                      icon: const FaIcon(FontAwesomeIcons.penToSquare, size: 10),
+                      icon: const FaIcon(
+                        FontAwesomeIcons.penToSquare,
+                        size: 10,
+                      ),
                       text: strings.idChangeEmail,
                       onPressed: isSocialUser
                           ? null
@@ -724,7 +742,8 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                       text: verificationState.cooldownSeconds > 0
                           ? '${strings.idVerifyEmail} (${verificationState.cooldownSeconds})'
                           : strings.idVerifyEmail,
-                      onPressed: (verificationState.cooldownSeconds > 0 ||
+                      onPressed:
+                          (verificationState.cooldownSeconds > 0 ||
                               verificationState.isResending ||
                               verificationState.isChecking)
                           ? null
@@ -758,9 +777,13 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                                 color: colors.mu,
                               ),
                             )
-                          : const FaIcon(FontAwesomeIcons.arrowsRotate, size: 10),
+                          : const FaIcon(
+                              FontAwesomeIcons.arrowsRotate,
+                              size: 10,
+                            ),
                       text: strings.idCheckEmailStatus,
-                      onPressed: (verificationState.isChecking ||
+                      onPressed:
+                          (verificationState.isChecking ||
                               verificationState.isResending)
                           ? null
                           : () async {

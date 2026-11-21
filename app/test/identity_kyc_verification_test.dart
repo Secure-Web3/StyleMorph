@@ -28,7 +28,9 @@ void main() {
     return ProviderScope(
       overrides: [
         if (initialState != null)
-          appStateProvider.overrideWith((ref) => _TestAppStateNotifier(initialState)),
+          appStateProvider.overrideWith(
+            (ref) => _TestAppStateNotifier(initialState),
+          ),
         emailVerifiedOverrideProvider.overrideWith((ref) => isEmailVerified),
         emailVerificationProvider.overrideWith(
           (ref) => EmailVerificationNotifier(ref)
@@ -52,11 +54,7 @@ void main() {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: Scaffold(
-          body: SingleChildScrollView(
-            child: child,
-          ),
-        ),
+        home: Scaffold(body: SingleChildScrollView(child: child)),
       ),
     );
   }
@@ -108,37 +106,46 @@ void main() {
 
       expect(kyc.status, KycStatus.rejected);
       expect(kyc.isRejected, true);
-      expect(kyc.rejectionReason, 'Image is blurry. Please upload a clear photo.');
+      expect(
+        kyc.rejectionReason,
+        'Image is blurry. Please upload a clear photo.',
+      );
 
       final map = kyc.toMap();
       final reconstituted = KycData.fromMap(map);
       expect(reconstituted.isRejected, true);
-      expect(reconstituted.rejectionReason, 'Image is blurry. Please upload a clear photo.');
+      expect(
+        reconstituted.rejectionReason,
+        'Image is blurry. Please upload a clear photo.',
+      );
     });
   });
 
   group('KYC Verification Section Widget Tests', () {
-    testWidgets('renders KYC section with title, subtitle and Not Submitted status in Persian',
-        (WidgetTester tester) async {
-      final faStrings = const AppStrings('fa');
-      await tester.pumpWidget(
-        buildTestableWidget(
-          child: const KycVerificationSection(),
-          locale: const Locale('fa'),
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'renders KYC section with title, subtitle and Not Submitted status in Persian',
+      (WidgetTester tester) async {
+        final faStrings = const AppStrings('fa');
+        await tester.pumpWidget(
+          buildTestableWidget(
+            child: const KycVerificationSection(),
+            locale: const Locale('fa'),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text(faStrings.kycSectionTitle), findsOneWidget);
-      expect(find.text(faStrings.kycSectionSubtitle), findsOneWidget);
-      expect(find.text(faStrings.kycStatusNotSubmitted), findsOneWidget);
-      expect(find.text(faStrings.kycDocNationalId), findsOneWidget);
-      expect(find.text(faStrings.kycUploadFront), findsOneWidget);
-      expect(find.text(faStrings.kycUploadBack), findsOneWidget);
-    });
+        expect(find.text(faStrings.kycSectionTitle), findsOneWidget);
+        expect(find.text(faStrings.kycSectionSubtitle), findsOneWidget);
+        expect(find.text(faStrings.kycStatusNotSubmitted), findsOneWidget);
+        expect(find.text(faStrings.kycDocNationalId), findsOneWidget);
+        expect(find.text(faStrings.kycUploadFront), findsOneWidget);
+        expect(find.text(faStrings.kycUploadBack), findsOneWidget);
+      },
+    );
 
-    testWidgets('renders KYC section in English with international labels',
-        (WidgetTester tester) async {
+    testWidgets('renders KYC section in English with international labels', (
+      WidgetTester tester,
+    ) async {
       final enStrings = const AppStrings('en');
       await tester.pumpWidget(
         buildTestableWidget(
@@ -155,58 +162,63 @@ void main() {
       expect(find.text(enStrings.kycUploadBack), findsOneWidget);
     });
 
-    testWidgets('allows toggling document types between National ID, Passport, and Driver\'s License',
-        (WidgetTester tester) async {
-      final faStrings = const AppStrings('fa');
-      await tester.pumpWidget(
-        buildTestableWidget(
-          child: const KycVerificationSection(),
-          locale: const Locale('fa'),
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'allows toggling document types between National ID, Passport, and Driver\'s License',
+      (WidgetTester tester) async {
+        final faStrings = const AppStrings('fa');
+        await tester.pumpWidget(
+          buildTestableWidget(
+            child: const KycVerificationSection(),
+            locale: const Locale('fa'),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Find passport chip and tap
-      final passportChip = find.text(faStrings.kycDocPassport);
-      expect(passportChip, findsOneWidget);
-      await tester.tap(passportChip);
-      await tester.pumpAndSettle();
+        // Find passport chip and tap
+        final passportChip = find.text(faStrings.kycDocPassport);
+        expect(passportChip, findsOneWidget);
+        await tester.tap(passportChip);
+        await tester.pumpAndSettle();
 
-      // Find driver's license chip and tap
-      final driversLicenseChip = find.text(faStrings.kycDocDriversLicense);
-      expect(driversLicenseChip, findsOneWidget);
-      await tester.tap(driversLicenseChip);
-      await tester.pumpAndSettle();
-    });
+        // Find driver's license chip and tap
+        final driversLicenseChip = find.text(faStrings.kycDocDriversLicense);
+        expect(driversLicenseChip, findsOneWidget);
+        await tester.tap(driversLicenseChip);
+        await tester.pumpAndSettle();
+      },
+    );
 
-    testWidgets('displays Pending Review state with status badge and edit/delete actions',
-        (WidgetTester tester) async {
-      final faStrings = const AppStrings('fa');
-      final pendingState = AppState(
-        kycData: KycData(
-          status: KycStatus.pending,
-          docType: KycDocType.nationalId,
-          frontUrl: 'https://example.com/front.jpg',
-          submittedAt: DateTime.now(),
-        ),
-      );
+    testWidgets(
+      'displays Pending Review state with status badge and edit/delete actions',
+      (WidgetTester tester) async {
+        final faStrings = const AppStrings('fa');
+        final pendingState = AppState(
+          kycData: KycData(
+            status: KycStatus.pending,
+            docType: KycDocType.nationalId,
+            frontUrl: 'https://example.com/front.jpg',
+            submittedAt: DateTime.now(),
+          ),
+        );
 
-      await tester.pumpWidget(
-        buildTestableWidget(
-          child: const KycVerificationSection(),
-          locale: const Locale('fa'),
-          initialState: pendingState,
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildTestableWidget(
+            child: const KycVerificationSection(),
+            locale: const Locale('fa'),
+            initialState: pendingState,
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text(faStrings.kycStatusPending), findsOneWidget);
-      expect(find.text(faStrings.kycEdit), findsOneWidget);
-      expect(find.text(faStrings.kycDelete), findsOneWidget);
-    });
+        expect(find.text(faStrings.kycStatusPending), findsOneWidget);
+        expect(find.text(faStrings.kycEdit), findsOneWidget);
+        expect(find.text(faStrings.kycDelete), findsOneWidget);
+      },
+    );
 
-    testWidgets('displays Verified state with success badge and doc name',
-        (WidgetTester tester) async {
+    testWidgets('displays Verified state with success badge and doc name', (
+      WidgetTester tester,
+    ) async {
       final faStrings = const AppStrings('fa');
       final verifiedState = AppState(
         kycData: KycData(
@@ -230,10 +242,12 @@ void main() {
       expect(find.text(faStrings.kycDocPassport), findsWidgets);
     });
 
-    testWidgets('displays Rejected state with custom rejection reason',
-        (WidgetTester tester) async {
+    testWidgets('displays Rejected state with custom rejection reason', (
+      WidgetTester tester,
+    ) async {
       final faStrings = const AppStrings('fa');
-      const rejectionReason = 'تصویر ارسالی تار و ناخوانا است. لطفاً در نور مناسب مجدداً بارگذاری نمایید.';
+      const rejectionReason =
+          'تصویر ارسالی تار و ناخوانا است. لطفاً در نور مناسب مجدداً بارگذاری نمایید.';
       final rejectedState = AppState(
         kycData: const KycData(
           status: KycStatus.rejected,
@@ -257,8 +271,9 @@ void main() {
       expect(find.text(faStrings.kycEdit), findsOneWidget);
     });
 
-    testWidgets('tapping Delete Document opens confirmation dialog',
-        (WidgetTester tester) async {
+    testWidgets('tapping Delete Document opens confirmation dialog', (
+      WidgetTester tester,
+    ) async {
       final faStrings = const AppStrings('fa');
       final pendingState = AppState(
         kycData: const KycData(
@@ -287,8 +302,9 @@ void main() {
       expect(find.text(faStrings.dialogCancel), findsOneWidget);
     });
 
-    testWidgets('embedded within IdentitySubTab seamlessly',
-        (WidgetTester tester) async {
+    testWidgets('embedded within IdentitySubTab seamlessly', (
+      WidgetTester tester,
+    ) async {
       final faStrings = const AppStrings('fa');
       await tester.pumpWidget(
         buildTestableWidget(
@@ -303,53 +319,63 @@ void main() {
   });
 
   group('MainHeader KYC Verified Badge Integration', () {
-    testWidgets('shows KYC Verified badge in MainHeader when KYC status is verified',
-        (WidgetTester tester) async {
-      final faStrings = const AppStrings('fa');
-      final verifiedKycState = AppState(
-        userName: 'علی رضایی',
-        userHandle: '@ali_style',
-        kycData: const KycData(
-          status: KycStatus.verified,
-          docType: KycDocType.passport,
-        ),
-      );
+    testWidgets(
+      'shows KYC Verified badge in MainHeader when KYC status is verified',
+      (WidgetTester tester) async {
+        final faStrings = const AppStrings('fa');
+        final verifiedKycState = AppState(
+          userName: 'علی رضایی',
+          userHandle: '@ali_style',
+          kycData: const KycData(
+            status: KycStatus.verified,
+            docType: KycDocType.passport,
+          ),
+        );
 
-      await tester.pumpWidget(
-        buildTestableWidget(
-          child: const MainHeader(),
-          locale: const Locale('fa'),
-          initialState: verifiedKycState,
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildTestableWidget(
+            child: const MainHeader(),
+            locale: const Locale('fa'),
+            initialState: verifiedKycState,
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Should show 'احراز هویت شده (KYC Verified) | @ali_style'
-      expect(find.text('${faStrings.kycVerifiedBadge} | @ali_style'), findsOneWidget);
-    });
+        // Should show 'احراز هویت شده (KYC Verified) | @ali_style'
+        expect(
+          find.text('${faStrings.kycVerifiedBadge} | @ali_style'),
+          findsOneWidget,
+        );
+      },
+    );
 
-    testWidgets('shows standard handle in MainHeader when KYC is not verified',
-        (WidgetTester tester) async {
-      final faStrings = const AppStrings('fa');
-      final unverifiedState = AppState(
-        userName: 'علی رضایی',
-        userHandle: '@ali_style',
-        kycData: const KycData(),
-      );
+    testWidgets(
+      'shows standard handle in MainHeader when KYC is not verified',
+      (WidgetTester tester) async {
+        final faStrings = const AppStrings('fa');
+        final unverifiedState = AppState(
+          userName: 'علی رضایی',
+          userHandle: '@ali_style',
+          kycData: const KycData(),
+        );
 
-      await tester.pumpWidget(
-        buildTestableWidget(
-          child: const MainHeader(),
-          locale: const Locale('fa'),
-          initialState: unverifiedState,
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildTestableWidget(
+            child: const MainHeader(),
+            locale: const Locale('fa'),
+            initialState: unverifiedState,
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Does not contain KYC Verified badge
-      expect(find.text('${faStrings.kycVerifiedBadge} | @ali_style'), findsNothing);
-      expect(find.text('@ali_style'), findsOneWidget);
-    });
+        // Does not contain KYC Verified badge
+        expect(
+          find.text('${faStrings.kycVerifiedBadge} | @ali_style'),
+          findsNothing,
+        );
+        expect(find.text('@ali_style'), findsOneWidget);
+      },
+    );
   });
 }
 

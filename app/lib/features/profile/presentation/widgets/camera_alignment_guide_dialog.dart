@@ -25,10 +25,8 @@ class CameraAlignmentGuideDialog extends StatelessWidget {
     return showDialog<bool>(
       context: context,
       barrierDismissible: true,
-      builder: (_) => CameraAlignmentGuideDialog(
-        slotKey: slotKey,
-        slotTitle: slotTitle,
-      ),
+      builder: (_) =>
+          CameraAlignmentGuideDialog(slotKey: slotKey, slotTitle: slotTitle),
     );
   }
 
@@ -55,212 +53,51 @@ class CameraAlignmentGuideDialog extends StatelessWidget {
 
   List<String> _getGuidancePoints(BuildContext context) {
     final strings = context.strings;
-    final isEn = strings.localeCode == 'en';
-    final isFa = strings.localeCode == 'fa';
-    final isAr = strings.localeCode == 'ar';
-
-    if (slotKey == 'front_face') {
-      if (isEn) {
+    switch (slotKey) {
+      case 'front_face':
         return [
-          'Look directly into the camera at eye level.',
-          'Keep a neutral facial expression with good, even lighting.',
-          'Ensure hair and jawline are clearly visible without sunglasses or hats.',
+          strings.galGuideFrontFace1,
+          strings.galGuideFrontFace2,
+          strings.galGuideFrontFace3,
         ];
-      }
-      if (isAr) {
+      case 'side_face':
         return [
-          'انظر مباشرة إلى الكاميرا على مستوى العين.',
-          'حافظ على تعبير وجه محايد مع إضاءة جيدة ومتساوية.',
-          'تأكد من وضوح خط الفك والشعر دون قبعة أو نظارات شمسية.',
+          strings.galGuideSideFace1,
+          strings.galGuideSideFace2,
+          strings.galGuideSideFace3,
         ];
-      }
-      if (isFa) {
+      case 'body_front':
         return [
-          'مستقیماً در راستای تراز چشم به دوربین نگاه کنید.',
-          'حالت چهره خنثی باشد و نورپردازی شفاف و یکنواخت باشد.',
-          'خط فک و موها کاملاً واضح باشند و از عینک آفتابی یا کلاه استفاده نشود.',
+          strings.galGuideBodyFront1,
+          strings.galGuideBodyFront2,
+          strings.galGuideBodyFront3,
         ];
-      }
-      // Turkish / default
-      return [
-        'Göz hizasında doğrudan kameraya bakın.',
-        'İyi ve dengeli ışıkta nötr bir yüz ifadesi koruyun.',
-        'Güneş gözlüğü veya şapka olmadan çene hattı ve saçın net göründüğünden emin olun.',
-      ];
+      case 'body_side':
+        return [
+          strings.galGuideBodySide1,
+          strings.galGuideBodySide2,
+          strings.galGuideBodySide3,
+        ];
+      case 'body_back':
+        return [
+          strings.galGuideBodyBack1,
+          strings.galGuideBodyBack2,
+          strings.galGuideBodyBack3,
+        ];
+      case 'hand_skin':
+        return [
+          strings.galGuideHandSkin1,
+          strings.galGuideHandSkin2,
+          strings.galGuideHandSkin3,
+        ];
+      case 'scan_360':
+      default:
+        return [
+          strings.galGuideScan3601,
+          strings.galGuideScan3602,
+          strings.galGuideScan3603,
+        ];
     }
-
-    if (slotKey == 'side_face') {
-      if (isEn) {
-        return [
-          'Turn head 90 degrees to the side profile.',
-          'Keep your neck, jawline, and ear clearly visible.',
-          'Avoid tilting head up or down.',
-        ];
-      }
-      if (isAr) {
-        return [
-          'أدر رأسك ٩٠ درجة لعرض جانبي كامل.',
-          'تأكد من وضوح خط الرقبة والفك والأذن.',
-          'تجنب إمالة الرأس لأعلى أو لأسفل.',
-        ];
-      }
-      if (isFa) {
-        return [
-          'سر خود را دقیقاً ۹۰ درجه به پهلو بچرخانید.',
-          'خط گردن، فک و گوش کاملاً بدون پوشش دیده شوند.',
-          'از کج کردن سر به بالا یا پایین خودداری نمایید.',
-        ];
-      }
-      return [
-        'Başınızı tam 90 derece yana çevirin.',
-        'Boyun, çene hattı ve kulağın net göründüğünden emin olun.',
-        'Başınızı yukarı veya aşağı eğmeyin.',
-      ];
-    }
-
-    if (slotKey == 'body_front') {
-      if (isEn) {
-        return [
-          'Stand in standard A-Pose (arms 30° from body, feet shoulder-width).',
-          'Camera at waist height, capturing full body head-to-toe.',
-          'Wear form-fitting clothing for optimal 3D mesh modeling.',
-        ];
-      }
-      if (isAr) {
-        return [
-          'قف في وضع A القياسي (الذراعان بزاوية ٣٠ درجة، القدمان بعرض الكتفين).',
-          'الكاميرا بمستوى الخصر لتغطية كامل الجسم من الرأس إلى القدمين.',
-          'ارتدِ ملابس ضيقة ومناسبة للحصول على نمذجة ثلاثية الأبعاد دقيقة.',
-        ];
-      }
-      if (isFa) {
-        return [
-          'در حالت استاندارد A-Pose بایستید (دست‌ها ۳۰ درجه با بدن، پاها به عرض شانه).',
-          'دوربین در ارتفاع کمر قرار گیرد تا تمام‌قد از سر تا پا ثبت شود.',
-          'لباس جذب و فیت بپوشید تا دقت مش‌بندی سه‌بعدی هوش مصنوعی حداکثر باشد.',
-        ];
-      }
-      return [
-        'Standart A-Duruşunda durun (kollar 30° açık, ayaklar omuz hizasında).',
-        'Kamera bel hizasında, baştan ayağa tüm vücudu kapsamalıdır.',
-        'Optimum 3D modelleme için vücuda oturan giysiler tercih edin.',
-      ];
-    }
-
-    if (slotKey == 'body_side') {
-      if (isEn) {
-        return [
-          'Turn 90 degrees sideways in A-Pose posture.',
-          'Keep spine upright with natural standing balance.',
-          'Ensure entire vertical height from head to feet is inside frame.',
-        ];
-      }
-      if (isAr) {
-        return [
-          'أدر جسمك ٩٠ درجة جانباً في وضع A.',
-          'حافظ على استقامة العمود الفقري وتوازن الوقوف الطبيعي.',
-          'تأكد من وجود كامل الطول من الرأس إلى القدمين داخل الإطار.',
-        ];
-      }
-      if (isFa) {
-        return [
-          'تمام بدن را ۹۰ درجه به پهلو بچرخانید و در حالت A-Pose بمانید.',
-          'ستون فقرات کاملاً صاف و حالت ایستادن طبیعی باشد.',
-          'کادر تصویر تمام قد شما از نوک سر تا انگشتان پا را در بر بگیرد.',
-        ];
-      }
-      return [
-        'A-Duruşunda tüm vücudunuzla 90 derece yana dönün.',
-        'Omurganızı dik tutun ve doğal bir duruş sergileyin.',
-        'Baştan ayağa tüm boyun kadrajda olduğundan emin olun.',
-      ];
-    }
-
-    if (slotKey == 'body_back') {
-      if (isEn) {
-        return [
-          'Face directly away from the camera in standard A-Pose.',
-          'Keep posture upright showing shoulder and waist silhouette.',
-          'Ensure camera captures full body from head to heels.',
-        ];
-      }
-      if (isAr) {
-        return [
-          'قف بظهرك نحو الكاميرا مباشرة في وضع A القياسي.',
-          'حافظ على وقفة مستقيمة لإبراز محاذاة الأكتاف والخصر.',
-          'تأكد من تصوير الجسم بالكامل من الرأس إلى الكعبين.',
-        ];
-      }
-      if (isFa) {
-        return [
-          'پشت به دوربین در وضعیت استاندارد A-Pose بایستید.',
-          'قامت صاف باشد تا خط شانه و کادر دور کمر دقیق مشخص گردد.',
-          'تمام‌قد از پشت سر تا پاشنه پا در کادر قرار گیرد.',
-        ];
-      }
-      return [
-        'Standart A-Duruşunda doğrudan sırtınız kameraya dönük durun.',
-        'Omuz ve bel siluetini gösterecek şekilde dik durun.',
-        'Kameranın baştan topuğa tüm vücudu aldığından emin olun.',
-      ];
-    }
-
-    if (slotKey == 'hand_skin') {
-      if (isEn) {
-        return [
-          'Hold the back of your hand facing the camera.',
-          'Use natural daylight or neutral indoor lighting.',
-          'Keep skin texture in sharp focus without harsh shadows.',
-        ];
-      }
-      if (isAr) {
-        return [
-          'ضع ظهر يدك في مواجهة الكاميرا.',
-          'استخدم ضوء النهار الطبيعي أو إضاءة داخلية محايدة.',
-          'تأكد من وضوح نسيج البشرة دون ظلال حادة.',
-        ];
-      }
-      if (isFa) {
-        return [
-          'پشت دست خود را رو به دوربین نگه دارید.',
-          'زیر نور طبیعی روز یا نور سفید یکنواخت عکاسی کنید.',
-          'بافت پوست کاملاً فوکوس باشد و سایه‌های شدید نیفتد.',
-        ];
-      }
-      return [
-        'Elinizin tersini kameraya dönük tutun.',
-        'Doğal gün ışığı veya nötr iç mekan aydınlatması kullanın.',
-        'Sert gölgeler olmadan cilt dokusunun odakta olduğundan emin olun.',
-      ];
-    }
-
-    // scan_360
-    if (isEn) {
-      return [
-        'Stand in an open space with good 360° clearance.',
-        'Record a smooth, continuous 360° slow rotation in 10-15 seconds.',
-        'Keep arms slightly away from the torso in A-Pose while rotating.',
-      ];
-    }
-    if (isAr) {
-      return [
-        'قف في مساحة مفتوحة تسمح بحرية الحركة ٣٦٠ درجة.',
-        'سجل دوراناً بطيئاً وسلساً ٣٦٠ درجة خلال ١٠ إلى ١٥ ثانية.',
-        'أبعد الذراعين قليلاً عن الجذع في وضع A أثناء الدوران.',
-      ];
-    }
-    if (isFa) {
-      return [
-        'در فضایی باز با آزادی چرخش کامل ۳۶۰ درجه بایستید.',
-        'یک چرخش آرام و مداوم ۳۶۰ درجه در مدت ۱۰ الی ۱۵ ثانیه ضبط کنید.',
-        'هنگام چرخش، دست‌ها در حالت A-Pose کمی از تنه فاصله داشته باشند.',
-      ];
-    }
-    return [
-      '360° dönebileceğiniz açık ve aydınlık bir alanda durun.',
-      '10-15 saniyede akıcı, yavaş ve kesintisiz 360° tam dönüş kaydedin.',
-      'Dönerken kolları A-Duruşunda gövdeden hafif açık tutun.',
-    ];
   }
 
   @override

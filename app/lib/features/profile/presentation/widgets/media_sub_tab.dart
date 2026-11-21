@@ -154,7 +154,9 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
         isVideo: slot.isVideo,
       );
 
-      ref.read(appStateProvider.notifier).updateMediaSlot(slot.key, downloadUrl);
+      ref
+          .read(appStateProvider.notifier)
+          .updateMediaSlot(slot.key, downloadUrl);
 
       if (mounted) {
         ScaffoldMessenger.of(this.context).showSnackBar(
@@ -233,10 +235,7 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(
               strings.dialogCancel,
-              style: TextStyle(
-                fontFamily: 'Vazirmatn',
-                color: colors.mu,
-              ),
+              style: TextStyle(fontFamily: 'Vazirmatn', color: colors.mu),
             ),
           ),
           AppButton(
@@ -596,10 +595,9 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
           ref.read(appStateProvider.notifier).setPersonaMode(modeKey);
           final uid = FirebaseAuth.instance.currentUser?.uid;
           if (uid != null) {
-            ref.read(mediaServiceProvider).savePersonaMode(
-                  uid: uid,
-                  mode: modeKey,
-                );
+            ref
+                .read(mediaServiceProvider)
+                .savePersonaMode(uid: uid, mode: modeKey);
           }
         }
       },
@@ -620,11 +618,7 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
         ),
         child: Column(
           children: [
-            FaIcon(
-              icon,
-              size: 20,
-              color: isSelected ? colors.pr : colors.mu,
-            ),
+            FaIcon(icon, size: 20, color: isSelected ? colors.pr : colors.mu),
             const SizedBox(height: 6),
             Text(
               title,
@@ -685,8 +679,8 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                             color: slot.isRequired
                                 ? colors.pr.withValues(alpha: 0.15)
                                 : (slot.isPro
-                                    ? colors.inColor.withValues(alpha: 0.15)
-                                    : colors.bg),
+                                      ? colors.inColor.withValues(alpha: 0.15)
+                                      : colors.bg),
                             borderRadius: AppRadius.rSm,
                             border: Border.all(
                               color: slot.isRequired
@@ -698,8 +692,8 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                             slot.isRequired
                                 ? strings.galRequired
                                 : (slot.isPro
-                                    ? strings.galProSlot
-                                    : strings.galOptional),
+                                      ? strings.galProSlot
+                                      : strings.galOptional),
                             style: TextStyle(
                               fontFamily: 'Vazirmatn',
                               fontSize: 9,
@@ -805,13 +799,14 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                                     fit: BoxFit.cover,
                                     width: double.infinity,
                                     height: double.infinity,
-                                    errorBuilder: (context, error, stackTrace) => Center(
-                                      child: FaIcon(
-                                        slot.icon,
-                                        size: 28,
-                                        color: colors.ok,
-                                      ),
-                                    ),
+                                    errorBuilder:
+                                        (context, error, stackTrace) => Center(
+                                          child: FaIcon(
+                                            slot.icon,
+                                            size: 28,
+                                            color: colors.ok,
+                                          ),
+                                        ),
                                   ),
                                 )
                               else if (isUploaded && slot.isVideo)
@@ -822,7 +817,9 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                                       width: 40,
                                       height: 40,
                                       decoration: BoxDecoration(
-                                        color: colors.ok.withValues(alpha: 0.15),
+                                        color: colors.ok.withValues(
+                                          alpha: 0.15,
+                                        ),
                                         shape: BoxShape.circle,
                                       ),
                                       child: Center(
@@ -901,11 +898,8 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                         children: [
                           // Replace
                           InkWell(
-                            onTap: () => _showMediaOptionsSheet(
-                              context,
-                              slot,
-                              mediaUrl,
-                            ),
+                            onTap: () =>
+                                _showMediaOptionsSheet(context, slot, mediaUrl),
                             child: Padding(
                               padding: const EdgeInsets.all(4),
                               child: FaIcon(
@@ -917,11 +911,8 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                           ),
                           // Delete
                           InkWell(
-                            onTap: () => _confirmDelete(
-                              context,
-                              slot,
-                              mediaUrl,
-                            ),
+                            onTap: () =>
+                                _confirmDelete(context, slot, mediaUrl),
                             child: Padding(
                               padding: const EdgeInsets.all(4),
                               child: FaIcon(

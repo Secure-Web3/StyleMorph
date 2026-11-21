@@ -68,10 +68,7 @@ class AtelierTab extends ConsumerWidget {
             value: atelierState.activeTab,
             onChanged: notifier.switchTab,
             items: [
-              AppSegmentItem(
-                value: 'showcase',
-                label: strings.atelShowcase,
-              ),
+              AppSegmentItem(value: 'showcase', label: strings.atelShowcase),
               AppSegmentItem(
                 value: 'creations',
                 label: strings.myCreations,
@@ -221,11 +218,7 @@ class _TemplateCard extends StatelessWidget {
                 Container(
                   color: primaryColor.withValues(alpha: 0.18),
                   child: Center(
-                    child: Icon(
-                      t.icons.first,
-                      size: 38,
-                      color: primaryColor,
-                    ),
+                    child: Icon(t.icons.first, size: 38, color: primaryColor),
                   ),
                 ),
                 // Media badge
@@ -250,104 +243,101 @@ class _TemplateCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                  // Wishlist button
-                  PositionedDirectional(
-                    top: 6,
-                    end: 6,
-                    child: GestureDetector(
-                      onTap: onWishlist,
-                      child: Container(
-                        width: 26,
-                        height: 26,
-                        decoration: BoxDecoration(
-                          color: colors.sf.withOpacity(0.9),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          isWishlisted
-                              ? Icons.favorite_rounded
-                              : Icons.favorite_border_rounded,
-                          size: 14,
-                          color: isWishlisted
-                              ? const Color(0xFFD1456B)
-                              : colors.mu,
-                        ),
+                // Wishlist button
+                PositionedDirectional(
+                  top: 6,
+                  end: 6,
+                  child: GestureDetector(
+                    onTap: onWishlist,
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: colors.sf.withValues(alpha: 0.9),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isWishlisted
+                            ? Icons.favorite_rounded
+                            : Icons.favorite_border_rounded,
+                        size: 14,
+                        color: isWishlisted
+                            ? const Color(0xFFD1456B)
+                            : colors.mu,
                       ),
                     ),
                   ),
-                  if (t.type == 'v')
-                    Center(
-                      child: Container(
-                        width: 32,
-                        height: 32,
-                        decoration: BoxDecoration(
-                          color: colors.sf.withOpacity(0.85),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow_rounded,
-                          size: 18,
-                        ),
+                ),
+                if (t.type == 'v')
+                  Center(
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: colors.sf.withValues(alpha: 0.85),
+                        shape: BoxShape.circle,
                       ),
+                      child: const Icon(Icons.play_arrow_rounded, size: 18),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
-            // Info
-            Padding(
-              padding: const EdgeInsets.all(7),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    strings.tr(t.name),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: 'Vazirmatn',
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: colors.tx,
-                    ),
+          ),
+          // Info
+          Padding(
+            padding: const EdgeInsets.all(7),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  strings.tr(t.name),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Vazirmatn',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: colors.tx,
                   ),
-                  const SizedBox(height: 3),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.monetization_on_rounded,
-                            size: 12,
-                            color: Color(0xFFD9A406),
-                          ),
-                          const SizedBox(width: 3),
-                          Text(
-                            strings.coinsText(t.price),
-                            style: TextStyle(
-                              fontFamily: 'Vazirmatn',
-                              fontSize: 10,
-                              fontWeight: FontWeight.w700,
-                              color: colors.tx,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Text(
-                        '${strings.formatPercent(t.popularity)} ${strings.atelSatisfaction}',
-                        style: TextStyle(
-                          fontFamily: 'Vazirmatn',
-                          fontSize: 9,
-                          color: colors.mu,
+                ),
+                const SizedBox(height: 3),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.monetization_on_rounded,
+                          size: 12,
+                          color: Color(0xFFD9A406),
                         ),
+                        const SizedBox(width: 3),
+                        Text(
+                          strings.coinsText(t.price),
+                          style: TextStyle(
+                            fontFamily: 'Vazirmatn',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: colors.tx,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      '${strings.formatPercent(t.popularity)} ${strings.atelSatisfaction}',
+                      style: TextStyle(
+                        fontFamily: 'Vazirmatn',
+                        fontSize: 9,
+                        color: colors.mu,
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -403,8 +393,7 @@ class _CreationsView extends ConsumerWidget {
                           value: (state.creations.length / 20).clamp(0.0, 1.0),
                           minHeight: 5,
                           backgroundColor: colors.bd,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(colors.pr),
+                          valueColor: AlwaysStoppedAnimation<Color>(colors.pr),
                         ),
                       ),
                     ],
@@ -491,7 +480,9 @@ class _CreationsView extends ConsumerWidget {
                             children: [
                               Text(
                                 strings.tr(c.templateTitle),
-                                style: AppTypography.cardTitle(color: colors.tx),
+                                style: AppTypography.cardTitle(
+                                  color: colors.tx,
+                                ),
                               ),
                               Text(
                                 '${strings.tr(c.date)} · ${c.type == 'v' ? strings.atelVideoBadge : strings.atelPhotosUnit}',
@@ -525,8 +516,10 @@ class _CreationsView extends ConsumerWidget {
                         if (c.status == CreationStatus.ready) ...[
                           const SizedBox(width: 4),
                           IconButton(
-                            icon: const Icon(Icons.arrow_forward_ios_rounded,
-                                size: 15),
+                            icon: const Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 15,
+                            ),
                             onPressed: () => _openCreation(context, ref, c),
                           ),
                         ],

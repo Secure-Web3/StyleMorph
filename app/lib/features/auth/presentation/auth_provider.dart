@@ -1,4 +1,4 @@
-﻿import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/firebase_auth_repository.dart';
@@ -59,7 +59,9 @@ class PasswordValidationState {
       hasUppercase: RegExp(r'[A-Z]').hasMatch(password),
       hasLowercase: RegExp(r'[a-z]').hasMatch(password),
       hasDigit: RegExp(r'[0-9]').hasMatch(password),
-      hasSpecialChar: RegExp(r'[!@#\$%^&*(),.?":{}|<>\-_=+]').hasMatch(password),
+      hasSpecialChar: RegExp(
+        r'[!@#\$%^&*(),.?":{}|<>\-_=+]',
+      ).hasMatch(password),
     );
   }
 
@@ -143,8 +145,9 @@ class AuthFormState {
       passwordsMatch: passwordsMatch ?? this.passwordsMatch,
       isSubmitting: isSubmitting ?? this.isSubmitting,
       errorCode: clearError ? null : (errorCode ?? this.errorCode),
-      successMessageKey:
-          clearSuccess ? null : (successMessageKey ?? this.successMessageKey),
+      successMessageKey: clearSuccess
+          ? null
+          : (successMessageKey ?? this.successMessageKey),
       rememberMe: rememberMe ?? this.rememberMe,
       referralCode: referralCode ?? this.referralCode,
     );
@@ -183,7 +186,8 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
 
   void setPassword(String value) {
     final validation = PasswordValidationState.validate(value);
-    final match = state.confirmPassword.isEmpty || value == state.confirmPassword;
+    final match =
+        state.confirmPassword.isEmpty || value == state.confirmPassword;
     state = state.copyWith(
       password: value,
       passwordValidation: validation,
@@ -226,7 +230,10 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
     try {
       final sessionService = _ref.read(sessionServiceProvider);
       final deviceId = await sessionService.currentDeviceId();
-      final isBlocked = await sessionService.isDeviceBlocked(user.uid, deviceId);
+      final isBlocked = await sessionService.isDeviceBlocked(
+        user.uid,
+        deviceId,
+      );
       if (isBlocked) {
         try {
           await _repository.signOut();
@@ -276,7 +283,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
-      debugPrint('[AuthFormNotifier] login FirebaseAuthException: ${e.code} — ${e.message}');
+      debugPrint(
+        '[AuthFormNotifier] login FirebaseAuthException: ${e.code} — ${e.message}',
+      );
       state = state.copyWith(isSubmitting: false, errorCode: e.code);
       return false;
     } catch (e) {
@@ -316,13 +325,14 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       if (user != null) {
         if (state.referralCode.isNotEmpty) {
           try {
-            final applied =
-                await _ref.read(referralServiceProvider).applyReferralOnSignUp(
-                      newUserUid: user.uid,
-                      newEmail: user.email ?? state.email,
-                      displayName: user.displayName,
-                      referralCode: state.referralCode,
-                    );
+            final applied = await _ref
+                .read(referralServiceProvider)
+                .applyReferralOnSignUp(
+                  newUserUid: user.uid,
+                  newEmail: user.email ?? state.email,
+                  displayName: user.displayName,
+                  referralCode: state.referralCode,
+                );
             if (applied) {
               _ref.read(appStateProvider.notifier).addCoins(50);
             }
@@ -345,7 +355,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
-      debugPrint('[AuthFormNotifier] signup FirebaseAuthException: ${e.code} — ${e.message}');
+      debugPrint(
+        '[AuthFormNotifier] signup FirebaseAuthException: ${e.code} — ${e.message}',
+      );
       state = state.copyWith(isSubmitting: false, errorCode: e.code);
       return false;
     } catch (e) {
@@ -364,7 +376,10 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
           .applyPersistence(state.rememberMe);
       final credential = await _repository.signInWithGoogle();
       if (credential == null) {
-        state = state.copyWith(isSubmitting: false, errorCode: 'google-cancelled');
+        state = state.copyWith(
+          isSubmitting: false,
+          errorCode: 'google-cancelled',
+        );
         return false;
       }
       if (await _isCurrentDeviceBlocked()) return false;
@@ -374,7 +389,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
-      debugPrint('[AuthFormNotifier] signInWithGoogle FirebaseAuthException: ${e.code} — ${e.message}');
+      debugPrint(
+        '[AuthFormNotifier] signInWithGoogle FirebaseAuthException: ${e.code} — ${e.message}',
+      );
       state = state.copyWith(isSubmitting: false, errorCode: e.code);
       return false;
     } catch (e) {
@@ -393,7 +410,10 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
           .applyPersistence(state.rememberMe);
       final credential = await _repository.signInWithApple();
       if (credential == null) {
-        state = state.copyWith(isSubmitting: false, errorCode: 'apple-cancelled');
+        state = state.copyWith(
+          isSubmitting: false,
+          errorCode: 'apple-cancelled',
+        );
         return false;
       }
       if (await _isCurrentDeviceBlocked()) return false;
@@ -403,7 +423,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       state = state.copyWith(isSubmitting: false);
       return true;
     } on FirebaseAuthException catch (e) {
-      debugPrint('[AuthFormNotifier] signInWithApple FirebaseAuthException: ${e.code} — ${e.message}');
+      debugPrint(
+        '[AuthFormNotifier] signInWithApple FirebaseAuthException: ${e.code} — ${e.message}',
+      );
       state = state.copyWith(isSubmitting: false, errorCode: e.code);
       return false;
     } catch (e) {
@@ -415,7 +437,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
 
   /// Sends a password reset email via Firebase Auth.
   Future<bool> sendPasswordResetEmail() async {
-    final email = state.forgotEmail.isNotEmpty ? state.forgotEmail : state.email;
+    final email = state.forgotEmail.isNotEmpty
+        ? state.forgotEmail
+        : state.email;
     if (email.isEmpty) {
       state = state.copyWith(errorCode: 'invalid-email');
       return false;
@@ -430,11 +454,15 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       );
       return true;
     } on FirebaseAuthException catch (e) {
-      debugPrint('[AuthFormNotifier] sendPasswordResetEmail FirebaseAuthException: ${e.code} — ${e.message}');
+      debugPrint(
+        '[AuthFormNotifier] sendPasswordResetEmail FirebaseAuthException: ${e.code} — ${e.message}',
+      );
       state = state.copyWith(isSubmitting: false, errorCode: e.code);
       return false;
     } catch (e) {
-      debugPrint('[AuthFormNotifier] sendPasswordResetEmail unexpected error: $e');
+      debugPrint(
+        '[AuthFormNotifier] sendPasswordResetEmail unexpected error: $e',
+      );
       state = state.copyWith(isSubmitting: false, errorCode: 'generic:$e');
       return false;
     }
@@ -442,11 +470,12 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
 }
 
 /// Main StateNotifier provider for authentication form state & operations.
-final authFormProvider =
-    StateNotifierProvider<AuthFormNotifier, AuthFormState>((ref) {
-  final repo = ref.watch(authRepositoryProvider);
-  return AuthFormNotifier(repo, ref);
-});
+final authFormProvider = StateNotifierProvider<AuthFormNotifier, AuthFormState>(
+  (ref) {
+    final repo = ref.watch(authRepositoryProvider);
+    return AuthFormNotifier(repo, ref);
+  },
+);
 
 /// Granular selectors
 final authModeProvider = Provider<AuthMode>((ref) {

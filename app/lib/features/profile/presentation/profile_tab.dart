@@ -129,9 +129,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                 width: 82,
                 decoration: BoxDecoration(
                   color: colors.sf,
-                  border: BorderDirectional(
-                    end: BorderSide(color: colors.bd),
-                  ),
+                  border: BorderDirectional(end: BorderSide(color: colors.bd)),
                 ),
                 child: SafeArea(
                   top: false,
@@ -267,8 +265,9 @@ class _SidebarTabButton extends StatelessWidget {
           width: double.infinity,
           padding: EdgeInsets.symmetric(vertical: verticalPad, horizontal: 4),
           decoration: BoxDecoration(
-            color:
-                effectiveIsActive ? colors.pr.withValues(alpha: 0.08) : Colors.transparent,
+            color: effectiveIsActive
+                ? colors.pr.withValues(alpha: 0.08)
+                : Colors.transparent,
             border: BorderDirectional(
               start: BorderSide(
                 color: effectiveIsActive ? colors.pr : Colors.transparent,
@@ -306,8 +305,9 @@ class _SidebarTabButton extends StatelessWidget {
                       style: TextStyle(
                         fontFamily: 'Vazirmatn',
                         fontSize: 10,
-                        fontWeight:
-                            effectiveIsActive ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight: effectiveIsActive
+                            ? FontWeight.w700
+                            : FontWeight.w500,
                         color: !isEnabled
                             ? colors.mu
                             : (effectiveIsActive ? colors.pr : colors.mu),
@@ -423,7 +423,9 @@ class _StickySaveBar extends StatelessWidget {
         icon: isSaving
             ? null
             : FaIcon(
-                hasChanges ? FontAwesomeIcons.floppyDisk : FontAwesomeIcons.check,
+                hasChanges
+                    ? FontAwesomeIcons.floppyDisk
+                    : FontAwesomeIcons.check,
                 size: 14,
                 color: hasChanges ? colors.prt : colors.mu,
               ),

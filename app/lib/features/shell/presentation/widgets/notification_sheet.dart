@@ -23,11 +23,11 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
   String _selectedCategory = 'all';
 
   List<({String id, String label})> _categories(AppStrings strings) => [
-        (id: 'all', label: strings.allText),
-        (id: 'ai', label: strings.notifCatAi),
-        (id: 'shop', label: strings.notifCatShop),
-        (id: 'finance', label: strings.notifCatFinance),
-      ];
+    (id: 'all', label: strings.allText),
+    (id: 'ai', label: strings.notifCatAi),
+    (id: 'shop', label: strings.notifCatShop),
+    (id: 'finance', label: strings.notifCatFinance),
+  ];
 
   void _handleNotificationTap(AppNotification notif) {
     final appNotifier = ref.read(appStateProvider.notifier);
@@ -61,8 +61,8 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
     final filtered = _selectedCategory == 'all'
         ? appState.notifications
         : appState.notifications
-            .where((n) => n.category == _selectedCategory)
-            .toList();
+              .where((n) => n.category == _selectedCategory)
+              .toList();
 
     return AppBottomSheetShell(
       title: strings.notificationsTitle,
@@ -81,8 +81,8 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
         InkWell(
           onTap: unreadCount > 0
               ? () => ref
-                  .read(appStateProvider.notifier)
-                  .markAllNotificationsRead()
+                    .read(appStateProvider.notifier)
+                    .markAllNotificationsRead()
               : null,
           borderRadius: AppRadius.rMd,
           child: Padding(
@@ -159,8 +159,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                         borderColor: notif.isRead
                             ? colors.bd
                             : colors.pr.withValues(alpha: 0.28),
-                        padding:
-                            const EdgeInsetsDirectional.all(AppSpacing.md),
+                        padding: const EdgeInsetsDirectional.all(AppSpacing.md),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -194,9 +193,9 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                                           height: 7,
                                           margin:
                                               const EdgeInsetsDirectional.only(
-                                            top: 5,
-                                            end: 6,
-                                          ),
+                                                top: 5,
+                                                end: 6,
+                                              ),
                                           decoration: BoxDecoration(
                                             color: colors.orColor,
                                             shape: BoxShape.circle,

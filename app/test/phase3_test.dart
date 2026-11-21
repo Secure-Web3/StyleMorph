@@ -40,8 +40,10 @@ void main() {
       addTearDown(container.dispose);
 
       final notifier = container.read(stylistProvider.notifier);
-      final initialCount =
-          container.read(stylistProvider).filteredOutfits.length;
+      final initialCount = container
+          .read(stylistProvider)
+          .filteredOutfits
+          .length;
 
       // Filter by 'کار'
       notifier.setOccasion('کار');
@@ -77,8 +79,9 @@ void main() {
       );
     });
 
-    testWidgets('StylistTab renders properly with occasion pills and actions',
-        (tester) async {
+    testWidgets('StylistTab renders properly with occasion pills and actions', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(const Size(430, 932));
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -86,21 +89,18 @@ void main() {
         ProviderScope(
           child: MaterialApp(
             locale: const Locale('fa'),
-            supportedLocales:
-                AppLanguage.supportedLanguages.map((l) => l.locale).toList(),
+            supportedLocales: AppLanguage.supportedLanguages
+                .map((l) => l.locale)
+                .toList(),
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            theme: ThemeData(
-              extensions: const [AppColors.lightWhite],
-            ),
+            theme: ThemeData(extensions: const [AppColors.lightWhite]),
             home: const Directionality(
               textDirection: TextDirection.rtl,
-              child: Scaffold(
-                body: StylistTab(),
-              ),
+              child: Scaffold(body: StylistTab()),
             ),
           ),
         ),
@@ -138,15 +138,21 @@ void main() {
       notifier.setCreationsFilter('p');
       expect(container.read(atelierProvider).creationsFilter, 'p');
       expect(
-        container.read(atelierProvider).filteredCreations.every((c) =>
-            c.status == CreationStatus.queue ||
-            c.status == CreationStatus.processing),
+        container
+            .read(atelierProvider)
+            .filteredCreations
+            .every(
+              (c) =>
+                  c.status == CreationStatus.queue ||
+                  c.status == CreationStatus.processing,
+            ),
         true,
       );
     });
 
-    testWidgets('AtelierTab renders showcase grid and template cards',
-        (tester) async {
+    testWidgets('AtelierTab renders showcase grid and template cards', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(const Size(430, 932));
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -154,21 +160,18 @@ void main() {
         ProviderScope(
           child: MaterialApp(
             locale: const Locale('fa'),
-            supportedLocales:
-                AppLanguage.supportedLanguages.map((l) => l.locale).toList(),
+            supportedLocales: AppLanguage.supportedLanguages
+                .map((l) => l.locale)
+                .toList(),
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            theme: ThemeData(
-              extensions: const [AppColors.lightWhite],
-            ),
+            theme: ThemeData(extensions: const [AppColors.lightWhite]),
             home: const Directionality(
               textDirection: TextDirection.rtl,
-              child: Scaffold(
-                body: AtelierTab(),
-              ),
+              child: Scaffold(body: AtelierTab()),
             ),
           ),
         ),
@@ -223,6 +226,7 @@ void main() {
       final container = ProviderContainer();
       addTearDown(container.dispose);
 
+      container.read(appStateProvider.notifier).addCoins(100);
       final initialCoins = container.read(appStateProvider).coins;
       final notifier = container.read(wellnessProvider.notifier);
 
@@ -231,45 +235,43 @@ void main() {
     });
 
     testWidgets(
-        'WellnessTab renders 3 score rings and routine items with zero ads',
-        (tester) async {
-      await tester.binding.setSurfaceSize(const Size(430, 932));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
+      'WellnessTab renders 3 score rings and routine items with zero ads',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(430, 932));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
 
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            locale: const Locale('fa'),
-            supportedLocales:
-                AppLanguage.supportedLanguages.map((l) => l.locale).toList(),
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            theme: ThemeData(
-              extensions: const [AppColors.lightWhite],
-            ),
-            home: const Directionality(
-              textDirection: TextDirection.rtl,
-              child: Scaffold(
-                body: WellnessTab(),
+        await tester.pumpWidget(
+          ProviderScope(
+            child: MaterialApp(
+              locale: const Locale('fa'),
+              supportedLocales: AppLanguage.supportedLanguages
+                  .map((l) => l.locale)
+                  .toList(),
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              theme: ThemeData(extensions: const [AppColors.lightWhite]),
+              home: const Directionality(
+                textDirection: TextDirection.rtl,
+                child: Scaffold(body: WellnessTab()),
               ),
             ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('زیبایی'), findsWidgets);
-      expect(find.text('تندرستی'), findsWidgets);
-      expect(find.text('روان'), findsWidgets);
-      expect(find.text('بینش امروز هوش مصنوعی'), findsOneWidget);
-      expect(find.text('مشاهده روتین پوستی'), findsOneWidget);
+        expect(find.text('زیبایی'), findsWidgets);
+        expect(find.text('تندرستی'), findsWidgets);
+        expect(find.text('روان'), findsWidgets);
+        expect(find.text('بینش امروز هوش مصنوعی'), findsOneWidget);
+        expect(find.text('مشاهده روتین پوستی'), findsOneWidget);
 
-      // Verify ZERO ads are displayed
-      expect(find.text('تبلیغ'), findsNothing);
-      expect(find.text('اسپانسر'), findsNothing);
-    });
+        // Verify ZERO ads are displayed
+        expect(find.text('تبلیغ'), findsNothing);
+        expect(find.text('اسپانسر'), findsNothing);
+      },
+    );
   });
 }

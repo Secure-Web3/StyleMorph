@@ -72,8 +72,7 @@ void main() {
 
     return ProviderScope(
       overrides: [
-        appStateProvider
-            .overrideWith((ref) => _TestAppStateNotifier(state)),
+        appStateProvider.overrideWith((ref) => _TestAppStateNotifier(state)),
         allSessionsProvider.overrideWith(
           (ref) => Stream.value(sessions ?? mockSessions),
         ),
@@ -92,50 +91,51 @@ void main() {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: Scaffold(
-          body: child,
-        ),
+        home: Scaffold(body: child),
       ),
     );
   }
 
   group('Sessions Sidebar Tab Icon & Badge Tests (Task 24)', () {
-    testWidgets('Renders standard Icons.devices_rounded and non-overlapping session badge in Persian',
-        (tester) async {
-      await tester.binding.setSurfaceSize(const Size(800, 1200));
-      addTearDown(() => tester.binding.setSurfaceSize(null));
+    testWidgets(
+      'Renders standard Icons.devices_rounded and non-overlapping session badge in Persian',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(800, 1200));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
 
-      await tester.pumpWidget(
-        buildTestableWidget(
-          locale: const Locale('fa'),
-          child: const ProfileTab(),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildTestableWidget(
+            locale: const Locale('fa'),
+            child: const ProfileTab(),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // 1. Verify standard Icons.devices_rounded icon is rendered
-      final devicesIconFinder = find.byIcon(Icons.devices_rounded);
-      expect(devicesIconFinder, findsOneWidget);
+        // 1. Verify standard Icons.devices_rounded icon is rendered
+        final devicesIconFinder = find.byIcon(Icons.devices_rounded);
+        expect(devicesIconFinder, findsOneWidget);
 
-      // 2. Verify Persian session count numeral '۲' (2 active sessions)
-      final badgeTextFinder = find.text('۲');
-      expect(badgeTextFinder, findsOneWidget);
+        // 2. Verify Persian session count numeral '۲' (2 active sessions)
+        final badgeTextFinder = find.text('۲');
+        expect(badgeTextFinder, findsOneWidget);
 
-      // 3. Verify Non-overlapping geometry: badge must NOT overlap or obscure the icon
-      final iconRect = tester.getRect(devicesIconFinder);
-      final badgeRect = tester.getRect(badgeTextFinder);
+        // 3. Verify Non-overlapping geometry: badge must NOT overlap or obscure the icon
+        final iconRect = tester.getRect(devicesIconFinder);
+        final badgeRect = tester.getRect(badgeTextFinder);
 
-      // The rect of the badge should not intersect the rect of the icon
-      final overlaps = iconRect.overlaps(badgeRect);
-      expect(
-        overlaps,
-        isFalse,
-        reason: 'Badge ($badgeRect) must not overlap the icon ($iconRect)',
-      );
-    });
+        // The rect of the badge should not intersect the rect of the icon
+        final overlaps = iconRect.overlaps(badgeRect);
+        expect(
+          overlaps,
+          isFalse,
+          reason: 'Badge ($badgeRect) must not overlap the icon ($iconRect)',
+        );
+      },
+    );
 
-    testWidgets('Renders standard icon and English session count numeral "2"',
-        (tester) async {
+    testWidgets('Renders standard icon and English session count numeral "2"', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(const Size(800, 1200));
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -160,8 +160,9 @@ void main() {
       expect(iconRect.overlaps(badgeRect), isFalse);
     });
 
-    testWidgets('Does not render badge when active sessions count is zero',
-        (tester) async {
+    testWidgets('Does not render badge when active sessions count is zero', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(const Size(800, 1200));
       addTearDown(() => tester.binding.setSurfaceSize(null));
 

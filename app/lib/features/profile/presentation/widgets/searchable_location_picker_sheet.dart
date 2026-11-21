@@ -241,24 +241,25 @@ class _SearchableCountryViewState extends State<_SearchableCountryView> {
               child: ListView.separated(
                 controller: scrollController,
                 itemCount: _filtered.length,
-                separatorBuilder: (context, index) => const Divider(height: 1, indent: 16),
+                separatorBuilder: (context, index) =>
+                    const Divider(height: 1, indent: 16),
                 itemBuilder: (ctx, index) {
                   final c = _filtered[index];
                   final isSelected = widget.selectedCode != null
-                      ? (c.code.toUpperCase() == widget.selectedCode?.toUpperCase())
+                      ? (c.code.toUpperCase() ==
+                            widget.selectedCode?.toUpperCase())
                       : (c.dialCode == widget.selectedDialCode);
 
                   return ListTile(
-                    leading: Text(
-                      c.flag,
-                      style: const TextStyle(fontSize: 22),
-                    ),
+                    leading: Text(c.flag, style: const TextStyle(fontSize: 22)),
                     title: Text(
                       c.localizedName(widget.localeCode),
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 13,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
                         color: isSelected ? colors.pr : colors.tx,
                       ),
                     ),
@@ -318,7 +319,8 @@ class _SearchableProvinceView extends StatefulWidget {
   });
 
   @override
-  State<_SearchableProvinceView> createState() => _SearchableProvinceViewState();
+  State<_SearchableProvinceView> createState() =>
+      _SearchableProvinceViewState();
 }
 
 class _SearchableProvinceViewState extends State<_SearchableProvinceView> {
@@ -415,12 +417,16 @@ class _SearchableProvinceViewState extends State<_SearchableProvinceView> {
               child: ListView.separated(
                 controller: scrollController,
                 itemCount: _filtered.length,
-                separatorBuilder: (context, index) => const Divider(height: 1, indent: 16),
+                separatorBuilder: (context, index) =>
+                    const Divider(height: 1, indent: 16),
                 itemBuilder: (ctx, index) {
                   final p = _filtered[index];
-                  final isSelected = widget.selectedCode != null &&
-                      (p.code.toLowerCase() == widget.selectedCode?.toLowerCase() ||
-                          p.nameEn.toLowerCase() == widget.selectedCode?.toLowerCase() ||
+                  final isSelected =
+                      widget.selectedCode != null &&
+                      (p.code.toLowerCase() ==
+                              widget.selectedCode?.toLowerCase() ||
+                          p.nameEn.toLowerCase() ==
+                              widget.selectedCode?.toLowerCase() ||
                           p.nameFa == widget.selectedCode);
 
                   return ListTile(
@@ -429,7 +435,9 @@ class _SearchableProvinceViewState extends State<_SearchableProvinceView> {
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 13,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
                         color: isSelected ? colors.pr : colors.tx,
                       ),
                     ),
@@ -442,7 +450,11 @@ class _SearchableProvinceViewState extends State<_SearchableProvinceView> {
                       ),
                     ),
                     trailing: isSelected
-                        ? FaIcon(FontAwesomeIcons.check, size: 14, color: colors.pr)
+                        ? FaIcon(
+                            FontAwesomeIcons.check,
+                            size: 14,
+                            color: colors.pr,
+                          )
                         : null,
                     onTap: () => Navigator.of(context).pop(p),
                   );
@@ -565,7 +577,11 @@ class _SearchableCityViewState extends State<_SearchableCityView> {
             // Custom typed city option if query is not found
             if (query.isNotEmpty) ...[
               ListTile(
-                leading: FaIcon(FontAwesomeIcons.plus, size: 14, color: colors.pr),
+                leading: FaIcon(
+                  FontAwesomeIcons.plus,
+                  size: 14,
+                  color: colors.pr,
+                ),
                 title: Text(
                   '${strings.idUseCustomCity}: "$query"',
                   style: TextStyle(
@@ -584,13 +600,16 @@ class _SearchableCityViewState extends State<_SearchableCityView> {
               child: ListView.separated(
                 controller: scrollController,
                 itemCount: _filtered.length,
-                separatorBuilder: (context, index) => const Divider(height: 1, indent: 16),
+                separatorBuilder: (context, index) =>
+                    const Divider(height: 1, indent: 16),
                 itemBuilder: (ctx, index) {
                   final c = _filtered[index];
                   final localizedName = c.localizedName(widget.localeCode);
-                  final isSelected = widget.currentCity != null &&
+                  final isSelected =
+                      widget.currentCity != null &&
                       (widget.currentCity == localizedName ||
-                          widget.currentCity?.toLowerCase() == c.nameEn.toLowerCase());
+                          widget.currentCity?.toLowerCase() ==
+                              c.nameEn.toLowerCase());
 
                   return ListTile(
                     title: Text(
@@ -598,7 +617,9 @@ class _SearchableCityViewState extends State<_SearchableCityView> {
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 13,
-                        fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight: isSelected
+                            ? FontWeight.w700
+                            : FontWeight.w500,
                         color: isSelected ? colors.pr : colors.tx,
                       ),
                     ),
@@ -611,7 +632,11 @@ class _SearchableCityViewState extends State<_SearchableCityView> {
                       ),
                     ),
                     trailing: isSelected
-                        ? FaIcon(FontAwesomeIcons.check, size: 14, color: colors.pr)
+                        ? FaIcon(
+                            FontAwesomeIcons.check,
+                            size: 14,
+                            color: colors.pr,
+                          )
                         : null,
                     onTap: () => Navigator.of(context).pop(localizedName),
                   );

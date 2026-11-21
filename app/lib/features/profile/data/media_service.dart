@@ -12,13 +12,15 @@ class MediaService {
   final FirebaseFirestore _firestore;
   final FirebaseStorage? _storage;
 
-  MediaService({
-    FirebaseFirestore? firestore,
-    FirebaseStorage? storage,
-  })  : _firestore = firestore ??
-            (Firebase.apps.isNotEmpty ? FirebaseFirestore.instance : null as dynamic),
-        _storage = storage ??
-            (Firebase.apps.isNotEmpty ? FirebaseStorage.instance : null);
+  MediaService({FirebaseFirestore? firestore, FirebaseStorage? storage})
+    : _firestore =
+          firestore ??
+          (Firebase.apps.isNotEmpty
+              ? FirebaseFirestore.instance
+              : null as dynamic),
+      _storage =
+          storage ??
+          (Firebase.apps.isNotEmpty ? FirebaseStorage.instance : null);
 
   /// Uploads media file to Firebase Storage under `users/{uid}/media/{slotKey}_{timestamp}.{ext}`
   /// and persists download URL in Firestore document `users/{uid}` under `mediaSlots.{slotKey}`.
@@ -39,7 +41,12 @@ class MediaService {
         ? file.name.split('.').last
         : (isVideo ? 'mp4' : 'webp');
     final filename = '${DateTime.now().millisecondsSinceEpoch}_$slotKey.$ext';
-    final ref = _storage.ref().child('users').child(uid).child('media').child(filename);
+    final ref = _storage
+        .ref()
+        .child('users')
+        .child(uid)
+        .child('media')
+        .child(filename);
 
     final bytes = await file.readAsBytes();
     final metadata = SettableMetadata(
@@ -53,9 +60,7 @@ class MediaService {
     // Persist in Firestore
     final userDoc = _firestore.collection('users').doc(uid);
     await userDoc.set({
-      'mediaSlots': {
-        slotKey: downloadUrl,
-      },
+      'mediaSlots': {slotKey: downloadUrl},
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
 

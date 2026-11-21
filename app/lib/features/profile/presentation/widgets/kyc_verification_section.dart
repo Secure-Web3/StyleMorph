@@ -234,11 +234,9 @@ class _KycVerificationSectionState
         }
       } catch (_) {}
 
-      await ref.read(kycServiceProvider).deleteKyc(
-            uid,
-            frontUrl: kycData.frontUrl,
-            backUrl: kycData.backUrl,
-          );
+      await ref
+          .read(kycServiceProvider)
+          .deleteKyc(uid, frontUrl: kycData.frontUrl, backUrl: kycData.backUrl);
 
       ref.read(appStateProvider.notifier).updateKycData(const KycData());
 

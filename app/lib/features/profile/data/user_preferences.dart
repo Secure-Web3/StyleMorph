@@ -39,26 +39,31 @@ class UserPreferences {
   factory UserPreferences.fromMap(Map<String, dynamic>? map) {
     if (map == null) return const UserPreferences();
     return UserPreferences(
-      fashionThemePalette: map['fashionThemePalette']?.toString() ??
+      fashionThemePalette:
+          map['fashionThemePalette']?.toString() ??
           map['palette']?.toString() ??
           'editorial',
-      brightnessMode: map['brightnessMode']?.toString() ??
+      brightnessMode:
+          map['brightnessMode']?.toString() ??
           map['mode']?.toString() ??
           'light',
-      appLanguage: map['appLanguage']?.toString() ??
-          map['language']?.toString() ??
-          'en',
-      showFloatingSupport: map['showFloatingSupport'] as bool? ??
+      appLanguage:
+          map['appLanguage']?.toString() ?? map['language']?.toString() ?? 'en',
+      showFloatingSupport:
+          map['showFloatingSupport'] as bool? ??
           map['floatingSupport'] as bool? ??
           false,
-      showHeaderCoins: map['showHeaderCoins'] as bool? ??
+      showHeaderCoins:
+          map['showHeaderCoins'] as bool? ??
           map['headerCoins'] as bool? ??
           false,
       showEmailInHeader: map['showEmailInHeader'] as bool? ?? false,
-      biometricLock: map['biometricLock'] as bool? ??
+      biometricLock:
+          map['biometricLock'] as bool? ??
           map['biometricEnabled'] as bool? ??
           false,
-      autoDataBackup: map['autoDataBackup']?.toString() ??
+      autoDataBackup:
+          map['autoDataBackup']?.toString() ??
           map['backupFrequency']?.toString() ??
           'weekly',
     );

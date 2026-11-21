@@ -137,11 +137,7 @@ class _FallbackSecurityChallengeState extends State<FallbackSecurityChallenge> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.check_circle_rounded,
-              color: colors.ok,
-              size: 20,
-            ),
+            Icon(Icons.check_circle_rounded, color: colors.ok, size: 20),
             const SizedBox(width: AppSpacing.sm),
             Text(
               strings.authFallbackVerified,
@@ -167,19 +163,12 @@ class _FallbackSecurityChallengeState extends State<FallbackSecurityChallenge> {
       decoration: BoxDecoration(
         color: colors.sf,
         borderRadius: BorderRadius.circular(AppRadius.md),
-        border: Border.all(
-          color: colors.bd,
-          width: 1.0,
-        ),
+        border: Border.all(color: colors.bd, width: 1.0),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.security_rounded,
-            size: 16,
-            color: colors.mu,
-          ),
+          Icon(Icons.security_rounded, size: 16, color: colors.mu),
           const SizedBox(width: AppSpacing.xs),
           Text(
             strings.authFallbackMathQuestion(_a, _b),
@@ -235,11 +224,7 @@ class _FallbackSecurityChallengeState extends State<FallbackSecurityChallenge> {
           ),
           const SizedBox(width: AppSpacing.xxs),
           IconButton(
-            icon: Icon(
-              Icons.refresh_rounded,
-              size: 16,
-              color: colors.mu,
-            ),
+            icon: Icon(Icons.refresh_rounded, size: 16, color: colors.mu),
             tooltip: 'Refresh puzzle',
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(minWidth: 28, minHeight: 28),

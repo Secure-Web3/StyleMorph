@@ -86,9 +86,7 @@ class KycImagePreviewDialog extends StatelessWidget {
                 ),
                 child: InteractiveViewer(
                   maxScale: 4.0,
-                  child: Center(
-                    child: _buildImage(colors),
-                  ),
+                  child: Center(child: _buildImage(colors)),
                 ),
               ),
             ),
@@ -124,7 +122,7 @@ class KycImagePreviewDialog extends StatelessWidget {
             child: CircularProgressIndicator(
               value: progress.expectedTotalBytes != null
                   ? progress.cumulativeBytesLoaded /
-                      progress.expectedTotalBytes!
+                        progress.expectedTotalBytes!
                   : null,
               color: colors.pr,
             ),
@@ -142,11 +140,7 @@ class KycImagePreviewDialog extends StatelessWidget {
       height: 200,
       color: colors.bg,
       alignment: Alignment.center,
-      child: FaIcon(
-        FontAwesomeIcons.image,
-        size: 40,
-        color: colors.mu,
-      ),
+      child: FaIcon(FontAwesomeIcons.image, size: 40, color: colors.mu),
     );
   }
 }

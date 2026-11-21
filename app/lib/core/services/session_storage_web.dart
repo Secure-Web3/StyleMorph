@@ -47,7 +47,10 @@ class SessionLocalStorage {
 
   static Future<void> setBiometricLockEnabled(bool enabled) async {
     try {
-      web.window.localStorage.setItem('sm_biometric_lock', enabled ? 'true' : 'false');
+      web.window.localStorage.setItem(
+        'sm_biometric_lock',
+        enabled ? 'true' : 'false',
+      );
     } catch (_) {}
   }
 }

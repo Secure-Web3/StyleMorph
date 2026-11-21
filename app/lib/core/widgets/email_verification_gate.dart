@@ -75,8 +75,9 @@ Future<bool?> showEmailVerificationSoftGate(
             Text(
               strings.emailVerificationSoftGateDesc,
               textAlign: TextAlign.center,
-              style:
-                  AppTypography.bodyMedium(color: colors.mu).copyWith(height: 1.5),
+              style: AppTypography.bodyMedium(
+                color: colors.mu,
+              ).copyWith(height: 1.5),
             ),
             const SizedBox(height: AppSpacing.xl),
 
@@ -104,8 +105,8 @@ Future<bool?> showEmailVerificationSoftGate(
               onPressed: verificationState.isChecking
                   ? null
                   : () async {
-                      final verified =
-                          await notifier.reloadAndCheckVerification();
+                      final verified = await notifier
+                          .reloadAndCheckVerification();
                       if (!context.mounted) return;
                       if (verified) {
                         Navigator.pop(context, true);
@@ -124,9 +125,7 @@ Future<bool?> showEmailVerificationSoftGate(
                   ? const SizedBox(
                       width: 14,
                       height: 14,
-                      child: CircularProgressIndicator.adaptive(
-                        strokeWidth: 2,
-                      ),
+                      child: CircularProgressIndicator.adaptive(strokeWidth: 2),
                     )
                   : null,
             ),

@@ -24,45 +24,60 @@ void main() {
   });
 
   group('SessionPersistenceService Tests', () {
-    test('SessionPersistenceService defaults to true for Remember Me', () async {
-      SharedPreferences.setMockInitialValues({});
-      final service = SessionPersistenceService();
+    test(
+      'SessionPersistenceService defaults to true for Remember Me',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        final service = SessionPersistenceService();
 
-      final initial = await service.getRememberMe();
-      expect(initial, isTrue);
-    });
+        final initial = await service.getRememberMe();
+        expect(initial, isTrue);
+      },
+    );
 
-    test('SessionPersistenceService sets and reads rememberMe correctly', () async {
-      SharedPreferences.setMockInitialValues({});
-      final service = SessionPersistenceService();
+    test(
+      'SessionPersistenceService sets and reads rememberMe correctly',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        final service = SessionPersistenceService();
 
-      await service.setRememberMe(false);
-      expect(await service.getRememberMe(), isFalse);
+        await service.setRememberMe(false);
+        expect(await service.getRememberMe(), isFalse);
 
-      await service.setRememberMe(true);
-      expect(await service.getRememberMe(), isTrue);
-    });
+        await service.setRememberMe(true);
+        expect(await service.getRememberMe(), isTrue);
+      },
+    );
 
-    test('SessionPersistenceService applyPersistence updates local storage flag', () async {
-      SharedPreferences.setMockInitialValues({});
-      final service = SessionPersistenceService();
+    test(
+      'SessionPersistenceService applyPersistence updates local storage flag',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        final service = SessionPersistenceService();
 
-      await service.applyPersistence(false);
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool(SessionPersistenceService.keyRememberMe), isFalse);
+        await service.applyPersistence(false);
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getBool(SessionPersistenceService.keyRememberMe), isFalse);
 
-      await service.applyPersistence(true);
-      expect(prefs.getBool(SessionPersistenceService.keyRememberMe), isTrue);
-    });
+        await service.applyPersistence(true);
+        expect(prefs.getBool(SessionPersistenceService.keyRememberMe), isTrue);
+      },
+    );
 
-    test('checkAndClearNonPersistentSessionOnStartup handles uninitialized Firebase safely', () async {
-      SharedPreferences.setMockInitialValues({
-        SessionPersistenceService.keyRememberMe: false,
-      });
-      final service = SessionPersistenceService();
-      // Should not throw even if Firebase.apps is empty in test runner
-      expect(() => service.checkAndClearNonPersistentSessionOnStartup(), returnsNormally);
-    });
+    test(
+      'checkAndClearNonPersistentSessionOnStartup handles uninitialized Firebase safely',
+      () async {
+        SharedPreferences.setMockInitialValues({
+          SessionPersistenceService.keyRememberMe: false,
+        });
+        final service = SessionPersistenceService();
+        // Should not throw even if Firebase.apps is empty in test runner
+        expect(
+          () => service.checkAndClearNonPersistentSessionOnStartup(),
+          returnsNormally,
+        );
+      },
+    );
   });
 
   group('Remember Me Localization & State Tests', () {
@@ -73,61 +88,64 @@ void main() {
       expect(AppStrings('tr').authRememberMe, equals('Beni hatırla'));
     });
 
-    test('AuthFormState defaults rememberMe to true and copyWith modifies it', () {
-      const state = AuthFormState();
-      expect(state.rememberMe, isTrue);
+    test(
+      'AuthFormState defaults rememberMe to true and copyWith modifies it',
+      () {
+        const state = AuthFormState();
+        expect(state.rememberMe, isTrue);
 
-      final modified = state.copyWith(rememberMe: false);
-      expect(modified.rememberMe, isFalse);
+        final modified = state.copyWith(rememberMe: false);
+        expect(modified.rememberMe, isFalse);
 
-      final restored = modified.copyWith(rememberMe: true);
-      expect(restored.rememberMe, isTrue);
-    });
+        final restored = modified.copyWith(rememberMe: true);
+        expect(restored.rememberMe, isTrue);
+      },
+    );
   });
 
   group('AuthScreen Remember Me UI Tests', () {
-    testWidgets('AuthScreen renders Remember Me checkbox defaulted to true and toggles on tap',
-        (tester) async {
-      tester.view.physicalSize = const Size(1200, 1600);
-      tester.view.devicePixelRatio = 1.0;
-      addTearDown(() {
-        tester.view.resetPhysicalSize();
-        tester.view.resetDevicePixelRatio();
-      });
+    testWidgets(
+      'AuthScreen renders Remember Me checkbox defaulted to true and toggles on tap',
+      (tester) async {
+        tester.view.physicalSize = const Size(1200, 1600);
+        tester.view.devicePixelRatio = 1.0;
+        addTearDown(() {
+          tester.view.resetPhysicalSize();
+          tester.view.resetDevicePixelRatio();
+        });
 
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: testTheme,
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            locale: const Locale('en'),
-            home: const Scaffold(
-              body: AuthScreen(),
+        await tester.pumpWidget(
+          ProviderScope(
+            child: MaterialApp(
+              theme: testTheme,
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              locale: const Locale('en'),
+              home: const Scaffold(body: AuthScreen()),
             ),
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        await tester.pumpAndSettle();
 
-      // Verify Remember Me checkbox tile is rendered
-      final checkboxFinder = find.byType(AppCheckboxTile);
-      expect(checkboxFinder, findsOneWidget);
+        // Verify Remember Me checkbox tile is rendered
+        final checkboxFinder = find.byType(AppCheckboxTile);
+        expect(checkboxFinder, findsOneWidget);
 
-      final tile = tester.widget<AppCheckboxTile>(checkboxFinder);
-      expect(tile.label, equals('Remember Me'));
-      expect(tile.value, isTrue);
+        final tile = tester.widget<AppCheckboxTile>(checkboxFinder);
+        expect(tile.label, equals('Remember Me'));
+        expect(tile.value, isTrue);
 
-      // Tap on the checkbox tile to toggle
-      await tester.tap(checkboxFinder);
-      await tester.pumpAndSettle();
+        // Tap on the checkbox tile to toggle
+        await tester.tap(checkboxFinder);
+        await tester.pumpAndSettle();
 
-      final updatedTile = tester.widget<AppCheckboxTile>(checkboxFinder);
-      expect(updatedTile.value, isFalse);
-    });
+        final updatedTile = tester.widget<AppCheckboxTile>(checkboxFinder);
+        expect(updatedTile.value, isFalse);
+      },
+    );
   });
 }

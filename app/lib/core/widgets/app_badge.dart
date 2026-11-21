@@ -4,19 +4,9 @@ import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 
-enum AppBadgeVariant {
-  standard,
-  active,
-  warning,
-  success,
-  info,
-  destructive,
-}
+enum AppBadgeVariant { standard, active, warning, success, info, destructive }
 
-enum AppBadgeSize {
-  sm,
-  md,
-}
+enum AppBadgeSize { sm, md }
 
 class AppBadge extends StatelessWidget {
   final Widget child;
@@ -77,7 +67,8 @@ class AppBadge extends StatelessWidget {
         break;
     }
 
-    final resolvedPadding = padding ??
+    final resolvedPadding =
+        padding ??
         (size == AppBadgeSize.sm
             ? const EdgeInsetsDirectional.symmetric(
                 horizontal: AppSpacing.sm,

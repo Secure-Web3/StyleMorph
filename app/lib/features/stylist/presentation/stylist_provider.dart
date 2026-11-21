@@ -70,12 +70,12 @@ class StylistNotifier extends StateNotifier<StylistState> {
   final Ref _ref;
 
   StylistNotifier(this._repo, this._ref)
-      : super(
-          StylistState(
-            outfits: _repo.getOutfits(),
-            chatMessages: _repo.getInitialMessages(),
-          ),
-        );
+    : super(
+        StylistState(
+          outfits: _repo.getOutfits(),
+          chatMessages: _repo.getInitialMessages(),
+        ),
+      );
 
   void setOccasion(String occ) {
     state = state.copyWith(activeOccasion: occ);
@@ -116,10 +116,14 @@ class StylistNotifier extends StateNotifier<StylistState> {
       final health = _ref.read(healthServiceProvider);
       final String replyText;
 
-      if (health.isConnected && health.sleepHours != null && health.sleepHours! < 5.5) {
+      if (health.isConnected &&
+          health.sleepHours != null &&
+          health.sleepHours! < 5.5) {
         replyText =
             'طبق دیتای ساعت هوشمند (${health.sourceDevice.hardwareModel})، دیشب ${health.sleepHours} ساعت خوابیدی؛ استایل امروز با الیاف کژوال، تنفس‌پذیر و بدون احساس خستگی از کمد پیشنهاد شد.';
-      } else if (health.isConnected && health.steps != null && health.steps! >= 10000) {
+      } else if (health.isConnected &&
+          health.steps != null &&
+          health.steps! >= 10000) {
         replyText =
             'با توجه به تحرک بالای امروز (${health.steps} گام)، کفش سبک ارگونومیک و لایه‌بندی تنفس‌پذیر را در این ترکیب استایل اولویت قرار دادم.';
       } else {

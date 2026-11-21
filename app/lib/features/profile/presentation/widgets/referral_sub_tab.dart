@@ -166,7 +166,11 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
               AppButton(
                 size: AppButtonSize.sm,
                 height: 40,
-                icon: FaIcon(FontAwesomeIcons.copy, size: 12, color: colors.prt),
+                icon: FaIcon(
+                  FontAwesomeIcons.copy,
+                  size: 12,
+                  color: colors.prt,
+                ),
                 text: strings.refCopy,
                 onPressed: referralLink.isNotEmpty
                     ? () => _copyLink(context, referralLink, strings)

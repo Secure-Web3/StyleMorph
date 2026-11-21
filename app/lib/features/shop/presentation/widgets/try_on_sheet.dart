@@ -13,10 +13,7 @@ import '../../../../core/widgets/email_verification_gate.dart';
 import '../../domain/shop_product.dart';
 
 class TryOnSheet extends ConsumerWidget {
-  const TryOnSheet({
-    super.key,
-    required this.product,
-  });
+  const TryOnSheet({super.key, required this.product});
 
   final ShopProduct product;
 

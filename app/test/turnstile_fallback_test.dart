@@ -34,56 +34,58 @@ void main() {
   }
 
   group('FallbackSecurityChallenge Tests', () {
-    testWidgets('renders fallback challenge layout with security icon and math question',
-        (tester) async {
-      await tester.pumpWidget(
-        buildTestableWidget(
-          onVerified: (_) {},
-          locale: const Locale('fa'),
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'renders fallback challenge layout with security icon and math question',
+      (tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(onVerified: (_) {}, locale: const Locale('fa')),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.byType(TextField), findsOneWidget);
-      expect(find.byIcon(Icons.security_rounded), findsOneWidget);
-      expect(find.textContaining('+'), findsOneWidget);
-    });
+        expect(find.byType(TextField), findsOneWidget);
+        expect(find.byIcon(Icons.security_rounded), findsOneWidget);
+        expect(find.textContaining('+'), findsOneWidget);
+      },
+    );
 
-    testWidgets('solves challenge successfully with western digits and triggers onVerified',
-        (tester) async {
-      String? verifiedToken;
-      await tester.pumpWidget(
-        buildTestableWidget(
-          onVerified: (token) => verifiedToken = token,
-          locale: const Locale('en'),
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'solves challenge successfully with western digits and triggers onVerified',
+      (tester) async {
+        String? verifiedToken;
+        await tester.pumpWidget(
+          buildTestableWidget(
+            onVerified: (token) => verifiedToken = token,
+            locale: const Locale('en'),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      // Find the question text: e.g. "Security check: X + Y = ?"
-      final textWidgets = tester.widgetList<Text>(find.byType(Text));
-      final questionTextWidget = textWidgets.firstWhere(
-        (t) => (t.data ?? '').contains('+'),
-      );
-      final questionText = questionTextWidget.data!;
+        // Find the question text: e.g. "Security check: X + Y = ?"
+        final textWidgets = tester.widgetList<Text>(find.byType(Text));
+        final questionTextWidget = textWidgets.firstWhere(
+          (t) => (t.data ?? '').contains('+'),
+        );
+        final questionText = questionTextWidget.data!;
 
-      // Extract numbers from "Security check: X + Y = ?"
-      final match = RegExp(r'(\d+)\s*\+\s*(\d+)').firstMatch(questionText)!;
-      final a = int.parse(match.group(1)!);
-      final b = int.parse(match.group(2)!);
-      final answer = (a + b).toString();
+        // Extract numbers from "Security check: X + Y = ?"
+        final match = RegExp(r'(\d+)\s*\+\s*(\d+)').firstMatch(questionText)!;
+        final a = int.parse(match.group(1)!);
+        final b = int.parse(match.group(2)!);
+        final answer = (a + b).toString();
 
-      // Enter correct answer
-      await tester.enterText(find.byType(TextField), answer);
-      await tester.pumpAndSettle();
+        // Enter correct answer
+        await tester.enterText(find.byType(TextField), answer);
+        await tester.pumpAndSettle();
 
-      expect(verifiedToken, isNotNull);
-      expect(verifiedToken!.startsWith('local_fallback_challenge_'), isTrue);
-      expect(find.text('Verified'), findsOneWidget);
-    });
+        expect(verifiedToken, isNotNull);
+        expect(verifiedToken!.startsWith('local_fallback_challenge_'), isTrue);
+        expect(find.text('Verified'), findsOneWidget);
+      },
+    );
 
-    testWidgets('solves challenge successfully with Persian digits',
-        (tester) async {
+    testWidgets('solves challenge successfully with Persian digits', (
+      tester,
+    ) async {
       String? verifiedToken;
       await tester.pumpWidget(
         buildTestableWidget(
@@ -103,10 +105,15 @@ void main() {
       final persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
       String normalizedQuestion = questionText;
       for (int i = 0; i < 10; i++) {
-        normalizedQuestion = normalizedQuestion.replaceAll(persianDigits[i], '$i');
+        normalizedQuestion = normalizedQuestion.replaceAll(
+          persianDigits[i],
+          '$i',
+        );
       }
 
-      final match = RegExp(r'(\d+)\s*\+\s*(\d+)').firstMatch(normalizedQuestion)!;
+      final match = RegExp(
+        r'(\d+)\s*\+\s*(\d+)',
+      ).firstMatch(normalizedQuestion)!;
       final a = int.parse(match.group(1)!);
       final b = int.parse(match.group(2)!);
       final sum = a + b;
@@ -127,42 +134,45 @@ void main() {
       expect(find.text('تایید شد'), findsOneWidget);
     });
 
-    testWidgets('controller.reset() resets verification state and clears input',
-        (tester) async {
-      final controller = FallbackChallengeController();
-      String? verifiedToken;
+    testWidgets(
+      'controller.reset() resets verification state and clears input',
+      (tester) async {
+        final controller = FallbackChallengeController();
+        String? verifiedToken;
 
-      await tester.pumpWidget(
-        buildTestableWidget(
-          controller: controller,
-          onVerified: (token) => verifiedToken = token,
-          locale: const Locale('en'),
-        ),
-      );
-      await tester.pumpAndSettle();
+        await tester.pumpWidget(
+          buildTestableWidget(
+            controller: controller,
+            onVerified: (token) => verifiedToken = token,
+            locale: const Locale('en'),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      final textWidgets = tester.widgetList<Text>(find.byType(Text));
-      final questionTextWidget = textWidgets.firstWhere(
-        (t) => (t.data ?? '').contains('+'),
-      );
-      final match =
-          RegExp(r'(\d+)\s*\+\s*(\d+)').firstMatch(questionTextWidget.data!)!;
-      final a = int.parse(match.group(1)!);
-      final b = int.parse(match.group(2)!);
-      final answer = (a + b).toString();
+        final textWidgets = tester.widgetList<Text>(find.byType(Text));
+        final questionTextWidget = textWidgets.firstWhere(
+          (t) => (t.data ?? '').contains('+'),
+        );
+        final match = RegExp(
+          r'(\d+)\s*\+\s*(\d+)',
+        ).firstMatch(questionTextWidget.data!)!;
+        final a = int.parse(match.group(1)!);
+        final b = int.parse(match.group(2)!);
+        final answer = (a + b).toString();
 
-      await tester.enterText(find.byType(TextField), answer);
-      await tester.pumpAndSettle();
-      expect(verifiedToken, isNotNull);
-      expect(find.text('Verified'), findsOneWidget);
+        await tester.enterText(find.byType(TextField), answer);
+        await tester.pumpAndSettle();
+        expect(verifiedToken, isNotNull);
+        expect(find.text('Verified'), findsOneWidget);
 
-      // Trigger reset
-      controller.reset();
-      await tester.pumpAndSettle();
+        // Trigger reset
+        controller.reset();
+        await tester.pumpAndSettle();
 
-      // TextField should be empty again and question prompt visible
-      expect(find.text('Verified'), findsNothing);
-      expect(find.byType(TextField), findsOneWidget);
-    });
+        // TextField should be empty again and question prompt visible
+        expect(find.text('Verified'), findsNothing);
+        expect(find.byType(TextField), findsOneWidget);
+      },
+    );
   });
 }

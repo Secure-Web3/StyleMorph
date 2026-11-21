@@ -3,10 +3,7 @@ import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
 
-enum AppCardVariant {
-  surface,
-  subtle,
-}
+enum AppCardVariant { surface, subtle }
 
 class AppCard extends StatelessWidget {
   final Widget child;
@@ -42,7 +39,8 @@ class AppCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final radius = borderRadius ?? AppRadius.rCard;
-    final bg = backgroundColor ??
+    final bg =
+        backgroundColor ??
         (variant == AppCardVariant.surface ? colors.sf : colors.bg);
     final border = borderColor ?? colors.bd;
 
@@ -63,11 +61,7 @@ class AppCard extends StatelessWidget {
     if (onTap != null) {
       return Material(
         color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: radius,
-          child: content,
-        ),
+        child: InkWell(onTap: onTap, borderRadius: radius, child: content),
       );
     }
 

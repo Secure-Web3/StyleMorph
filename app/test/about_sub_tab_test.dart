@@ -45,17 +45,17 @@ void main() {
     Locale locale = const Locale('en'),
     Widget? child,
   }) {
-    final notifier = _TestAppStateNotifier(initialState ??
-        const AppState(
-          isLoggedIn: true,
-          currentTab: AppTab.profile,
-          currentProfileTab: 'p-about',
-        ));
+    final notifier = _TestAppStateNotifier(
+      initialState ??
+          const AppState(
+            isLoggedIn: true,
+            currentTab: AppTab.profile,
+            currentProfileTab: 'p-about',
+          ),
+    );
 
     return ProviderScope(
-      overrides: [
-        appStateProvider.overrideWith((ref) => notifier),
-      ],
+      overrides: [appStateProvider.overrideWith((ref) => notifier)],
       child: MaterialApp(
         theme: testTheme,
         localizationsDelegates: const [
@@ -63,27 +63,25 @@ void main() {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        supportedLocales: const [
-          Locale('en'),
-          Locale('fa'),
-        ],
+        supportedLocales: const [Locale('en'), Locale('fa')],
         locale: locale,
-        home: Scaffold(
-          body: child ?? const ProfileTab(),
-        ),
+        home: Scaffold(body: child ?? const ProfileTab()),
       ),
     );
   }
 
   group('Profile Sidebar "About" Tab Integration (Task 27)', () {
-    testWidgets('renders About tab below Settings with info icon',
-        (tester) async {
-      await tester.pumpWidget(createTestWidget(
-        initialState: const AppState(
-          isLoggedIn: true,
-          currentProfileTab: 'p-settings',
+    testWidgets('renders About tab below Settings with info icon', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          initialState: const AppState(
+            isLoggedIn: true,
+            currentProfileTab: 'p-settings',
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       // Find Settings and About tabs in sidebar
@@ -92,14 +90,17 @@ void main() {
       expect(find.byIcon(Icons.info_outline_rounded), findsOneWidget);
     });
 
-    testWidgets('tapping About tab switches active tab to p-about',
-        (tester) async {
-      await tester.pumpWidget(createTestWidget(
-        initialState: const AppState(
-          isLoggedIn: true,
-          currentProfileTab: 'p-identity',
+    testWidgets('tapping About tab switches active tab to p-about', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          initialState: const AppState(
+            isLoggedIn: true,
+            currentProfileTab: 'p-identity',
+          ),
         ),
-      ));
+      );
       await tester.pumpAndSettle();
 
       final aboutTabFinder = find.text('About');
@@ -111,45 +112,55 @@ void main() {
       expect(find.byType(AboutSubTab), findsOneWidget);
     });
 
-    testWidgets('renders localized About tab label in Persian ("درباره برنامه")',
-        (tester) async {
-      await tester.pumpWidget(createTestWidget(
-        locale: const Locale('fa'),
-        initialState: const AppState(
-          isLoggedIn: true,
-          currentProfileTab: 'p-about',
-        ),
-      ));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'renders localized About tab label in Persian ("درباره برنامه")',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestWidget(
+            locale: const Locale('fa'),
+            initialState: const AppState(
+              isLoggedIn: true,
+              currentProfileTab: 'p-about',
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('درباره برنامه'), findsOneWidget);
-      expect(find.byIcon(Icons.info_outline_rounded), findsWidgets);
-      expect(find.byType(AboutSubTab), findsOneWidget);
-    });
+        expect(find.text('درباره برنامه'), findsOneWidget);
+        expect(find.byIcon(Icons.info_outline_rounded), findsWidgets);
+        expect(find.byType(AboutSubTab), findsOneWidget);
+      },
+    );
   });
 
   group('AboutSubTab Luxury Editorial Aesthetic & Sections', () {
-    testWidgets('renders Brand Hero Card with logo, name, and mission',
-        (tester) async {
-      await tester.pumpWidget(createTestWidget(
-        child: const SingleChildScrollView(child: AboutSubTab()),
-      ));
+    testWidgets('renders Brand Hero Card with logo, name, and mission', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          child: const SingleChildScrollView(child: AboutSubTab()),
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('StyleMorph'), findsOneWidget);
-      expect(find.text('Personal AI Stylist & Virtual Try-On Studio'),
-          findsOneWidget);
+      expect(
+        find.text('Personal AI Stylist & Virtual Try-On Studio'),
+        findsOneWidget,
+      );
       expect(
         find.textContaining('StyleMorph is a cutting-edge platform'),
         findsOneWidget,
       );
     });
 
-    testWidgets('renders Version & Build Status Specs Card',
-        (tester) async {
-      await tester.pumpWidget(createTestWidget(
-        child: const SingleChildScrollView(child: AboutSubTab()),
-      ));
+    testWidgets('renders Version & Build Status Specs Card', (tester) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          child: const SingleChildScrollView(child: AboutSubTab()),
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('App Version'), findsOneWidget);
@@ -161,11 +172,14 @@ void main() {
       expect(find.text('Stable (Production)'), findsOneWidget);
     });
 
-    testWidgets('renders Manual "Check for Updates" Button & triggers check',
-        (tester) async {
-      await tester.pumpWidget(createTestWidget(
-        child: const SingleChildScrollView(child: AboutSubTab()),
-      ));
+    testWidgets('renders Manual "Check for Updates" Button & triggers check', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          child: const SingleChildScrollView(child: AboutSubTab()),
+        ),
+      );
       await tester.pumpAndSettle();
 
       final checkBtn = find.text('Check for Updates');
@@ -184,11 +198,14 @@ void main() {
       );
     });
 
-    testWidgets('renders What\'s New changelog card with 5 highlights',
-        (tester) async {
-      await tester.pumpWidget(createTestWidget(
-        child: const SingleChildScrollView(child: AboutSubTab()),
-      ));
+    testWidgets('renders What\'s New changelog card with 5 highlights', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          child: const SingleChildScrollView(child: AboutSubTab()),
+        ),
+      );
       await tester.pumpAndSettle();
 
       expect(find.text('What\'s New in Version 1.0'), findsOneWidget);
@@ -199,37 +216,46 @@ void main() {
       expect(find.text('Data Privacy & Dual Persona Avatar'), findsOneWidget);
     });
 
-    testWidgets('renders Legal & Compliance Links and opens Terms modal sheet',
-        (tester) async {
-      await tester.pumpWidget(createTestWidget(
-        child: const SingleChildScrollView(child: AboutSubTab()),
-      ));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'renders Legal & Compliance Links and opens Terms modal sheet',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestWidget(
+            child: const SingleChildScrollView(child: AboutSubTab()),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Legal & Compliance'), findsOneWidget);
-      final termsTile = find.text('Terms of Service');
-      expect(termsTile, findsOneWidget);
-      expect(find.text('Privacy Policy & AI Image Data Protection'),
-          findsOneWidget);
-      expect(find.text('Open Source Licenses'), findsOneWidget);
+        expect(find.text('Legal & Compliance'), findsOneWidget);
+        final termsTile = find.text('Terms of Service');
+        expect(termsTile, findsOneWidget);
+        expect(
+          find.text('Privacy Policy & AI Image Data Protection'),
+          findsOneWidget,
+        );
+        expect(find.text('Open Source Licenses'), findsOneWidget);
 
-      await tester.scrollUntilVisible(termsTile, 100);
-      await tester.tap(termsTile);
-      await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(termsTile, 100);
+        await tester.tap(termsTile);
+        await tester.pumpAndSettle();
 
-      // Bottom sheet should be visible with Terms of Service content
-      expect(find.byType(LegalDocModalSheet), findsOneWidget);
-      expect(
-        find.textContaining('By accessing or using StyleMorph'),
-        findsOneWidget,
+        // Bottom sheet should be visible with Terms of Service content
+        expect(find.byType(LegalDocModalSheet), findsOneWidget);
+        expect(
+          find.textContaining('By accessing or using StyleMorph'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets('renders Official Contact & Socials with interactive links', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        createTestWidget(
+          child: const SingleChildScrollView(child: AboutSubTab()),
+        ),
       );
-    });
-
-    testWidgets('renders Official Contact & Socials with interactive links',
-        (tester) async {
-      await tester.pumpWidget(createTestWidget(
-        child: const SingleChildScrollView(child: AboutSubTab()),
-      ));
       await tester.pumpAndSettle();
 
       expect(find.text('Official Contact & Socials'), findsOneWidget);

@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'app_language.dart';
 
-final localeProvider = StateNotifierProvider<LocaleNotifier, AppLanguage>((ref) {
+final localeProvider = StateNotifierProvider<LocaleNotifier, AppLanguage>((
+  ref,
+) {
   return LocaleNotifier();
 });
 
@@ -28,8 +30,7 @@ class LocaleNotifier extends StateNotifier<AppLanguage> {
   /// Falls back to English if the OS language is not supported.
   static AppLanguage _resolveInitialLanguage() {
     try {
-      final platformLocale =
-          WidgetsBinding.instance.platformDispatcher.locale;
+      final platformLocale = WidgetsBinding.instance.platformDispatcher.locale;
       final languageCode = platformLocale.languageCode.toLowerCase();
       for (final lang in AppLanguage.supportedLanguages) {
         if (lang.code.toLowerCase() == languageCode) {

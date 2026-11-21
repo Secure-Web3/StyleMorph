@@ -38,7 +38,8 @@ class AppTextButton extends StatelessWidget {
         onTap: onPressed,
         borderRadius: AppRadius.rSm,
         child: Padding(
-          padding: padding ??
+          padding:
+              padding ??
               const EdgeInsetsDirectional.symmetric(
                 horizontal: AppSpacing.xs,
                 vertical: AppSpacing.xxs,
@@ -53,9 +54,7 @@ class AppTextButton extends StatelessWidget {
               ],
               Text(
                 text,
-                style: AppTypography.inputLabel(
-                  color: resolvedColor,
-                ).copyWith(
+                style: AppTypography.inputLabel(color: resolvedColor).copyWith(
                   fontSize: resolvedFontSize,
                   fontWeight: isPrimary ? FontWeight.w700 : FontWeight.w600,
                 ),

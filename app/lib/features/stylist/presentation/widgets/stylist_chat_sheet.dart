@@ -133,8 +133,11 @@ class _StylistChatSheetState extends ConsumerState<StylistChatSheet> {
                             borderRadius: AppRadius.rLg,
                             child: Row(
                               children: [
-                                Icon(Icons.checkroom_rounded,
-                                    size: 16, color: colors.pr),
+                                Icon(
+                                  Icons.checkroom_rounded,
+                                  size: 16,
+                                  color: colors.pr,
+                                ),
                                 const SizedBox(width: 6),
                                 Expanded(
                                   child: Text(

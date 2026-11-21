@@ -59,141 +59,141 @@ class WardrobeItemCard extends StatelessWidget {
       padding: EdgeInsetsDirectional.zero,
       clipBehavior: Clip.antiAlias,
       child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Image / Tile Area
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Container(
-                    color: itemColor.withOpacity(0.18),
-                    child: Center(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Image / Tile Area
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Container(
+                  color: itemColor.withValues(alpha: 0.18),
+                  child: Center(
+                    child: Icon(
+                      _categoryIcon(item.category),
+                      size: 34,
+                      color: itemColor,
+                    ),
+                  ),
+                ),
+                // Favorite Star Button (top-end)
+                PositionedDirectional(
+                  top: 6,
+                  end: 6,
+                  child: GestureDetector(
+                    onTap: onFav,
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: colors.sf.withValues(alpha: 0.9),
+                        shape: BoxShape.circle,
+                      ),
                       child: Icon(
-                        _categoryIcon(item.category),
-                        size: 34,
-                        color: itemColor,
+                        item.isFavorite
+                            ? Icons.star_rounded
+                            : Icons.star_border_rounded,
+                        size: 16,
+                        color: item.isFavorite
+                            ? const Color(0xFFD99A06)
+                            : colors.mu,
                       ),
                     ),
                   ),
-                  // Favorite Star Button (top-end)
+                ),
+                // Season / Occasion badge (top-start)
+                if (item.season != 'همه')
                   PositionedDirectional(
                     top: 6,
-                    end: 6,
-                    child: GestureDetector(
-                      onTap: onFav,
-                      child: Container(
-                        width: 28,
-                        height: 28,
-                        decoration: BoxDecoration(
-                          color: colors.sf.withOpacity(0.9),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          item.isFavorite
-                              ? Icons.star_rounded
-                              : Icons.star_border_rounded,
-                          size: 16,
-                          color: item.isFavorite
-                              ? const Color(0xFFD99A06)
-                              : colors.mu,
-                        ),
+                    start: 6,
+                    child: AppBadge(
+                      size: AppBadgeSize.sm,
+                      borderRadius: AppRadius.rSm,
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: 6,
+                        vertical: 2,
+                      ),
+                      child: Text(
+                        strings.tr(item.season),
+                        style: const TextStyle(fontSize: 9),
                       ),
                     ),
                   ),
-                  // Season / Occasion badge (top-start)
-                  if (item.season != 'همه')
-                    PositionedDirectional(
-                      top: 6,
-                      start: 6,
-                      child: AppBadge(
-                        size: AppBadgeSize.sm,
-                        borderRadius: AppRadius.rSm,
-                        padding: const EdgeInsetsDirectional.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        child: Text(
-                          strings.tr(item.season),
-                          style: const TextStyle(fontSize: 9),
-                        ),
+                // Quick Try-on button (bottom-end)
+                PositionedDirectional(
+                  bottom: 6,
+                  end: 6,
+                  child: GestureDetector(
+                    onTap: onTryOn ?? onTap,
+                    child: Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: colors.sf.withValues(alpha: 0.9),
+                        shape: BoxShape.circle,
+                        border: Border.all(color: colors.bd, width: 0.5),
                       ),
-                    ),
-                  // Quick Try-on button (bottom-end)
-                  PositionedDirectional(
-                    bottom: 6,
-                    end: 6,
-                    child: GestureDetector(
-                      onTap: onTryOn ?? onTap,
-                      child: Container(
-                        width: 26,
-                        height: 26,
-                        decoration: BoxDecoration(
-                          color: colors.sf.withOpacity(0.9),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: colors.bd, width: 0.5),
-                        ),
-                        child: Icon(
-                          Icons.auto_awesome_rounded,
-                          size: 13,
-                          color: colors.pr,
-                        ),
+                      child: Icon(
+                        Icons.auto_awesome_rounded,
+                        size: 13,
+                        color: colors.pr,
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-            // Info Area
-            Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    strings.tr(item.name),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: 'Vazirmatn',
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      color: colors.tx,
+          ),
+          // Info Area
+          Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  strings.tr(item.name),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: 'Vazirmatn',
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: colors.tx,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Row(
+                  children: [
+                    Container(
+                      width: 9,
+                      height: 9,
+                      decoration: BoxDecoration(
+                        color: itemColor,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: colors.bd, width: 0.5),
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      Container(
-                        width: 9,
-                        height: 9,
-                        decoration: BoxDecoration(
-                          color: itemColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: colors.bd, width: 0.5),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Text(
+                        '${strings.tr(item.colorName)} · ${strings.tr(item.subCategory)}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: 'Vazirmatn',
+                          fontSize: 10,
+                          color: colors.mu,
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          '${strings.tr(item.colorName)} · ${strings.tr(item.subCategory)}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontFamily: 'Vazirmatn',
-                            fontSize: 10,
-                            color: colors.mu,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 }

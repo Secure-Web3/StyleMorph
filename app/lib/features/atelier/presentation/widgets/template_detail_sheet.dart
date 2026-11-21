@@ -15,15 +15,13 @@ import '../../domain/atelier_models.dart';
 import '../atelier_provider.dart';
 
 class TemplateDetailSheet extends ConsumerStatefulWidget {
-  const TemplateDetailSheet({
-    super.key,
-    required this.template,
-  });
+  const TemplateDetailSheet({super.key, required this.template});
 
   final AtelierTemplate template;
 
   @override
-  ConsumerState<TemplateDetailSheet> createState() => _TemplateDetailSheetState();
+  ConsumerState<TemplateDetailSheet> createState() =>
+      _TemplateDetailSheetState();
 }
 
 class _TemplateDetailSheetState extends ConsumerState<TemplateDetailSheet> {
@@ -102,11 +100,7 @@ class _TemplateDetailSheetState extends ConsumerState<TemplateDetailSheet> {
             height: 170,
             backgroundColor: primaryColor.withValues(alpha: 0.18),
             child: Center(
-              child: Icon(
-                t.icons.first,
-                size: 64,
-                color: primaryColor,
-              ),
+              child: Icon(t.icons.first, size: 64, color: primaryColor),
             ),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -211,7 +205,9 @@ class _TemplateDetailSheetState extends ConsumerState<TemplateDetailSheet> {
                   colors: colors,
                 ),
                 _ReqLine(
-                  text: strings.tr('چهره شما توسط سیستم احراز هویت اولیه تایید شد.'),
+                  text: strings.tr(
+                    'چهره شما توسط سیستم احراز هویت اولیه تایید شد.',
+                  ),
                   colors: colors,
                 ),
               ],

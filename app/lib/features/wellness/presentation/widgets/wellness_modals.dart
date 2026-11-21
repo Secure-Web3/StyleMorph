@@ -67,7 +67,9 @@ class BeautyDetailSheet extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            strings.tr('بر اساس روتین مراقبت و عکس‌های پروفایل شما؛ قضاوتی درباره چهره نیست.'),
+                            strings.tr(
+                              'بر اساس روتین مراقبت و عکس‌های پروفایل شما؛ قضاوتی درباره چهره نیست.',
+                            ),
                             style: TextStyle(
                               fontFamily: 'Vazirmatn',
                               fontSize: 10,
@@ -80,9 +82,24 @@ class BeautyDetailSheet extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _SubScoreBar(label: strings.tr('مراقبت منظم'), score: 75, color: const Color(0xFFC2547A), colors: colors),
-                _SubScoreBar(label: strings.tr('وضعیت پوست'), score: 82, color: const Color(0xFFC2547A), colors: colors),
-                _SubScoreBar(label: strings.tr('وضعیت مو'), score: 84, color: const Color(0xFFC2547A), colors: colors),
+                _SubScoreBar(
+                  label: strings.tr('مراقبت منظم'),
+                  score: 75,
+                  color: const Color(0xFFC2547A),
+                  colors: colors,
+                ),
+                _SubScoreBar(
+                  label: strings.tr('وضعیت پوست'),
+                  score: 82,
+                  color: const Color(0xFFC2547A),
+                  colors: colors,
+                ),
+                _SubScoreBar(
+                  label: strings.tr('وضعیت مو'),
+                  score: 84,
+                  color: const Color(0xFFC2547A),
+                  colors: colors,
+                ),
               ],
             ),
           ),
@@ -194,7 +211,9 @@ class _HealthDetailSheetState extends State<HealthDetailSheet> {
                             ),
                           ),
                           Text(
-                            strings.tr('بر اساس خواب، تغذیه و فعالیت‌های هفته اخیر شما.'),
+                            strings.tr(
+                              'بر اساس خواب، تغذیه و فعالیت‌های هفته اخیر شما.',
+                            ),
                             style: TextStyle(
                               fontFamily: 'Vazirmatn',
                               fontSize: 10,
@@ -207,9 +226,24 @@ class _HealthDetailSheetState extends State<HealthDetailSheet> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _SubScoreBar(label: strings.tr('کیفیت خواب'), score: 88, color: const Color(0xFF4F7A5A), colors: colors),
-                _SubScoreBar(label: strings.tr('تغذیه'), score: 80, color: const Color(0xFF4F7A5A), colors: colors),
-                _SubScoreBar(label: strings.tr('فعالیت بدنی'), score: 82, color: const Color(0xFF4F7A5A), colors: colors),
+                _SubScoreBar(
+                  label: strings.tr('کیفیت خواب'),
+                  score: 88,
+                  color: const Color(0xFF4F7A5A),
+                  colors: colors,
+                ),
+                _SubScoreBar(
+                  label: strings.tr('تغذیه'),
+                  score: 80,
+                  color: const Color(0xFF4F7A5A),
+                  colors: colors,
+                ),
+                _SubScoreBar(
+                  label: strings.tr('فعالیت بدنی'),
+                  score: 82,
+                  color: const Color(0xFF4F7A5A),
+                  colors: colors,
+                ),
               ],
             ),
           ),
@@ -254,14 +288,42 @@ class _HealthDetailSheetState extends State<HealthDetailSheet> {
                 children: [
                   Column(
                     children: [
-                      Text(strings.tr('کیفیت خواب'), style: TextStyle(fontFamily: 'Vazirmatn', fontSize: 10, color: colors.mu)),
-                      Text(strings.tasksProgress(88, 100), style: const TextStyle(fontFamily: 'Vazirmatn', fontSize: 12, fontWeight: FontWeight.bold)),
+                      Text(
+                        strings.tr('کیفیت خواب'),
+                        style: TextStyle(
+                          fontFamily: 'Vazirmatn',
+                          fontSize: 10,
+                          color: colors.mu,
+                        ),
+                      ),
+                      Text(
+                        strings.tasksProgress(88, 100),
+                        style: const TextStyle(
+                          fontFamily: 'Vazirmatn',
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                   Column(
                     children: [
-                      Text(strings.tr('مدت خواب دیشب'), style: TextStyle(fontFamily: 'Vazirmatn', fontSize: 10, color: colors.mu)),
-                      Text(strings.tr('۷ ساعت'), style: const TextStyle(fontFamily: 'Vazirmatn', fontSize: 12, fontWeight: FontWeight.bold)),
+                      Text(
+                        strings.tr('مدت خواب دیشب'),
+                        style: TextStyle(
+                          fontFamily: 'Vazirmatn',
+                          fontSize: 10,
+                          color: colors.mu,
+                        ),
+                      ),
+                      Text(
+                        strings.tr('۷ ساعت'),
+                        style: const TextStyle(
+                          fontFamily: 'Vazirmatn',
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -365,7 +427,9 @@ class MindDetailSheet extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            strings.tr('بر اساس ثبت خلق‌وخو، خواب و استرس روزانه؛ تشخیص پزشکی نیست.'),
+                            strings.tr(
+                              'بر اساس ثبت خلق‌وخو، خواب و استرس روزانه؛ تشخیص پزشکی نیست.',
+                            ),
                             style: TextStyle(
                               fontFamily: 'Vazirmatn',
                               fontSize: 10,
@@ -378,9 +442,24 @@ class MindDetailSheet extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 12),
-                _SubScoreBar(label: strings.tr('خلق‌وخو'), score: 72, color: const Color(0xFF6B5FB5), colors: colors),
-                _SubScoreBar(label: strings.tr('کنترل استرس'), score: 65, color: const Color(0xFF6B5FB5), colors: colors),
-                _SubScoreBar(label: strings.tr('کیفیت استراحت'), score: 74, color: const Color(0xFF6B5FB5), colors: colors),
+                _SubScoreBar(
+                  label: strings.tr('خلق‌وخو'),
+                  score: 72,
+                  color: const Color(0xFF6B5FB5),
+                  colors: colors,
+                ),
+                _SubScoreBar(
+                  label: strings.tr('کنترل استرس'),
+                  score: 65,
+                  color: const Color(0xFF6B5FB5),
+                  colors: colors,
+                ),
+                _SubScoreBar(
+                  label: strings.tr('کیفیت استراحت'),
+                  score: 74,
+                  color: const Color(0xFF6B5FB5),
+                  colors: colors,
+                ),
               ],
             ),
           ),
@@ -395,7 +474,9 @@ class MindDetailSheet extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    strings.tr('تمرین تنفس آرام‌بخش شروع شد. ۴ ثانیه دم، ۴ ثانیه حبس، ۴ ثانیه بازدم.'),
+                    strings.tr(
+                      'تمرین تنفس آرام‌بخش شروع شد. ۴ ثانیه دم، ۴ ثانیه حبس، ۴ ثانیه بازدم.',
+                    ),
                     style: const TextStyle(fontFamily: 'Vazirmatn'),
                   ),
                 ),
@@ -473,8 +554,8 @@ class _FutureSelfSheetState extends ConsumerState<FutureSelfSheet> {
       actionLabel: _simulated
           ? strings.wellClose
           : _inProgress
-              ? strings.tr('در حال پردازش...')
-              : '${strings.tr('تأیید و اجرای شبیه‌ساز')} (${strings.coinsText(10)})',
+          ? strings.tr('در حال پردازش...')
+          : '${strings.tr('تأیید و اجرای شبیه‌ساز')} (${strings.coinsText(10)})',
       onAction: () {
         if (_simulated) {
           Navigator.pop(context);
@@ -486,7 +567,9 @@ class _FutureSelfSheetState extends ConsumerState<FutureSelfSheet> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            strings.tr('اگر به اهداف ورزشی و روتین‌های مراقبتی خود متعهد بمانید، چهره و اندام شما چه تغییری می‌کند؟'),
+            strings.tr(
+              'اگر به اهداف ورزشی و روتین‌های مراقبتی خود متعهد بمانید، چهره و اندام شما چه تغییری می‌کند؟',
+            ),
             style: TextStyle(
               fontFamily: 'Vazirmatn',
               fontSize: 11,
@@ -524,9 +607,20 @@ class _FutureSelfSheetState extends ConsumerState<FutureSelfSheet> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.person_outline_rounded, size: 40, color: colors.mu),
+                      Icon(
+                        Icons.person_outline_rounded,
+                        size: 40,
+                        color: colors.mu,
+                      ),
                       const SizedBox(height: 6),
-                      Text(strings.tr('وضعیت فعلی'), style: TextStyle(fontFamily: 'Vazirmatn', fontSize: 10, color: colors.mu)),
+                      Text(
+                        strings.tr('وضعیت فعلی'),
+                        style: TextStyle(
+                          fontFamily: 'Vazirmatn',
+                          fontSize: 10,
+                          color: colors.mu,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -536,9 +630,13 @@ class _FutureSelfSheetState extends ConsumerState<FutureSelfSheet> {
                 child: Container(
                   height: 130,
                   decoration: BoxDecoration(
-                    color: _simulated ? colors.pr.withOpacity(0.08) : colors.bg,
+                    color: _simulated
+                        ? colors.pr.withValues(alpha: 0.08)
+                        : colors.bg,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: _simulated ? colors.pr : colors.bd),
+                    border: Border.all(
+                      color: _simulated ? colors.pr : colors.bd,
+                    ),
                   ),
                   child: Stack(
                     alignment: Alignment.center,
@@ -547,7 +645,9 @@ class _FutureSelfSheetState extends ConsumerState<FutureSelfSheet> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(
-                            _simulated ? Icons.auto_awesome_rounded : Icons.lock_outline_rounded,
+                            _simulated
+                                ? Icons.auto_awesome_rounded
+                                : Icons.lock_outline_rounded,
                             size: 40,
                             color: _simulated ? colors.pr : colors.mu,
                           ),
@@ -570,16 +670,23 @@ class _FutureSelfSheetState extends ConsumerState<FutureSelfSheet> {
                           bottom: 6,
                           start: 6,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 2,
+                            ),
                             decoration: BoxDecoration(
-                              color: Colors.black.withOpacity(0.7),
+                              color: Colors.black.withValues(alpha: 0.7),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text(
                               futureResult != null
                                   ? '${futureResult.watermarkText} · ${strings.formatPercent(futureResult.anatomicalScorePercent)}'
                                   : strings.aiWatermarkBadge,
-                              style: const TextStyle(fontFamily: 'Vazirmatn', fontSize: 7, color: Colors.white),
+                              style: const TextStyle(
+                                fontFamily: 'Vazirmatn',
+                                fontSize: 7,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
@@ -595,19 +702,31 @@ class _FutureSelfSheetState extends ConsumerState<FutureSelfSheet> {
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: const Color(0xFFD97706).withOpacity(0.08),
+              color: const Color(0xFFD97706).withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFD97706).withOpacity(0.3)),
+              border: Border.all(
+                color: const Color(0xFFD97706).withValues(alpha: 0.3),
+              ),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.info_outline_rounded, size: 14, color: Color(0xFFD97706)),
+                const Icon(
+                  Icons.info_outline_rounded,
+                  size: 14,
+                  color: Color(0xFFD97706),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    strings.tr('تغییرات پیش‌بینی‌شده کاملاً فیزیولوژیک و واقع‌بینانه هستند و هرگز چهره غیرواقعی تولید نمی‌کنند. این تحلیل جایگزین مشاوره پزشکی نیست.'),
-                    style: const TextStyle(fontFamily: 'Vazirmatn', fontSize: 10, height: 1.4),
+                    strings.tr(
+                      'تغییرات پیش‌بینی‌شده کاملاً فیزیولوژیک و واقع‌بینانه هستند و هرگز چهره غیرواقعی تولید نمی‌کنند. این تحلیل جایگزین مشاوره پزشکی نیست.',
+                    ),
+                    style: const TextStyle(
+                      fontFamily: 'Vazirmatn',
+                      fontSize: 10,
+                      height: 1.4,
+                    ),
                   ),
                 ),
               ],
@@ -627,7 +746,11 @@ class _FutureSelfSheetState extends ConsumerState<FutureSelfSheet> {
             const SizedBox(height: 6),
             Text(
               strings.tr(_error!),
-              style: TextStyle(fontFamily: 'Vazirmatn', fontSize: 11, color: colors.orColor),
+              style: TextStyle(
+                fontFamily: 'Vazirmatn',
+                fontSize: 11,
+                color: colors.orColor,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -699,7 +822,15 @@ class _DailyCheckInSheetState extends State<DailyCheckInSheet> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(strings.tr('امروز چه حالی دارید؟'), style: TextStyle(fontFamily: 'Vazirmatn', fontSize: 11, fontWeight: FontWeight.w700, color: colors.tx)),
+          Text(
+            strings.tr('امروز چه حالی دارید؟'),
+            style: TextStyle(
+              fontFamily: 'Vazirmatn',
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: colors.tx,
+            ),
+          ),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -711,19 +842,30 @@ class _DailyCheckInSheetState extends State<DailyCheckInSheet> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: isSel ? colors.pr.withOpacity(0.12) : colors.bg,
+                    color: isSel
+                        ? colors.pr.withValues(alpha: 0.12)
+                        : colors.bg,
                     shape: BoxShape.circle,
-                    border: Border.all(color: isSel ? colors.pr : colors.bd, width: isSel ? 2 : 1),
+                    border: Border.all(
+                      color: isSel ? colors.pr : colors.bd,
+                      width: isSel ? 2 : 1,
+                    ),
                   ),
-                  child: Icon(m.$2, color: isSel ? colors.pr : colors.mu, size: 24),
+                  child: Icon(
+                    m.$2,
+                    color: isSel ? colors.pr : colors.mu,
+                    size: 24,
+                  ),
                 ),
               );
             }).toList(),
           ),
           const SizedBox(height: 14),
 
-          Text(strings.tr('سطح انرژی امروز'),
-              style: AppTypography.inputLabel(color: colors.tx)),
+          Text(
+            strings.tr('سطح انرژی امروز'),
+            style: AppTypography.inputLabel(color: colors.tx),
+          ),
           const SizedBox(height: AppSpacing.xs),
           Wrap(
             spacing: 6,
@@ -741,7 +883,9 @@ class _DailyCheckInSheetState extends State<DailyCheckInSheet> {
           AppDropdown<String>(
             label: strings.tr('میزان خواب دیشب'),
             value: _sleep,
-            items: ['کمتر از ۶ ساعت', '۶ تا ۸ ساعت', 'بیشتر از ۸ ساعت'].map((s) {
+            items: ['کمتر از ۶ ساعت', '۶ تا ۸ ساعت', 'بیشتر از ۸ ساعت'].map((
+              s,
+            ) {
               return DropdownMenuItem(value: s, child: Text(strings.tr(s)));
             }).toList(),
             onChanged: (v) {
@@ -919,14 +1063,8 @@ class _ActionTileItem extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  title,
-                  style: AppTypography.cardTitle(color: colors.tx),
-                ),
-                Text(
-                  subtitle,
-                  style: AppTypography.caption(color: colors.mu),
-                ),
+                Text(title, style: AppTypography.cardTitle(color: colors.tx)),
+                Text(subtitle, style: AppTypography.caption(color: colors.mu)),
               ],
             ),
           ),

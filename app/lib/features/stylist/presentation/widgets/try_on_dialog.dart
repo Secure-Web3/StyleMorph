@@ -16,10 +16,7 @@ import '../../domain/stylist_models.dart';
 import '../stylist_provider.dart';
 
 class TryOnDialog extends ConsumerStatefulWidget {
-  const TryOnDialog({
-    super.key,
-    required this.outfit,
-  });
+  const TryOnDialog({super.key, required this.outfit});
 
   final StylistOutfit outfit;
 
@@ -46,7 +43,9 @@ class _TryOnDialogState extends ConsumerState<TryOnDialog> {
     });
 
     try {
-      await ref.read(stylistProvider.notifier).runTryOnSimulation(widget.outfit);
+      await ref
+          .read(stylistProvider.notifier)
+          .runTryOnSimulation(widget.outfit);
     } catch (e) {
       setState(() {
         _errorMessage = e.toString().replaceAll('Exception: ', '');
@@ -80,8 +79,9 @@ class _TryOnDialogState extends ConsumerState<TryOnDialog> {
               isFullWidth: true,
               text:
                   '${strings.tr('تأیید و اجرای پرو مجازی')} (${strings.coinsText(selectedTier.coinCost)})',
-              onPressed:
-                  (_confirmedTerms && !_inProgress) ? _executeTryOn : null,
+              onPressed: (_confirmedTerms && !_inProgress)
+                  ? _executeTryOn
+                  : null,
             ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -99,8 +99,11 @@ class _TryOnDialogState extends ConsumerState<TryOnDialog> {
                     color: colors.pr.withValues(alpha: 0.12),
                     borderRadius: AppRadius.rLg,
                   ),
-                  child: Icon(Icons.checkroom_rounded,
-                      color: colors.pr, size: 24),
+                  child: Icon(
+                    Icons.checkroom_rounded,
+                    color: colors.pr,
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
@@ -214,8 +217,8 @@ class _TryOnDialogState extends ConsumerState<TryOnDialog> {
                     status == TryOnStatus.holdingCoins
                         ? strings.tr('در حال نگه‌داشت امن سکه...')
                         : status == TryOnStatus.analyzingAnatomy
-                            ? strings.tr('بررسی تطابق آناتومیک و اصلاح اسکلت...')
-                            : strings.tr('پردازش بافت و مدل‌سازی سه‌بعدی لباس...'),
+                        ? strings.tr('بررسی تطابق آناتومیک و اصلاح اسکلت...')
+                        : strings.tr('پردازش بافت و مدل‌سازی سه‌بعدی لباس...'),
                     style: AppTypography.cardTitle(color: colors.tx),
                   ),
                   const SizedBox(height: 6),
@@ -236,13 +239,13 @@ class _TryOnDialogState extends ConsumerState<TryOnDialog> {
             ...TryOnTier.values.map((tier) {
               final isSelected = selectedTier == tier;
               return AppCard(
-                onTap: () => ref
-                    .read(stylistProvider.notifier)
-                    .setSelectedTier(tier),
+                onTap: () =>
+                    ref.read(stylistProvider.notifier).setSelectedTier(tier),
                 margin: const EdgeInsetsDirectional.only(bottom: 6),
                 padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-                backgroundColor:
-                    isSelected ? colors.pr.withValues(alpha: 0.08) : colors.bg,
+                backgroundColor: isSelected
+                    ? colors.pr.withValues(alpha: 0.08)
+                    : colors.bg,
                 borderColor: isSelected ? colors.pr : colors.bd,
                 borderWidth: isSelected ? 1.5 : 1.0,
                 child: Row(

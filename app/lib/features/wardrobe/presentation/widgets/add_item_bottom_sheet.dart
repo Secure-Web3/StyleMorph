@@ -76,7 +76,9 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
       id: 'custom_${DateTime.now().millisecondsSinceEpoch}',
       name: name,
       category: _selectedCat,
-      subCategory: _subCtrl.text.trim().isEmpty ? 'عمومی' : _subCtrl.text.trim(),
+      subCategory: _subCtrl.text.trim().isEmpty
+          ? 'عمومی'
+          : _subCtrl.text.trim(),
       colorName: _selectedColorName,
       colorHex: _selectedColorHex,
       season: _selectedSeason,
@@ -232,10 +234,12 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                   label: strings.wardSeason,
                   value: _selectedSeason,
                   items: _seasons
-                      .map((s) => DropdownMenuItem(
-                            value: s,
-                            child: Text(strings.tr(s)),
-                          ))
+                      .map(
+                        (s) => DropdownMenuItem(
+                          value: s,
+                          child: Text(strings.tr(s)),
+                        ),
+                      )
                       .toList(),
                   onChanged: (v) {
                     if (v != null) setState(() => _selectedSeason = v);
@@ -248,10 +252,12 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                   label: strings.wardOccasion,
                   value: _selectedOccasion,
                   items: _occasions
-                      .map((o) => DropdownMenuItem(
-                            value: o,
-                            child: Text(strings.tr(o)),
-                          ))
+                      .map(
+                        (o) => DropdownMenuItem(
+                          value: o,
+                          child: Text(strings.tr(o)),
+                        ),
+                      )
                       .toList(),
                   onChanged: (v) {
                     if (v != null) setState(() => _selectedOccasion = v);

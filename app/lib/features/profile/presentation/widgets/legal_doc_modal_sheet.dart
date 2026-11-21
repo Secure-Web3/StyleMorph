@@ -11,10 +11,7 @@ class LegalDocSection {
   final String title;
   final String content;
 
-  const LegalDocSection({
-    required this.title,
-    required this.content,
-  });
+  const LegalDocSection({required this.title, required this.content});
 }
 
 class LegalDocModalSheet extends StatelessWidget {
@@ -37,11 +34,7 @@ class LegalDocModalSheet extends StatelessWidget {
   }) {
     return AppModal.showSheet(
       context: context,
-      child: LegalDocModalSheet(
-        title: title,
-        icon: icon,
-        sections: sections,
-      ),
+      child: LegalDocModalSheet(title: title, icon: icon, sections: sections),
     );
   }
 
@@ -310,11 +303,7 @@ class LegalDocModalSheet extends StatelessWidget {
 
     return AppBottomSheetShell(
       title: title,
-      titleLeading: FaIcon(
-        icon,
-        size: 16,
-        color: colors.prt,
-      ),
+      titleLeading: FaIcon(icon, size: 16, color: colors.prt),
       bottomBar: Padding(
         padding: const EdgeInsetsDirectional.all(AppSpacing.md),
         child: AppButton(

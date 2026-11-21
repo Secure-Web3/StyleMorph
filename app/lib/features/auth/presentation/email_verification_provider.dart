@@ -127,9 +127,9 @@ class EmailVerificationNotifier extends StateNotifier<EmailVerificationState> {
               .collection('users')
               .doc(user.uid)
               .set({
-            'isEmailVerified': true,
-            'emailVerifiedAt': FieldValue.serverTimestamp(),
-          }, SetOptions(merge: true));
+                'isEmailVerified': true,
+                'emailVerifiedAt': FieldValue.serverTimestamp(),
+              }, SetOptions(merge: true));
         } catch (e) {
           debugPrint('[EmailVerificationNotifier] Firestore update error: $e');
         }
@@ -173,6 +173,8 @@ class EmailVerificationNotifier extends StateNotifier<EmailVerificationState> {
 }
 
 final emailVerificationProvider =
-    StateNotifierProvider<EmailVerificationNotifier, EmailVerificationState>((ref) {
-  return EmailVerificationNotifier(ref);
-});
+    StateNotifierProvider<EmailVerificationNotifier, EmailVerificationState>((
+      ref,
+    ) {
+      return EmailVerificationNotifier(ref);
+    });

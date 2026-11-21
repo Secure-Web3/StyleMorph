@@ -12,10 +12,7 @@ import '../../../../core/theme/theme_provider.dart';
 class AuthTopBar extends ConsumerWidget {
   final bool isTransparent;
 
-  const AuthTopBar({
-    super.key,
-    this.isTransparent = false,
-  });
+  const AuthTopBar({super.key, this.isTransparent = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,7 +36,10 @@ class AuthTopBar extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           // Language selector dropdown
-          _LanguageSelector(currentLang: currentLang, isTransparent: isTransparent),
+          _LanguageSelector(
+            currentLang: currentLang,
+            isTransparent: isTransparent,
+          ),
           const SizedBox(width: AppSpacing.sm),
 
           // Theme palette cycle button
@@ -139,8 +139,9 @@ class _LanguageSelector extends ConsumerWidget {
     // In light mode: use a crisp white surface with dark text.
     final isDark = themeState.resolveIsDark(context);
     final dropdownBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final dropdownTextColor =
-        isDark ? const Color(0xFFF2F2F2) : const Color(0xFF171717);
+    final dropdownTextColor = isDark
+        ? const Color(0xFFF2F2F2)
+        : const Color(0xFF171717);
 
     return Container(
       padding: const EdgeInsetsDirectional.symmetric(
@@ -168,9 +169,7 @@ class _LanguageSelector extends ConsumerWidget {
                 alignment: AlignmentDirectional.centerStart,
                 child: Text(
                   l.nativeName,
-                  style: AppTypography.inputLabel(
-                    color: buttonTextColor,
-                  ),
+                  style: AppTypography.inputLabel(color: buttonTextColor),
                 ),
               );
             }).toList();
@@ -180,9 +179,7 @@ class _LanguageSelector extends ConsumerWidget {
               value: l.code,
               child: Text(
                 l.nativeName,
-                style: AppTypography.inputLabel(
-                  color: dropdownTextColor,
-                ),
+                style: AppTypography.inputLabel(color: dropdownTextColor),
               ),
             );
           }).toList(),

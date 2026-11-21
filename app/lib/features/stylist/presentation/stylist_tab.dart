@@ -31,7 +31,13 @@ class _StylistTabState extends ConsumerState<StylistTab> {
   int _activePage = 0;
 
   static const _occasions = ['روزمره', 'کار', 'مهمانی', 'سفر'];
-  static const _userPalette = ['#c9a227', '#7a5230', '#4f7a5a', '#d6bf9b', '#c0392b'];
+  static const _userPalette = [
+    '#c9a227',
+    '#7a5230',
+    '#4f7a5a',
+    '#d6bf9b',
+    '#c0392b',
+  ];
 
   @override
   void dispose() {
@@ -47,17 +53,11 @@ class _StylistTabState extends ConsumerState<StylistTab> {
   }
 
   void _openChat() {
-    AppModal.showSheet(
-      context: context,
-      child: const StylistChatSheet(),
-    );
+    AppModal.showSheet(context: context, child: const StylistChatSheet());
   }
 
   void _openModal(Widget modal) {
-    AppModal.showSheet(
-      context: context,
-      child: modal,
-    );
+    AppModal.showSheet(context: context, child: modal);
   }
 
   @override
@@ -158,7 +158,9 @@ class _StylistTabState extends ConsumerState<StylistTab> {
                         height: 18,
                         margin: const EdgeInsetsDirectional.only(end: 5),
                         decoration: BoxDecoration(
-                          color: Color(int.parse(hex.replaceFirst('#', '0xFF'))),
+                          color: Color(
+                            int.parse(hex.replaceFirst('#', '0xFF')),
+                          ),
                           shape: BoxShape.circle,
                           border: Border.all(color: colors.bd, width: 0.5),
                         ),
@@ -260,8 +262,11 @@ class _StylistTabState extends ConsumerState<StylistTab> {
                           ],
                         ),
                       ),
-                      Icon(Icons.arrow_forward_ios_rounded,
-                          size: 14, color: colors.mu),
+                      Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14,
+                        color: colors.mu,
+                      ),
                     ],
                   ),
                 ),
@@ -387,8 +392,9 @@ class _OutfitCard extends StatelessWidget {
                           child: Container(
                             margin: const EdgeInsets.only(bottom: 6),
                             decoration: BoxDecoration(
-                              color: _parse(items[1].colorHex)
-                                  .withValues(alpha: 0.18),
+                              color: _parse(
+                                items[1].colorHex,
+                              ).withValues(alpha: 0.18),
                               borderRadius: AppRadius.rLg,
                             ),
                             child: Center(
@@ -404,8 +410,9 @@ class _OutfitCard extends StatelessWidget {
                         Expanded(
                           child: Container(
                             decoration: BoxDecoration(
-                              color: _parse(items[2].colorHex)
-                                  .withValues(alpha: 0.18),
+                              color: _parse(
+                                items[2].colorHex,
+                              ).withValues(alpha: 0.18),
                               borderRadius: AppRadius.rLg,
                             ),
                             child: Center(
@@ -541,9 +548,7 @@ class _CardBtn extends StatelessWidget {
         decoration: BoxDecoration(
           color: isActive ? colors.pr.withValues(alpha: 0.12) : colors.bg,
           borderRadius: AppRadius.rLg,
-          border: Border.all(
-            color: isActive ? colors.pr : colors.bd,
-          ),
+          border: Border.all(color: isActive ? colors.pr : colors.bd),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -632,8 +637,8 @@ class _StylistBiometricBanner extends StatelessWidget {
     final String message = isLowSleep
         ? strings.stylistBiometricComfortHint
         : isHighSteps
-            ? strings.stylistBiometricActiveHint
-            : 'شاخص آمادگی شما ${strings.formatNumber(health.energyReadinessScore)}٪ است؛ ست‌های امروز برای تعادل کامل فرم و راحتی پیشنهاد شده‌اند.';
+        ? strings.stylistBiometricActiveHint
+        : 'شاخص آمادگی شما ${strings.formatNumber(health.energyReadinessScore)}٪ است؛ ست‌های امروز برای تعادل کامل فرم و راحتی پیشنهاد شده‌اند.';
 
     return AppCard(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -670,10 +675,7 @@ class _StylistBiometricBanner extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            message,
-            style: AppTypography.bodySmall(color: colors.tx),
-          ),
+          Text(message, style: AppTypography.bodySmall(color: colors.tx)),
           const SizedBox(height: 8),
           InkWell(
             onTap: onChatTap,

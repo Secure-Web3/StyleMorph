@@ -50,9 +50,13 @@ class AtelierState {
   }
 
   int get pendingCreationsCount {
-    return creations.where((c) =>
-        c.status == CreationStatus.queue ||
-        c.status == CreationStatus.processing).length;
+    return creations
+        .where(
+          (c) =>
+              c.status == CreationStatus.queue ||
+              c.status == CreationStatus.processing,
+        )
+        .length;
   }
 
   List<AtelierTemplate> get filteredTemplates {
@@ -94,12 +98,12 @@ class AtelierNotifier extends StateNotifier<AtelierState> {
   final Ref _ref;
 
   AtelierNotifier(AtelierRepository repo, this._ref)
-      : super(
-          AtelierState(
-            templates: repo.getTemplates(),
-            creations: repo.getCreations(),
-          ),
-        );
+    : super(
+        AtelierState(
+          templates: repo.getTemplates(),
+          creations: repo.getCreations(),
+        ),
+      );
 
   void switchTab(String tab) {
     state = state.copyWith(activeTab: tab);
@@ -175,8 +179,9 @@ class AtelierNotifier extends StateNotifier<AtelierState> {
 
     final gateway = _ref.read(aiGatewayClientProvider);
     final localeCode = _ref.read(localeProvider).code;
-    final idempotencyKey =
-        gateway.generateIdempotencyKey('atelier_${template.id}_$creationId');
+    final idempotencyKey = gateway.generateIdempotencyKey(
+      'atelier_${template.id}_$creationId',
+    );
 
     final serviceType = template.type == 'v'
         ? AiServiceType.atelierVideo
@@ -184,8 +189,8 @@ class AtelierNotifier extends StateNotifier<AtelierState> {
     final qualityTier = template.price <= 5
         ? AiQualityTier.fast
         : template.price <= 15
-            ? AiQualityTier.standard
-            : AiQualityTier.cinematic;
+        ? AiQualityTier.standard
+        : AiQualityTier.cinematic;
 
     try {
       final result = await gateway.generate(

@@ -26,15 +26,15 @@ class AppDrawer extends ConsumerWidget {
     final appState = ref.watch(appStateProvider);
 
     // Drawer width: min(288, 84% of screen width).
-    final drawerWidth =
-        (MediaQuery.of(context).size.width * 0.84).clamp(0.0, 288.0);
+    final drawerWidth = (MediaQuery.of(context).size.width * 0.84).clamp(
+      0.0,
+      288.0,
+    );
 
     return Drawer(
       width: drawerWidth,
       backgroundColor: colors.sf,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero,
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
       child: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -82,7 +82,9 @@ class AppDrawer extends ConsumerWidget {
                     icon: FontAwesomeIcons.solidUser,
                     title: strings.nProf,
                     trailing: Text(
-                      strings.formatPercent((appState.profileProgress * 100).round()),
+                      strings.formatPercent(
+                        (appState.profileProgress * 100).round(),
+                      ),
                       style: TextStyle(
                         fontFamily: 'Vazirmatn',
                         fontSize: 12,
@@ -114,7 +116,9 @@ class AppDrawer extends ConsumerWidget {
                     },
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.xs,
+                    ),
                     child: Divider(height: 1, color: colors.bd),
                   ),
                   _DrawerItem(
@@ -136,7 +140,9 @@ class AppDrawer extends ConsumerWidget {
                     enabled: false,
                   ),
                   Padding(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.xs,
+                    ),
                     child: Divider(height: 1, color: colors.bd),
                   ),
                   _DrawerItem(
@@ -240,8 +246,8 @@ class AppDrawer extends ConsumerWidget {
                         message: themeState.mode == ThemeMode.light
                             ? strings.drawerThemeLightTip
                             : themeState.mode == ThemeMode.dark
-                                ? strings.drawerThemeDarkTip
-                                : strings.drawerThemeSystemTip,
+                            ? strings.drawerThemeDarkTip
+                            : strings.drawerThemeSystemTip,
                         child: InkWell(
                           onTap: () =>
                               ref.read(themeProvider.notifier).cycleThemeMode(),
@@ -265,8 +271,8 @@ class AppDrawer extends ConsumerWidget {
                                 themeState.mode == ThemeMode.light
                                     ? Icons.light_mode_rounded
                                     : themeState.mode == ThemeMode.dark
-                                        ? Icons.dark_mode_rounded
-                                        : Icons.brightness_auto_rounded,
+                                    ? Icons.dark_mode_rounded
+                                    : Icons.brightness_auto_rounded,
                                 size: 14,
                                 color: themeState.mode == ThemeMode.system
                                     ? colors.pr
@@ -300,8 +306,7 @@ class AppDrawer extends ConsumerWidget {
                                 size: 14,
                                 color: colors.mu,
                               ),
-                              items:
-                                  AppLanguage.supportedLanguages.map((lang) {
+                              items: AppLanguage.supportedLanguages.map((lang) {
                                 return DropdownMenuItem<String>(
                                   value: lang.code,
                                   child: Text(
@@ -420,11 +425,7 @@ class _DrawerItem extends StatelessWidget {
             children: [
               SizedBox(
                 width: 20,
-                child: FaIcon(
-                  icon,
-                  size: 15,
-                  color: colors.mu,
-                ),
+                child: FaIcon(icon, size: 15, color: colors.mu),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
@@ -440,10 +441,7 @@ class _DrawerItem extends StatelessWidget {
               ),
               ?trailing,
               if (badgeText != null)
-                AppBadge(
-                  size: AppBadgeSize.sm,
-                  child: Text(badgeText!),
-                ),
+                AppBadge(size: AppBadgeSize.sm, child: Text(badgeText!)),
             ],
           ),
         ),

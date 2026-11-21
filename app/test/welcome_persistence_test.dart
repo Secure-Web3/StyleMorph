@@ -23,124 +23,139 @@ void main() {
   });
 
   group('First-Run Only WelcomeScreen Persistence Tests', () {
-    test('WelcomePersistenceService defaults to false and sets has_seen_welcome to true',
-        () async {
-      SharedPreferences.setMockInitialValues({});
-      final service = WelcomePersistenceService();
+    test(
+      'WelcomePersistenceService defaults to false and sets has_seen_welcome to true',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        final service = WelcomePersistenceService();
 
-      final initial = await service.hasSeenWelcome();
-      expect(initial, isFalse);
+        final initial = await service.hasSeenWelcome();
+        expect(initial, isFalse);
 
-      await service.setHasSeenWelcome();
+        await service.setHasSeenWelcome();
 
-      final afterSet = await service.hasSeenWelcome();
-      expect(afterSet, isTrue);
+        final afterSet = await service.hasSeenWelcome();
+        expect(afterSet, isTrue);
 
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool(WelcomePersistenceService.keyHasSeenWelcome), isTrue);
-    });
+        final prefs = await SharedPreferences.getInstance();
+        expect(
+          prefs.getBool(WelcomePersistenceService.keyHasSeenWelcome),
+          isTrue,
+        );
+      },
+    );
 
-    test('HasSeenWelcomeNotifier reads from service and marks seen reactively',
-        () async {
-      SharedPreferences.setMockInitialValues({});
-      final service = WelcomePersistenceService();
-      final notifier = HasSeenWelcomeNotifier(service);
+    test(
+      'HasSeenWelcomeNotifier reads from service and marks seen reactively',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        final service = WelcomePersistenceService();
+        final notifier = HasSeenWelcomeNotifier(service);
 
-      // Wait for initial load
-      await Future.delayed(const Duration(milliseconds: 50));
-      expect(notifier.state.value, isFalse);
+        // Wait for initial load
+        await Future.delayed(const Duration(milliseconds: 50));
+        expect(notifier.state.value, isFalse);
 
-      await notifier.markSeen();
-      expect(notifier.state.value, isTrue);
+        await notifier.markSeen();
+        expect(notifier.state.value, isTrue);
 
-      final isSaved = await service.hasSeenWelcome();
-      expect(isSaved, isTrue);
-    });
+        final isSaved = await service.hasSeenWelcome();
+        expect(isSaved, isTrue);
+      },
+    );
 
-    testWidgets('Tapping Get Started on WelcomeScreen marks has_seen_welcome as true',
-        (WidgetTester tester) async {
-      SharedPreferences.setMockInitialValues({});
-      final container = ProviderContainer();
+    testWidgets(
+      'Tapping Get Started on WelcomeScreen marks has_seen_welcome as true',
+      (WidgetTester tester) async {
+        SharedPreferences.setMockInitialValues({});
+        final container = ProviderContainer();
 
-      await tester.pumpWidget(
-        UncontrolledProviderScope(
-          container: container,
-          child: MaterialApp(
-            theme: testTheme,
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [Locale('fa')],
-            locale: const Locale('fa'),
-            home: const WelcomeScreen(),
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+              theme: testTheme,
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [Locale('fa')],
+              locale: const Locale('fa'),
+              home: const WelcomeScreen(),
+            ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      final strings = AppStrings('fa');
-      final getStartedButton = find.text(strings.authGetStarted);
-      expect(getStartedButton, findsOneWidget);
+        final strings = AppStrings('fa');
+        final getStartedButton = find.text(strings.authGetStarted);
+        expect(getStartedButton, findsOneWidget);
 
-      await tester.tap(getStartedButton);
-      await tester.pumpAndSettle();
+        await tester.tap(getStartedButton);
+        await tester.pumpAndSettle();
 
-      // Verify that hasSeenWelcome is now true
-      final hasSeen = container.read(hasSeenWelcomeProvider).value;
-      expect(hasSeen, isTrue);
+        // Verify that hasSeenWelcome is now true
+        final hasSeen = container.read(hasSeenWelcomeProvider).value;
+        expect(hasSeen, isTrue);
 
-      final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool(WelcomePersistenceService.keyHasSeenWelcome), isTrue);
+        final prefs = await SharedPreferences.getInstance();
+        expect(
+          prefs.getBool(WelcomePersistenceService.keyHasSeenWelcome),
+          isTrue,
+        );
 
-      // Verify that navigation replaced WelcomeScreen with AuthScreen
-      expect(find.byType(AuthScreen), findsOneWidget);
-    });
+        // Verify that navigation replaced WelcomeScreen with AuthScreen
+        expect(find.byType(AuthScreen), findsOneWidget);
+      },
+    );
 
-    testWidgets('WelcomeScreen renders Luxury Editorial base gradient and smooth fade-in image',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(
-        ProviderScope(
-          child: MaterialApp(
-            theme: testTheme,
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [Locale('fa')],
-            locale: const Locale('fa'),
-            home: const WelcomeScreen(),
+    testWidgets(
+      'WelcomeScreen renders Luxury Editorial base gradient and smooth fade-in image',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          ProviderScope(
+            child: MaterialApp(
+              theme: testTheme,
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [Locale('fa')],
+              locale: const Locale('fa'),
+              home: const WelcomeScreen(),
+            ),
           ),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        await tester.pumpAndSettle();
 
-      // Find Scaffold with editorial background
-      final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
-      expect(scaffold.backgroundColor, const Color(0xFF141210));
+        // Find Scaffold with editorial background
+        final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
+        expect(scaffold.backgroundColor, const Color(0xFF141210));
 
-      // Test fadeFrameBuilder with asynchronous load (frame == null)
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Builder(
-            builder: (context) {
-              return WelcomeScreen.buildFadeFrame(
-                context,
-                const Text('image_child'),
-                null,
-                false,
-              );
-            },
+        // Test fadeFrameBuilder with asynchronous load (frame == null)
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Builder(
+              builder: (context) {
+                return WelcomeScreen.buildFadeFrame(
+                  context,
+                  const Text('image_child'),
+                  null,
+                  false,
+                );
+              },
+            ),
           ),
-        ),
-      );
+        );
 
-      expect(find.byType(AnimatedOpacity), findsOneWidget);
-      final opacity =
-          tester.widget<AnimatedOpacity>(find.byType(AnimatedOpacity));
-      expect(opacity.opacity, 0.0);
-    });
+        expect(find.byType(AnimatedOpacity), findsOneWidget);
+        final opacity = tester.widget<AnimatedOpacity>(
+          find.byType(AnimatedOpacity),
+        );
+        expect(opacity.opacity, 0.0);
+      },
+    );
   });
 }

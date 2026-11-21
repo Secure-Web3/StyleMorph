@@ -103,9 +103,7 @@ class _ShopProductDetailSheetState extends State<ShopProductDetailSheet> {
                 ? Icons.favorite_rounded
                 : Icons.favorite_border_rounded,
             size: 20,
-            color: widget.isWishlisted
-                ? const Color(0xFFD1456B)
-                : colors.mu,
+            color: widget.isWishlisted ? const Color(0xFFD1456B) : colors.mu,
           ),
           onPressed: widget.onWishlist,
         ),
@@ -120,10 +118,7 @@ class _ShopProductDetailSheetState extends State<ShopProductDetailSheet> {
           if (cheapest.purchaseMethod == 'site') {
             AppModal.showSheet(
               context: context,
-              child: SellerRedirectSheet(
-                product: p,
-                seller: cheapest,
-              ),
+              child: SellerRedirectSheet(product: p, seller: cheapest),
             );
           } else {
             Navigator.pop(context);
@@ -253,9 +248,7 @@ class _ShopProductDetailSheetState extends State<ShopProductDetailSheet> {
                   label: widget.hasPriceAlert
                       ? strings.shopAlertActive
                       : strings.priceAlert,
-                  color: widget.hasPriceAlert
-                      ? colors.wn
-                      : colors.mu,
+                  color: widget.hasPriceAlert ? colors.wn : colors.mu,
                   onTap: widget.onPriceAlert,
                   colors: colors,
                 ),
@@ -307,11 +300,7 @@ class _ShopProductDetailSheetState extends State<ShopProductDetailSheet> {
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Icon(
-                      Icons.palette_outlined,
-                      size: 14,
-                      color: colors.pr,
-                    ),
+                    Icon(Icons.palette_outlined, size: 14, color: colors.pr),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
@@ -337,8 +326,7 @@ class _ShopProductDetailSheetState extends State<ShopProductDetailSheet> {
                 children: [
                   Row(
                     children: [
-                      Icon(Icons.checkroom_rounded,
-                          size: 16, color: colors.pr),
+                      Icon(Icons.checkroom_rounded, size: 16, color: colors.pr),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
@@ -392,7 +380,9 @@ class _ShopProductDetailSheetState extends State<ShopProductDetailSheet> {
                             children: [
                               Text(
                                 strings.tr(s.storeName),
-                                style: AppTypography.cardTitle(color: colors.tx),
+                                style: AppTypography.cardTitle(
+                                  color: colors.tx,
+                                ),
                               ),
                               if (isCheapest) ...[
                                 const SizedBox(width: 6),
@@ -518,17 +508,8 @@ class _CarouselSlide extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: AppRadius.rCard,
-      ),
-      child: Center(
-        child: Icon(
-          icon,
-          size: 64,
-          color: iconColor,
-        ),
-      ),
+      decoration: BoxDecoration(color: color, borderRadius: AppRadius.rCard),
+      child: Center(child: Icon(icon, size: 64, color: iconColor)),
     );
   }
 }
@@ -591,7 +572,9 @@ class _SpecLine extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4),
       decoration: BoxDecoration(
-        border: isLast ? null : Border(bottom: BorderSide(color: colors.bd, width: 0.5)),
+        border: isLast
+            ? null
+            : Border(bottom: BorderSide(color: colors.bd, width: 0.5)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

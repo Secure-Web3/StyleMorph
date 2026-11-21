@@ -13,6 +13,7 @@ class AppBottomNav extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final strings = context.strings;
+    final currentTab = ref.watch(appStateProvider.select((s) => s.currentTab));
 
     final items = [
       _NavItem(
@@ -45,9 +46,7 @@ class AppBottomNav extends ConsumerWidget {
     return Container(
       decoration: BoxDecoration(
         color: colors.sf,
-        border: Border(
-          top: BorderSide(color: colors.bd),
-        ),
+        border: Border(top: BorderSide(color: colors.bd)),
       ),
       child: SafeArea(
         top: false,
@@ -55,49 +54,51 @@ class AppBottomNav extends ConsumerWidget {
           height: 56,
           child: Row(
             children: items.map((item) {
+              final isActive = currentTab == item.tab;
+              final itemColor = isActive ? colors.pr : colors.mu;
+
               return Expanded(
-                child: Opacity(
-                  opacity: 0.38,
-                  child: InkWell(
-                    onTap: null, // Disabled / non-selectable
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: AppSpacing.xs,
-                        horizontal: 2,
-                      ),
-                      decoration: const BoxDecoration(
-                        border: Border(
-                          top: BorderSide(
-                            color: Colors.transparent,
-                            width: 2,
-                          ),
+                child: InkWell(
+                  onTap: () {
+                    ref.read(appStateProvider.notifier).switchTab(item.tab);
+                  },
+                  splashColor: colors.pr.withValues(alpha: 0.1),
+                  highlightColor: Colors.transparent,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: AppSpacing.xs,
+                      horizontal: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        // Active indicator: 2px solid primary at top of nav item.
+                        top: BorderSide(
+                          color: isActive ? colors.pr : Colors.transparent,
+                          width: 2,
                         ),
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          FaIcon(
-                            item.icon,
-                            size: 16,
-                            color: colors.mu,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        FaIcon(item.icon, size: 16, color: itemColor),
+                        const SizedBox(height: 3),
+                        Text(
+                          item.label,
+                          style: TextStyle(
+                            fontFamily: 'Vazirmatn',
+                            fontSize: 10,
+                            fontWeight: isActive
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                            color: itemColor,
                           ),
-                          const SizedBox(height: 3),
-                          Text(
-                            item.label,
-                            style: TextStyle(
-                              fontFamily: 'Vazirmatn',
-                              fontSize: 10,
-                              fontWeight: FontWeight.w400,
-                              color: colors.mu,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -115,9 +116,5 @@ class _NavItem {
   final String label;
   final FaIconData icon;
 
-  const _NavItem({
-    required this.tab,
-    required this.label,
-    required this.icon,
-  });
+  const _NavItem({required this.tab, required this.label, required this.icon});
 }

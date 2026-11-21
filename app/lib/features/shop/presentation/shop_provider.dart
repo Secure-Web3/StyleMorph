@@ -3,7 +3,8 @@ import '../data/shop_repository.dart';
 import '../domain/shop_product.dart';
 
 class ShopFilter {
-  final String category; // 'all', 'cloth', 'shoe', 'bag', 'acc', 'beauty', 'fav'
+  final String
+  category; // 'all', 'cloth', 'shoe', 'bag', 'acc', 'beauty', 'fav'
   final String searchQuery;
   final int maxPrice; // 0 = no limit
   final List<String> brands;
@@ -203,12 +204,9 @@ class ShopNotifier extends StateNotifier<ShopState> {
   final ShopRepository _repo;
 
   ShopNotifier(this._repo)
-      : super(
-          ShopState(
-            products: _repo.getProducts(),
-            filter: const ShopFilter(),
-          ),
-        );
+    : super(
+        ShopState(products: _repo.getProducts(), filter: const ShopFilter()),
+      );
 
   void refresh() {
     state = state.copyWith(products: _repo.getProducts());
@@ -237,9 +235,7 @@ class ShopNotifier extends StateNotifier<ShopState> {
   }
 
   void resetFilters() {
-    state = state.copyWith(
-      filter: const ShopFilter(),
-    );
+    state = state.copyWith(filter: const ShopFilter());
   }
 
   void toggleWishlist(int id) {

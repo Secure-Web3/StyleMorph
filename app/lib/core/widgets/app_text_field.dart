@@ -68,7 +68,7 @@ class AppTextField extends StatelessWidget {
               ),
               if (labelTrailing != null) ...[
                 const SizedBox(width: AppSpacing.xs),
-                labelTrailing!,
+                Flexible(child: labelTrailing!),
               ],
             ],
           ),

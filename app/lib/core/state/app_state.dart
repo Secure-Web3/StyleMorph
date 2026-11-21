@@ -1,4 +1,4 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -15,14 +15,7 @@ import '../services/session_service.dart';
 import '../theme/app_colors.dart';
 import '../theme/theme_provider.dart';
 
-enum AppTab {
-  shop,
-  wardrobe,
-  stylist,
-  atelier,
-  wellness,
-  profile,
-}
+enum AppTab { shop, wardrobe, stylist, atelier, wellness, profile }
 
 @immutable
 class SupportMessage {
@@ -45,7 +38,8 @@ class AppNotification {
   final String title;
   final String body;
   final String timestampLabel;
-  final String targetRoute; // 'atelier_creations', 'shop', 'profile_wallet', 'stylist'
+  final String
+  targetRoute; // 'atelier_creations', 'shop', 'profile_wallet', 'stylist'
   final bool isRead;
 
   const AppNotification({
@@ -306,16 +300,17 @@ class AppState {
     required Map<String, String> aiDna,
     String personaMode = 'full_body',
     Map<String, String> mediaSlots = const {},
-  }) =>
-      AppStateNotifier.calculateProfileProgress(
-        identity: identity,
-        aiDna: aiDna,
-        personaMode: personaMode,
-        mediaSlots: mediaSlots,
-      );
+  }) => AppStateNotifier.calculateProfileProgress(
+    identity: identity,
+    aiDna: aiDna,
+    personaMode: personaMode,
+    mediaSlots: mediaSlots,
+  );
 }
 
-final appStateProvider = StateNotifierProvider<AppStateNotifier, AppState>((ref) {
+final appStateProvider = StateNotifierProvider<AppStateNotifier, AppState>((
+  ref,
+) {
   return AppStateNotifier(ref);
 });
 
@@ -415,9 +410,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
     return totalScore.clamp(0.0, 1.0);
   }
 
-  /// Only allow staying on Profile module while other modules are disabled.
   void switchTab(AppTab tab) {
-    if (tab != AppTab.profile) return;
     state = state.copyWith(currentTab: tab);
   }
 
@@ -502,26 +495,27 @@ class AppStateNotifier extends StateNotifier<AppState> {
             tone: cMap['tone']?.toString() ?? companion.tone,
             critiqueStrictness:
                 (cMap['critiqueStrictness'] as num?)?.toDouble() ??
-                    companion.critiqueStrictness,
+                companion.critiqueStrictness,
             voiceEnabled:
                 cMap['voiceEnabled'] as bool? ?? companion.voiceEnabled,
             subtitleEnabled:
                 cMap['subtitleEnabled'] as bool? ?? companion.subtitleEnabled,
             voiceType: cMap['voiceType']?.toString() ?? companion.voiceType,
-            speechSpeed: (cMap['speechSpeed'] as num?)?.toDouble() ??
+            speechSpeed:
+                (cMap['speechSpeed'] as num?)?.toDouble() ??
                 companion.speechSpeed,
             responseLength:
                 cMap['responseLength']?.toString() ?? companion.responseLength,
             activeScope:
                 cMap['activeScope']?.toString() ?? companion.activeScope,
-            saveHistory:
-                cMap['saveHistory'] as bool? ?? companion.saveHistory,
+            saveHistory: cMap['saveHistory'] as bool? ?? companion.saveHistory,
             dailyTipEnabled:
                 cMap['dailyTipEnabled'] as bool? ?? companion.dailyTipEnabled,
           );
         }
 
-        final coins = (data['walletBalance'] as num?)?.toInt() ??
+        final coins =
+            (data['walletBalance'] as num?)?.toInt() ??
             (data['coins'] as num?)?.toInt() ??
             (data['coinBalance'] as num?)?.toInt() ??
             0;
@@ -562,7 +556,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
           }
         }
 
-        final String photoUrl = (data['photoURL'] != null &&
+        final String photoUrl =
+            (data['photoURL'] != null &&
                 data['photoURL'].toString().trim().isNotEmpty)
             ? data['photoURL'].toString().trim()
             : (user.photoURL?.trim() ?? '');
@@ -599,7 +594,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
         final referralCode = data['referralCode']?.toString() ?? '';
         final referralCount = (data['referralCount'] as num?)?.toInt() ?? 0;
-        final networkTier = data['networkTier']?.toString() ??
+        final networkTier =
+            data['networkTier']?.toString() ??
             ReferralService.calculateTier(referralCount);
 
         List<ReferralEntry> referralEntries = [];
@@ -656,8 +652,12 @@ class AppStateNotifier extends StateNotifier<AppState> {
               break;
             }
           }
-          _ref.read(localeProvider.notifier).setLanguage(preferences.appLanguage);
-          _ref.read(biometricServiceProvider).setBiometricLockEnabled(preferences.biometricLock);
+          _ref
+              .read(localeProvider.notifier)
+              .setLanguage(preferences.appLanguage);
+          _ref
+              .read(biometricServiceProvider)
+              .setBiometricLockEnabled(preferences.biometricLock);
         }
 
         final int aiUsageCount = (data['aiUsageCount'] as num?)?.toInt() ?? 0;
@@ -670,12 +670,14 @@ class AppStateNotifier extends StateNotifier<AppState> {
         );
         final int stylePoints =
             (data['stylePoints'] as num?)?.toInt() ?? calculatedPoints;
-        final int finalPoints = (stylePoints == 0 ||
+        final int finalPoints =
+            (stylePoints == 0 ||
                 (isEmailVerified && stylePoints < calculatedPoints))
             ? calculatedPoints
             : stylePoints;
-        final String loyaltyRank =
-            LoyaltyService.getRank(finalPoints).nameCapitalized;
+        final String loyaltyRank = LoyaltyService.getRank(
+          finalPoints,
+        ).nameCapitalized;
 
         final Map<String, dynamic> backfill = {};
         if (isOAuth && data['emailVerified'] != true) {
@@ -728,8 +730,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
               .doc(user.uid)
               .set(backfill, SetOptions(merge: true))
               .catchError((e) {
-            debugPrint('[loadProfileFromFirestore] backfill error: $e');
-          });
+                debugPrint('[loadProfileFromFirestore] backfill error: $e');
+              });
         }
 
         state = state.copyWith(
@@ -763,8 +765,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
         if (referralCode.isEmpty) {
           Future.microtask(() async {
             try {
-              final newCode =
-                  await ReferralService().ensureUserReferralCode(user.uid);
+              final newCode = await ReferralService().ensureUserReferralCode(
+                user.uid,
+              );
               state = state.copyWith(referralCode: newCode);
             } catch (_) {}
           });
@@ -862,8 +865,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
       final dataToSave = <String, dynamic>{
         'email': user.email ?? (state.identityValues['email'] ?? ''),
-        'displayName':
-            fullName.isNotEmpty ? fullName : (user.displayName ?? ''),
+        'displayName': fullName.isNotEmpty
+            ? fullName
+            : (user.displayName ?? ''),
         'firstName': first,
         'lastName': last,
         'handle': nick,
@@ -913,10 +917,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       );
 
       dataToSave['preferences'] = updatedPreferences.toMap();
-      dataToSave['theme'] = {
-        'palette': currentPalette,
-        'mode': currentMode,
-      };
+      dataToSave['theme'] = {'palette': currentPalette, 'mode': currentMode};
 
       await FirebaseFirestore.instance
           .collection('users')
@@ -984,7 +985,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   void updateIdentityField(String key, String value) {
-    final updated = Map<String, String>.from(state.identityValues)..[key] = value;
+    final updated = Map<String, String>.from(state.identityValues)
+      ..[key] = value;
     final progress = calculateProfileProgress(
       identity: updated,
       aiDna: state.aiDnaValues,
@@ -1075,8 +1077,10 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   void updateAiDnaField(String key, String value) {
-    final updatedValues = Map<String, String>.from(state.aiDnaValues)..[key] = value;
-    final updatedSources = Map<String, String>.from(state.aiDnaSources)..[key] = 'USER';
+    final updatedValues = Map<String, String>.from(state.aiDnaValues)
+      ..[key] = value;
+    final updatedSources = Map<String, String>.from(state.aiDnaSources)
+      ..[key] = 'USER';
     final progress = calculateProfileProgress(
       identity: state.identityValues,
       aiDna: updatedValues,
@@ -1166,8 +1170,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   void markAllNotificationsRead() {
-    final updated =
-        state.notifications.map((n) => n.copyWith(isRead: true)).toList();
+    final updated = state.notifications
+        .map((n) => n.copyWith(isRead: true))
+        .toList();
     state = state.copyWith(notifications: updated);
   }
 

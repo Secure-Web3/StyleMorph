@@ -6,18 +6,9 @@ import '../theme/app_spacing.dart';
 import '../theme/app_typography.dart';
 import 'shad_theme_scope.dart';
 
-enum AppButtonVariant {
-  primary,
-  secondary,
-  outline,
-  ghost,
-  destructive,
-}
+enum AppButtonVariant { primary, secondary, outline, ghost, destructive }
 
-enum AppButtonSize {
-  sm,
-  md,
-}
+enum AppButtonSize { sm, md }
 
 class AppButton extends StatelessWidget {
   final Widget? child;
@@ -42,9 +33,9 @@ class AppButton extends StatelessWidget {
     this.padding,
     this.height,
   }) : assert(
-          child != null || text != null,
-          'Either child or text must be provided',
-        );
+         child != null || text != null,
+         'Either child or text must be provided',
+       );
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +43,13 @@ class AppButton extends StatelessWidget {
     final isEnabled = onPressed != null;
 
     final resolvedHeight = height ?? (size == AppButtonSize.sm ? 36.0 : 44.0);
-    final resolvedRadius =
-        size == AppButtonSize.sm ? AppRadius.rLg : AppRadius.rXl;
+    final resolvedRadius = size == AppButtonSize.sm
+        ? AppRadius.rLg
+        : AppRadius.rXl;
     final resolvedFontSize = size == AppButtonSize.sm ? 12.0 : 13.0;
-    final resolvedHorizontalPad =
-        size == AppButtonSize.sm ? AppSpacing.md : AppSpacing.lg;
+    final resolvedHorizontalPad = size == AppButtonSize.sm
+        ? AppSpacing.md
+        : AppSpacing.lg;
 
     Color bg;
     Color fg;
@@ -90,7 +83,8 @@ class AppButton extends StatelessWidget {
         break;
     }
 
-    final labelWidget = child ??
+    final labelWidget =
+        child ??
         Text(
           text!,
           maxLines: 1,
@@ -101,26 +95,15 @@ class AppButton extends StatelessWidget {
           ),
         );
 
-    final content = IconTheme(
-      data: IconThemeData(size: size == AppButtonSize.sm ? 14 : 16, color: fg),
-      child: DefaultTextStyle(
-        style: AppTypography.buttonLabel(
-          color: fg,
-          fontSize: resolvedFontSize,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (icon != null) ...[
-              icon!,
-              const SizedBox(width: AppSpacing.sm),
-            ],
-            Flexible(child: labelWidget),
-          ],
-        ),
-      ),
-    );
+    final leadingWidget = icon != null
+        ? IconTheme(
+            data: IconThemeData(
+              size: size == AppButtonSize.sm ? 14 : 16,
+              color: fg,
+            ),
+            child: icon!,
+          )
+        : null;
 
     final button = SizedBox(
       width: isFullWidth ? double.infinity : null,
@@ -132,6 +115,8 @@ class AppButton extends StatelessWidget {
         variant: ShadButtonVariant.primary,
         width: isFullWidth ? double.infinity : null,
         height: resolvedHeight,
+        gap: AppSpacing.sm,
+        leading: leadingWidget,
         backgroundColor: bg,
         hoverBackgroundColor: bg.withValues(alpha: 0.92),
         foregroundColor: fg,
@@ -156,7 +141,23 @@ class AppButton extends StatelessWidget {
                 horizontal: resolvedHorizontalPad,
                 vertical: 0,
               ),
-        child: content,
+        child: isFullWidth
+            ? DefaultTextStyle(
+                style: AppTypography.buttonLabel(
+                  color: fg,
+                  fontSize: resolvedFontSize,
+                ),
+                child: labelWidget,
+              )
+            : Flexible(
+                child: DefaultTextStyle(
+                  style: AppTypography.buttonLabel(
+                    color: fg,
+                    fontSize: resolvedFontSize,
+                  ),
+                  child: labelWidget,
+                ),
+              ),
       ),
     );
 

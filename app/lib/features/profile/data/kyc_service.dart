@@ -13,13 +13,15 @@ class KycService {
   final FirebaseFirestore _firestore;
   final FirebaseStorage? _storage;
 
-  KycService({
-    FirebaseFirestore? firestore,
-    FirebaseStorage? storage,
-  })  : _firestore = firestore ??
-            (Firebase.apps.isNotEmpty ? FirebaseFirestore.instance : null as dynamic),
-        _storage = storage ??
-            (Firebase.apps.isNotEmpty ? FirebaseStorage.instance : null);
+  KycService({FirebaseFirestore? firestore, FirebaseStorage? storage})
+    : _firestore =
+          firestore ??
+          (Firebase.apps.isNotEmpty
+              ? FirebaseFirestore.instance
+              : null as dynamic),
+      _storage =
+          storage ??
+          (Firebase.apps.isNotEmpty ? FirebaseStorage.instance : null);
 
   /// Uploads KYC document photo to Firebase Storage under `users/{uid}/kyc/{filename}`.
   Future<String> uploadKycImage({
@@ -33,7 +35,12 @@ class KycService {
 
     final ext = file.name.contains('.') ? file.name.split('.').last : 'jpg';
     final filename = '${DateTime.now().millisecondsSinceEpoch}_$tag.$ext';
-    final ref = _storage.ref().child('users').child(uid).child('kyc').child(filename);
+    final ref = _storage
+        .ref()
+        .child('users')
+        .child(uid)
+        .child('kyc')
+        .child(filename);
 
     final bytes = await file.readAsBytes();
     final metadata = SettableMetadata(
@@ -75,7 +82,11 @@ class KycService {
   }
 
   /// Deletes KYC document and resets verification status in Firestore.
-  Future<void> deleteKyc(String uid, {String? frontUrl, String? backUrl}) async {
+  Future<void> deleteKyc(
+    String uid, {
+    String? frontUrl,
+    String? backUrl,
+  }) async {
     if (Firebase.apps.isNotEmpty) {
       final userDoc = _firestore.collection('users').doc(uid);
       await userDoc.update({

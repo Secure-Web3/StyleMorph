@@ -108,7 +108,8 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
             heightStr: heightStr,
             weightStr: weightStr,
             bmi: bmi,
-            selectedSilhouette: aiDna['bodySilhouette'] ?? aiDna['bodyShape'] ?? '',
+            selectedSilhouette:
+                aiDna['bodySilhouette'] ?? aiDna['bodyShape'] ?? '',
           ),
           const SizedBox(height: AppSpacing.xl),
 
@@ -129,7 +130,11 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
           // =========================================================
           // LAYER 3: Anthropometric Fit Dimensions
           // =========================================================
-          _buildLayer3Anthropometrics(context, aiDna, isFemale: gender == 'female'),
+          _buildLayer3Anthropometrics(
+            context,
+            aiDna,
+            isFemale: gender == 'female',
+          ),
           const SizedBox(height: AppSpacing.xl),
 
           // =========================================================
@@ -256,7 +261,11 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
-        _buildSilhouetteChips(context, gender: gender, selected: selectedSilhouette),
+        _buildSilhouetteChips(
+          context,
+          gender: gender,
+          selected: selectedSilhouette,
+        ),
       ],
     );
   }
@@ -286,11 +295,7 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
         ),
         child: Column(
           children: [
-            FaIcon(
-              icon,
-              size: 16,
-              color: isSelected ? colors.pr : colors.mu,
-            ),
+            FaIcon(icon, size: 16, color: isSelected ? colors.pr : colors.mu),
             const SizedBox(height: 4),
             Text(
               label,
@@ -346,11 +351,7 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          FaIcon(
-            FontAwesomeIcons.heartPulse,
-            size: 13,
-            color: badgeColor,
-          ),
+          FaIcon(FontAwesomeIcons.heartPulse, size: 13, color: badgeColor),
           const SizedBox(width: AppSpacing.xs),
           Text(
             '${strings.aiBmiLabel}: $formattedBmi • $categoryText',
@@ -420,9 +421,7 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
           backgroundColor: colors.bg,
           shape: RoundedRectangleBorder(
             borderRadius: AppRadius.rMd,
-            side: BorderSide(
-              color: isSelected ? colors.pr : colors.bd,
-            ),
+            side: BorderSide(color: isSelected ? colors.pr : colors.bd),
           ),
           onSelected: (_) {
             _updateField('bodySilhouette', opt['key']!);
@@ -624,7 +623,9 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
                       fontFamily: 'Vazirmatn',
                       fontSize: 9,
                       color: isSelected ? colors.pr : colors.mu,
-                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.normal,
                     ),
                   ),
                 ],
@@ -643,13 +644,34 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
                 value: hairColor.isNotEmpty ? hairColor : null,
                 placeholder: strings.aiHairColor,
                 items: [
-                  DropdownMenuItem(value: 'black', child: Text(strings.aiHairBlack)),
-                  DropdownMenuItem(value: 'dark_brown', child: Text(strings.aiHairDarkBrown)),
-                  DropdownMenuItem(value: 'light_brown', child: Text(strings.aiHairLightBrown)),
-                  DropdownMenuItem(value: 'blonde', child: Text(strings.aiHairBlonde)),
-                  DropdownMenuItem(value: 'auburn', child: Text(strings.aiHairAuburn)),
-                  DropdownMenuItem(value: 'gray', child: Text(strings.aiHairGray)),
-                  DropdownMenuItem(value: 'dyed', child: Text(strings.aiHairDyed)),
+                  DropdownMenuItem(
+                    value: 'black',
+                    child: Text(strings.aiHairBlack),
+                  ),
+                  DropdownMenuItem(
+                    value: 'dark_brown',
+                    child: Text(strings.aiHairDarkBrown),
+                  ),
+                  DropdownMenuItem(
+                    value: 'light_brown',
+                    child: Text(strings.aiHairLightBrown),
+                  ),
+                  DropdownMenuItem(
+                    value: 'blonde',
+                    child: Text(strings.aiHairBlonde),
+                  ),
+                  DropdownMenuItem(
+                    value: 'auburn',
+                    child: Text(strings.aiHairAuburn),
+                  ),
+                  DropdownMenuItem(
+                    value: 'gray',
+                    child: Text(strings.aiHairGray),
+                  ),
+                  DropdownMenuItem(
+                    value: 'dyed',
+                    child: Text(strings.aiHairDyed),
+                  ),
                 ],
                 onChanged: (val) {
                   if (val != null) _updateField('hairColor', val);
@@ -663,13 +685,46 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
                 value: hairTexture.isNotEmpty ? hairTexture : null,
                 placeholder: strings.aiHairLength,
                 items: [
-                  DropdownMenuItem(value: 'short_straight', child: Text('${strings.aiHairShort} • ${strings.aiHairStraight}')),
-                  DropdownMenuItem(value: 'short_wavy', child: Text('${strings.aiHairShort} • ${strings.aiHairWavy}')),
-                  DropdownMenuItem(value: 'medium_straight', child: Text('${strings.aiHairMedium} • ${strings.aiHairStraight}')),
-                  DropdownMenuItem(value: 'medium_wavy', child: Text('${strings.aiHairMedium} • ${strings.aiHairWavy}')),
-                  DropdownMenuItem(value: 'long_straight', child: Text('${strings.aiHairLong} • ${strings.aiHairStraight}')),
-                  DropdownMenuItem(value: 'long_curly', child: Text('${strings.aiHairLong} • ${strings.aiHairCurly}')),
-                  DropdownMenuItem(value: 'bald', child: Text(strings.aiHairBald)),
+                  DropdownMenuItem(
+                    value: 'short_straight',
+                    child: Text(
+                      '${strings.aiHairShort} • ${strings.aiHairStraight}',
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: 'short_wavy',
+                    child: Text(
+                      '${strings.aiHairShort} • ${strings.aiHairWavy}',
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: 'medium_straight',
+                    child: Text(
+                      '${strings.aiHairMedium} • ${strings.aiHairStraight}',
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: 'medium_wavy',
+                    child: Text(
+                      '${strings.aiHairMedium} • ${strings.aiHairWavy}',
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: 'long_straight',
+                    child: Text(
+                      '${strings.aiHairLong} • ${strings.aiHairStraight}',
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: 'long_curly',
+                    child: Text(
+                      '${strings.aiHairLong} • ${strings.aiHairCurly}',
+                    ),
+                  ),
+                  DropdownMenuItem(
+                    value: 'bald',
+                    child: Text(strings.aiHairBald),
+                  ),
                 ],
                 onChanged: (val) {
                   if (val != null) {
@@ -697,36 +752,37 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
         Wrap(
           spacing: AppSpacing.xs,
           runSpacing: AppSpacing.xs,
-          children: [
-            {'key': 'oval', 'label': strings.aiFaceOval},
-            {'key': 'round', 'label': strings.aiFaceRound},
-            {'key': 'square', 'label': strings.aiFaceSquare},
-            {'key': 'heart', 'label': strings.aiFaceHeart},
-            {'key': 'oblong', 'label': strings.aiFaceOblong},
-          ].map((item) {
-            final isSelected = faceShape == item['key'];
-            return ChoiceChip(
-              label: Text(
-                item['label']!,
-                style: TextStyle(
-                  fontFamily: 'Vazirmatn',
-                  fontSize: 11,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? colors.prt : colors.tx,
-                ),
-              ),
-              selected: isSelected,
-              selectedColor: colors.pr,
-              backgroundColor: colors.bg,
-              shape: RoundedRectangleBorder(
-                borderRadius: AppRadius.rMd,
-                side: BorderSide(
-                  color: isSelected ? colors.pr : colors.bd,
-                ),
-              ),
-              onSelected: (_) => _updateField('faceShape', item['key']!),
-            );
-          }).toList(),
+          children:
+              [
+                {'key': 'oval', 'label': strings.aiFaceOval},
+                {'key': 'round', 'label': strings.aiFaceRound},
+                {'key': 'square', 'label': strings.aiFaceSquare},
+                {'key': 'heart', 'label': strings.aiFaceHeart},
+                {'key': 'oblong', 'label': strings.aiFaceOblong},
+              ].map((item) {
+                final isSelected = faceShape == item['key'];
+                return ChoiceChip(
+                  label: Text(
+                    item['label']!,
+                    style: TextStyle(
+                      fontFamily: 'Vazirmatn',
+                      fontSize: 11,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
+                      color: isSelected ? colors.prt : colors.tx,
+                    ),
+                  ),
+                  selected: isSelected,
+                  selectedColor: colors.pr,
+                  backgroundColor: colors.bg,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: AppRadius.rMd,
+                    side: BorderSide(color: isSelected ? colors.pr : colors.bd),
+                  ),
+                  onSelected: (_) => _updateField('faceShape', item['key']!),
+                );
+              }).toList(),
         ),
       ],
     );
@@ -911,7 +967,9 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
                             : null,
                         placeholder: 'B',
                         items: _braCups
-                            .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                            .map(
+                              (c) => DropdownMenuItem(value: c, child: Text(c)),
+                            )
                             .toList(),
                         onChanged: (val) {
                           if (val != null) _updateField('braCup', val);
@@ -1110,7 +1168,9 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.all(AppSpacing.sm),
                 decoration: BoxDecoration(
-                  color: isSelected ? colors.pr.withValues(alpha: 0.08) : colors.bg,
+                  color: isSelected
+                      ? colors.pr.withValues(alpha: 0.08)
+                      : colors.bg,
                   borderRadius: AppRadius.rMd,
                   border: Border.all(
                     color: isSelected ? colors.pr : colors.bd,

@@ -61,14 +61,14 @@ class WellnessNotifier extends StateNotifier<WellnessState> {
   final Ref _ref;
 
   WellnessNotifier(WellnessRepository repo, this._ref)
-      : super(
-          WellnessState(
-            beautyScore: repo.getBeautyScore(),
-            healthScore: repo.getHealthScore(),
-            mindScore: repo.getMindScore(),
-            tasks: repo.getTasks(),
-          ),
-        );
+    : super(
+        WellnessState(
+          beautyScore: repo.getBeautyScore(),
+          healthScore: repo.getHealthScore(),
+          mindScore: repo.getMindScore(),
+          tasks: repo.getTasks(),
+        ),
+      );
 
   void togglePrivateMode() {
     state = state.copyWith(isPrivateMode: !state.isPrivateMode);
@@ -97,14 +97,19 @@ class WellnessNotifier extends StateNotifier<WellnessState> {
 
     final currentSub = Map<String, int>.from(state.healthScore.subScores);
     if (snapshot.steps != null) {
-      currentSub['فعالیت فیزیکی'] = (snapshot.steps! / 110).clamp(30, 100).round();
+      currentSub['فعالیت فیزیکی'] = (snapshot.steps! / 110)
+          .clamp(30, 100)
+          .round();
     }
     if (snapshot.sleepHours != null) {
-      currentSub['کیفیت خواب'] = (snapshot.sleepHours! * 12.0).clamp(25, 100).round();
+      currentSub['کیفیت خواب'] = (snapshot.sleepHours! * 12.0)
+          .clamp(25, 100)
+          .round();
     }
     if (snapshot.heartRateBpm != null) {
-      currentSub['شاخص قلب'] =
-          (100 - (snapshot.heartRateBpm! - 65).abs() * 1.5).clamp(40, 100).round();
+      currentSub['شاخص قلب'] = (100 - (snapshot.heartRateBpm! - 65).abs() * 1.5)
+          .clamp(40, 100)
+          .round();
     }
 
     final newTotal = snapshot.energyReadinessScore;

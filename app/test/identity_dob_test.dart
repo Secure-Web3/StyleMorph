@@ -35,35 +35,38 @@ void main() {
           GlobalCupertinoLocalizations.delegate,
         ],
         home: const Scaffold(
-          body: SingleChildScrollView(
-            child: IdentitySubTab(),
-          ),
+          body: SingleChildScrollView(child: IdentitySubTab()),
         ),
       ),
     );
   }
 
   group('Date of Birth & Legal Age Validation Tests', () {
-    testWidgets('renders Date of Birth field with localized label and age requirement note in Persian',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(buildTestableWidget(locale: const Locale('fa')));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'renders Date of Birth field with localized label and age requirement note in Persian',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(locale: const Locale('fa')),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('تاریخ تولد'), findsOneWidget);
-      expect(find.text('انتخاب تاریخ تولد'), findsOneWidget);
-      expect(find.text('حداقل سن قانونی ۱۳ سال است'), findsOneWidget);
-      expect(
-        find.byWidgetPredicate(
-          (w) =>
-              w is FaIcon &&
-              w.icon?.codePoint == FontAwesomeIcons.calendar.codePoint,
-        ),
-        findsOneWidget,
-      );
-    });
+        expect(find.text('تاریخ تولد'), findsOneWidget);
+        expect(find.text('انتخاب تاریخ تولد'), findsOneWidget);
+        expect(find.text('حداقل سن قانونی ۱۳ سال است'), findsOneWidget);
+        expect(
+          find.byWidgetPredicate(
+            (w) =>
+                w is FaIcon &&
+                w.icon?.codePoint == FontAwesomeIcons.calendar.codePoint,
+          ),
+          findsOneWidget,
+        );
+      },
+    );
 
-    testWidgets('renders Date of Birth field with localized label in English',
-        (WidgetTester tester) async {
+    testWidgets('renders Date of Birth field with localized label in English', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(buildTestableWidget(locale: const Locale('en')));
       await tester.pumpAndSettle();
 
@@ -80,8 +83,9 @@ void main() {
       );
     });
 
-    testWidgets('AppTextField readOnly and onTap open date picker on tap',
-        (WidgetTester tester) async {
+    testWidgets('AppTextField readOnly and onTap open date picker on tap', (
+      WidgetTester tester,
+    ) async {
       await tester.pumpWidget(buildTestableWidget(locale: const Locale('en')));
       await tester.pumpAndSettle();
 
@@ -122,7 +126,7 @@ void main() {
       );
 
       expect(withDob, greaterThan(withoutDob));
-      expect(withDob - withoutDob, closeTo(0.08, 0.001));
+      expect(withDob - withoutDob, closeTo(0.25 / 9, 0.001));
     });
 
     test('updateIdentityField preserves ISO-8601 dob format in state', () {

@@ -1,4 +1,4 @@
-﻿import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -38,7 +38,8 @@ Future<void> main() async {
         FirebaseFirestore.instance.useFirestoreEmulator(host, port);
       },
     );
-    await SessionPersistenceService().checkAndClearNonPersistentSessionOnStartup();
+    await SessionPersistenceService()
+        .checkAndClearNonPersistentSessionOnStartup();
     await ReferralService().captureReferralFromUri(Uri.base);
   } catch (e) {
     debugPrint('[FirebaseInit] Notice: $e');
@@ -57,18 +58,13 @@ class StyleMorphApp extends ConsumerWidget {
     return MaterialApp(
       title: 'StyleMorph',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.buildTheme(
-        palette: themeState.palette,
-        isDark: false,
-      ),
-      darkTheme: AppTheme.buildTheme(
-        palette: themeState.palette,
-        isDark: true,
-      ),
+      theme: AppTheme.buildTheme(palette: themeState.palette, isDark: false),
+      darkTheme: AppTheme.buildTheme(palette: themeState.palette, isDark: true),
       themeMode: themeState.mode,
       locale: currentLang.locale,
-      supportedLocales:
-          AppLanguage.supportedLanguages.map((l) => l.locale).toList(),
+      supportedLocales: AppLanguage.supportedLanguages
+          .map((l) => l.locale)
+          .toList(),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
@@ -146,9 +142,7 @@ class _AuthGate extends ConsumerWidget {
           return const _Splash();
         }
 
-        return const SessionRevocationListener(
-          child: MainShellScreen(),
-        );
+        return const SessionRevocationListener(child: MainShellScreen());
       },
     );
   }
@@ -160,9 +154,7 @@ class _Splash extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: Center(
-        child: CircularProgressIndicator.adaptive(),
-      ),
+      body: Center(child: CircularProgressIndicator.adaptive()),
     );
   }
 }

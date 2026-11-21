@@ -30,8 +30,8 @@ class AppSectionHeader extends StatelessWidget {
     final colors = context.colors;
 
     return Container(
-      padding: padding ??
-          const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
+      padding:
+          padding ?? const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
       decoration: BoxDecoration(
         border: showDivider
             ? Border(bottom: BorderSide(color: colors.bd, width: 1.0))

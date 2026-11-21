@@ -24,15 +24,14 @@ class FirebaseAuthRepository implements AuthRepository {
     FirebaseAuth? auth,
     FirebaseFirestore? firestore,
     GoogleSignIn? googleSignIn,
-  })  : _customAuth = auth,
-        _customFirestore = firestore,
-        _customGoogleSignIn = googleSignIn;
+  }) : _customAuth = auth,
+       _customFirestore = firestore,
+       _customGoogleSignIn = googleSignIn;
 
   FirebaseAuth get _auth => _customAuth ?? FirebaseAuth.instance;
   FirebaseFirestore get _firestore =>
       _customFirestore ?? FirebaseFirestore.instance;
-  GoogleSignIn get _googleSignIn =>
-      _customGoogleSignIn ?? GoogleSignIn();
+  GoogleSignIn get _googleSignIn => _customGoogleSignIn ?? GoogleSignIn();
 
   @override
   Stream<User?> get authStateChanges {
@@ -78,10 +77,7 @@ class FirebaseAuthRepository implements AuthRepository {
     );
 
     if (credential.user != null) {
-      await provisionFirestoreUser(
-        credential.user!,
-        authProvider: 'email',
-      );
+      await provisionFirestoreUser(credential.user!, authProvider: 'email');
     }
 
     return credential;
@@ -112,8 +108,9 @@ class FirebaseAuthRepository implements AuthRepository {
       provider.addScope('profile');
       final userCredential = await _auth.signInWithPopup(provider);
       if (userCredential.user != null) {
-        final (first, last) =
-            splitDisplayName(userCredential.user!.displayName);
+        final (first, last) = splitDisplayName(
+          userCredential.user!.displayName,
+        );
         await provisionFirestoreUser(
           userCredential.user!,
           authProvider: 'google',
@@ -177,8 +174,9 @@ class FirebaseAuthRepository implements AuthRepository {
     if (userCredential.user != null) {
       final givenName = appleCredential.givenName?.trim();
       final familyName = appleCredential.familyName?.trim();
-      final (fallbackFirst, fallbackLast) =
-          splitDisplayName(userCredential.user!.displayName);
+      final (fallbackFirst, fallbackLast) = splitDisplayName(
+        userCredential.user!.displayName,
+      );
       await provisionFirestoreUser(
         userCredential.user!,
         authProvider: 'apple',
@@ -234,9 +232,7 @@ class FirebaseAuthRepository implements AuthRepository {
         final referralCode = ReferralService.generateReferralCode();
         final initialPreferences = const UserPreferences().toMap();
 
-        final identityMap = <String, String>{
-          'email': user.email ?? '',
-        };
+        final identityMap = <String, String>{'email': user.email ?? ''};
         if (extractedFirst.isNotEmpty) {
           identityMap['firstName'] = extractedFirst;
         }
@@ -256,11 +252,11 @@ class FirebaseAuthRepository implements AuthRepository {
           aiUsageCount: 0,
           coinActivity: 0,
         );
-        final loyaltyRank =
-            LoyaltyService.getRank(stylePoints).nameCapitalized;
-        final fullName = [extractedFirst, extractedLast]
-            .where((s) => s.isNotEmpty)
-            .join(' ');
+        final loyaltyRank = LoyaltyService.getRank(stylePoints).nameCapitalized;
+        final fullName = [
+          extractedFirst,
+          extractedLast,
+        ].where((s) => s.isNotEmpty).join(' ');
 
         final initialData = <String, dynamic>{
           'email': user.email ?? '',
@@ -279,8 +275,7 @@ class FirebaseAuthRepository implements AuthRepository {
           initialData['displayName'] = fullName;
           initialData['firstName'] = extractedFirst;
           initialData['lastName'] = extractedLast;
-        } else if (user.displayName != null &&
-            user.displayName!.isNotEmpty) {
+        } else if (user.displayName != null && user.displayName!.isNotEmpty) {
           initialData['displayName'] = user.displayName!;
         }
 
@@ -303,18 +298,18 @@ class FirebaseAuthRepository implements AuthRepository {
 
         final Map<String, dynamic> existingIdentity =
             existingData['identity'] is Map
-                ? Map<String, dynamic>.from(existingData['identity'] as Map)
-                : {};
+            ? Map<String, dynamic>.from(existingData['identity'] as Map)
+            : {};
 
-        final currentFirst = (existingIdentity['firstName'] ??
-                existingData['firstName'])
-            ?.toString()
-            .trim() ??
+        final currentFirst =
+            (existingIdentity['firstName'] ?? existingData['firstName'])
+                ?.toString()
+                .trim() ??
             '';
-        final currentLast = (existingIdentity['lastName'] ??
-                existingData['lastName'])
-            ?.toString()
-            .trim() ??
+        final currentLast =
+            (existingIdentity['lastName'] ?? existingData['lastName'])
+                ?.toString()
+                .trim() ??
             '';
         final currentPhoto =
             (existingData['photoURL'])?.toString().trim() ?? '';
@@ -347,8 +342,7 @@ class FirebaseAuthRepository implements AuthRepository {
           ].where((s) => s.isNotEmpty).join(' ');
           if (newFullName.isNotEmpty) {
             updates['displayName'] = newFullName;
-          } else if (user.displayName != null &&
-              user.displayName!.isNotEmpty) {
+          } else if (user.displayName != null && user.displayName!.isNotEmpty) {
             updates['displayName'] = user.displayName!;
           }
         }
@@ -377,12 +371,12 @@ class FirebaseAuthRepository implements AuthRepository {
               : {};
           final Map<String, String> existingMedia =
               existingData['mediaSlots'] is Map
-                  ? Map<String, String>.from(
-                      (existingData['mediaSlots'] as Map).map(
-                        (k, v) => MapEntry(k.toString(), v?.toString() ?? ''),
-                      ),
-                    )
-                  : {};
+              ? Map<String, String>.from(
+                  (existingData['mediaSlots'] as Map).map(
+                    (k, v) => MapEntry(k.toString(), v?.toString() ?? ''),
+                  ),
+                )
+              : {};
           final personaMode =
               existingData['personaMode']?.toString() ?? 'full_body';
 
@@ -398,7 +392,8 @@ class FirebaseAuthRepository implements AuthRepository {
               (existingData['referralCount'] as num?)?.toInt() ?? 0;
           final aiUsageCount =
               (existingData['aiUsageCount'] as num?)?.toInt() ?? 0;
-          final coins = (existingData['walletBalance'] as num?)?.toInt() ??
+          final coins =
+              (existingData['walletBalance'] as num?)?.toInt() ??
               (existingData['coins'] as num?)?.toInt() ??
               (existingData['coinBalance'] as num?)?.toInt() ??
               0;
@@ -412,8 +407,9 @@ class FirebaseAuthRepository implements AuthRepository {
             coinActivity: coins,
           );
           updates['stylePoints'] = stylePoints;
-          updates['loyaltyRank'] =
-              LoyaltyService.getRank(stylePoints).nameCapitalized;
+          updates['loyaltyRank'] = LoyaltyService.getRank(
+            stylePoints,
+          ).nameCapitalized;
         }
 
         if (updates.isNotEmpty) {
@@ -428,10 +424,7 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
-    await Future.wait([
-      _auth.signOut(),
-      _googleSignIn.signOut(),
-    ]);
+    await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
   }
 
   /// Generates a cryptographic nonce for Apple Sign-In.
@@ -439,8 +432,10 @@ class FirebaseAuthRepository implements AuthRepository {
     const charset =
         '0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._';
     final random = Random.secure();
-    return List.generate(length, (_) => charset[random.nextInt(charset.length)])
-        .join();
+    return List.generate(
+      length,
+      (_) => charset[random.nextInt(charset.length)],
+    ).join();
   }
 
   String _sha256ofString(String input) {

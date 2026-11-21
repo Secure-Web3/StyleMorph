@@ -129,7 +129,8 @@ class WardrobeTab extends ConsumerWidget {
       context: context,
       child: WardrobeItemDetailSheet(
         item: item,
-        onFav: () => ref.read(wardrobeProvider.notifier).toggleFavorite(item.id),
+        onFav: () =>
+            ref.read(wardrobeProvider.notifier).toggleFavorite(item.id),
         onArchive: () =>
             ref.read(wardrobeProvider.notifier).toggleArchive(item.id),
         onDelete: () {
@@ -232,13 +233,12 @@ class _CategorySidebar extends StatelessWidget {
             onTap: () => onSelect(code),
             child: AnimatedContainer(
               duration: const Duration(milliseconds: 180),
-              margin: const EdgeInsets.symmetric(
-                horizontal: 6,
-                vertical: 3,
-              ),
+              margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
               padding: const EdgeInsets.symmetric(vertical: 10),
               decoration: BoxDecoration(
-                color: isActive ? colors.pr.withOpacity(0.1) : Colors.transparent,
+                color: isActive
+                    ? colors.pr.withValues(alpha: 0.1)
+                    : Colors.transparent,
                 borderRadius: BorderRadius.circular(10),
                 border: isActive
                     ? Border.all(color: colors.pr, width: 1.5)
@@ -247,19 +247,16 @@ class _CategorySidebar extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(
-                    icon,
-                    size: 18,
-                    color: isActive ? colors.pr : colors.mu,
-                  ),
+                  Icon(icon, size: 18, color: isActive ? colors.pr : colors.mu),
                   const SizedBox(height: 4),
                   Text(
                     strings.tr(label),
                     style: TextStyle(
                       fontFamily: 'Vazirmatn',
                       fontSize: 9,
-                      fontWeight:
-                          isActive ? FontWeight.w700 : FontWeight.normal,
+                      fontWeight: isActive
+                          ? FontWeight.w700
+                          : FontWeight.normal,
                       color: isActive ? colors.pr : colors.mu,
                     ),
                     textAlign: TextAlign.center,
@@ -496,10 +493,7 @@ class _DashedBorderPainter extends CustomPainter {
     final metrics = path.computeMetrics().first;
     double dist = 0;
     while (dist < metrics.length) {
-      canvas.drawPath(
-        metrics.extractPath(dist, dist + dashWidth),
-        paint,
-      );
+      canvas.drawPath(metrics.extractPath(dist, dist + dashWidth), paint);
       dist += dashWidth + dashSpace;
     }
   }

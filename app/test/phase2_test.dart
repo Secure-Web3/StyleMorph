@@ -37,7 +37,10 @@ void main() {
       expect(repo.getItems().length, 23);
 
       repo.toggleFavorite('test_1');
-      expect(repo.getItems().firstWhere((e) => e.id == 'test_1').isFavorite, true);
+      expect(
+        repo.getItems().firstWhere((e) => e.id == 'test_1').isFavorite,
+        true,
+      );
 
       repo.deleteItem('test_1');
       expect(repo.getItems().length, 22);
@@ -53,7 +56,10 @@ void main() {
       // Filter by category: cl
       notifier.setCategory('cl');
       expect(notifier.state.filter.category, 'cl');
-      expect(notifier.state.filteredItems.every((e) => e.category == 'cl'), true);
+      expect(
+        notifier.state.filteredItems.every((e) => e.category == 'cl'),
+        true,
+      );
 
       // Search
       notifier.setSearch('جین');
@@ -66,7 +72,9 @@ void main() {
       expect(notifier.state.filteredItems.length, 21);
     });
 
-    testWidgets('WardrobeTab renders correctly with categories and items', (tester) async {
+    testWidgets('WardrobeTab renders correctly with categories and items', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(const Size(430, 932));
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -74,21 +82,18 @@ void main() {
         ProviderScope(
           child: MaterialApp(
             locale: const Locale('fa'),
-            supportedLocales:
-                AppLanguage.supportedLanguages.map((l) => l.locale).toList(),
+            supportedLocales: AppLanguage.supportedLanguages
+                .map((l) => l.locale)
+                .toList(),
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            theme: ThemeData(
-              extensions: const [AppColors.lightWhite],
-            ),
+            theme: ThemeData(extensions: const [AppColors.lightWhite]),
             home: const Directionality(
               textDirection: TextDirection.rtl,
-              child: Scaffold(
-                body: WardrobeTab(),
-              ),
+              child: Scaffold(body: WardrobeTab()),
             ),
           ),
         ),
@@ -128,7 +133,10 @@ void main() {
 
       // Filter category shoe
       notifier.setCategory('shoe');
-      expect(notifier.state.filteredProducts.every((p) => p.category == 'shoe'), true);
+      expect(
+        notifier.state.filteredProducts.every((p) => p.category == 'shoe'),
+        true,
+      );
 
       // Wishlist filter
       notifier.setCategory('fav');
@@ -143,7 +151,9 @@ void main() {
       expect(notifier.state.compareList.length, 3);
     });
 
-    testWidgets('ShopTab renders search, categories, and products', (tester) async {
+    testWidgets('ShopTab renders search, categories, and products', (
+      tester,
+    ) async {
       await tester.binding.setSurfaceSize(const Size(430, 932));
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
@@ -151,21 +161,18 @@ void main() {
         ProviderScope(
           child: MaterialApp(
             locale: const Locale('fa'),
-            supportedLocales:
-                AppLanguage.supportedLanguages.map((l) => l.locale).toList(),
+            supportedLocales: AppLanguage.supportedLanguages
+                .map((l) => l.locale)
+                .toList(),
             localizationsDelegates: const [
               GlobalMaterialLocalizations.delegate,
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            theme: ThemeData(
-              extensions: const [AppColors.lightWhite],
-            ),
+            theme: ThemeData(extensions: const [AppColors.lightWhite]),
             home: const Directionality(
               textDirection: TextDirection.rtl,
-              child: Scaffold(
-                body: ShopTab(),
-              ),
+              child: Scaffold(body: ShopTab()),
             ),
           ),
         ),

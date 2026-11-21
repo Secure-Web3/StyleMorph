@@ -14,11 +14,7 @@ class TurnstileSkeleton extends StatefulWidget {
   final double width;
   final double height;
 
-  const TurnstileSkeleton({
-    super.key,
-    this.width = 300,
-    this.height = 65,
-  });
+  const TurnstileSkeleton({super.key, this.width = 300, this.height = 65});
 
   @override
   State<TurnstileSkeleton> createState() => _TurnstileSkeletonState();
@@ -38,10 +34,7 @@ class _TurnstileSkeletonState extends State<TurnstileSkeleton>
     )..repeat(reverse: true);
 
     _pulseAnim = Tween<double>(begin: 0.45, end: 0.90).animate(
-      CurvedAnimation(
-        parent: _animController,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _animController, curve: Curves.easeInOut),
     );
   }
 

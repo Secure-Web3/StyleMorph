@@ -67,35 +67,52 @@ class _SupportWidgetState extends ConsumerState<SupportWidget> {
     final bodyHeight = size.height;
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
-    final maxLeft = math.max(_edgeMargin, bodyWidth - _buttonSize - _edgeMargin);
-    final maxTop =
-        math.max(_verticalPadding, bodyHeight - _buttonSize - _verticalPadding);
+    final maxLeft = math.max(
+      _edgeMargin,
+      bodyWidth - _buttonSize - _edgeMargin,
+    );
+    final maxTop = math.max(
+      _verticalPadding,
+      bodyHeight - _buttonSize - _verticalPadding,
+    );
 
     // Initialize default bottom-end position once layout bounds are known.
-    final currentLeft = (_left ?? (isRtl ? _edgeMargin : maxLeft))
-        .clamp(_edgeMargin, maxLeft);
-    final currentTop =
-        (_top ?? (bodyHeight - _buttonSize - 16.0)).clamp(_verticalPadding, maxTop);
+    final currentLeft = (_left ?? (isRtl ? _edgeMargin : maxLeft)).clamp(
+      _edgeMargin,
+      maxLeft,
+    );
+    final currentTop = (_top ?? (bodyHeight - _buttonSize - 16.0)).clamp(
+      _verticalPadding,
+      maxTop,
+    );
 
     // Smart popup dimensions & coordinates clamped 100% inside the internal app area.
     final popupWidth = math.min(288.0, math.max(220.0, bodyWidth - 24.0));
     final popupHeight = math.min(320.0, math.max(180.0, bodyHeight - 24.0));
-    final maxPopupLeft = math.max(_edgeMargin, bodyWidth - popupWidth - _edgeMargin);
-    final maxPopupTop =
-        math.max(_verticalPadding, bodyHeight - popupHeight - _verticalPadding);
+    final maxPopupLeft = math.max(
+      _edgeMargin,
+      bodyWidth - popupWidth - _edgeMargin,
+    );
+    final maxPopupTop = math.max(
+      _verticalPadding,
+      bodyHeight - popupHeight - _verticalPadding,
+    );
 
-    final bool buttonInLeftHalf = (currentLeft + _buttonSize / 2) < (bodyWidth / 2);
-    final double popupLeft = (buttonInLeftHalf
-            ? currentLeft
-            : (currentLeft + _buttonSize - popupWidth))
-        .clamp(_edgeMargin, maxPopupLeft);
+    final bool buttonInLeftHalf =
+        (currentLeft + _buttonSize / 2) < (bodyWidth / 2);
+    final double popupLeft =
+        (buttonInLeftHalf
+                ? currentLeft
+                : (currentLeft + _buttonSize - popupWidth))
+            .clamp(_edgeMargin, maxPopupLeft);
 
     final double spaceAbove = currentTop - _verticalPadding;
-    final double spaceBelow = bodyHeight - (currentTop + _buttonSize) - _verticalPadding;
+    final double spaceBelow =
+        bodyHeight - (currentTop + _buttonSize) - _verticalPadding;
     final bool openUpward =
         (currentTop + _buttonSize / 2) > (bodyHeight / 2) ||
-            (spaceAbove >= popupHeight + _verticalPadding &&
-                spaceAbove >= spaceBelow);
+        (spaceAbove >= popupHeight + _verticalPadding &&
+            spaceAbove >= spaceBelow);
 
     final double rawPopupTop = openUpward
         ? (currentTop - _verticalPadding - popupHeight)
@@ -134,10 +151,14 @@ class _SupportWidgetState extends ConsumerState<SupportWidget> {
               },
               onPanUpdate: (details) {
                 setState(() {
-                  _left = ((_left ?? currentLeft) + details.delta.dx)
-                      .clamp(_edgeMargin, maxLeft);
-                  _top = ((_top ?? currentTop) + details.delta.dy)
-                      .clamp(_verticalPadding, maxTop);
+                  _left = ((_left ?? currentLeft) + details.delta.dx).clamp(
+                    _edgeMargin,
+                    maxLeft,
+                  );
+                  _top = ((_top ?? currentTop) + details.delta.dy).clamp(
+                    _verticalPadding,
+                    maxTop,
+                  );
                 });
               },
               onPanEnd: (_) {
@@ -185,10 +206,7 @@ class _SupportWidgetState extends ConsumerState<SupportWidget> {
                       decoration: BoxDecoration(
                         color: colors.ok,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: colors.sf,
-                          width: 2,
-                        ),
+                        border: Border.all(color: colors.sf, width: 2),
                       ),
                     ),
                   ),

@@ -122,7 +122,8 @@ class _CreationDetailSheetState extends State<CreationDetailSheet> {
                       ),
                       child: Text(
                         strings.formatPercent(
-                            (c.anatomicalScore! * 100).round()),
+                          (c.anatomicalScore! * 100).round(),
+                        ),
                         style: const TextStyle(
                           fontFamily: 'Vazirmatn',
                           fontSize: 9,
@@ -145,15 +146,19 @@ class _CreationDetailSheetState extends State<CreationDetailSheet> {
                   variant: AppButtonVariant.primary,
                   size: AppButtonSize.sm,
                   isFullWidth: true,
-                  icon: Icon(Icons.download_rounded,
-                      size: 15, color: colors.prt),
+                  icon: Icon(
+                    Icons.download_rounded,
+                    size: 15,
+                    color: colors.prt,
+                  ),
                   text: strings.atelDownload,
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
                           strings.tr(
-                              'فایل خروجی با بالاترین کیفیت در گالری ذخیره شد.'),
+                            'فایل خروجی با بالاترین کیفیت در گالری ذخیره شد.',
+                          ),
                           style: const TextStyle(fontFamily: 'Vazirmatn'),
                         ),
                       ),
@@ -207,8 +212,11 @@ class _CreationDetailSheetState extends State<CreationDetailSheet> {
                   variant: AppButtonVariant.destructive,
                   size: AppButtonSize.sm,
                   isFullWidth: true,
-                  icon: Icon(Icons.delete_outline_rounded,
-                      size: 15, color: colors.orColor),
+                  icon: Icon(
+                    Icons.delete_outline_rounded,
+                    size: 15,
+                    color: colors.orColor,
+                  ),
                   text: strings.atelDeleteWork,
                   onPressed: () {
                     widget.onDelete();

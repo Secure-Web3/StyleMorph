@@ -29,7 +29,8 @@ class AppSwitchTile extends StatelessWidget {
     final row = InkWell(
       onTap: () => onChanged(!value),
       child: Padding(
-        padding: padding ??
+        padding:
+            padding ??
             const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.sm),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -97,7 +98,8 @@ class AppCheckboxTile extends StatelessWidget {
     final row = InkWell(
       onTap: () => onChanged(!value),
       child: Padding(
-        padding: padding ??
+        padding:
+            padding ??
             const EdgeInsetsDirectional.symmetric(vertical: AppSpacing.xs),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -112,7 +114,8 @@ class AppCheckboxTile extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: labelStyle ??
+                style:
+                    labelStyle ??
                     TextStyle(
                       fontFamily: AppTypography.fontFamily,
                       fontSize: 11,

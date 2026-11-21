@@ -13,9 +13,7 @@ void main() {
     isDark: false,
   );
 
-  Widget buildTestableWidget({
-    Locale locale = const Locale('fa'),
-  }) {
+  Widget buildTestableWidget({Locale locale = const Locale('fa')}) {
     return ProviderScope(
       child: MaterialApp(
         theme: testTheme,
@@ -32,88 +30,100 @@ void main() {
           GlobalCupertinoLocalizations.delegate,
         ],
         home: const Scaffold(
-          body: SingleChildScrollView(
-            child: IdentitySubTab(),
-          ),
+          body: SingleChildScrollView(child: IdentitySubTab()),
         ),
       ),
     );
   }
 
   group('Identity Sub-Tab Field Placeholders & Hint Examples Tests', () {
-    testWidgets('renders localized placeholders for all empty input fields in Persian',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(buildTestableWidget(locale: const Locale('fa')));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'renders localized placeholders for all empty input fields in Persian',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(locale: const Locale('fa')),
+        );
+        await tester.pumpAndSettle();
 
-      // First Name & Last Name
-      expect(find.text('مثال: علی'), findsOneWidget);
-      expect(find.text('مثال: رضایی'), findsOneWidget);
+        // First Name & Last Name
+        expect(find.text('مثال: علی'), findsOneWidget);
+        expect(find.text('مثال: رضایی'), findsOneWidget);
 
-      // Handle & National ID
-      expect(find.text('@ali_style'), findsOneWidget);
-      expect(find.text('کد ملی ۱۰ رقمی'), findsOneWidget);
+        // Handle & National ID
+        expect(find.text('@ali_style'), findsOneWidget);
+        expect(find.text('کد ملی ۱۰ رقمی'), findsOneWidget);
 
-      // Date of Birth
-      expect(find.text('انتخاب تاریخ تولد'), findsOneWidget);
+        // Date of Birth
+        expect(find.text('انتخاب تاریخ تولد'), findsOneWidget);
 
-      // Mobile
-      expect(find.text('+98 912 345 6789'), findsOneWidget);
+        // Mobile
+        expect(find.text('+98 912 345 6789'), findsOneWidget);
 
-      // Country, Province, City
-      expect(find.text('مثال: ایران'), findsOneWidget);
-      expect(find.text('مثال: تهران'), findsNWidgets(2)); // Province & City
+        // Country, Province, City
+        expect(find.text('مثال: ایران'), findsOneWidget);
+        expect(find.text('مثال: تهران'), findsNWidgets(2)); // Province & City
 
-      // Address & Postal Code
-      expect(find.text('خیابان، کوچه، پلاک، واحد'), findsOneWidget);
-      expect(find.text('کد پستی / زیپ‌کد'), findsOneWidget);
-    });
+        // Address & Postal Code
+        expect(find.text('خیابان، کوچه، پلاک، واحد'), findsOneWidget);
+        expect(find.text('کد پستی / زیپ‌کد'), findsOneWidget);
+      },
+    );
 
-    testWidgets('renders localized placeholders for all empty input fields in English',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(buildTestableWidget(locale: const Locale('en')));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'renders localized placeholders for all empty input fields in English',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(locale: const Locale('en')),
+        );
+        await tester.pumpAndSettle();
 
-      // First Name & Last Name
-      expect(find.text('e.g. Ali'), findsOneWidget);
-      expect(find.text('e.g. Rezaei'), findsOneWidget);
+        // First Name & Last Name
+        expect(find.text('e.g. Ali'), findsOneWidget);
+        expect(find.text('e.g. Rezaei'), findsOneWidget);
 
-      // Handle & National ID
-      expect(find.text('@ali_style'), findsOneWidget);
-      expect(find.text('National ID number'), findsOneWidget);
+        // Handle & National ID
+        expect(find.text('@ali_style'), findsOneWidget);
+        expect(find.text('National ID number'), findsOneWidget);
 
-      // Date of Birth
-      expect(find.text('Select date of birth'), findsOneWidget);
+        // Date of Birth
+        expect(find.text('Select date of birth'), findsOneWidget);
 
-      // Mobile
-      expect(find.text('+1 234 567 8900'), findsOneWidget);
+        // Mobile
+        expect(find.text('+1 234 567 8900'), findsOneWidget);
 
-      // Country, Province, City
-      expect(find.text('e.g. United States, Canada'), findsOneWidget);
-      expect(find.text('e.g. California, Ontario'), findsOneWidget);
-      expect(find.text('e.g. New York, Toronto'), findsOneWidget);
+        // Country, Province, City
+        expect(find.text('e.g. United States, Canada'), findsOneWidget);
+        expect(find.text('e.g. California, Ontario'), findsOneWidget);
+        expect(find.text('e.g. New York, Toronto'), findsOneWidget);
 
-      // Address & Postal Code
-      expect(find.text('Street name, building number, suite'), findsOneWidget);
-      expect(find.text('Postal / ZIP Code'), findsWidgets);
-    });
+        // Address & Postal Code
+        expect(
+          find.text('Street name, building number, suite'),
+          findsOneWidget,
+        );
+        expect(find.text('Postal / ZIP Code'), findsWidgets);
+      },
+    );
 
-    test('AppStrings contains non-empty placeholders across all 4 languages', () {
-      for (final lang in ['fa', 'en', 'ar', 'tr']) {
-        final strings = AppStrings(lang);
-        expect(strings.idFirstNamePlaceholder.isNotEmpty, isTrue);
-        expect(strings.idLastNamePlaceholder.isNotEmpty, isTrue);
-        expect(strings.idNickPlaceholder.isNotEmpty, isTrue);
-        expect(strings.idNationalIdPlaceholder.isNotEmpty, isTrue);
-        expect(strings.idDobPlaceholder.isNotEmpty, isTrue);
-        expect(strings.idMobilePlaceholder.isNotEmpty, isTrue);
-        expect(strings.idEmailPlaceholder.isNotEmpty, isTrue);
-        expect(strings.idCountryPlaceholder.isNotEmpty, isTrue);
-        expect(strings.idProvincePlaceholder.isNotEmpty, isTrue);
-        expect(strings.idCityPlaceholder.isNotEmpty, isTrue);
-        expect(strings.idAddressPlaceholder.isNotEmpty, isTrue);
-        expect(strings.idZipPlaceholder.isNotEmpty, isTrue);
-      }
-    });
+    test(
+      'AppStrings contains non-empty placeholders across all 4 languages',
+      () {
+        for (final lang in ['fa', 'en', 'ar', 'tr']) {
+          final strings = AppStrings(lang);
+          expect(strings.idFirstNamePlaceholder.isNotEmpty, isTrue);
+          expect(strings.idLastNamePlaceholder.isNotEmpty, isTrue);
+          expect(strings.idNickPlaceholder.isNotEmpty, isTrue);
+          expect(strings.idNationalIdPlaceholder.isNotEmpty, isTrue);
+          expect(strings.idDobPlaceholder.isNotEmpty, isTrue);
+          expect(strings.idMobilePlaceholder.isNotEmpty, isTrue);
+          expect(strings.idEmailPlaceholder.isNotEmpty, isTrue);
+          expect(strings.idCountryPlaceholder.isNotEmpty, isTrue);
+          expect(strings.idProvincePlaceholder.isNotEmpty, isTrue);
+          expect(strings.idCityPlaceholder.isNotEmpty, isTrue);
+          expect(strings.idAddressPlaceholder.isNotEmpty, isTrue);
+          expect(strings.idZipPlaceholder.isNotEmpty, isTrue);
+        }
+      },
+    );
   });
 }

@@ -21,10 +21,7 @@ class WellnessTab extends ConsumerWidget {
   const WellnessTab({super.key});
 
   void _openModal(BuildContext context, Widget modal) {
-    AppModal.showSheet(
-      context: context,
-      child: modal,
-    );
+    AppModal.showSheet(context: context, child: modal);
   }
 
   @override
@@ -211,11 +208,7 @@ class WellnessTab extends ConsumerWidget {
                             borderRadius: BorderRadius.circular(8),
                             child: Row(
                               children: [
-                                Icon(
-                                  task.icon,
-                                  size: 18,
-                                  color: task.color,
-                                ),
+                                Icon(task.icon, size: 18, color: task.color),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
@@ -226,8 +219,9 @@ class WellnessTab extends ConsumerWidget {
                                       decoration: task.isDone
                                           ? TextDecoration.lineThrough
                                           : null,
-                                      color:
-                                          task.isDone ? colors.mu : colors.tx,
+                                      color: task.isDone
+                                          ? colors.mu
+                                          : colors.tx,
                                     ),
                                   ),
                                 ),
@@ -294,15 +288,25 @@ class WellnessTab extends ConsumerWidget {
                         onChanged: notifier.setActiveMetric,
                         items: [
                           AppSegmentItem(
-                              value: 'w', label: strings.wellMetricWeight),
+                            value: 'w',
+                            label: strings.wellMetricWeight,
+                          ),
                           AppSegmentItem(
-                              value: 's', label: strings.wellMetricSleep),
+                            value: 's',
+                            label: strings.wellMetricSleep,
+                          ),
                           AppSegmentItem(
-                              value: 'a', label: strings.wellMetricActivity),
+                            value: 'a',
+                            label: strings.wellMetricActivity,
+                          ),
                           AppSegmentItem(
-                              value: 'm', label: strings.wellMetricMood),
+                            value: 'm',
+                            label: strings.wellMetricMood,
+                          ),
                           AppSegmentItem(
-                              value: 'h', label: strings.wellMetricHeart),
+                            value: 'h',
+                            label: strings.wellMetricHeart,
+                          ),
                         ],
                       ),
                     ],
@@ -313,8 +317,11 @@ class WellnessTab extends ConsumerWidget {
                 // Button: Daily checkin
                 AppButton(
                   isFullWidth: true,
-                  icon: Icon(Icons.edit_calendar_rounded,
-                      size: 16, color: colors.prt),
+                  icon: Icon(
+                    Icons.edit_calendar_rounded,
+                    size: 16,
+                    color: colors.prt,
+                  ),
                   text: strings.wellDailyCheckinBtn,
                   onPressed: () =>
                       _openModal(context, const DailyCheckInSheet()),
@@ -363,7 +370,8 @@ class WellnessTab extends ConsumerWidget {
                         label: strings.wellFutureYou,
                         color: const Color(0xFFB7791F),
                         colors: colors,
-                        onTap: () => _openModal(context, const FutureSelfSheet()),
+                        onTap: () =>
+                            _openModal(context, const FutureSelfSheet()),
                       ),
                     ),
                   ],
@@ -434,10 +442,7 @@ class _ScoreCardButton extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          Text(
-            label,
-            style: AppTypography.cardTitle(color: colors.tx),
-          ),
+          Text(label, style: AppTypography.cardTitle(color: colors.tx)),
           Text(
             status,
             style: TextStyle(
@@ -515,13 +520,20 @@ class _WellnessChartPainter extends CustomPainter {
       final textPainter = TextPainter(
         text: TextSpan(
           text: hiddenLabel,
-          style: const TextStyle(fontFamily: 'Vazirmatn', fontSize: 10, color: Colors.grey),
+          style: const TextStyle(
+            fontFamily: 'Vazirmatn',
+            fontSize: 10,
+            color: Colors.grey,
+          ),
         ),
         textDirection: textDirection,
       )..layout();
       textPainter.paint(
         canvas,
-        Offset((size.width - textPainter.width) / 2, (size.height - textPainter.height) / 2),
+        Offset(
+          (size.width - textPainter.width) / 2,
+          (size.height - textPainter.height) / 2,
+        ),
       );
       return;
     }
@@ -532,7 +544,7 @@ class _WellnessChartPainter extends CustomPainter {
       ..style = PaintingStyle.stroke;
 
     final fillPaint = Paint()
-      ..color = color.withOpacity(0.12)
+      ..color = color.withValues(alpha: 0.12)
       ..style = PaintingStyle.fill;
 
     final path = Path();
@@ -704,7 +716,8 @@ class _WearableSyncCard extends StatelessWidget {
                 child: _TelemetryPill(
                   icon: Icons.bolt_rounded,
                   label: strings.wellHealth,
-                  value: '${strings.formatNumber(health.energyReadinessScore)}%',
+                  value:
+                      '${strings.formatNumber(health.energyReadinessScore)}%',
                   colors: colors,
                   valueColor: const Color(0xFFD99A06),
                 ),

@@ -79,7 +79,8 @@ class SessionPersistenceService {
   }
 }
 
-final sessionPersistenceServiceProvider =
-    Provider<SessionPersistenceService>((ref) {
+final sessionPersistenceServiceProvider = Provider<SessionPersistenceService>((
+  ref,
+) {
   return SessionPersistenceService();
 });

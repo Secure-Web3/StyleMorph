@@ -90,24 +90,24 @@ class _SessionRevocationListenerState
 
     final service = ref.read(sessionServiceProvider);
 
-    Future.wait([
-      service.currentSessionId(),
-      service.currentDeviceId(),
-    ]).then((ids) {
+    Future.wait([service.currentSessionId(), service.currentDeviceId()]).then((
+      ids,
+    ) {
       if (!mounted) return;
       final sessionId = ids[0];
       final deviceId = ids[1];
 
       // 1. Watch session document
-      _sessionSub =
-          service.watchCurrentSession(user.uid, sessionId).listen((snap) {
+      _sessionSub = service.watchCurrentSession(user.uid, sessionId).listen((
+        snap,
+      ) {
         if (!mounted) return;
 
         final deleted = snap == null || !snap.exists;
-        final isBlocked = !deleted &&
-            (snap.data()?['isBlocked'] as bool? ?? false) == true;
-        final inactive = !deleted &&
-            (snap.data()?['isActive'] as bool? ?? true) == false;
+        final isBlocked =
+            !deleted && (snap.data()?['isBlocked'] as bool? ?? false) == true;
+        final inactive =
+            !deleted && (snap.data()?['isActive'] as bool? ?? true) == false;
 
         if (isBlocked) {
           _performBlockedSignOut();
@@ -117,8 +117,9 @@ class _SessionRevocationListenerState
       });
 
       // 2. Watch blocked device document
-      _blockedSub =
-          service.watchDeviceBlocked(user.uid, deviceId).listen((isBlocked) {
+      _blockedSub = service.watchDeviceBlocked(user.uid, deviceId).listen((
+        isBlocked,
+      ) {
         if (!mounted) return;
         if (isBlocked) {
           _performBlockedSignOut();
@@ -228,8 +229,7 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
 
   void _toggleExpand(String sessionId) {
     setState(() {
-      _expandedSessionId =
-          (_expandedSessionId == sessionId) ? null : sessionId;
+      _expandedSessionId = (_expandedSessionId == sessionId) ? null : sessionId;
     });
   }
 
@@ -262,10 +262,7 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          Text(
-            message,
-            style: AppTypography.bodyMedium(color: colors.mu),
-          ),
+          Text(message, style: AppTypography.bodyMedium(color: colors.mu)),
           const SizedBox(height: AppSpacing.lg),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
@@ -442,10 +439,14 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
               ),
             ),
             error: (err, stack) {
-              debugPrint('[SessionsSubTab] Firestore exception loading sessions: $err\n$stack');
+              debugPrint(
+                '[SessionsSubTab] Firestore exception loading sessions: $err\n$stack',
+              );
               // Automatically trigger an upsert attempt if collection was just created
               Future.microtask(() {
-                ref.read(sessionServiceProvider).upsertSession().catchError((e) {
+                ref.read(sessionServiceProvider).upsertSession().catchError((
+                  e,
+                ) {
                   debugPrint('[SessionsSubTab] Retry upsertSession error: $e');
                 });
               });
@@ -474,8 +475,12 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
               if (sessions.isEmpty) {
                 // If sessions haven't populated yet, trigger upsertSession immediately
                 Future.microtask(() {
-                  ref.read(sessionServiceProvider).upsertSession().catchError((e) {
-                    debugPrint('[SessionsSubTab] upsertSession on empty error: $e');
+                  ref.read(sessionServiceProvider).upsertSession().catchError((
+                    e,
+                  ) {
+                    debugPrint(
+                      '[SessionsSubTab] upsertSession on empty error: $e',
+                    );
                   });
                 });
                 return Center(
@@ -506,8 +511,7 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
                 data: (currentId) {
                   // Legacy fallback: if NO session document has isPrimary == true,
                   // treat the earliest session (oldest createdAt) as Primary
-                  final hasExplicitPrimary =
-                      sessions.any((s) => s.isPrimary);
+                  final hasExplicitPrimary = sessions.any((s) => s.isPrimary);
                   String? fallbackPrimaryId;
                   if (!hasExplicitPrimary && sessions.isNotEmpty) {
                     final earliest = sessions.reduce(
@@ -516,15 +520,16 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
                     fallbackPrimaryId = earliest.sessionId;
                   }
 
-                  final currentSession =
-                      sessions.cast<SessionInfo?>().firstWhere(
-                            (s) => s?.sessionId == currentId,
-                            orElse: () => null,
-                          );
+                  final currentSession = sessions
+                      .cast<SessionInfo?>()
+                      .firstWhere(
+                        (s) => s?.sessionId == currentId,
+                        orElse: () => null,
+                      );
                   final isCurrentDevicePrimary =
                       (currentSession?.isPrimary ?? false) ||
-                          (fallbackPrimaryId != null &&
-                              currentId == fallbackPrimaryId);
+                      (fallbackPrimaryId != null &&
+                          currentId == fallbackPrimaryId);
 
                   return Column(
                     children: [
@@ -532,11 +537,11 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
                         _SessionCard(
                           session: session,
                           isCurrentDevice: session.sessionId == currentId,
-                          isPrimary: session.isPrimary ||
+                          isPrimary:
+                              session.isPrimary ||
                               (session.sessionId == fallbackPrimaryId),
                           isViewerPrimary: isCurrentDevicePrimary,
-                          isExpanded:
-                              _expandedSessionId == session.sessionId,
+                          isExpanded: _expandedSessionId == session.sessionId,
                           colors: colors,
                           strings: strings,
                           onToggleExpand: () =>
@@ -667,21 +672,14 @@ class _SessionCard extends StatelessWidget {
           padding: const EdgeInsetsDirectional.symmetric(horizontal: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: color.withValues(alpha: 0.35),
-              width: 1,
-            ),
+            border: Border.all(color: color.withValues(alpha: 0.35), width: 1),
           ),
           alignment: Alignment.center,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
-                icon,
-                size: 15,
-                color: color,
-              ),
+              Icon(icon, size: 15, color: color),
               const SizedBox(width: 6),
               Flexible(
                 child: Text(
@@ -744,11 +742,7 @@ class _SessionCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     alignment: Alignment.center,
-                    child: Icon(
-                      _platformIcon(),
-                      size: 22,
-                      color: iconBoxFg,
-                    ),
+                    child: Icon(_platformIcon(), size: 22, color: iconBoxFg),
                   ),
                   const SizedBox(width: AppSpacing.sm),
 
@@ -996,10 +990,7 @@ class _InfoRow extends StatelessWidget {
         children: [
           FaIcon(icon, size: 11, color: colors.mu),
           const SizedBox(width: AppSpacing.xs),
-          Text(
-            '$label: ',
-            style: AppTypography.caption(color: colors.mu),
-          ),
+          Text('$label: ', style: AppTypography.caption(color: colors.mu)),
           Expanded(
             child: Text(
               value,

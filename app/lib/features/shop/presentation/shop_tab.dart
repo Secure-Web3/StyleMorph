@@ -194,11 +194,7 @@ class _ShopTabState extends ConsumerState<ShopTab> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.monetization_on_rounded,
-                  size: 13,
-                  color: colors.wn,
-                ),
+                Icon(Icons.monetization_on_rounded, size: 13, color: colors.wn),
                 const SizedBox(width: AppSpacing.xs),
                 Text(strings.coinsText(appCoins)),
               ],
@@ -227,10 +223,7 @@ class _ShopTabState extends ConsumerState<ShopTab> {
                 onTap: _openFilterSheet,
               ),
               const SizedBox(width: AppSpacing.xs),
-              AppIconButton(
-                icon: Icons.sort_rounded,
-                onTap: _openSortSheet,
-              ),
+              AppIconButton(icon: Icons.sort_rounded, onTap: _openSortSheet),
             ],
           ),
         ),
@@ -374,11 +367,11 @@ class _ShopTabState extends ConsumerState<ShopTab> {
                     physics: const NeverScrollableScrollPhysics(),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 8,
-                      mainAxisSpacing: 8,
-                      childAspectRatio: 0.58,
-                    ),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 8,
+                          mainAxisSpacing: 8,
+                          childAspectRatio: 0.58,
+                        ),
                     itemCount: products.length,
                     itemBuilder: (_, i) {
                       final p = products[i];
@@ -407,8 +400,11 @@ class _ShopTabState extends ConsumerState<ShopTab> {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.info_outline_rounded,
-                          size: 15, color: colors.mu),
+                      Icon(
+                        Icons.info_outline_rounded,
+                        size: 15,
+                        color: colors.mu,
+                      ),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: Text(
@@ -458,7 +454,9 @@ class _ShopTabState extends ConsumerState<ShopTab> {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(
-                          strings.shopCompareReady(shopState.compareList.length),
+                          strings.shopCompareReady(
+                            shopState.compareList.length,
+                          ),
                           style: const TextStyle(fontFamily: 'Vazirmatn'),
                         ),
                       ),

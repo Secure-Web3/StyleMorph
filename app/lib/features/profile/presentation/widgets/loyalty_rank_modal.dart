@@ -25,10 +25,7 @@ class LoyaltyModalSheet extends StatelessWidget {
   }) {
     return AppModal.showSheet(
       context: context,
-      child: LoyaltyModalSheet(
-        points: points,
-        rank: rank,
-      ),
+      child: LoyaltyModalSheet(points: points, rank: rank),
     );
   }
 
@@ -43,11 +40,7 @@ class LoyaltyModalSheet extends StatelessWidget {
 
     return AppBottomSheetShell(
       title: strings.loyaltyTitle,
-      titleLeading: FaIcon(
-        FontAwesomeIcons.award,
-        size: 16,
-        color: rankColor,
-      ),
+      titleLeading: FaIcon(FontAwesomeIcons.award, size: 16, color: rankColor),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -67,7 +60,7 @@ class LoyaltyModalSheet extends StatelessWidget {
                         vertical: 3,
                       ),
                       decoration: BoxDecoration(
-                        color: rankColor.withOpacity(0.15),
+                        color: rankColor.withValues(alpha: 0.15),
                         borderRadius: AppRadius.rFull,
                         border: Border.all(color: rankColor, width: 1.2),
                       ),
@@ -196,25 +189,25 @@ class LoyaltyModalSheet extends StatelessWidget {
                   FontAwesomeIcons.solidUser,
                   strings.earnProfileRule,
                 ),
-                Divider(height: 12, color: colors.bd.withOpacity(0.5)),
+                Divider(height: 12, color: colors.bd.withValues(alpha: 0.5)),
                 _buildRuleRow(
                   colors,
                   FontAwesomeIcons.envelopeCircleCheck,
                   strings.earnEmailRule,
                 ),
-                Divider(height: 12, color: colors.bd.withOpacity(0.5)),
+                Divider(height: 12, color: colors.bd.withValues(alpha: 0.5)),
                 _buildRuleRow(
                   colors,
                   FontAwesomeIcons.userPlus,
                   strings.earnReferralRule,
                 ),
-                Divider(height: 12, color: colors.bd.withOpacity(0.5)),
+                Divider(height: 12, color: colors.bd.withValues(alpha: 0.5)),
                 _buildRuleRow(
                   colors,
                   FontAwesomeIcons.wandMagicSparkles,
                   strings.earnAiRule,
                 ),
-                Divider(height: 12, color: colors.bd.withOpacity(0.5)),
+                Divider(height: 12, color: colors.bd.withValues(alpha: 0.5)),
                 _buildRuleRow(
                   colors,
                   FontAwesomeIcons.coins,
@@ -249,9 +242,7 @@ class LoyaltyModalSheet extends StatelessWidget {
               margin: const EdgeInsets.only(bottom: AppSpacing.xs),
               padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
               decoration: BoxDecoration(
-                color: isCurrent
-                    ? rColor.withOpacity(0.08)
-                    : colors.sf,
+                color: isCurrent ? rColor.withValues(alpha: 0.08) : colors.sf,
                 borderRadius: AppRadius.rMd,
                 border: Border.all(
                   color: isCurrent ? rColor : colors.bd,

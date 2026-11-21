@@ -25,8 +25,9 @@ void main() {
     return ProviderScope(
       overrides: [
         if (initialState != null)
-          appStateProvider
-              .overrideWith((ref) => _TestAppStateNotifier(initialState)),
+          appStateProvider.overrideWith(
+            (ref) => _TestAppStateNotifier(initialState),
+          ),
         emailVerifiedOverrideProvider.overrideWith((ref) => true),
         emailVerificationProvider.overrideWith(
           (ref) => EmailVerificationNotifier(ref)
@@ -51,9 +52,7 @@ void main() {
           GlobalCupertinoLocalizations.delegate,
         ],
         home: const Scaffold(
-          body: SingleChildScrollView(
-            child: IdentitySubTab(),
-          ),
+          body: SingleChildScrollView(child: IdentitySubTab()),
         ),
       ),
     );
@@ -134,7 +133,10 @@ void main() {
     });
 
     test('validates International alphanumeric postal codes', () {
-      expect(IdentityValidator.isValidInternationalPostalCode('SW1A 1AA'), true);
+      expect(
+        IdentityValidator.isValidInternationalPostalCode('SW1A 1AA'),
+        true,
+      );
       expect(IdentityValidator.isValidInternationalPostalCode('90210'), true);
       expect(IdentityValidator.isValidInternationalPostalCode('K1A-0B1'), true);
       expect(IdentityValidator.isValidInternationalPostalCode('12'), false);
@@ -149,9 +151,18 @@ void main() {
     test('validates subscriber length and prefixes per country', () {
       // Iran: 10 digits starting with 9
       expect(IdentityValidator.isValidSubscriber('9123456789', iran), true);
-      expect(IdentityValidator.isValidSubscriber('09123456789', iran), true); // normalized
-      expect(IdentityValidator.isValidSubscriber('8123456789', iran), false); // not starting with 9
-      expect(IdentityValidator.isValidSubscriber('912345678', iran), false); // only 9 digits
+      expect(
+        IdentityValidator.isValidSubscriber('09123456789', iran),
+        true,
+      ); // normalized
+      expect(
+        IdentityValidator.isValidSubscriber('8123456789', iran),
+        false,
+      ); // not starting with 9
+      expect(
+        IdentityValidator.isValidSubscriber('912345678', iran),
+        false,
+      ); // only 9 digits
 
       // Turkey: 10 digits starting with 5
       expect(IdentityValidator.isValidSubscriber('5321234567', turkey), true);
@@ -172,149 +183,178 @@ void main() {
         '+989123456789',
       );
       expect(
-        IdentityValidator.formatE164(dialCode: '+90', subscriber: '05321234567'),
+        IdentityValidator.formatE164(
+          dialCode: '+90',
+          subscriber: '05321234567',
+        ),
         '+905321234567',
       );
     });
 
-    test('parses existing canonical +E164 string back into country and subscriber', () {
-      final parsedIran = IdentityValidator.parseE164('+989123456789');
-      expect(parsedIran.country.code, 'IR');
-      expect(parsedIran.subscriber, '9123456789');
+    test(
+      'parses existing canonical +E164 string back into country and subscriber',
+      () {
+        final parsedIran = IdentityValidator.parseE164('+989123456789');
+        expect(parsedIran.country.code, 'IR');
+        expect(parsedIran.subscriber, '9123456789');
 
-      final parsedTurkey = IdentityValidator.parseE164('+905321234567');
-      expect(parsedTurkey.country.code, 'TR');
-      expect(parsedTurkey.subscriber, '5321234567');
+        final parsedTurkey = IdentityValidator.parseE164('+905321234567');
+        expect(parsedTurkey.country.code, 'TR');
+        expect(parsedTurkey.subscriber, '5321234567');
 
-      final parsedUsa = IdentityValidator.parseE164('+12025550123');
-      expect(parsedUsa.country.dialCode, '+1');
-      expect(parsedUsa.subscriber, '2025550123');
-    });
+        final parsedUsa = IdentityValidator.parseE164('+12025550123');
+        expect(parsedUsa.country.dialCode, '+1');
+        expect(parsedUsa.subscriber, '2025550123');
+      },
+    );
   });
 
   group('Identity Sub-Tab Structured Widget Tests', () {
-    testWidgets('unrestricted First Name, Last Name, and Nickname fields accept Unicode',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(buildTestableWidget(locale: const Locale('fa')));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'unrestricted First Name, Last Name, and Nickname fields accept Unicode',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(locale: const Locale('fa')),
+        );
+        await tester.pumpAndSettle();
 
-      // Find First Name, Last Name, Nickname
-      final firstFinder = find.widgetWithText(AppTextField, 'نام');
-      final lastFinder = find.widgetWithText(AppTextField, 'نام خانوادگی');
-      final nickFinder = find.widgetWithText(AppTextField, 'نام مستعار');
+        // Find First Name, Last Name, Nickname
+        final firstFinder = find.widgetWithText(AppTextField, 'نام');
+        final lastFinder = find.widgetWithText(AppTextField, 'نام خانوادگی');
+        final nickFinder = find.widgetWithText(AppTextField, 'نام مستعار');
 
-      expect(firstFinder, findsOneWidget);
-      expect(lastFinder, findsOneWidget);
-      expect(nickFinder, findsOneWidget);
+        expect(firstFinder, findsOneWidget);
+        expect(lastFinder, findsOneWidget);
+        expect(nickFinder, findsOneWidget);
 
-      // Enter Persian characters
-      await tester.enterText(firstFinder, 'علیرضا');
-      await tester.enterText(lastFinder, 'رضایی');
-      await tester.enterText(nickFinder, 'سردار_استایل');
-      await tester.pumpAndSettle();
+        // Enter Persian characters
+        await tester.enterText(firstFinder, 'علیرضا');
+        await tester.enterText(lastFinder, 'رضایی');
+        await tester.enterText(nickFinder, 'سردار_استایل');
+        await tester.pumpAndSettle();
 
-      expect(find.text('علیرضا'), findsOneWidget);
-      expect(find.text('رضایی'), findsOneWidget);
-      expect(find.text('سردار_استایل'), findsOneWidget);
+        expect(find.text('علیرضا'), findsOneWidget);
+        expect(find.text('رضایی'), findsOneWidget);
+        expect(find.text('سردار_استایل'), findsOneWidget);
 
-      // Enter Turkish / Arabic / English characters
-      await tester.enterText(firstFinder, 'Ahmet Özgür');
-      await tester.enterText(lastFinder, 'Yılmaz');
-      await tester.enterText(nickFinder, '@ahmet_tr');
-      await tester.pumpAndSettle();
+        // Enter Turkish / Arabic / English characters
+        await tester.enterText(firstFinder, 'Ahmet Özgür');
+        await tester.enterText(lastFinder, 'Yılmaz');
+        await tester.enterText(nickFinder, '@ahmet_tr');
+        await tester.pumpAndSettle();
 
-      expect(find.text('Ahmet Özgür'), findsOneWidget);
-      expect(find.text('Yılmaz'), findsOneWidget);
-      expect(find.text('@ahmet_tr'), findsOneWidget);
-    });
+        expect(find.text('Ahmet Özgür'), findsOneWidget);
+        expect(find.text('Yılmaz'), findsOneWidget);
+        expect(find.text('@ahmet_tr'), findsOneWidget);
+      },
+    );
 
-    testWidgets('renders cascading Country, Province, and City selectors with flags',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(buildTestableWidget(locale: const Locale('fa')));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'renders cascading Country, Province, and City selectors with flags',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(locale: const Locale('fa')),
+        );
+        await tester.pumpAndSettle();
 
-      // Country selector exists with Iran flag and label
-      expect(find.text('🇮🇷'), findsWidgets);
-      expect(find.text('کشور'), findsOneWidget);
-      expect(find.text('استان'), findsOneWidget);
-      expect(find.text('شهر'), findsOneWidget);
-    });
+        // Country selector exists with Iran flag and label
+        expect(find.text('🇮🇷'), findsWidgets);
+        expect(find.text('کشور'), findsOneWidget);
+        expect(find.text('استان'), findsOneWidget);
+        expect(find.text('شهر'), findsOneWidget);
+      },
+    );
 
-    testWidgets('renders structured E.164 mobile dial code picker button and subscriber input',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(buildTestableWidget(locale: const Locale('fa')));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'renders structured E.164 mobile dial code picker button and subscriber input',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(locale: const Locale('fa')),
+        );
+        await tester.pumpAndSettle();
 
-      // Dial code button shows "+98" and flag
-      expect(find.text('+98'), findsOneWidget);
-      expect(find.text('به زودی'), findsOneWidget);
-      expect(find.text('شماره موبایل'), findsOneWidget);
+        // Dial code button shows "+98" and flag
+        expect(find.text('+98'), findsOneWidget);
+        expect(find.text('به زودی'), findsOneWidget);
+        expect(find.text('شماره موبایل'), findsOneWidget);
 
-      // Entering invalid Iranian mobile shows error
-      final mobileSubscriberFinder = find.byWidgetPredicate(
-        (w) => w is AppTextField && w.keyboardType == TextInputType.phone,
-      );
-      expect(mobileSubscriberFinder, findsOneWidget);
+        // Entering invalid Iranian mobile shows error
+        final mobileSubscriberFinder = find.byWidgetPredicate(
+          (w) => w is AppTextField && w.keyboardType == TextInputType.phone,
+        );
+        expect(mobileSubscriberFinder, findsOneWidget);
 
-      await tester.enterText(mobileSubscriberFinder, '1234');
-      await tester.pumpAndSettle();
+        await tester.enterText(mobileSubscriberFinder, '1234');
+        await tester.pumpAndSettle();
 
-      expect(
-        find.text('شماره موبایل وارد شده برای این کشور نامعتبر است'),
-        findsOneWidget,
-      );
+        expect(
+          find.text('شماره موبایل وارد شده برای این کشور نامعتبر است'),
+          findsOneWidget,
+        );
 
-      // Entering valid Iranian mobile clears error
-      await tester.enterText(mobileSubscriberFinder, '9123456789');
-      await tester.pumpAndSettle();
+        // Entering valid Iranian mobile clears error
+        await tester.enterText(mobileSubscriberFinder, '9123456789');
+        await tester.pumpAndSettle();
 
-      expect(
-        find.text('شماره موبایل وارد شده برای این کشور نامعتبر است'),
-        findsNothing,
-      );
-    });
+        expect(
+          find.text('شماره موبایل وارد شده برای این کشور نامعتبر است'),
+          findsNothing,
+        );
+      },
+    );
 
-    testWidgets('validates Iranian National ID using modulo-11 and shows error on invalid input',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(buildTestableWidget(locale: const Locale('fa')));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'validates Iranian National ID using modulo-11 and shows error on invalid input',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(locale: const Locale('fa')),
+        );
+        await tester.pumpAndSettle();
 
-      final nidFinder = find.widgetWithText(AppTextField, 'کد ملی');
-      expect(nidFinder, findsOneWidget);
+        final nidFinder = find.widgetWithText(AppTextField, 'کد ملی');
+        expect(nidFinder, findsOneWidget);
 
-      // Enter repeated digits (invalid)
-      await tester.enterText(nidFinder, '1111111111');
-      await tester.pumpAndSettle();
+        // Enter repeated digits (invalid)
+        await tester.enterText(nidFinder, '1111111111');
+        await tester.pumpAndSettle();
 
-      expect(find.text('کد ملی ۱۰ رقمی نامعتبر است'), findsOneWidget);
+        expect(find.text('کد ملی ۱۰ رقمی نامعتبر است'), findsOneWidget);
 
-      // Enter valid Iranian national ID (e.g. 0010350810)
-      await tester.enterText(nidFinder, '0010350810');
-      await tester.pumpAndSettle();
+        // Enter valid Iranian national ID (e.g. 0010350810)
+        await tester.enterText(nidFinder, '0010350810');
+        await tester.pumpAndSettle();
 
-      expect(find.text('کد ملی ۱۰ رقمی نامعتبر است'), findsNothing);
-    });
+        expect(find.text('کد ملی ۱۰ رقمی نامعتبر است'), findsNothing);
+      },
+    );
 
-    testWidgets('validates Iranian Postal Code and shows error on invalid input',
-        (WidgetTester tester) async {
-      await tester.pumpWidget(buildTestableWidget(locale: const Locale('fa')));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'validates Iranian Postal Code and shows error on invalid input',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(locale: const Locale('fa')),
+        );
+        await tester.pumpAndSettle();
 
-      final zipFinder = find.widgetWithText(AppTextField, 'کد پستی');
-      expect(zipFinder, findsOneWidget);
+        final zipFinder = find.widgetWithText(AppTextField, 'کد پستی');
+        expect(zipFinder, findsOneWidget);
 
-      // Enter invalid postal code starting with 0
-      await tester.enterText(zipFinder, '0123456789');
-      await tester.pumpAndSettle();
+        // Enter invalid postal code starting with 0
+        await tester.enterText(zipFinder, '0123456789');
+        await tester.pumpAndSettle();
 
-      expect(find.text('کد پستی باید ۱۰ رقم عددی معتبر باشد'), findsOneWidget);
+        expect(
+          find.text('کد پستی باید ۱۰ رقم عددی معتبر باشد'),
+          findsOneWidget,
+        );
 
-      // Enter valid 10-digit postal code
-      await tester.enterText(zipFinder, '1939546789');
-      await tester.pumpAndSettle();
+        // Enter valid 10-digit postal code
+        await tester.enterText(zipFinder, '1939546789');
+        await tester.pumpAndSettle();
 
-      expect(find.text('کد پستی باید ۱۰ رقم عددی معتبر باشد'), findsNothing);
-    });
+        expect(find.text('کد پستی باید ۱۰ رقم عددی معتبر باشد'), findsNothing);
+      },
+    );
   });
 }
 

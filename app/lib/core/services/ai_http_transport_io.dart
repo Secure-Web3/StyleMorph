@@ -21,12 +21,11 @@ Future<AiHttpResponse> sendHttpRequest({
       request.add(utf8.encode(body));
     }
     final response = await request.close().timeout(timeout);
-    final responseBody =
-        await response.transform(utf8.decoder).join().timeout(timeout);
-    return AiHttpResponse(
-      statusCode: response.statusCode,
-      body: responseBody,
-    );
+    final responseBody = await response
+        .transform(utf8.decoder)
+        .join()
+        .timeout(timeout);
+    return AiHttpResponse(statusCode: response.statusCode, body: responseBody);
   } finally {
     client.close(force: true);
   }

@@ -29,8 +29,9 @@ class WelcomePersistenceService {
   }
 }
 
-final welcomePersistenceServiceProvider =
-    Provider<WelcomePersistenceService>((ref) {
+final welcomePersistenceServiceProvider = Provider<WelcomePersistenceService>((
+  ref,
+) {
   return WelcomePersistenceService();
 });
 
@@ -67,6 +68,6 @@ class HasSeenWelcomeNotifier extends StateNotifier<AsyncValue<bool>> {
 
 final hasSeenWelcomeProvider =
     StateNotifierProvider<HasSeenWelcomeNotifier, AsyncValue<bool>>((ref) {
-  final service = ref.watch(welcomePersistenceServiceProvider);
-  return HasSeenWelcomeNotifier(service);
-});
+      final service = ref.watch(welcomePersistenceServiceProvider);
+      return HasSeenWelcomeNotifier(service);
+    });

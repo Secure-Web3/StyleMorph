@@ -267,7 +267,9 @@ class _SpecRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 5),
       decoration: BoxDecoration(
-        border: isLast ? null : Border(bottom: BorderSide(color: colors.bd, width: 0.5)),
+        border: isLast
+            ? null
+            : Border(bottom: BorderSide(color: colors.bd, width: 0.5)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

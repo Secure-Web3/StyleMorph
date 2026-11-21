@@ -82,7 +82,11 @@ class WeeklyPlannerSheet extends StatelessWidget {
                     ),
                   ),
                 ),
-                Icon(Icons.arrow_forward_ios_rounded, size: 13, color: colors.mu),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 13,
+                  color: colors.mu,
+                ),
               ],
             ),
           );
@@ -95,7 +99,14 @@ class WeeklyPlannerSheet extends StatelessWidget {
 class StyleAndColorSheet extends StatelessWidget {
   const StyleAndColorSheet({super.key});
 
-  static const _palette = ['#c9a227', '#7a5230', '#4f7a5a', '#d6bf9b', '#c0392b', '#1f2f56'];
+  static const _palette = [
+    '#c9a227',
+    '#7a5230',
+    '#4f7a5a',
+    '#d6bf9b',
+    '#c0392b',
+    '#1f2f56',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -187,7 +198,9 @@ class SmartShoppingSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            strings.tr('آیتم‌هایی که کمد شما را کامل‌تر می‌کنند (بر اساس ست‌های فعلی):'),
+            strings.tr(
+              'آیتم‌هایی که کمد شما را کامل‌تر می‌کنند (بر اساس ست‌های فعلی):',
+            ),
             style: TextStyle(
               fontFamily: 'Vazirmatn',
               fontSize: 11,
@@ -401,8 +414,9 @@ class _ShoppingItemTile extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: Color(int.parse(colorHex.replaceFirst('#', '0xFF')))
-                  .withOpacity(0.2),
+              color: Color(
+                int.parse(colorHex.replaceFirst('#', '0xFF')),
+              ).withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -478,7 +492,9 @@ class _StatBar extends StatelessWidget {
                 value: pct,
                 minHeight: 6,
                 backgroundColor: colors.bd,
-                valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF2B7A78)),
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  Color(0xFF2B7A78),
+                ),
               ),
             ),
           ),

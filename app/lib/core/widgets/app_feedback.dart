@@ -77,10 +77,7 @@ class AppFeedback {
         ),
         shape: RoundedRectangleBorder(
           borderRadius: AppRadius.rCard,
-          side: BorderSide(
-            color: colors.ok.withValues(alpha: 0.6),
-            width: 1.2,
-          ),
+          side: BorderSide(color: colors.ok.withValues(alpha: 0.6), width: 1.2),
         ),
         content: Row(
           children: [
