@@ -521,7 +521,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
           );
         }
 
-        final coins = (data['coins'] as num?)?.toInt() ??
+        final coins = (data['walletBalance'] as num?)?.toInt() ??
+            (data['coins'] as num?)?.toInt() ??
             (data['coinBalance'] as num?)?.toInt() ??
             0;
         final currentPlan = data['plan']?.toString() ?? state.currentPlan;

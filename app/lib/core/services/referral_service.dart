@@ -200,12 +200,11 @@ class ReferralService {
         return false;
       }
 
-      final inviterRef = firestore.collection('users').doc(inviterUid);
-      final inviterSnap = await inviterRef.get();
-      final currentInviterCount =
-          (inviterSnap.data()?['referralCount'] as num?)?.toInt() ?? 0;
-      final newCount = currentInviterCount + 1;
-      final newTier = calculateTier(newCount);
+      final inviterSnap =
+          await firestore.collection('users').doc(inviterUid).get();
+      if (!inviterSnap.exists) {
+        return false;
+      }
 
       final referralRecordRef = firestore
           .collection('users')
@@ -215,18 +214,9 @@ class ReferralService {
 
       final batch = firestore.batch();
 
-      // 1. Credit +100 Coins to inviter and update referral count & tier
-      batch.set(
-        inviterRef,
-        {
-          'coins': FieldValue.increment(100),
-          'referralCount': FieldValue.increment(1),
-          'networkTier': newTier,
-        },
-        SetOptions(merge: true),
-      );
-
-      // 2. Save referral entry under users/{inviterUid}/referrals/{newUserUid}
+      // 1. Save referral entry under users/{inviterUid}/referrals/{newUserUid}
+      // Note: Financial rewards and inviter referralCount/networkTier are processed
+      // via Cloud Function in Slice 2 to adhere to Zero-Trust client write rules.
       batch.set(
         referralRecordRef,
         {
@@ -241,11 +231,10 @@ class ReferralService {
         SetOptions(merge: true),
       );
 
-      // 3. Credit +50 Coins to new user and set referredBy metadata
+      // 2. Set referredBy metadata on new user
       batch.set(
         newUserRef,
         {
-          'coins': FieldValue.increment(50),
           'referredBy': inviterUid,
           'referredByCode': cleanCode,
         },

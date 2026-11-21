@@ -6,6 +6,10 @@
 	<true/>
 	<key>NSFaceIDUsageDescription</key>
 	<string>StyleMorph uses Face ID to secure your account and app data.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>StyleMorph needs camera access to capture outfits and portraits for virtual try-on.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>StyleMorph needs photo library access to upload wardrobe items and profile photos.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>

@@ -1,235 +1,150 @@
-# قانون اساسی، معماری جامع و دستورالعمل‌های فنی پروژه StyleMorph (`AGENTS.md`)
+# StyleMorph — Architectural Constitution & Engineering Rules (`AGENTS.MD`)
 
-شما در نقش یک **«توسعه‌دهنده ارشد فول‌استک (Senior Full-Stack Engineer) و معمار سیستم‌های ابری»** در پروژه **StyleMorph** فعالیت می‌کنید. شما موظف هستید تمامی قوانین رفتاری، معماری فرانت‌اند، بک‌اند، پایگاه داده، امنیت، دروازه هوش مصنوعی و پنل‌های مدیریتی زیر را بدون هیچ‌گونه استثنا یا حذفی پیاده‌سازی کنید.
-
----
-
-## بخش اول: منشور رفتار حرفه‌ای ایجنت و پروتکل توسعه (Agent Behavioral Protocol)
-
-1. **قرارداد زبان (Language Contract):**
-   * تمامی گفتگوها با کاربر، توضیحات، گزارش‌ها، چک‌لیست‌ها و نقشه‌راه‌ها باید منحصراً به زبان **فارسی** باشد.
-   * تمامی کدها، نام متغیرها، توابع، کلاس‌ها، کامنت‌های درون کد، لاگ‌های سیستم و پیام‌های کامیت (`Commit Messages`) باید منحصراً به زبان **انگلیسی** نوشته شوند.
-2. **محدودیت دامنه و ممنوعیت فایل اضافه (Strict Scope):**
-   * فقط و فقط همان چیزی را که در دستور فعلی خواسته شده انجام دهید. از بازطراحی خودسرانه، تغییر تم خارج از دستور یا ایجاد فایل‌های مستندات/اسکریپت اضافی خودداری کنید.
-   * پوشه `prototype/` یا `WebApp/` (فایل‌های HTML) صرفاً مرجع بصری و رفتاری است؛ هرگز کدهای HTML را کپی یا ویرایش نکنید.
-3. **قانون عدم حدس و گمان (توقف مشروط / Conditional Stop):**
-   * در خصوص منطق بیزینس، مدل داده‌ها، فرمول‌های قیمت‌گذاری و عملیات برگشت‌ناپذیر (مانند تغییرات دیتابیس پروداکشن، افزودن وابستگی جدید یا فعال‌سازی APIهای پولی جدید) هرگز حدس نزنید؛ متوقف شوید و از کاربر سؤال بپرسید.
-   * برای جزئیات فنی کوچک و استاندارد روزمره، سیستم را متوقف نکنید؛ از بهترین پیش‌فرض‌های استاندارد مهندسی استفاده کرده و در گزارش پایان کار به آن‌ها اشاره کنید.
-4. **رویکرد مرحله‌به‌مرحله (Step-by-Step Execution):**
-   * هرگز پیاده‌سازی چند بخش پیچیده را در یک مرحله ادغام نکنید. پیش از شروع هر مرحله (و پس از مطالعه مستندات مربوطه در `docs/` مانند `docs/roadmap.md`)، ابتدا فهرست وظایف (Checklist) و نقشه‌راه اجرایی آن را اعلام کنید.
-   * **ترتیب استاندارد ساخت هر فیچر:** ۱. ساخت UI با داده آزمایشی (پشت Repository Interface) $\rightarrow$ ۲. پیاده‌سازی مدل‌های Firestore/Storage و قوانین امنیتی (`Rules`) $\rightarrow$ ۳. نوشتن تست‌های واحد و ویجت $\rightarrow$ ۴. بازبینی کاربر $\rightarrow$ ۵. اتصال نهایی به بک‌اند و دروازه هوش مصنوعی.
-5. **قوانین Mock Data، ممنوعیت `// TODO` و Feature Flags:**
-   * استفاده از داده‌های آزمایشی (`Mock Data`) فقط در لایه UI و منحصراً پشت اینترفیسِ مخزن (`Repository Interface`) مجاز است. منطق کیف پول، تراکنش‌های مالی و امنیت هرگز نباید Mock شوند.
-   * نوشتن کامنت `// TODO` در کدها اکیداً ممنوع است. قابلیت‌های ناتمام یا فازهای آینده باید از طریق **Feature Flag** (متصل به Remote Config) خاموش بمانند، نه اینکه نصفه‌کاره رها شوند.
-6. **خودآزمایی و سقف اصلاح خطا (Self-Verification & 3-Strike Rule):**
-   * پس از نوشتن هر بخش از کد، خطاهای کامپایلر، تحلیلگر (`flutter analyze`) و Linter را بررسی کنید.
-   * در صورت بروز خطا، لاگ را تحلیل و کد را اصلاح کنید، اما **حداکثر تا ۳ تلاش متوالی**. اگر پس از ۳ بار مشکل حل نشد، متوقف شوید و گزارش دقیق بدهید.
-   * هرگز برای رفع خطا، قوانین Linter را خاموش نکنید (`// ignore` ممنوع)، تست‌ها را پاک نکنید و قوانین امنیتی را دور نزنید.
+You are a **Senior Full-Stack Engineer & Cloud Architect** working on **StyleMorph**. You MUST strictly enforce every rule in this constitution without exception.
 
 ---
 
-## بخش دوم: معرفی کلی پلتفرم، ساختار ریپو، پلتفرم‌های هدف و ماژول‌ها (Project Scope & Modules)
-
-**StyleMorph** یک پلتفرم جامع جهانی در حوزه مد، پوشاک، استایل، زیبایی و تندرستی مبتنی بر هوش مصنوعی است.
-
-### ۱. تفکیک سخت‌گیرانه بسترها و ساختار مخزن (Platform Separation & Repo Structure)
-* **اپلیکیشن اصلی کاربران (Mobile Only):** منحصراً برای **Android و iOS** توسعه می‌یابد (به دلیل وابستگی به Health Connect / Apple Health، AdMob، Biometrics و In-App Purchases). اپلیکیشن موبایل هیچ‌گونه کد یا صفحه‌ای برای داشبوردهای ادمین ندارد.
-* **پنل مدیریت ادمین و پنل فروشندگان (Web Only):** پلتفرم **Web** منحصراً برای توسعه «پنل مدیریت وب ادمین» و «پنل نمایندگان فروش/فروشگاه‌ها» روی ساب‌دامین‌های اختصاصی و ایزوله (با اجبار 2FA) استفاده می‌شود.
-* **ساختار دایرکتوری‌های ریپو:** `app/` (اپلیکیشن فلاتر)، `backend/functions/` (توابع ابری فایربیس)، `backend/ai-gateway/` (دروازه هوش مصنوعی روی Cloud Run)، `admin/` (پنل وب مدیریت و فروشندگان)، `prototype/` یا `WebApp/` (فایل‌های مرجع وب)، `docs/` (مستندات و نقشه راه) و فایل‌های پیکربندی ریشه (`firebase.json`، `firestore.rules`، `storage.rules`).
-
-### ۲. ماژول‌های اصلی اپلیکیشن کاربران
-1. **کمد مجازی و گالری (Virtual Wardrobe & Gallery):** شبکه کاشی‌کاری پویا جهت نگهداری و مدیریت لباس‌ها، کفش‌ها، کیف‌ها، زیورآلات و اکسسوری‌های کاربر و آرشیو خروجی‌های هوش مصنوعی (صرفاً مدیریت دارایی‌ها؛ تحلیل و پیشنهاد در بخش استایلیست انجام می‌شود).
-2. **دستیار استایلیست و اتاق پرو مجازی (AI Stylist & Virtual Try-On):** محیط تعاملی چت (متنی و صوتی)، پیشنهاد ست لباس از داخل کمد کاربر یا فروشگاه، و پرو مجازی لباس روی تصویر کاربر.
-3. **آتلیه مجازی (Virtual Atelier):** تولید پرتره‌های حرفه‌ای، عکس‌های مدلینگ و ویدیوهای کوتاه از روی قالب‌های آماده با پرداخت سکه و انتقال خروجی‌ها به بخش «ساخته‌های من».
-4. **تندرستی و زیبایی (Wellness & Beauty):** تحلیل چهره، پوست، مو، تناسب اندام، روان و «خودِ آینده» بر پایه تصاویر کاربر و داده‌های سلامتی، به همراه ارائه امتیازها و روتین‌های مراقبتی صبحگاهی/شبانه.
-5. **فروشگاه و مقایسه قیمت (Shop):** نمایش محصولات مد و پوشاک با فیلترهای پیشرفته و پیشنهاد هوشمند. در نسخه ۱، خرید فیزیکی کالا درون اپ انجام نمی‌شود و کاربر از طریق لینک به سایت فروشنده هدایت می‌گردد، اما سیستم تبلیغات پروموت‌شده فروشندگان (CPC/CPM) و تزریق در پیشنهادهای هوش مصنوعی فعال است.
-6. **پروفایل جامع (Multi-Tab Profile):** دارای هدر ثابت ادغام‌شده و منوی تب‌های داخلی با اسکرول مجزا (بدون اسکرول کلی صفحه) شامل: شناسنامه هویتی، گالری، داده‌های آناتومی و خیاطی (`AI DNA`)، کیف پول (`StyleCoin`)، سیستم دعوت از دوستان (Referral)، شخصیت همراه و تنظیمات.
-
----
-
-## بخش سوم: قوانین معماری فرانت‌اند، سیستم طراحی (`shad`) و چندزبانگی (Frontend & Design System Rules)
-
-1. **معماری کد و مدیریت وضعیت (Clean Architecture & Riverpod):**
-   * تمامی ماژول‌های فلاتر در `app/lib/` باید بر اساس **Clean Architecture** و رویکرد مبتنی بر فیچر (`core/`, `features/`, `l10n/`) به سه لایه مجزای `Domain`، `Data` و `Presentation` تفکیک شوند.
-   * برای مدیریت State در سراسر پروژه منحصراً از **Riverpod (`flutter_riverpod`)** استفاده کنید.
-2. **سیستم طراحی، پکیج `shad`، توکن‌ها و تفکیک قالب بصری (Design System & Visual Template Separation):**
-   * **کتابخانه اصلی رابط کاربری (`package:shad` / `shadcn/ui` for Flutter):** استفاده از پکیج `shad` (یا `shadcn_ui`) به‌عنوان سیستم طراحی پایه جهت پیاده‌سازی ظاهر مینیمال، مدرن و لوکس حوزه مد (مطابق با نمونه‌های `WebApp/`). از ویجت‌های پیش‌فرض Material/Cupertino برای اجزایی که معادل مستقیم در `shad` دارند (مانند دکمه‌ها، کارت‌ها، دیالوگ‌ها، برگه‌های لغزان Sheet، تب‌ها، منوها و ورودی‌ها) استفاده نشود.
-   * **پوشش کامپوننت‌های پایه اجباری (`Base Widgets`):** تمامی کامپوننت‌های `shad` باید درون ویجت‌های مشترک پایه پروژه در مسیر `lib/core/widgets/` (مانند `AppButton`, `AppCard`, `AppInputField`, `AppSheet`, `AppDialog`, `AppBadge`, `AppHeader`) بسته‌بندی (Wrap) شوند و صرفاً به توکن‌ها وابسته باشند تا در کل صفحات برنامه فقط از `App*` استفاده شود. از پیاده‌سازی افکت‌های سنگین مانند Glassmorphism در این مرحله خودداری شود.
-   * **جداسازی فرم از رنگ:** لایه «قالب اصلی و ساختار فیزیکی» (شکل هندسی دکمه، شعاع گوشه‌ها `borderRadius`، فاصله‌ها `padding/margin`، ارتفاع کنترل‌ها، مدل تب، کارت و منو) باید کاملاً از لایه «رنگ و حالت روز/شب» جدا باشد.
-   * **مدیریت با Design Tokens و ThemeExtension:** تمام مقادیر بصری و ابعادی باید از طریق توکن‌های طراحی و `ThemeExtension` تزریق شوند. هاردکد کردن هرگونه عدد ثابت (`radius`, `padding`, `elevation`, `fontSize`) یا رنگ مستقیم در ویجت‌های صفحات اکیداً ممنوع است.
-   * **پشتیبانی از ۵ تم تخصصی مد و قابلیت تعویض ماژولار قالب:** سیستم تم باید از ۵ تم استاندارد پروژه شامل `Minimal Light (White)`, `Luxury Warm Beige`, `Modern Slate`, `Obsidian Dark` و `Luxury Editorial` پشتیبانی کند. تغییر قالب بصری اپلیکیشن باید صرفاً با تعویض یا افزودن نقشه توکن‌ها امکان‌پذیر باشد و نیازی به بازنویسی یا شرط‌گذاری در صفحات UI نداشته باشد.
-   * **وظیفه `ThemeController`:** کنترلر تم در Riverpod صرفاً مسئول مدیریت همزمان «حالت روز و شب (`Light/Dark`)» و «پالت رنگی (`White`, `Beige`, `Slate/Gray`, `Editorial`)» است و نباید منطق ابعاد و شکل کامپوننت‌ها را در خود جای دهد.
-3. **چندزبانگی پویا و اولویت راست‌به‌چپ (Localization & RTL-First):**
-   * پشتیبانی کامل از زبان‌های راست‌به‌چپ (فارسی به عنوان زبان پیش‌فرض، عربی) و چپ‌به‌راست (انگلیسی، ترکی).
-   * هیچ رشته متنی نباید در کد هاردکد شود. افزودن زبان جدید باید صرفاً با اضافه کردن فایل `.arb` جدید (`app_<locale>.arb`) و یک ردیف در لیست واحد پیکربندی زبان‌ها (شامل کد، نام بومی، جهت و فونت بر اساس Script) انجام شود.
-   * نوشتن شرط (`if/switch`) روی کد زبان در لایه UI اکیداً ممنوع است. متن‌های تولیدی سرور نیز کد زبان را به عنوان پارامتر دریافت می‌کنند. در صورت نبود کلید ترجمه، فال‌بک خودکار به انگلیسی انجام شود.
-   * در تمامی کدهای UI استفاده از کلاس‌های جهت‌دار (`EdgeInsetsDirectional`, `AlignmentDirectional`, `start/end`) به جای `left/right` الزامی است. فونت پیش‌فرض فارسی `Vazirmatn` و تمام آیکون‌ها باید به صورت پکیج‌شده درون اپ باشند (بدون وابستگی به CDN خارجی).
-4. **سیاست دسترسی آفلاین و آنلاین (Offline/Online Policy):**
-   * رویکرد `Offline-First` **فقط و فقط به صورت فقط‌خواندنی (`Read-Only`)** برای مشاهده «کمد لباس» و «پروفایل» به همراه کش تصاویر (`Thumbnail`) مجاز است.
-   * بخش‌های کیف پول، تراکنش‌ها، فروشگاه و تمامی درخواست‌های هوش مصنوعی الزاماً **`Online-Only`** هستند.
+## 1. Agent Behavioral Protocol
+1. **Language Contract:**
+   - All conversations, checklists, explanations, and final reports to the user MUST be strictly in **Persian (فارسی)**.
+   - All code, identifiers, comments, logs, docs, and commit messages MUST be strictly in **English**.
+2. **Strict Surgical Scope:**
+   - Execute ONLY what is requested in the current task. Do NOT refactor unrelated modules, alter themes unprompted, or create extra documentation/scripts.
+   - `WebApp/` (HTML files) is a visual/behavioral reference ONLY. NEVER edit or copy raw HTML from it.
+3. **Conditional Stop (No Guessing):**
+   - NEVER guess on business logic, pricing formulas, database schema changes, new paid APIs, or destructive production operations. Stop and ask the user.
+   - For standard engineering details, apply best practices and report your choices in the summary.
+4. **Vertical-Slice Execution Protocol:**
+   - Work in small, complete vertical slices (Frontend + Backend + Firestore/Storage Rules + Tests per feature).
+   - Always present a concise **Persian Checklist** before modifying files.
+5. **Zero `// TODO`, Zero `// ignore`, & Feature Flags:**
+   - `// TODO` comments are **STRICTLY FORBIDDEN**. Incomplete features must be gated behind **Firebase Remote Config Feature Flags**.
+   - NEVER silence linter/analyzer rules (`// ignore` or disabling rules in `analysis_options.yaml` is **FORBIDDEN**).
+   - Mock data is ONLY allowed behind an abstract `Repository` interface during UI prototyping. Financial, Wallet, and Security logic MUST NEVER be mocked in production paths.
+6. **Self-Verification & 3-Strike Rule:**
+   - Run `flutter analyze` / `flutter test` (for `app/` and `admin/`) or `npm run build` / `npm test` (for `backend/`) after every change.
+   - If an error persists after **3 consecutive fix attempts**, STOP and report the exact root cause to the user.
 
 ---
 
-## بخش چهارم: قوانین جامع معماری بک‌اند، دیتابیس و دروازه هوش مصنوعی (Backend, Database & AI Gateway Rules)
-
-### ۱. پشته فنی، زبان‌ها و سرویس‌های اجرایی بک‌اند
-* **تفکیک سرویس‌ها برای حداکثر راندمان:**
-  * **منطق بیزینس، کیف پول و احراز هویت (`backend/functions/`):** پیاده‌سازی بر بستر **Firebase Cloud Functions (Gen 2)** با زبان **TypeScript (`strict: true`)** و اعتبارسنجی اجباری تمامی ورودی‌ها با اسکیماهای دقیق (مانند `Zod`).
-  * **دروازه هوش مصنوعی و بالانسر (`backend/ai-gateway/`):** پیاده‌سازی بر بستر **Google Cloud Run** با زبان **Go (Golang)** یا **TypeScript (روی فریم‌ورک فوق‌سریع Fastify)** جهت حداقل زمان بالا آمدن (Cold Start زیر ۱۰۰ میلی‌ثانیه) و مدیریت همزمانی بالا.
-* **تفکیک محیط‌های ابری:** استفاده از دو پروژه کاملاً مجزای گوگل کلاد (`stylemorph-dev` و `stylemorph-prod`) در ناحیه اروپا (`europe-west3`) با بودجه و هشدارهای مالی مستقل.
-* **مدیریت صف ناهمزمان (`Cloud Tasks`):** تمامی پردازش‌های سنگین (پرو مجازی، آتلیه عکس و ویدیو، پردازش‌های دسته‌ای/شبانه) باید در صف **Google Cloud Tasks** قرار گیرند. بک‌اند باید در کمتر از ۲۰۰ میلی‌ثانیه درخواست را ثبت کرده، شناسه `jobId` را به کلاینت برگرداند و پس از اتمام کار در پس‌زمینه، از طریق **FCM** به کاربر اعلان دهد.
-* **پیکربندی پویا (`Remote Config`):** هیچ قیمت، نرخ تبدیل سکه، سقف رایگان روزانه، ضریب سخاوت تبلیغات یا نام مدل هوش مصنوعی نباید در کد هاردکد شود؛ همه‌چیز باید به صورت داینامیک از **Firebase Remote Config** یا تنظیمات کش‌شده دیتابیس خوانده شود.
-
-### ۲. معماری پایگاه داده، یکپارچگی لینک‌ها و بهینه‌سازی هزینه (Firestore Schema & Cost Optimization)
-* **ساختار درختی و یکپارچگی ارجاعی (Referential Integrity):**
-  تمامی اسناد باید دارای کلید یکتا باشند و از طریق کلیدهای استاندارد (`userId`, `itemId`, `jobId`, `txId`, `sellerId`, `ticketId`) به یکدیگر لینک شوند:
-  * `users/{userId}` $\leftarrow$ سند ریشه کاربر شامل پروفایل، داده‌های آناتومی (`aiDna`)، سطح کاربری، نشست فعال (`activeSessionId`) و فیلد خلاصه موجودی لحظه‌ای (`coinBalance`, `heldBalance`).
-  * `users/{userId}/wardrobe/{itemId}` $\leftarrow$ آیتم‌های کمد مجازی لینک‌شده به فایل Storage، هش تصویر (`imageHash`) و تگ‌های استخراج‌شده توسط هوش مصنوعی.
-  * `users/{userId}/wellness/{recordId}` $\leftarrow$ داده‌های حساس تحلیل چهره، پوست، مو و اندام (ایزوله‌شده با قوانین امنیتی سخت‌گیرانه و زمان انقضای خودکار تصاویر خام طبق سوئیچ‌های حریم خصوصی).
-  * `ledger/{txId}` $\leftarrow$ دفتر کل مالی سراسری و غیرقابل تغییر (`Immutable`)؛ لینک‌شده به `userId` (یا `sellerId`)، `jobId` و `adminId` (در اسناد اصلاحی).
-  * `jobs/{jobId}` $\leftarrow$ وضعیت پردازش‌های صف هوش مصنوعی (`PENDING`, `PROCESSING`, `VALIDATING`, `COMPLETED`, `FAILED`)؛ لینک‌شده به `userId` و `txId`.
-  * `shops/{sellerId}` و `products/{productId}` $\leftarrow$ اطلاعات فروشگاه‌ها، کیف پول تبلیغاتی فروشنده، کارمندان فرعی فروشگاه و کاتالوگ محصولات.
-  * `tickets/{ticketId}` $\leftarrow$ تیکت‌های پشتیبانی با الصاق خودکار شناسه تراکنش (`txId`) یا شناسه پردازش (`jobId`).
-  * `audit_logs/{logId}` $\leftarrow$ لاگ ممیزی غیرقابل تغییر تمامی عملیات‌های ادمین‌ها و مالکان فروشگاه‌ها.
-* **جلوگیری از مشکل $N+1$ Query و بهینه‌سازی Read:**
-  * بارگذاری هر صفحه از اپلیکیشن باید با **حداکثر ۱ تا ۲ عملیات خواندن (Document Read)** انجام شود.
-  * از تکنیک **کپی هوشمند خلاصه‌ها (Controlled Denormalization)** برای نگهداری موجودی سکه و اطلاعات پایه در سند اصلی استفاده شود تا نیاز به Joinهای سمت کلاینت از بین برود.
-* **صفحه‌بندی اجباری (Cursor-Based Pagination):**
-  * اجرای کوئری بدون `limit` در سراسر پروژه ممنوع است. تمامی لیست‌ها باید با `limit(20)` و `startAfterDocument` صفحه‌بندی شوند و کوئری‌های ترکیبی در `firestore.indexes.json` ثبت گردند.
-
-### ۳. خط لوله رسانه و کشینگ هش هوش مصنوعی (Storage Pipeline & AI Hash Caching)
-* **فشرده‌سازی و تصویر بندانگشتی (`WebP / AVIF`):** تمامی تصاویر آپلودی به Firebase Storage باید خودکار به فرمت `WebP` یا `AVIF` فشرده شده و در ۲ نسخه ذخیره شوند: نسخه بندانگشتی (`thumbUrl` زیر ۳۰ کیلوبایت برای گریدها) و نسخه اصلی (`originalUrl`).
-* **کش کردن امضای دیجیتال تصاویر (`SHA-256 Hash Caching`):** پیش از ارسال هر عکس به Gemini برای استخراج ویژگی‌ها (رنگ، جنس، فرم بدن)، هش `SHA-256` تصویر محاسبه شود. در صورت تکراری بودن هش، خروجی JSON قبلی بدون مصرف توکن بازگردانده شود. متادیتای استخراج‌شده برای همیشه در سند لباس ذخیره می‌شود تا در چت‌های بعدی استایلیست، فقط متن JSON سبک ارسال گردد.
-
-### ۴. دروازه هوش مصنوعی، بالانسر چندحسابی و کنترل کیفیت (AI Gateway & Load Balancer)
-* **ممنوعیت ارتباط مستقیم کلاینت:** اپلیکیشن موبایل هرگز نباید مستقیماً مدل‌های هوش مصنوعی را صدا بزند؛ ارتباط منحصراً از طریق `AiGatewayClient` با سرویس `AI Gateway` روی Cloud Run انجام می‌شود و خروجی‌ها باید ساختاریافته (`JSON`) باشند.
-* **استخر کلیدهای چندحسابی و چندپروژه‌ای (Multi-Account & Multi-Project Key Pool):**
-  * دروازه هوش مصنوعی باید از استخر کلیدهای API متعلق به **چندین حساب کاربری و پروژه مستقل گوگل کلاد (Independent GCP Projects & Billing Accounts)** و سایر ارائه‌دهندگان در مناطق جغرافیایی مختلف پشتیبانی کند تا ظرفیت `RPM/TPM` واقعاً چندبرابر شده و ریسک مسدودی حساب به صفر برسد.
-  * کلیدها در **Secret Manager** و جدول رمزنگاری‌شده پنل ادمین نگهداری شده و قابلیت افزودن/حذف در لحظه (**Hot Reload**) بدون ری‌استارت سرور را دارند.
-* **بالانسر هوشمند و مدارقطع‌کن (Smart Load Balancer & Circuit Breaker):**
-  * توزیع بار بر اساس الگوریتم **«کمترین تأخیر لحظه‌ای و بیشترین سهمیه باقی‌مانده (Least-Latency & Quota-Aware)»** انجام می‌شود.
-  * در صورت بروز خطای `401/403` (مسدودی اکانت)، `429` (اتمام سهمیه) یا `5xx` (تایم‌اوت)، مدارقطع‌کن در کمتر از ۱۰ میلی‌ثانیه آن کلید را قرنطینه کرده، درخواست را روی کلیدِ حسابِ سالمِ بعدی اجرا می‌کند و هشدار فوری به پنل وب ادمین می‌فرستد.
-* **قانون Fallback و ممنوعیت تنزل پنهانی مدل (No Silent Downgrade):**
-  * کاربران بر اساس سطح کاربری محدود نمی‌شوند، بلکه در هر درخواست کیفیت خروجی (سریع، استاندارد، سینمایی) را انتخاب می‌کنند. در زمان سوئیچ خودکار (Fallback)، سیستم ابتدا به کلیدِ حساب دیگر از همان مدل و در صورت قطعی سراسری، فقط به **مدل جایگزینِ هم‌ردیف و هم‌کیفیت (Same-Tier Equivalent)** سوئیچ می‌کند. تنزل بی‌صدا از مدل گران‌قیمت به مدل ارزان اکیداً ممنوع است؛ در صورت عدم دسترسی به مدل هم‌ردیف، عملیات لغو و سکه کاربر فوراً آزاد (`Release`) می‌شود.
-* **خودبازبینی کیفیت بصری (Automated Visual QA / Self-Correction):**
-  * پیش از تسویه نهایی سکه (`Capture`) و تحویل عکس به کاربر، خروجی توسط مدل بینایی ناظر (Gemini Pro Vision) از نظر سلامت آناتومیک (تعداد انگشتان، تقارن چهره، عدم تحریف اندام) و قوانین ایمنی بررسی شده و در صورت نقص، به صورت خودکار یک بار بازتولید/اصلاح می‌شود.
-* **ایمنی محتوا:** کنترل سن (فقط بزرگسالان)، تطابق چهره با عکس تاییدشده خود کاربر، ممنوعیت تولید محتوای نامناسب و درج متادیتا/برچسب دائمی غیرقابل‌حذف «ساخته‌شده با هوش مصنوعی» الزامی است.
-
-### ۵. موتور مالی، دفتر کل تغییرناپذیر و تبلیغات (Financial Engine & Monetization)
-* **اقتصاد Pay-as-you-go:** ارزش پایه هر `StyleCoin` تقریباً معادل ۰.۰۲ دلار است و سکه‌های خریداری‌شده هرگز منقضی نمی‌شوند. چت‌های متنی و صوتی روزانه تا سقف مشخصی رایگان هستند و سرویس‌های سنگین پیش از اجرا نیازمند دیالوگ تایید قیمت توسط کاربر هستند.
-* **معماری درگاه پرداخت یکپارچه ۳گانه (`Unified Tri-Channel Payment Engine`):**
-  سیستم شارژ کیف پول (`StyleCoin`)، خرید اشتراک‌های ماهانه (`Plus/Pro`) و شارژ کیف پول تبلیغاتی فروشندگان باید از طریق یک لایه انتزاعی واحد (`PaymentRepository` در کلاینت و `Webhook Engine` در Cloud Functions) از هر ۳ روش زیر پشتیبانی کند:
-  1. **پرداخت درون‌برنامه‌ای استورها (`Native Store IAP - RevenueCat`):** استفاده از پکیج `purchases_flutter` (RevenueCat) برای مدیریت خریدهای درون‌برنامه‌ای Google Play و Apple App Store در اپلیکیشن موبایل. قیمت بسته‌ها در استور با لحاظ کردن کارمزد استور تنظیم می‌شود.
-  2. **درگاه کارت‌های بانکی بین‌المللی تحت وب (`Web Fiat Checkout - Stripe / Paddle`):** هدایت به پورتال وب امن (`pay.stylemorph.com`) جهت پرداخت با Visa / Mastercard / Apple Pay Web برای کاربران و شارژ کیف پول تبلیغاتی فروشندگان (`Vendor Panel`).
-  3. **درگاه ارزهای دیجیتال تحت وب (`Web Crypto Gateway - NOWPayments / Cryptomus`):** امکان پرداخت با رمزارزها (مانند `USDT` روی شبکه‌های `TRC20 / TON / Polygon`، بیت‌کوین و اتریوم) در پورتال وب با تایید خودکار تراکنش بلاکچین.
-* **تایید انحصاری سمت سرور (`Strict Webhook SSV`) و ثبت در `ledger`:**
-  * در هر ۳ روش پرداخت، اپلیکیشن موبایل یا وب‌اپ پس از پرداخت هیچ دسترسی مستقیمی برای افزایش موجودی ندارد.
-  * افزایش سکه یا فعال‌سازی اشتراک منحصراً پس از دریافت Webhook رمزنگاری‌شده و تایید امضای دیجیتال سرورهای `RevenueCat`، `Stripe` یا `Crypto Gateway` در `backend/functions/`، بررسی `idempotencyKey` (جلوگیری از شارژ مضاعف) و ثبت اتمیک در کلکسیون تغییرناپذیر `ledger` (با ذکر فیلد `paymentProvider: 'IAP' | 'STRIPE' | 'CRYPTO'`) انجام می‌شود.
-* **بنر هوشمند هدایت به پورتال وب و سپر بازبینی استور (`Smart Web-Topup Promo Banner & Reviewer Shield`):**
-  * در بخش کیف پول اپلیکیشن موبایل (`Profile -> Wallet`)، یک کامپوننت بنر/پاپ‌آپ تبلیغاتی پویا تعبیه می‌شود که به کاربران پیشنهاد می‌دهد برای دریافت **«۲۰٪ سکه هدیه بیشتر (`Extra Bonus Coins`)»**، شارژ حساب را از طریق پورتال وب (با کارت بانکی یا ارز دیجیتال) انجام دهند (استفاده از عبارت «سکه هدیه بیشتر» به جای «تخفیف» یا «کارمزد کمتر» جهت رعایت سیاست‌های استور الزامی است).
-  * **سپر محافظ بازبینی (`Store Reviewer Shield`):** نمایش این بنر و هرگونه لینک خارجی در اپ موبایل باید ۱۰۰٪ وابسته به پارامترهای **Firebase Remote Config** باشد. زمانی که شماره بیلد برنامه در لیست `under_review_build_numbers` قرار دارد یا کاربر شرایط فعالیت پایه را احراز نکرده است، این بنر به صورت خودکار و کامل مخفی (`Hidden`) می‌شود تا قوانین `Anti-Steering` اپل و گوگل نقض نگردد.
-  * **احراز هویت یک‌کلیکی در پورتال وب (`One-Tap Magic Checkout Token`):** هنگام کلیک کاربر روی بنر، بک‌اند یک توکن یک‌بارمصرف با انقضای کوتاه‌مدت (۶۰ ثانیه) تولید کرده و کاربر را بدون نیاز به لاگین مجدد در مرورگر، مستقیماً وارد صفحه پرداخت حساب خودش در وب‌اپ می‌کند.
-* **انحصار سمت سرور و تراکنش اتمیک:** کلاینت دسترسی `write: false` مطلق به موجودی و تراکنش‌ها دارد. تمامی تغییرات مالی با ارسال `idempotencyKey` یکتا و درون تراکنش اتمیک (`runTransaction`) در Cloud Functions انجام می‌شود تا موجودی منفی یا کسر مضاعف غیرممکن باشد.
-* **چرخه ۳ مرحله‌ای (`Hold` $\rightarrow$ `Capture` / `Release`):** پیش از اجرای هوش مصنوعی، قیمت به کاربر نمایش داده شده و تایید گرفته می‌شود $\rightarrow$ سکه در وضعیت `Hold` رزرو می‌شود $\rightarrow$ پس از تایید سلامت تصویر توسط مرحله Self-Correction، سکه `Capture` (کسر قطعی) می‌شود $\rightarrow$ در صورت هرگونه خطا، سکه به صورت خودکار `Release` (بازگشت به موجودی) می‌گردد.
-* **قانون دفتر کل تغییرناپذیر (`No-Update Immutable Ledger`):** در کلکسیون `ledger` هیچ ادمینی (حتی ادمین اصلی) و هیچ سرویسی مجوز ویرایش (`update`) یا حذف (`delete`) رکورد ثبت‌شده را ندارد. اصلاحات مالی صرفاً با ثبت یک «سند اصلاحی جدید (`Adjusting Entry`)» انجام می‌شود.
-* **تبلیغات پاداشی (`AdMob SSV`) و موتور سخاوت تطبیقی (`Adaptive Generosity`):**
-  * شارژ سکه تبلیغات فقط از طریق وب‌هوک تایید سمت سرور گوگل (**AdMob SSV**) انجام می‌شود (پاداش پایه حدود ۰.۳ تا ۰.۴ سکه).
-  * نمایش تبلیغات در صفحات حساس «تندرستی و تصاویر بدن» و همچنین برای دارندگان «اشتراک ماهانه» به طور کامل مسدود است.
-  * سیستم به صورت خودکار نسبت درآمد تبلیغات به هزینه خدمات رایگان هوش مصنوعی را محاسبه کرده و سقف سکه رایگان روزانه را بر اساس فرمول سخاوت تطبیقی تنظیم می‌کند.
-
-### ۶. امنیت سرور، نشست تک‌دستگاهی و کنترل دسترسی (Security, Single-Device & RBAC)
-* **قانون نشست تک‌دستگاهی (`Single-Device Session`):** هر حساب کاربری در هر لحظه فقط روی **یک دستگاه** مجاز به فعالیت است. به محض ورود در دستگاه جدید، `activeSessionId` در سرور تغییر کرده، توکن‌های قبلی باطل (`Invalidate`) می‌شوند و دستگاه قبلی از حساب خارج می‌گردد.
-* **احراز هویت و رمزنگاری:** ورود با Google، Apple و Email (پیامک پیش‌فرض غیرفعال)؛ پشتیبانی از **تایید دو مرحله‌ای (2FA)** و **ورود بیومتریک (اثر انگشت / تشخیص چهره)** در اپ؛ فعال‌سازی اجباری **Firebase App Check**؛ رمزنگاری `TLS 1.3` و `AES-256`؛ هش رمزها با `Argon2id`/`bcrypt`.
-* **تست‌های اجباری بک‌اند:** نوشتن تست‌های خودکار همزمانی (Concurrency/Race-Condition Tests) روی شبیه‌ساز فایربیس برای تمامی توابع کیف پول پیش از تحویل الزامی است.
+## 2. Platform Topology, Repo Layout & Preview Exception
+- **Consumer App (`app/`):** Built with **Flutter** targeting **Android, iOS, and Responsive Web (PWA + Desktop Dual Layout)** — never contains Admin/Seller dashboards.
+- **Admin & Seller Portals (`admin/`):** Built with **Flutter Web** (`shadcn_ui` + Riverpod) for isolated Admin and Seller workspaces with mandatory 2FA.
+- **Production 4-Subdomain Topology:**
+  - `stylemorph.style` & `app.stylemorph.style` → Consumer Landing + Web App (`app/`).
+  - `sellers.stylemorph.style` → Isolated Seller Portal (`admin/`).
+  - `admin.stylemorph.style` → Isolated Super/Sub-Admin Command Center (`admin/`).
+- **Pre-Launch Preview Exception:** During active development, `app/` and a temporary `/admin/` preview may run on the single preview Firebase project (`stylemorph-preview`). Before production launch, they MUST migrate to isolated `stylemorph-dev` and `stylemorph-prod` GCP projects (`europe-west3`) and dedicated subdomains.
+- **Core Consumer Modules (6):**
+  1. `Wardrobe & Gallery` (digital closet + AI outputs archive).
+  2. `AI Stylist & Virtual Try-On` (chat/voice consultant + fitting room).
+  3. `Virtual Atelier` (portrait/editorial/short-video templates).
+  4. `Wellness & Beauty` (face/skin/hair/body/mind + Future Self; **ZERO ads allowed**).
+  5. `Shop` (catalog, filters, promoted vendor ads CPC/CPM, external seller links in V1).
+  6. `Multi-Tab Profile` (fixed header, 8 vertical sidebar tabs with independent inner scroll, zero whole-page scroll).
 
 ---
 
-## بخش پنجم: معماری جامع پنل مدیریت تحت وب ادمین و پنل فروشندگان (Admin & Vendor Web Panels)
+## 3. Frontend Architecture, Design System & Localization (`app/` & `admin/`)
+1. **Clean Architecture & Riverpod-Only:**
+   - Strict feature-first layout (`core/`, `features/<feature>/{domain,data,presentation}/`, `l10n/`).
+   - **ZERO imports from `data/` inside `presentation/`** — `presentation/` depends ONLY on `domain/` entities and abstract repository interfaces.
+   - Use **Riverpod (`flutter_riverpod`)** exclusively for state management. Do NOT put business logic in `setState`.
+   - **`app_state.dart` Freeze Rule:** `app/lib/core/state/app_state.dart` is **FROZEN** for new feature logic. Every new or refactored module MUST use its own feature-scoped Riverpod providers/notifiers.
+2. **Design System (`shadcn_ui` + Design Tokens):**
+   - Wrap all `shadcn_ui` components inside `core/widgets/` (`AppButton`, `AppCard`, `AppTextField`, `AppModal`, `AppBottomSheetShell`, `AppBadge`, `AppSwitchTile`, etc.). Never use raw Material widgets when a Base Widget exists.
+   - Separate **geometry/layout** (`AppSpacing`, `AppRadius`, `AppTypography`) from **colors/themes** (`AppColors` via `ThemeExtension`). Zero hardcoded colors, radii, or paddings in screens.
+   - Support **5 Fashion Themes**: `Minimal Light (White)`, `Luxury Warm Beige`, `Modern Slate`, `Obsidian Dark`, and `Luxury Editorial` (with Light / Dark / System brightness modes).
+3. **Localization & RTL-First:**
+   - Support `fa` (default, RTL), `ar` (RTL), `en` (LTR), and `tr` (LTR) with bundled `Vazirmatn` font and local icons (no external CDN).
+   - Zero hardcoded UI strings. **Writing `if/switch` on `localeCode` in UI widgets is STRICTLY FORBIDDEN.**
+   - Use directional widgets exclusively (`EdgeInsetsDirectional`, `AlignmentDirectional`, `start`/`end`).
+4. **Offline/Online Policy:**
+   - `Offline-First` is **Read-Only** for `Wardrobe` and `Profile` (with cached thumbnails).
+   - `Wallet`, `Transactions`, `Shop`, and all `AI` services are strictly **`Online-Only`**.
 
-پنل وب (`admin/`) بر بستر وب در ساب‌دامین اختصاصی با الزام احراز هویت دو عاملی (2FA) پیاده‌سازی می‌شود و شامل **۹ زیرسیستم اصلی** زیر است که باید بدون حذف هیچ قابلیتی پیاده‌سازی شوند:
+---
 
-### A. داشبورد آماری، رفتارشناسی منطقه‌ای و هوش تجاری (BI & Cultural Drill-down Analytics)
-مبتنی بر تجمیع لاگ‌های ساختاریافته در **BigQuery** و نمایش نمودارهای تعاملی (و یکپارچگی با Looker Studio) با قابلیت **پیمایش عمقی سلسله‌مراتبی (Drill-down)** از سطح **سالانه $\rightarrow$ فصلی $\rightarrow$ ماهانه $\rightarrow$ هفتگی $\rightarrow$ روزانه $\rightarrow$ ساعتی $\rightarrow$ نقشه حرارتی کشورها (Heatmap) $\rightarrow$ لیست کاربران و پروفایل تک‌تک کاربران**:
-1. **مانیتورینگ پردازش‌های هوش مصنوعی و ترندهای فرهنگی:**
-   * رصد پردازش‌های موفق/ناموفق Cloud Tasks و ساعات اوج مصرف (Peak Hours) به تفکیک منطقه جغرافیایی.
-   * **تحلیل سلیقه و فرهنگ منطقه‌ای:** دسته‌بندی پرامپت‌ها و استایل‌ها به تفکیک کشورها (مانند تقاضا برای لباس‌های پوشیده/حجاب در کشورهای اسلامی در برابر استایل‌های کژوال در غرب، یا مقایسه تقاضای ماژول پوست در برابر تناسب اندام در مناطق مختلف).
-   * **رصد خطای مدل‌ها به تفکیک نژاد/منطقه:** بررسی نرخ خطای مدل‌های بینایی (Gemini/FLUX) در تشخیص رنگ پوست یا ویژگی‌های چهره مناطق خاص جهت کالیبره کردن الگوریتم Self-Correction.
-2. **رصد هزینه‌های ابری و رفتار اقتصادی (Cloud Financials):**
-   * رصد لحظه‌ای سوختن توکن‌ها و هزینه‌های Vertex AI، Cloud Run و Firestore در رویدادهای خاص (بلک‌فرایدی، اعیاد محلی) و شناسایی کاربران پرمصرف (**Whales**).
-   * تحلیل گرایش مناطق مختلف به لایه‌های کیفی (سریع، استاندارد، سینمایی) و مقایسه هزینه سرور هر کشور در برابر درآمد حاصل از خرید سکه و تبلیغات AdMob همان کشور.
-3. **گزارش کاربران فعال و رفتارشناسی نشست‌ها (Active Users & Session Analytics):**
-   * رصد `MAU/WAU/DAU/HAU` و کشف ریتم زندگی کاربران هر منطقه به تفکیک محیط‌های `dev` و `prod`.
-   * رصد نرخ ابطال نشست تک‌دستگاهی (کشف اشتراک‌گذاری اکانت در خانواده‌ها به تفکیک کشور) و تحلیل رشد فصلی بر اساس تقویم و اعیاد مذهبی/فرهنگی.
+## 4. Canonical Firestore Data Contract (Single Source of Truth)
+All code in `app/`, `admin/`, `backend/functions/`, and `firestore.rules` MUST use these exact paths and field names. Duplicate aliases are **FORBIDDEN**.
 
-### B. مدیریت مالی، حسابداری نقدی و سود و زیان (Financial & Accounting Management)
-1. **دفتر روزنامه و کل تغییرناپذیر (`Immutable Ledger`):** نمایش تمامی تراکنش‌ها با رصد لحظه‌ای وضعیت چرخه حیات (`Hold`, `Capture`, `Refund`) و ممنوعیت مطلق ویرایش/حذف رکوردها.
-2. **رصد منابع ورودی ۳گانه و خروجی‌ها:**
-   * تطبیق لحظه‌ای و تفکیک‌شده تراکنش‌های هر ۳ درگاه (`Google Play / App Store IAP`، درگاه ارزی `Stripe` و درگاه رمزارزی `Crypto`) با سکه‌های واریزشده و محاسبه کارمزد کسرشده هر درگاه در داشبورد سود و زیان (`P&L`).
-   * تفکیک درآمد اشتراک‌های ماهانه از خریدهای یک‌باره، و تطبیق درآمدهای AdMob SSV با سکه‌های رایگان اعطایی.
-3. **داشبورد سود و زیان (`P&L`) به ازای هر رکورد تراکنش (`Cost Reconciliation`):** محاسبه خودکار هزینه دقیق زیرساخت گوگل کلاد (توکن‌های مصرفی Vertex AI + اجرای Cloud Run + خوانش Firestore از طریق BigQuery) به سنت دلار و مقایسه آن با ارزش دلاری سکه‌های کسر شده در همان تراکنش برای نمایش سود خالص هر عملیات.
-4. **مدیریت قیمت‌گذاری و نرخ برابری:** تنظیم ارزش پایه `StyleCoin` در برابر ارزهای فیات و تغییر داینامیک تعرفه خدمات هوش مصنوعی در لایه‌های مختلف بدون نیاز به آپدیت اپ.
-5. **ثبت سند دستی و ممیزی:** فرم واریز سکه جبرانی (`Compensation`) یا پاداش (`Bonus`) یا ثبت سند اصلاحی با الزام درج «علت»، «شماره تیکت پشتیبانی» و «شناسه کاربر» به همراه ثبت خودکار شناسه ادمین، زمان و IP.
-6. **گزارش‌سازی زنجیره‌ای مالی:** پیمایش زمانی و جغرافیایی درآمدها با لینک مستقیم روی شناسه هر کاربر به پروفایل، کمد مجازی و تاریخچه گالری او.
+### A. Root User Document: `users/{uid}`
+- **Server-Only / Protected Fields (NEVER writable from client):**
+  - `walletBalance` (`number` — **ONLY canonical balance field**; `coins` and `coinBalance` are deprecated/forbidden in new code)
+  - `heldBalance` (`number`)
+  - `referralCount` (`number`)
+  - `networkTier` (`string`)
+  - `role` (`'user' | 'seller' | 'sub_admin' | 'admin'` — mirrored from Auth Custom Claims)
+  - `permissions` (`string[]`)
+- **Profile, Loyalty & Activity Fields:**
+  - `firstName`, `lastName`, `nickname`, `email`, `photoURL` (`string`)
+  - `emailVerified` (`boolean`), `showEmailInHeader` (`boolean`, default `false`)
+  - `stylePoints` (`number`), `loyaltyRank` (`'bronze' | 'silver' | 'gold' | 'diamond'`)
+    - Rank thresholds: `bronze` (`0–499`), `silver` (`500–1499`), `gold` (`1500–3999`), `diamond` (`4000+`).
+  - Profile Completion Formula: **40% Anatomy / 35% Media / 25% Identity**.
+  - `createdAt`, `updatedAt` (`timestamp`).
 
-### C. مدیریت تنظیمی، دروازه هوش مصنوعی و پرامپت‌ها (AI Gateway & Config Management)
-1. **مدیریت استخر کلیدها و سهمیه‌ها (`Multi-Key & Quota Manager`):** تعریف و مدیریت متمرکز کلیدهای API چندین پروژه و حساب گوگل کلاد و سایر ارائه‌دهندگان، مشاهده وضعیت سلامت لحظه‌ای (`Health Check`) و میزان تأخیر (`Latency`) هر کلید، و تنظیم قوانین Fallback.
-2. **گزارش‌های تفکیک‌شده مصرف توکن:** گزارش مصرف توکن (ورودی/خروجی) و هزینه به تفکیک «هر کلید API و پروژه گوگل کلاد»، به تفکیک «مدل هوش مصنوعی (Imagen 3, FLUX, Gemini Flash/Pro)»، به تفکیک «کیفیت خدمات» و به تفکیک «کاربر»، به همراه مانیتورینگ زنده صف‌های **Cloud Tasks** (در انتظار، در حال اجرا، ناموفق).
-3. **مدیریت مدارقطع‌کن‌های بودجه (`Circuit-Breakers`):** تعیین سقف مصرف روزانه کل سیستم و سقف مصرف رایگان روزانه کاربران.
-4. **مدیریت خودبازبینی کیفیت، تست A/B و تحلیل احساسات:**
-   * تنظیم درجه حساسیت مدل بینایی ناظر (Self-Correction)، کلمات کلیدی ممنوعه و قوانین ایمنی.
-   * **سیستم هشدار زنده (`Alerting`):** ارسال ایمیل/نوتیفیکیشن خودکار به ادمین در صورت نزدیک شدن به سقف بودجه، جهش نرخ خطا یا طولانی شدن صف پردازش.
-   * **تحلیل احساسات (`Sentiment Analysis`):** استخراج میزان رضایت یا ناامیدی کاربران از کیفیت خروجی‌ها بر اساس تحلیل چت‌های استایلیست (با حفظ حریم خصوصی).
-   * **تست A/B پرامپت‌ها:** امکان اجرای همزمان دو نسخه از `System Prompt` یا پارامترهای مدل و مقایسه نرخ موفقیت، کیفیت و مصرف توکن آن‌ها، به همراه نقشه حرارتی پایداری مدل‌ها (`Model Availability Heatmap`).
+### B. User Subcollections under `users/{uid}`
+- `sessions/{sessionId}` — Controlled multi-session tracking.
+- `health_dna/{recordId}` — Sensitive body/wearable/wellness telemetry (strict owner-only + privacy TTL).
+- `wardrobe/{itemId}` — Closet items linked to Storage (`thumbUrl`, `originalUrl`, `imageHash`, AI tags).
+- `creations/{creationId}` — AI Atelier & Try-On outputs.
+- `wellness_logs/{logId}` — Daily mood/skin/fitness logs.
+- `kyc/{docId}` — Identity verification records.
 
-### D. سیستم جامع سطوح دسترسی چهارلایه و چندمستاجری (4-Tier RBAC & Shop Multi-Tenancy)
-مبتنی بر **Firebase Custom Claims** و اعتبارسنجی در Cloud Functions و Firestore Security Rules:
-1. **لایه اول - ادمین اصلی (`Super Admin`):** دسترسی کامل به تمام بخش‌ها، کلیدهای API، تعیین نرخ سکه، گزارش‌های P&L، تغییر محیط و خلق/حذف سایر ادمین‌ها و مشاهده لاگ ممیزی آن‌ها.
-2. **لایه دوم - ادمین‌های فرعی (`Sub-Admins` با دسترسی ماژولار تیک‌دار):**
-   * *مدیر مالی (`Financial Admin`):* دسترسی به دفتر کل، گزارش‌های درآمدی و ثبت اسناد اصلاحی/بازگشت وجه (بدون دسترسی به تنظیمات فنی AI).
-   * *پشتیبان فنی (`Support Admin`):* دسترسی به تیکتینگ، مشاهده کیف پول و لاگ خطاهای پردازشی کاربر برای رفع مشکل (بدون دسترسی به کل درآمد پلتفرم یا تغییر قیمت‌ها).
-   * *مدیر فروش و محتوا (`Sales/Marketing Admin`):* تایید صلاحیت فروشگاه‌ها، مدیریت تبلیغات AdMob، کمپین‌ها و اولویت‌بندی محصولات فروشگاه.
-   * *ناظر هوش مصنوعی (`AI Config Admin`):* رصد کیفیت خروجی‌ها، تنظیم حساسیت Self-Correction و مدیریت صف Cloud Tasks (بدون دسترسی به اطلاعات هویتی و مالی کاربران).
-3. **لایه سوم - پنل فروشگاه‌ها (`Shop Multi-Tenancy` - ایزوله برای هر فروشگاه):**
-   * *مالک فروشگاه (`Shop Owner`):* دسترسی به داشبورد فروش، کیف پول فروشگاه، گزارش‌های کلیک/بازدید و ساخت اکانت برای کارمندان فرعی خود.
-   * *کارمندان فروشگاه (`Shop Sub-users`):* شامل **«مدیر محصولات»** (افزودن/ویرایش لباس، عکس، قیمت و تگ‌ها)، **«پشتیبان فروشگاه»** (پاسخ به سوالات و تیکت‌های کالاهای همان فروشگاه) و **«حسابدار فروشگاه»** (مشاهده گزارش فروش روزانه و تسویه‌حساب با StyleMorph).
-4. **لایه چهارم - کاربران عادی (`Normal Users`):** دسترسی صرفاً از طریق اپلیکیشن موبایل به اسناد مربوط به `userId` خودشان.
+### C. Top-Level Collections
+- `ledger/{txId}` — **Immutable, append-only** financial ledger (server-only write; `update`/`delete` ALWAYS `false`).
+- `wallet_holds/{holdId}` — Active/settled `StyleCoin` holds (server-only write).
+- `jobs/{jobId}` — Async AI Cloud Tasks jobs (`PENDING | PROCESSING | VALIDATING | COMPLETED | FAILED`).
+- `shops/{shopId}` & `products/{productId}` — Vendor stores, ad wallets, and product catalogs.
+- `tickets/{ticketId}` — Context-aware support tickets linked to `txId` or `jobId`.
+- `audit_logs/{logId}` — Immutable admin/seller audit trail (server-only write).
+- `app_config/version` — Remote app version/build config (public read, admin write).
+- `system_config/wallet_promo` — Dynamic promo banner & Store Reviewer Shield config (public read, admin write).
 
-### E. سیستم ممیزی و لاگ امنیتی (Immutable Audit Trail)
-* ثبت خودکار و غیرقابل تغییر تمامی عملیات‌های ادمین‌ها و پرسنل فروشگاه‌ها در کلکسیون `audit_logs` شامل: **چه کسی** (`actorId` و نقش)، **چه زمانی** (تایم‌استمپ دقیق سرور و IP) و **چه تغییری** (مقدار قدیم، مقدار جدید و علت عملیات).
+### D. Query & Cost Rules
+- Target **1–2 Document Reads** per screen load using Controlled Denormalization.
+- **Cursor-Based Pagination (`limit(20)` + `startAfterDocument`) is MANDATORY** on all lists. Unbounded queries are forbidden.
+- Register all composite queries in `firestore.indexes.json`.
 
-### F. پشتیبان‌گیری خودکار، ایزوله‌سازی و بازیابی (Automated Backup & Disaster Recovery)
-1. **بازیابی نقطه‌ای در زمان (`PITR`):** فعال‌سازی Point-in-Time Recovery در Firestore جهت امکان بازگرداندن دیتابیس به هر دقیقه و ثانیه‌ای در ۷ روز گذشته.
-2. **بک‌آپ‌های سرد شبانه ایزوله (`Isolated Cold Backups`):** اجرای Cron Job هر شب ساعت ۳ بامداد برای گرفتن خروجی کامل از کلکسیون‌های حیاتی (`users`, `ledger`, `wardrobe`, `wellness`, `shops`) و ذخیره در یک باکت مجزا با کلاس `Coldline/Archive` در یک پروژه امن/ایزوله که حتی در صورت آسیب به پروژه اصلی، غیرقابل حذف باشد.
-3. **حفظ نسخه فایل‌ها (`Object Versioning & 30-Day Soft Delete`):** فعال‌سازی Soft Delete در Firebase Storage برای تصاویر کاربران تا فایل‌های پاک‌شده تا ۳۰ روز توسط ادمین قابل بازیابی باشند و پس از ۳۰ روز خودکار پاکسازی (`Purge`) شوند.
-4. **آرشیو تغییرناپذیر دفتر کل در BigQuery:** انتقال لحظه‌ای تمامی رکوردهای مالی `ledger` به BigQuery به عنوان انبار داده امن پشتیبان.
-5. **ماژول پنل ادمین برای بک‌آپ:** دارای دکمه **«تهیه بک‌آپ دستی فوری (`On-Demand Backup`)»** پیش از آپدیت‌های حساس، لیست وضعیت سلامت بک‌آپ‌های ۳۰ روز اخیر، قابلیت **«بازیابی تفکیک‌شده (`Granular Restore`)»** (بازگرداندن دیتای فقط یک کاربر خاص یا یک کلکسیون خاص بدون دست زدن به کل دیتابیس) و رصد فرآیند حذف کامل داده‌های کاربر طبق **قوانین GDPR (`Right to be Forgotten`)**.
+---
 
-### G. موتور اطلاع‌رسانی رویدادمحور و تیکتینگ هوشمند (Event Notification & Context-Aware Helpdesk)
-1. **موتور اطلاع‌رسانی ایمیلی رویدادمحور (`Event-Driven Email Engine`):**
-   * ارسال خودکار اطلاع‌رسانی‌ها به ایمیل ثبت‌نامی از طریق تریگرهای Cloud Functions شامل: پنل طراحی قالب‌های ایمیل با متغیرهای داینامیک (`Template Engine`) و **ماتریس تنظیمات رویدادها** برای ۳ گروه: کاربران عادی (خوش‌آمدگویی، هشدار ورود از دستگاه جدید، فاکتور خرید سکه، اتمام رندر آتلیه، بازگشت خودکار سکه)، فروشگاه‌ها (تایید صلاحیت، سفارش/کلیک جدید، کاهش موجودی، تسویه‌حساب) و ادمین‌ها (هشدار تغییر سطح دسترسی، رسیدن هزینه توکن به ۸۰٪ بودجه، تیکت بحرانی).
-2. **سیستم تیکتینگ هوشمند آگاه به زمینه (`Context-Aware Helpdesk`):**
-   * **الصاق خودکار موجودیت‌ها:** پین شدن خودکار `Transaction ID` یا `Job ID` به تیکت هنگام ثبت درخواست پشتیبانی از داخل اپ.
-   * **داشبورد دوقسمتی (`Split-View`):** نمایش محیط چت تیکت در یک سمت و مانیتورینگ زنده پروفایل کاربر (موجودی سکه، دستگاه متصل، ۳ تراکنش اخیر و ۳ درخواست اخیر هوش مصنوعی) در سمت دیگر.
-   * **مسیریابی هوشمند (`Auto-Routing`):** ارجاع خودکار تیکت‌های مالی به ادمین مالی، تیکت‌های کالا به ادمین فروش/فروشگاه، و باگ‌ها به پشتیبان فنی.
-   * **اقدام سریع (`Quick Actions`)، هوش مصنوعی و SLA:** دکمه‌های یک‌کلیکی «بازگشت وجه (Refund)» یا «ثبت سند اصلاحی» درون صفحه تیکت، پاسخ‌های آماده (`Canned Responses`) به همراه پیشنهاد پاسخ با مدل زبانی، و بسته شدن خودکار تیکت در صورت عدم پاسخ کاربر پس از ۷۲ ساعت.
+## 5. Backend, AI Gateway, Financial Engine & Security
+1. **Tech Stack:**
+   - `backend/functions/`: Firebase Cloud Functions (Gen 2, `europe-west3`), **TypeScript (`strict: true`)**, **Zod** validation.
+   - `backend/ai-gateway/`: **Google Cloud Run** (TypeScript/Express or Fastify) for low-latency AI routing.
+   - Heavy AI jobs run asynchronously via **Google Cloud Tasks** (< 200ms initial response returning `jobId`, completion via **FCM**).
+   - Dynamic pricing, quotas, and model names come from **Firebase Remote Config / Firestore**, never hardcoded.
+2. **Auth, Soft Gate & Controlled Multi-Session:**
+   - Providers: Google, Apple, Email/Password (SMS disabled by default); Biometrics & 2FA supported.
+   - **Email Verification (Soft Gate):** New users enter the app freely; unverified email restricts ONLY high-cost AI generation and Wallet/Financial actions.
+   - **Controlled Multi-Session Policy:** Max **5 active devices** per user, **1 Primary Device** with authority to inspect/revoke/block other sessions, and **14-day idle session expiration**.
+   - Production requires **Firebase App Check**, `TLS 1.3`, `AES-256`, and concurrency tests on financial functions.
+3. **Storage & AI Hash Caching:**
+   - Compress uploads to `WebP`/`AVIF` (`thumbUrl` < 30KB + `originalUrl`).
+   - Compute **`SHA-256` image hash** before calling AI; return cached JSON metadata on duplicate hashes.
+4. **AI Gateway (`backend/ai-gateway/`):**
+   - Client NEVER calls AI providers directly.
+   - **Multi-Account / Multi-Project Key Pool** (Secret Manager + Hot Reload), **Least-Latency & Quota-Aware Load Balancer**, and **< 10ms Circuit Breaker** on `401/403/429/5xx`.
+   - **No Silent Downgrade:** Users pick quality tiers (`FAST`, `STANDARD`, `CINEMATIC`). Fallback MUST stay within the **Same-Tier Equivalent**; otherwise abort and `Release` coins.
+   - **Automated Visual QA (Self-Correction):** Verify anatomical integrity and safety via Vision model before `Capture`. Always embed permanent `"AI Generated"` watermark/metadata.
+5. **Atomic Financial Engine & Tri-Channel Payments:**
+   - **Pay-as-you-go:** `1 StyleCoin ≈ $0.02 USD`, purchased coins never expire.
+   - **Atomic Cycle (`Hold → Capture / Release`):** Every mutation runs inside `runTransaction` with a unique `idempotencyKey`. Client has `write: false` on balances and `ledger`. Corrections use new `Adjusting Entry` records only.
+   - **Tri-Channel Payment SSV:** Unified server-side webhook verification for (1) Native Store IAP (`RevenueCat`), (2) Web Fiat (`Stripe`/`Paddle`), and (3) Web Crypto (`NOWPayments`/`Cryptomus`), logged with `paymentProvider: 'IAP' | 'STRIPE' | 'CRYPTO'`.
+   - **Smart Web-Topup Promo & Store Reviewer Shield:** Mobile wallet promo banner ("Extra Bonus Coins") is 100% controlled by Remote Config (`under_review_build_numbers` + `killSwitch`) with 60-second One-Tap Magic Checkout Tokens.
+   - **AdMob SSV & Adaptive Generosity:** Rewarded ads credited via Google SSV only; strictly blocked in `Wellness` and for subscribers.
 
-### H. سیستم مدیریت تبلیغات درون‌برنامه‌ای و کمپین‌های فروشندگان (In-App & Vendor Promoted Ads)
-1. **مدیریت تبلیغات شبکه‌ای (`AdMob Rewarded Ads`):** پنل تنظیم کلیدهای SSV، تعیین نرخ پاداش، تنظیم پارامترهای «موتور سخاوت تطبیقی» و کلیدهای روشن/خاموش جایگاه‌های تبلیغاتی (با مسدودسازی قطعی در بخش تندرستی و برای کاربران اشتراکی).
-2. **سیستم تبلیغات بومی و پروموت‌شده فروشندگان (`Vendor Promoted Ads`):**
-   * تعریف کمپین برای فروشگاه‌ها جهت نمایش در صدر نتایج فروشگاه.
-   * **تزریق تبلیغ در هوش مصنوعی (`AI Placement / RAG Weighting`):** تنظیم ضرایب وزن‌دهی در موتور پیشنهاد استایلیست (Gemini RAG) تا در صورت درخواست کاربر، کالاهای فروشگاهِ اسپانسر با اولویت و ضریب مشخص‌شده پیشنهاد داده شوند.
-   * **زمان‌بندی و هدف‌گذاری (`Scheduling & Dayparting`):** تعیین تاریخ شروع/پایان و ساعات مجاز نمایش در شبانه‌روز، به همراه سیستم محاسبه هزینه بر اساس کلیک (`CPC`) یا نمایش (`CPM`) و کسر خودکار از کیف پول فروشگاه.
-3. **داشبورد تحلیل تبلیغات (`Ads Analytics`):** نمودار پوشش هزینه‌های توکن چت رایگان توسط درآمد تبلیغات، رصد جلوگیری از تقلب/ربات در تماشای تبلیغ و گزارش نرخ تبدیل (`ROI / Conversion Rate`) کمپین هر فروشگاه.
+---
 
-### I. سیستم مدیریت محتوای ماژول‌ها و سوئیچ‌های ویژگی (Module CMS & Feature Flags)
-کنترل لحظه‌ای ۶ ماژول اپلیکیشن از طریق پنل وب (متصل به Remote Config و Firestore) بدون نیاز به آپدیت اپ در استورها، به همراه **سوئیچ اضطراری (`Kill-Switch / Feature Flag`)** برای غیرفعال کردن فوری هر ماژول در سطح جهان و نمایش پیام «در حال به‌روزرسانی» در صورت بروز باگ:
-1. **پروفایل، هویت‌سنجی و کنترل بنر کیف پول (`Profile & Wallet Promo CMS`):**
-   * افزودن داینامیک پارامترهای جدید خیاطی به `AI DNA` (با تعیین منبع ورودی توسط کاربر یا هوش مصنوعی)، تنظیم پاداش سکه‌ای گیمیفیکیشن (احراز هویت سطح ۱ و ویدیوی ۳۶۰ درجه سطح ۲) و مدیریت مزایای سطوح اشتراکی (Plus/Pro و تیک تایید).
-   * **مدیریت بنر تشویقی وب‌اپ (`Wallet Promo Banner CMS`):** امکان روشن/خاموش کردن فوری بنر/پاپ‌آپ هدایت به وب‌اپ (`Kill-Switch`)، ثبت شماره بیلدهای در حال بازبینی استور (`under_review_build_numbers`)، تغییر متن چندزبانه و تنظیم درصد «سکه هدیه خرید از وب و کریپتو (`Web/Crypto Bonus %` مثلاً ۲۰٪)» به صورت زنده از پنل وب ادمین.
-2. **کمد مجازی و گالری:** مدیریت تاکسونومی، دسته‌بندی‌های لباس، تگ‌های فصلی و پالت‌های رنگی (`Tag CMS`)، تعیین سقف رایگان تعداد آیتم‌های کمد و هزینه ارتقای ظرفیت، و تنظیم درصد اطمینان (`AI Tagging Confidence Threshold` مثلاً ۸۵٪) برای ثبت خودکار تگ لباس یا سؤال از کاربر.
-3. **تندرستی و زیبایی:** پنل تغییر وزن متغیرها در فرمول محاسبه امتیاز تندرستی (`Scoring Weights`)، مدیریت قالب‌های روتین مراقبتی صبح/شب و قوانین پیشنهاد محصول به انواع پوست، و **سوئیچ‌های حریم خصوصی (`Privacy Kill-Switches`)** برای تعیین زمان حذف خودکار تصاویر خام بدن از سرور (مثلاً پس از ۲۴ ساعت).
-4. **دستیار استایلیست (`Prompt CMS`):** ساخت و مدیریت شخصیت‌های متعدد دستیار (`Persona Management` با نام، System Prompt، لحن، صدای `TTS Voice ID` و کلمات ممنوعه مجزا)، تنظیم سقف پنجره زمینه (`Context Window Limit` - تعداد لباس‌های کمد و محصولات فروشگاه که در هر پرامپت به Gemini ارسال می‌شود) و تعیین سقف پیام متنی/صوتی رایگان روزانه.
-5. **آتلیه مجازی (`Template Studio`):** افزودن، ویرایش یا بایگانی قالب‌های آماده عکاسی/ویدیو و تصاویر پیش‌نمایش آن‌ها، تعیین تعرفه داینامیک هر کیفیت (سریع، استاندارد، سینمایی) و فعال‌سازی **«تخفیف پردازش شبانه/با تأخیر»** برای کاهش بار ساعات پیک سرور.
-6. **فروشگاه و کمپین‌ها:** تایید/رد محصولات و لینک‌های فروشندگان، تنظیم ضریب احتمال تزریق کالاهای اسپانسر در هوش مصنوعی (`RAG Weights`) و تغییر یک‌کلیکی تم بنرها و دسته‌بندی‌ها در کمپین‌های مناسبتی (مانند بلک‌فرایدی).
-```[cite: 1, 3, 4, 5]
-
+## 6. Admin & Seller Web Panel Architecture (`admin/` — 9 Core Subsystems)
+Must implement isolated 3-Way Auth Gate (`Admin`, `Seller Portal`, `Consumer Web`) with **4-Tier RBAC** (`Super Admin`, modular `Sub-Admins`, `Shop Multi-Tenancy`, `Normal Users`) via Firebase Custom Claims:
+1. **BI & Cultural Drill-Down Analytics:** BigQuery-backed hierarchical drill-down (Year → Hour → Country Heatmap → User), AI error rates by region, cloud cost vs revenue, and session analytics.
+2. **Finance & P&L Accounting:** Immutable Ledger explorer, 3-way payment reconciliation (`IAP/Stripe/Crypto`), per-transaction GCP cost vs revenue P&L, dynamic pricing, and audited manual adjustments.
+3. **AI Gateway & Prompt Ops:** Multi-key pool health/latency, token usage breakdown, Cloud Tasks monitor, budget circuit-breakers, Self-Correction thresholds, A/B prompt testing, and sentiment alerts.
+4. **4-Tier RBAC & Seller Governance:** Modular sub-admin permissions, seller approval queue, commissions, and isolated shop sub-users (`Product Manager`, `Support`, `Accountant`).
+5. **Immutable Audit Trail (`audit_logs`):** Actor, timestamp, IP, before/after diff, and reason for every admin/seller action.
+6. **Automated Backup & Disaster Recovery:** Firestore PITR (7-day), nightly isolated Coldline backups, 30-day Storage Soft Delete, BigQuery ledger archive, on-demand backup, granular restore, and GDPR deletion.
+7. **Event Notifications & Context-Aware Helpdesk:** Dynamic email templates, split-view ticketing with auto-attached `txId`/`jobId`, auto-routing, 1-click Refund, AI reply suggestions, and 72h SLA auto-close.
+8. **In-App & Vendor Promoted Ads:** AdMob SSV & Adaptive Generosity controls, vendor CPC/CPM campaigns, AI RAG placement weights, scheduling, and ROI analytics.
+9. **Module CMS & Kill-Switches:** Live Remote Config / Firestore control for all 6 consumer modules (including `Wallet Promo Banner CMS`, `AI DNA` fields, `Wardrobe Tag CMS`, `Wellness Privacy Kill-Switches`, `Stylist Persona/Prompt CMS`, `Atelier Template Studio`, and `Shop Campaigns`).

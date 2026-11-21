@@ -1,92 +1,69 @@
-# نقشه راه اجرایی و گام‌به‌گام پروژه StyleMorph (`docs/roadmap.md`)
+# StyleMorph — Vertical-Slice Execution Roadmap (`docs/roadmap.md`)
 
-این سند، نقشه راه رسمی توسعه پلتفرم **StyleMorph** است و تمامی مراحل آن باید دقیقاً منطبق بر قوانین و استانداردهای تعریف‌شده در فایل `AGENTS.md` اجرا شود.
-
----
-
-## اصول کلیدی اجرای نقشه راه (Execution Principles)
-1. **رویکرد Mock-First (بدون نیاز به کلید ابری در مراحل اولیه):** در فازهای ۰ تا ۳، تمامی بخش‌های فرانت‌اند با استفاده از داده‌های آزمایشی هوشمند (`Mock Repositories` در Riverpod) ساخته می‌شوند تا جریان کامل برنامه بدون نیاز به کلیدهای Google Cloud یا پرداخت هزینه، کاملاً قابل لمس و تست باشد.
-2. **توسعه مرحله‌به‌مرحله و قابل‌لمس:** ایجنت موظف است در هر نوبت **فقط یک گام (Sub-step)** از یک فاز را اجرا کند، چک‌لیست ابتدایی بدهد و پس از اتمام کدنویسی، منتظر تست و تایید کاربر بماند.
-3. **پروتکل ۵ مرحله‌ای هر فیچر:**
-   * گام ۱: پیاده‌سازی UI نیتیو و وضعیت‌ها (Loading, Empty, Error, Data) با داده‌های آزمایشی (`Mock`).
-   * گام ۲: اتصال به شبیه‌ساز محلی فایربیس (`Firebase Local Emulator Suite`) و اعمال قوانین امنیتی.
-   * گام ۳: نوشتن و اجرای تست‌های ویجت و واحد (`flutter test` و `flutter analyze`).
-   * گام ۴: بازبینی بصری و عملکردی توسط کاربر.
-   * گام ۵: اتصال نهایی به دروازه هوش مصنوعی و سرویس‌های ابری واقعی (در فاز نهایی).
+All work follows `AGENTS.MD`. Instead of building all UI first and connecting the database later, every module is delivered as a **complete Vertical Slice**:
+> **Data Contract (`AGENTS.MD`) → Domain & Repository → Firestore/Storage Rules & Indexes → Backend Cloud Function (if needed) → UI & Localization → Automated Tests → Live Verification.**
 
 ---
 
-## فاز ۰: اسکلت پایه، معماری، تم و چندزبانگی (Foundation & Core Shell)
-**هدف:** راه‌اندازی ساختار استاندارد پروژه فلاتر در پوشه `app/`، سیستم طراحی، چندزبانگی پویا (RTL/LTR) و ناوبری اصلی بدون هیچ‌گونه خطای کامپایل.
-
-* **گام ۰.۱ (ساختار و وابستگی‌ها):** ایجاد درخت پوشه‌های Clean Architecture (`core`, `features`, `l10n`)، تنظیم `pubspec.yaml` (شامل Riverpod، GoRouter یا ناوبری استاندارد، فونت Vazirmatn و پکیج‌های بومی‌سازی).
-* **گام ۰.۲ (سیستم طراحی و تم دوگانه):** پیاده‌سازی توکن‌های طراحی (`AppSpacing`, `AppRadius`, `AppTypography`) و `ThemeExtension` برای پشتیبانی آنی از تم روشن و تاریک (Dark/Light Mode) و کامپوننت‌های پایه (`Base Widgets`).
-* **گام ۰.۳ (موتور چندزبانگی پویا):** راه‌اندازی فایل‌های ترجمه (`app_fa.arb`, `app_en.arb`, `app_ar.arb`, `app_tr.arb`) و رجیستری زبان‌ها به‌گونه‌ای که تغییر زبان بلافاصله جهت صفحه (RTL/LTR) و فونت را تغییر دهد.
-* **گام ۰.۴ (پوسته اصلی و نوار ناوبری):** ساخت `MainShell` شامل هدر ثابت بالایی (نمایش آواتار، سطح کاربر، موجودی سکه آزمایشی و دکمه تغییر تم/زبان) و نوار ناوبری پایینی (`BottomNavigationBar`) برای جابه‌جایی بین ۶ بخش اصلی (فروشگاه، کمد، استایلیست، آتلیه، تندرستی، پروفایل).
-
-> **خروجی قابل لمس فاز ۰:** اجرای برنامه روی مرورگر یا شبیه‌ساز، تغییر زنده زبان (فارسی راست‌به‌چپ و انگلیسی چپ‌به‌راست)، تغییر تم تاریک/روشن و جابه‌جایی روان بین ۶ تب اصلی.
+## Completed Foundation (Done ✅)
+- **Foundation & Design System:** Flutter app shell (`app/`), 5 Fashion Themes + Light/Dark/System modes, 4-language RTL/LTR (`fa/en/ar/tr`), `shadcn_ui` Base Widgets, Responsive Web + Desktop Dual Layout.
+- **Auth & Profile V2 (Tasks 01–28):** Firebase Auth (Email/Google/Apple), Soft Email Verification Gate, Turnstile + Fallback, Remember Me, Controlled Multi-Session (max 5 devices, 14-day TTL), 8-tab Profile (`Identity`, `KYC`, `Media`, `Anatomy/AI DNA`, `Wallet`, `Referral`, `Companion`, `Settings`, `About`), Loyalty `StylePoints` & weighted completion.
+- **Core Backend & Admin Scaffold:** `backend/functions/` (Atomic `StyleCoin` Engine, Payment SSV, Health DNA, Session Guard), `backend/ai-gateway/` (Key Pool, Mock AI, SHA-256 Cache), and unified Flutter Web `admin/` scaffold (8 sections + Seller Portal).
 
 ---
 
-## فاز ۱: احراز هویت، پروفایل چندتبی و کیف پول آزمایشی (Auth, Profile & Mock Wallet)
-**هدف:** پیاده‌سازی کامل بخش حساب کاربری و پروفایل دقیقاً مطابق مرجع طراحی (`prototype/profile.html`) بدون اسکرول سراسری صفحه و با تب‌های عمودی کناری.
-
-* **گام ۱.۱ (صفحه ورود و نشست‌ها):** طراحی رابط کاربری ورود/ثبت‌نام (ایمیل، گوگل، اپل)، صفحه تنظیم قفل بیومتریک (اثر انگشت/چهره) و تایید دو مرحله‌ای (2FA) با سرویس آزمایشی (`MockAuthRepository`).
-* **گام ۱.۲ (اسکلت پروفایل و تب هویتی):** ساخت صفحه پروفایل با هدر ثابت و منوی تب‌های عمودی کنار صفحه (`Side Tabs`)؛ پیاده‌سازی تب «شناسنامه و اطلاعات هویتی» و مدیریت دستگاه فعال (نمایش وضعیت تک‌دستگاهی).
-* **گام ۱.۳ (تب داده‌های بدن - AI DNA و آلبوم):** طراحی فرم‌های ثبت مشخصات ظاهری و آناتومیک کاربر، آپلود آزمایشی تصاویر مرجع (چهره، تمام‌قد، نیم‌رخ) و تب «ساخته‌های من / گالری».
-* **گام ۱.۴ (تب کیف پول StyleCoin و پاداش‌ها):** نمایش موجودی سکه، بسته‌های افزایش اعتبار، تاریخچه تراکنش‌های آزمایشی، شبیه‌سازی تماشای تبلیغ پاداشی (+۰.۳ سکه) و سیستم معرفی دوستان (Referral).
-
-> **خروجی قابل لمس فاز ۱:** ورود آزمایشی به اپ، گشت‌وگذار در تمامی ۶ تب داخلی پروفایل، ویرایش اطلاعات، و مشاهده تغییر لحظه‌ای موجودی سکه در هدر برنامه هنگام شبیه‌سازی شارژ کیف پول.
+## Slice 0: Stabilization, Security Hardening & Contract Alignment (CURRENT PRIORITY 🔴)
+**Goal:** Lock down security, unify database field naming, and restore 100% green tests/linter before building new slices.
+- **0.1 Security & Data Contract:** Remove open update loophole in `firestore.rules`, protect `walletBalance`/`heldBalance`/`referralCount`/`networkTier`/`role`, and align client reads/writes to canonical `walletBalance`.
+- **0.2 Platform & Hosting Hardening:** Add iOS Camera/PhotoLibrary keys (`Info.plist`), Android `allowBackup="false"` + permissions (`AndroidManifest.xml`), Web security headers (`firebase.json`), and create `firestore.indexes.json`.
+- **0.3 Code Quality & Tests:** Fix the 17 failing Flutter tests, re-enable ignored rules in `analysis_options.yaml`, remove locale `if` conditions from `camera_alignment_guide_dialog.dart`, run `dart format .`, and patch `zod`/`uuid` vulnerabilities in `backend/`.
 
 ---
 
-## فاز ۲: کمد مجازی و فروشگاه نسخه ۱ (Wardrobe & Shop V1)
-**هدف:** پیاده‌سازی شبکه کاشی‌کاری کمد شخصی و کاتالوگ فروشگاه مطابق فایل‌های مرجع وب‌اپ.
-
-* **گام ۲.۱ (کمد مجازی - Wardrobe):** پیاده‌سازی گرید کاشی‌کاری پویا، فیلتر دسته‌بندی‌ها (لباس، کفش، کیف، اکسسوری)، و دیالوگ افزودن آیتم جدید به کمد (انتخاب عکس از گالری/دوربین و ثبت تگ‌ها در حافظه موقت/Mock).
-* **گام ۲.۲ (فروشگاه و مقایسه قیمت - Shop V1):** طراحی صفحه فروشگاه با جستجو، فیلترهای پیشرفته، نمایش کارت‌های محصول (شامل برچسب «ویژه» برای کالاهای پروموت‌شده) و باز کردن لینک مستقیم فروشنده در مرورگر خارجی.
-
-> **خروجی قابل لمس فاز ۲:** افزودن لباس جدید از گالری به کمد مجازی، فیلتر کردن آیتم‌های کمد، جستجو در فروشگاه و کلیک روی محصولات.
+## Slice 1: Virtual Wardrobe & Storage Pipeline (Full Vertical Slice)
+**Goal:** Connect `Wardrobe` 100% to live Firestore (`users/{uid}/wardrobe`), Firebase Storage, and AI tagging.
+- Domain entities & `WardrobeRepository` interface (`features/wardrobe/domain/`).
+- Live Firestore/Storage implementation with `WebP` compression, `thumbUrl`, `SHA-256` image hash, and cursor pagination (`limit(20)`).
+- Strict `firestore.rules` & `storage.rules` + composite indexes + unit/widget tests.
 
 ---
 
-## فاز ۳: ماژول‌های هوش مصنوعی با پردازش شبیه‌سازی‌شده (Interactive AI Modules - Mock Mode)
-**هدف:** تکمیل تجربه کاربری در بخش‌های استایلیست، آتلیه و تندرستی همراه با مکانیزم انتخاب کیفیت و تایید قیمت سکه (با استفاده از پاسخ‌های شبیه‌سازی‌شده هوش مصنوعی).
-
-* **گام ۳.۱ (کامپوننت مشترک انتخاب کیفیت و تایید سکه):** ساخت دیالوگ شفاف انتخاب سطح کیفیت («سریع / استاندارد / سینمایی»)، نمایش هزینه سکه هر سطح، و شبیه‌سازی چرخه رزرو سکه (`Hold`) پیش از شروع پردازش.
-* **گام ۳.۲ (استایلیست هوشمند و اتاق پرو - Stylist & Try-On):** طراحی محیط چت تعاملی، انتخاب لباس از کمد یا فروشگاه برای پرو مجازی، نمایش انیمیشن پردازش، کسر سکه آزمایشی و نمایش تصویر پرو شده در خروجی.
-* **گام ۳.۳ (آتلیه مجازی - Virtual Atelier):** نمایش قالب‌های آماده عکاسی پرتره و ویدیوی کوتاه، انتخاب قالب، تایید هزینه، شبیه‌سازی صف پردازش و انتقال خروجی به تب «ساخته‌های من» در پروفایل.
-* **گام ۳.۴ (تندرستی و زیبایی - Wellness):** طراحی داشبورد امتیاز سلامت پوست، مو و تناسب اندام، نمایش پیشنهادهای مدل مو و سبک آرایش بر اساس فرم چهره، و رعایت قانون عدم نمایش تبلیغات در این بخش حساس.
-
-> **خروجی قابل لمس فاز ۳:** تجربه کامل چت با استایلیست، سفارش پرو مجازی لباس و تولید عکس آتلیه، مشاهده کم شدن سکه در صورت موفقیت و بازگشت خودکار سکه در صورت شبیه‌سازی خطا!
+## Slice 2: Live StyleCoin Wallet & Cloud Functions Integration (Full Vertical Slice)
+**Goal:** Connect `app/` to `backend/functions/` (`cloud_functions` package) so zero financial mutations happen on the client.
+- Wire `holdCoins`, `captureCoins`, `releaseCoins`, and `getWalletPromoConfig` (Store Reviewer Shield) to `Wallet` sub-tab and header balance.
+- Live read-only `ledger` history with pagination and referral reward Cloud Function.
+- End-to-end tests on Firebase Emulator.
 
 ---
 
-## فاز ۴: بک‌اند محلی، موتور مالی و امنیت روی شبیه‌ساز فایربیس (Local Backend & Emulators)
-**هدف:** نوشتن کدهای واقعی سرور (`TypeScript`) و قوانین امنیتی دیتابیس و تست کامل آن‌ها روی کامپیوتر شما با `Firebase Local Emulator Suite` (همچنان بدون نیاز به کلید پولی گوگل کلاد).
-
-* **گام ۴.۱ (راه‌اندازی شبیه‌ساز و قوانین امنیتی):** تنظیم `firebase.json`، نوشتن قوانین سخت‌گیرانه `firestore.rules` و `storage.rules` (جداسازی کلکسیون سلامت و بستن دسترسی نوشتن مستقیم کلاینت روی کیف پول).
-* **گام ۴.۲ (موتور مالی اتمیک و دفتر کل):** پیاده‌سازی توابع ابری در `backend/functions/` برای چرخه اتمیک `Hold -> Capture / Release` با کلید یکتا (`idempotencyKey`) و ثبت در دفتر کل تغییرناپذیر (`Immutable Ledger`) به همراه تست‌های خودکار تراکنش‌های هم‌زمان.
-* **گام ۴.۳ (امنیت نشست تک‌دستگاهی و دروازه AI در حالت Mock):** پیاده‌سازی منطق ابطال نشست دستگاه قبلی هنگام لاگین جدید و ساخت سرویس `backend/ai-gateway/` با پرچم `USE_MOCK_AI=true` (شامل شبیه‌سازی کشینگ `SHA-256` و خودبازبینی کیفیت بصری).
-* **گام ۴.۴ (اتصال اپ فلاتر به شبیه‌ساز محلی):** جایگزینی `Mock Repositories` در اپ فلاتر با سرویس‌های واقعی فایربیس متصل به Emulator.
-
-> **خروجی قابل لمس فاز ۴:** کارکرد کامل اپلیکیشن با دیتابیس و سرور محلی فایربیس، مشاهده ثبت واقعی تراکنش‌ها و لاگ‌ها در کنسول Emulator در مرورگر.
+## Slice 3: Shop V1 & Promoted Vendor Catalog (Full Vertical Slice)
+**Goal:** Connect `Shop` to live `shops/` and `products/` collections with filtering, pagination, and click tracking.
+- Clean `domain/data/presentation` separation, search/filter indexes, external URL validation, and promoted product placement.
 
 ---
 
-## فاز ۵: پنل مدیریت تحت وب ادمین و فروشندگان (Admin & Seller Web Panel)
-**هدف:** ساخت اپلیکیشن وب مستقل در پوشه `admin/` برای مدیریت کلان سیستم، مالی، فروشندگان و پشتیبانی.
-
-* **گام ۵.۱ (اسکلت پنل وب و RBAC چهارلایه):** راه‌اندازی پروژه وب، ورود با 2FA اجباری، و پیاده‌سازی سطوح دسترسی چهارگانه (سوپرادمین، ادمین فرعی، پشتیبان، فروشنده) به همراه ثبت لاگ ممیزی (`Audit Trail`).
-* **گام ۵.۲ (داشبورد مالی، هوش تجاری و مدیریت AI):** پیاده‌سازی جداول دفتر کل مالی، گزارش سود و زیان (P&L)، صفحه مدیریت کلیدها و تعرفه‌های دروازه هوش مصنوعی، و نمودارهای تحلیلی کاربران.
-* **گام ۵.۳ (پشتیبانی، CMS، تبلیغات و بکاپ):** ساخت پنل تیکتینگ هوشمند (با دکمه بازگشت سکه دستی)، مدیریت قالب‌های آتلیه و کلید توقف اضطراری (`Kill-Switch`)، پنل ثبت کالای فروشندگان و مدیریت پشتیبان‌گیری.
-
-> **خروجی قابل لمس فاز ۵:** باز کردن پنل مدیریت در مرورگر، تغییر قیمت سکه یک سرویس یا غیرفعال کردن یک ماژول و مشاهده اعمال آنی آن در اپلیکیشن موبایل.
+## Slice 4: AI Stylist, Virtual Try-On & Virtual Atelier (Full Vertical Slice)
+**Goal:** Connect `Stylist` and `Atelier` to live `backend/ai-gateway/` (Cloud Run) + `jobs/{jobId}` + `users/{uid}/creations`.
+- Quality-tier confirmation (`FAST`/`STANDARD`/`CINEMATIC`) → `holdCoins` → AI Gateway (`USE_MOCK_AI` toggleable) → Visual QA → `captureCoins` or auto `releaseCoins`.
+- Permanent `"AI Generated"` watermark metadata and `My Creations` persistence.
 
 ---
 
-## فاز ۶: اتصال به محیط واقعی گوگل کلاد و انتشار (Cloud Integration & Production)
-**هدف:** اتصال سیستم تست‌شده و بدون باگ به پروژه‌های واقعی `stylemorph-dev` و `stylemorph-prod`.
+## Slice 5: Wellness, Beauty & Health DNA (Full Vertical Slice)
+**Goal:** Connect `Wellness` to `users/{uid}/health_dna` and `wellness_logs` with strict privacy controls.
+- Wearable sync (`syncHealthDna` / `getHealthDnaSummary`), privacy TTL auto-deletion rules, biometric context passed to AI Stylist, and zero-ads enforcement.
 
-* **گام ۶.۱ (اتصال کلیدهای هوش مصنوعی و سرور):** قرار دادن کلیدهای واقعی در Secret Manager، تغییر `USE_MOCK_AI=false`، اتصال به مدل‌های Gemini و Imagen/VTON و تست استخر چرخش کلیدها.
-* **گام ۶.۲ (فعال‌سازی سرویس‌های ابری و بیلد نهایی):** فعال‌سازی App Check، Crashlytics، AdMob SSV، BigQuery Export و گرفتن خروجی نهایی `.apk` / `.aab` و `.ipa` برای انتشار.
+---
+
+## Slice 6: Live Admin & Seller Web Portals (`admin/`)
+**Goal:** Replace in-memory mock state in `admin/` with real Firebase Auth (Custom Claims + 2FA), Firestore, and Cloud Functions.
+- Separate hosting target & isolated subdomains (`admin.stylemorph.style`, `sellers.stylemorph.style`).
+- Wire Immutable Ledger explorer, AI Gateway Key Pool, Seller approval queue, Support Desk (1-click refund), and Module CMS/Kill-Switches.
+
+---
+
+## Slice 7: Production Readiness & Store Launch
+**Goal:** Final compliance, security, and multi-environment deployment (`stylemorph-dev` / `stylemorph-prod`).
+- Implement mandatory **Account Deletion** flow (UI + cascading Cloud Function for App Store / Google Play compliance).
+- Enable **Firebase App Check** (`enforceAppCheck: true`), Crashlytics, BigQuery export, `flutter_secure_storage`, and CI checks (`flutter analyze` + `flutter test` on every push).
+- Switch `USE_MOCK_AI=false` with live Secret Manager keys and build production `.aab`, `.ipa`, and Web bundles.

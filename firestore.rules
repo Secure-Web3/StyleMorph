@@ -13,9 +13,13 @@ service cloud.firestore {
 
     function protectedUserFields() {
       return [
-        'walletBalance',
+        'coins',
         'coinBalance',
+        'walletBalance',
         'heldBalance',
+        'referralCount',
+        'networkTier',
+        'level',
         'role',
         'permissions',
         'activeDeviceId',
@@ -53,11 +57,9 @@ service cloud.firestore {
       allow create: if isOwner(userId)
         && !request.resource.data.keys().hasAny(protectedUserFields());
 
-      allow update: if (isOwner(userId)
+      allow update: if isOwner(userId)
         && hasValidSessionOnSelf()
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(protectedUserFields()))
-        || (isAuthenticated()
-            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['coins', 'referralCount', 'networkTier']));
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(protectedUserFields());
 
       allow delete: if false;
 

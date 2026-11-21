@@ -264,13 +264,9 @@ class FirebaseAuthRepository implements AuthRepository {
 
         final initialData = <String, dynamic>{
           'email': user.email ?? '',
-          'role': 'user',
           'createdAt': FieldValue.serverTimestamp(),
           'authProvider': authProvider,
           'referralCode': referralCode,
-          'referralCount': 0,
-          'networkTier': 'Starter',
-          'coins': 0,
           'preferences': initialPreferences,
           'emailVerified': isEmailVerified,
           'identity': identityMap,
@@ -402,7 +398,10 @@ class FirebaseAuthRepository implements AuthRepository {
               (existingData['referralCount'] as num?)?.toInt() ?? 0;
           final aiUsageCount =
               (existingData['aiUsageCount'] as num?)?.toInt() ?? 0;
-          final coins = (existingData['coins'] as num?)?.toInt() ?? 0;
+          final coins = (existingData['walletBalance'] as num?)?.toInt() ??
+              (existingData['coins'] as num?)?.toInt() ??
+              (existingData['coinBalance'] as num?)?.toInt() ??
+              0;
           final isVerified = isOAuth || currentEmailVerified || verifiedNow;
 
           final stylePoints = LoyaltyService.calculateStylePoints(
