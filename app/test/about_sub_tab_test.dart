@@ -7,11 +7,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stylemorph/core/state/app_state.dart';
 import 'package:stylemorph/core/theme/app_colors.dart';
 import 'package:stylemorph/core/theme/app_theme.dart';
+import 'package:stylemorph/core/widgets/app_button.dart';
 import 'package:stylemorph/features/profile/presentation/profile_tab.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/about_sub_tab.dart';
-import 'package:stylemorph/features/profile/presentation/widgets/legal_doc_modal_sheet.dart';
-import 'package:stylemorph/features/profile/presentation/widgets/open_source_licenses_sheet.dart';
-import 'package:stylemorph/features/profile/presentation/widgets/social_links_modal.dart';
 
 class _TestAppStateNotifier extends AppStateNotifier {
   _TestAppStateNotifier(AppState initial) : super() {
@@ -24,6 +22,14 @@ class _TestAppStateNotifier extends AppStateNotifier {
   @override
   Future<bool> saveProfileToFirestore() async {
     return true;
+  }
+
+  @override
+  Future<void> acceptTerms({String version = '1.0'}) async {
+    state = state.copyWith(
+      termsAcceptedAt: DateTime(2026, 11, 22),
+      termsVersion: version,
+    );
   }
 }
 
@@ -67,6 +73,7 @@ void main() {
             isLoggedIn: true,
             currentTab: AppTab.profile,
             currentProfileTab: 'p-about',
+            termsAcceptedAt: null,
           ),
     );
 
@@ -86,7 +93,7 @@ void main() {
     );
   }
 
-  group('Profile Sidebar "About" Tab Integration (Task 27)', () {
+  group('Profile Sidebar "About" Tab Integration & Red Alert Badge', () {
     testWidgets('renders About tab below Settings with info icon', (
       tester,
     ) async {
@@ -95,6 +102,7 @@ void main() {
           initialState: const AppState(
             isLoggedIn: true,
             currentProfileTab: 'p-settings',
+            termsAcceptedAt: null,
           ),
         ),
       );
@@ -105,6 +113,51 @@ void main() {
       expect(find.text('About'), findsOneWidget);
       expect(find.byIcon(Icons.info_outline_rounded), findsOneWidget);
     });
+
+    testWidgets(
+      'shows red alert badge on About tab when termsAcceptedAt is null',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestWidget(
+            initialState: const AppState(
+              isLoggedIn: true,
+              currentProfileTab: 'p-settings',
+              termsAcceptedAt: null,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Red alert badge should be present on sidebar
+        expect(
+          find.byKey(const Key('sidebar_about_alert_badge')),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'hides red alert badge on About tab when termsAcceptedAt is signed',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestWidget(
+            initialState: AppState(
+              isLoggedIn: true,
+              currentProfileTab: 'p-settings',
+              termsAcceptedAt: DateTime(2026, 11, 20),
+              termsVersion: '1.0',
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Red alert badge should NOT be present
+        expect(
+          find.byKey(const Key('sidebar_about_alert_badge')),
+          findsNothing,
+        );
+      },
+    );
 
     testWidgets('tapping About tab switches active tab to p-about', (
       tester,
@@ -214,26 +267,108 @@ void main() {
       );
     });
 
-    testWidgets('renders What\'s New changelog card with 5 highlights', (
+    testWidgets(
+      'STEP 1: verifies What\'s New changelog card has been completely removed',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestWidget(
+            child: const SingleChildScrollView(child: AboutSubTab()),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Changelog must NOT be present
+        expect(find.text('What\'s New in Version 1.0'), findsNothing);
+        expect(find.text('What\'s New'), findsNothing);
+        expect(find.text('تازه‌ها و تغییرات نسخه ۱.۰'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'STEP 4: renders User Agreement card when unsigned, allows signing and updates state',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestWidget(
+            initialState: const AppState(
+              isLoggedIn: true,
+              currentTab: AppTab.profile,
+              currentProfileTab: 'p-about',
+              termsAcceptedAt: null,
+            ),
+            child: const SingleChildScrollView(child: AboutSubTab()),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Card should be rendered in unsigned state
+        expect(find.byKey(const Key('agreement_card')), findsOneWidget);
+        expect(find.text('User Agreement & Consent'), findsOneWidget);
+        expect(
+          find.text(
+            'I have read and agree to the StyleMorph Terms of Service and Privacy Policy.',
+          ),
+          findsOneWidget,
+        );
+
+        final signBtn = find.byKey(const Key('agreement_sign_button'));
+        expect(signBtn, findsOneWidget);
+
+        // Sign button should be disabled when checkbox is unchecked
+        final btnWidgetBefore = tester.widget<AppButton>(signBtn);
+        expect(btnWidgetBefore.onPressed, isNull);
+
+        // Scroll until checkbox is visible before tapping
+        final checkbox = find.byKey(const Key('agreement_checkbox'));
+        expect(checkbox, findsOneWidget);
+        await tester.scrollUntilVisible(checkbox, 100);
+        await tester.tap(checkbox);
+        await tester.pumpAndSettle();
+
+        // Sign button should now be enabled
+        final btnWidgetAfter = tester.widget<AppButton>(signBtn);
+        expect(btnWidgetAfter.onPressed, isNotNull);
+
+        // Tap sign button
+        await tester.scrollUntilVisible(signBtn, 100);
+        await tester.tap(signBtn);
+        await tester.pumpAndSettle();
+
+        // After signing, verified green badge is shown
+        expect(find.byKey(const Key('agreement_signed_badge')), findsOneWidget);
+        expect(find.text('Electronically Signed & Accepted'), findsOneWidget);
+        expect(find.textContaining('(v1.0)'), findsOneWidget);
+      },
+    );
+
+    testWidgets('STEP 4: renders verified green badge when already signed', (
       tester,
     ) async {
       await tester.pumpWidget(
         createTestWidget(
+          initialState: AppState(
+            isLoggedIn: true,
+            currentTab: AppTab.profile,
+            currentProfileTab: 'p-about',
+            termsAcceptedAt: DateTime(2026, 11, 20),
+            termsVersion: '1.0',
+          ),
           child: const SingleChildScrollView(child: AboutSubTab()),
         ),
       );
       await tester.pumpAndSettle();
 
-      expect(find.text('What\'s New in Version 1.0'), findsOneWidget);
-      expect(find.text('Virtual Try-On & Atelier Studio'), findsOneWidget);
-      expect(find.text('Smart Wardrobe & Auto-Tagging'), findsOneWidget);
-      expect(find.text('High-Resilience AI Gateway'), findsOneWidget);
-      expect(find.text('Referral Rewards & Loyalty Tiers'), findsOneWidget);
-      expect(find.text('Data Privacy & Dual Persona Avatar'), findsOneWidget);
+      expect(find.byKey(const Key('agreement_card')), findsOneWidget);
+      expect(find.byKey(const Key('agreement_signed_badge')), findsOneWidget);
+      expect(find.text('Electronically Signed & Accepted'), findsOneWidget);
+      expect(
+        find.textContaining('Signed on: 2026/11/20 (v1.0)'),
+        findsOneWidget,
+      );
+      expect(find.byKey(const Key('agreement_sign_button')), findsNothing);
     });
 
     testWidgets(
-      'renders Legal & Compliance Links and opens Terms modal sheet',
+      'STEP 3: renders Legal & Compliance Links and opens Terms modal sheet with multi-line header & store-compliant sections',
       (tester) async {
         await tester.pumpWidget(
           createTestWidget(
@@ -255,17 +390,58 @@ void main() {
         await tester.tap(termsTile);
         await tester.pumpAndSettle();
 
-        // Bottom sheet should be visible with Terms of Service content
+        // Bottom sheet should be visible with store-compliant Terms content
         expect(find.byType(LegalDocModalSheet), findsOneWidget);
         expect(
           find.textContaining('By accessing or using StyleMorph'),
           findsOneWidget,
         );
+        expect(find.textContaining('13 years old'), findsOneWidget);
+        // Scroll terms list to reveal Anti-Deepfake policy section
+        final antiDeepfakeFinder = find.textContaining('Anti-Deepfake');
+        await tester.scrollUntilVisible(
+          antiDeepfakeFinder,
+          100,
+          scrollable: find.byType(Scrollable).last,
+        );
+        expect(antiDeepfakeFinder, findsOneWidget);
+
+        // Close modal
+        final closeBtn = find.text('Close');
+        expect(closeBtn, findsOneWidget);
+        await tester.tap(closeBtn);
+        await tester.pumpAndSettle();
+        expect(find.byType(LegalDocModalSheet), findsNothing);
+
+        // Now test Privacy Policy modal
+        final privacyTile = find.text(
+          'Privacy Policy & AI Image Data Protection',
+        );
+        await tester.scrollUntilVisible(privacyTile, 100);
+        await tester.tap(privacyTile);
+        await tester.pumpAndSettle();
+
+        expect(find.byType(LegalDocModalSheet), findsOneWidget);
+        expect(
+          find.textContaining(
+            'Google Cloud Platform and Firebase infrastructure in Frankfurt',
+          ),
+          findsOneWidget,
+        );
+
+        await tester.drag(find.byType(ListView).last, const Offset(0, -250));
+        await tester.pumpAndSettle();
+        expect(find.textContaining('Zero-Sale Guarantee'), findsOneWidget);
+
+        // Close privacy modal
+        await tester.tap(find.text('Close'));
+        await tester.pumpAndSettle();
+        expect(find.byType(LegalDocModalSheet), findsNothing);
       },
     );
 
     testWidgets(
-      'renders Official Contact & Socials with single Social Media entry and opens SocialLinksModal',
+      'STEP 2: renders Official Contact & Socials and opens SocialLinksModal with high-contrast tokens',
       (tester) async {
         await tester.pumpWidget(
           createTestWidget(
@@ -302,7 +478,7 @@ void main() {
         expect(find.text('@StyleMorph_official'), findsOneWidget);
 
         // Scroll list to reveal subsequent channels
-        await tester.drag(find.byType(ListView), const Offset(0, -300));
+        await tester.drag(find.byType(ListView).last, const Offset(0, -300));
         await tester.pumpAndSettle();
 
         expect(find.text('Telegram (Bot)'), findsOneWidget);
@@ -312,7 +488,7 @@ void main() {
         expect(find.text('@stylemorph_bot'), findsOneWidget);
         expect(find.text('@StyleMorph_studio'), findsOneWidget);
 
-        await tester.drag(find.byType(ListView), const Offset(0, -300));
+        await tester.drag(find.byType(ListView).last, const Offset(0, -300));
         await tester.pumpAndSettle();
 
         expect(find.text('Snapchat'), findsOneWidget);
@@ -329,6 +505,27 @@ void main() {
         await tester.tap(closeBtn);
         await tester.pumpAndSettle();
         expect(find.byType(SocialLinksModal), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'STEP 5: verifies global "StyleMorph" trademark brand unification (no Persian/Arabic transliterations)',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestWidget(
+            locale: const Locale('fa'),
+            child: const SingleChildScrollView(child: AboutSubTab()),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Brand name should be Latin StyleMorph
+        expect(find.text('StyleMorph'), findsWidgets);
+
+        // No Persian transliteration should be visible in about tab
+        expect(find.textContaining('استایل‌مورف'), findsNothing);
+        expect(find.textContaining('استایل مورف'), findsNothing);
+        expect(find.textContaining('ستايل مورف'), findsNothing);
       },
     );
 

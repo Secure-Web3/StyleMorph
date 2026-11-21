@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
@@ -48,113 +50,154 @@ class LegalDocModalSheet extends StatelessWidget {
     if (isFa) {
       sections = const [
         LegalDocSection(
-          title: '۱. پذیرش و دامنه خدمات',
+          title: '۱. دامنه خدمات و شرایط احراز سن قانونی',
           content:
-              'استفاده از خدمات، وب‌سایت و اپلیکیشن استایل‌مورف (StyleMorph) به منزله پذیرش کامل این قوانین و مقررات است. این پلتفرم ارائه‌دهنده خدمات مد، استایل هوشمند، پرو مجازی البسه و مشاوره‌های مرتبط با استایل و زیبایی بر پایه هوش مصنوعی مولد است.',
+              'استفاده از خدمات، اپلیکیشن و وب‌سایت StyleMorph به منزله پذیرش کامل این شرایط است. حداقل سن قانونی برای عضویت و استفاده از خدمات ۱۳ سال تمام است (یا ۱۶ سال در حوزه اتحادیه اروپا/GDPR). کاربران زیر سن قانونی موظف به کسب رضایت صریح والدین یا سرپرست قانونی خود می‌باشند.',
         ),
         LegalDocSection(
-          title: '۲. حساب کاربری و مسئولیت‌ها',
+          title: '۲. امنیت حساب، تأیید ایمیل و مدیریت نشست‌ها',
           content:
-              'کاربران موظف به حفظ محرمانگی نام کاربری، رمز عبور و نشست‌های فعال خود هستند. هرگونه فعالیت انجام‌شده از طریق حساب کاربری، متوجه صاحب حساب بوده و استفاده غیرمجاز یا ایجاد اختلال در پلتفرم موجب تعلیق فوری حساب خواهد شد.',
+              'کاربران مسئول حفظ محرمانگی گذرواژه و نشست‌های فعال خود هستند. StyleMorph سیاست دروازه نرم (Soft Gate) را اعمال می‌کند که طی آن ثبت‌نام اولیه آزاد است، اما اجرای قابلیت‌های پیشرفته و تعاملات مالی منوط به تأیید نشانی ایمیل می‌باشد. امکان مدیریت، بازرسی و خاتمه دادن به دستگاه‌های متصل در بخش نشست‌ها فراهم است.',
         ),
         LegalDocSection(
-          title: '۳. حقوق مالکیت فکری و خروجی‌های هوش مصنوعی',
+          title: '۳. سلب مسئولیت صریح غیرپزشکی و خروجی‌های هوش مصنوعی',
           content:
-              'کلیه حقوق نرم‌افزار، علائم تجاری، معماری سامانه و طراحی‌های رابط کاربری متعلق به استایل‌مورف است. تصاویر و رندرهای تولیدشده توسط پرو مجازی یا آتلیه هوش مصنوعی برای استفاده شخصی یا تجاری مجاز در چارچوب قوانین پلتفرم در اختیار کاربر قرار می‌گیرد.',
+              'خروجی‌های اتاق پرو مجازی، استایلیست شخصی، آتلیه و پیشنهادات بخش تندرستی (Wellness) صرفاً شبیه‌سازی بصری و راهنمایی‌های مشاوره‌ای بر پایه هوش مصنوعی مولد هستند. این توصیه‌ها تحت هیچ شرایطی نظر یا تشخیص پزشکی، درماتولوژی (پوست و مو) یا سلامت بالینی محسوب نمی‌شوند و نباید جایگزین نظر متخصصان سلامت و پزشک معالج گردند.',
         ),
         LegalDocSection(
-          title: '۴. محتوای فروشندگان همکار و سلب مسئولیت',
+          title: '۴. استفاده مجاز و خط‌مشی ضد جعل عمیق (Anti-Deepfake)',
           content:
-              'استایل‌مورف در نسخه فعلی صرفاً بستر نمایش، مقایسه و هدایت به فروشگاه‌های همکار است. کیفیت فیزیکی، قیمت‌گذاری و ارسال کالاهای ارائه‌شده توسط فروشندگان شخص ثالث بر عهده فروشنده مربوطه بوده و تابع قوانین تجاری اختصاصی آنهاست.',
+              'بارگذاری هرگونه تصویر بدون رضایت صریح صاحب تصویر، محتوای غیراخلاقی، مستهجن، نژادپرستانه، ترویج خشونت یا سوءاستفاده از چهره اشخاص ثالث به عنوان جعل عمیق اکیداً ممنوع است. نقض این بند موجب مسدودسازی فوری و دائمی حساب و ارجاع موضوع به مراجع ذی‌صلاح قانونی خواهد شد.',
         ),
         LegalDocSection(
-          title: '۵. به‌روزرسانی و اصلاح شرایط',
+          title: '۵. مالکیت فکری و مجوز محدود محتوای کاربر',
           content:
-              'استایل‌مورف حق اعمال تغییرات در قوانین و مقررات را در هر زمان برای خود محفوظ می‌دارد. تغییرات اساسی از طریق اعلان‌های درون‌برنامه‌ای به اطلاع کاربران خواهد رسید.',
+              'کاربر مالکیت کامل تصاویر ورودی، عکس‌های چهره و دارایی‌های شخصی کمد دیجیتال خود را حفظ می‌کند. با ارسال تصویر، کاربر صرفاً مجوزی محدود، موقت و غیرانحصاری به StyleMorph اعطا می‌کند تا پردازش‌های درخواستی را به انجام برساند. کلیه کدها، علائم تجاری و الگوریتم‌های اختصاصی متعلق به StyleMorph است.',
+        ),
+        LegalDocSection(
+          title: '۶. اقتصاد StyleCoin و فروشگاه‌های همکار شخص ثالث',
+          content:
+              'واحد ارزش درون‌برنامه‌ای StyleCoin (با ارزش مرجع تقریبی ۰.۰۲ دلار آمریکا به ازای هر کوین) جهت پردازش‌های هوش مصنوعی به کار می‌رود و سکه‌های خریداری‌شده فاقد تاریخ انقضا هستند. در نسخه فعلی، StyleMorph بستر هدایت به فروشگاه‌های همکار است و مسئولیت قیمت، انبارداری، سلامت فیزیکی کالا و ارسال بر عهده فروشنده مستقل مربوطه است.',
+        ),
+        LegalDocSection(
+          title: '۷. تعلیق حساب، قوانین حاکم و پشتیبانی رسمی',
+          content:
+              'StyleMorph حق تعلیق یا مسدودسازی حساب‌های ناقض این قوانین را محفوظ می‌دارد. در صورت بروز هرگونه سوال، ابهام یا درخواست حقوقی، کاربران گرامی می‌توانند مستقیماً از طریق ایمیل support@stylemorph.app با پشتیبانی رسمی در ارتباط باشند.',
         ),
       ];
     } else if (isAr) {
       sections = const [
         LegalDocSection(
-          title: '١. قبول الشروط ونطاق الخدمة',
+          title: '١. نطاق الخدمة وأهلية الاستخدام والسن القانوني',
           content:
-              'استخدامك لتطبيق وخدمات ستايل مورف يعني موافقتك الكاملة على هذه الشروط. توفر المنصة خدمات تنسيق الأزياء والقياس الافتراضي المدعومة بالذكاء الاصطناعي.',
+              'يُعد استخدامك لمنصة وتطبيق StyleMorph موافقة كاملة على هذه الشروط. الحد الأدنى للسن القانوني للاستخدام هو ١٣ عاماً (أو ١٦ عاماً في دول الاتحاد الأوروبي/GDPR). يتوجب على القاصرين الحصول على موافقة صريحة من ولي الأمر أو الوصي القانوني قبل الاستخدام.',
         ),
         LegalDocSection(
-          title: '٢. حسابات المستخدمين والمسؤوليات',
+          title: '٢. أمان الحساب وتأكيد البريد الإلكتروني والجلسات',
           content:
-              'يتحمل المستخدم مسؤولية الحفاظ على سرية بيانات الدخول وجلساته النشطة. أي استخدام غير قانوني أو محاولة للإضرار بالخدمة سيؤدي إلى إنهاء الحساب فوراً.',
+              'يتحمل المستخدم المسؤولية الكاملة عن سرية بيانات حسابه وكلمة المرور. تطبق StyleMorph سياسة البوابة المرنة حيث يمكن استكشاف المنصة بحرية، في حين تتطلب المعاملات المالية وتوليد الذكاء الاصطناعي المتقدم توثيق البريد الإلكتروني. تتيح المنصة إدارة الجلسات ومراجعة الأجهزة المصرح بها.',
         ),
         LegalDocSection(
-          title: '٣. الملكية الفكرية ومحتوى الذكاء الاصطناعي',
+          title: '٣. إخلاء المسؤولية الطبية الصريح ومخرجات الذكاء الاصطناعي',
           content:
-              'جميع حقوق الملكية والعلامات التجارية محفوظة لستايل مورف. تُمنح مخرجات الذكاء الاصطناعي للمستخدمين للاستخدام الشخصي المصرح به وفقاً للإرشادات العامة.',
+              'إن مخرجات غرفة القياس الافتراضي، المنسق الشخصي، واستوديو التصوير، وتحليلات العناية والمظهر هي محاكاة بصرية ونصائح استشارية مبنية على الذكاء الاصطناعي التوليدي. لا تُعد هذه التوجيهات بأي حال من الأحوال تشخيصاً أو استشارة طبية أو جلدية، ولا تغني عن استشارة الأطباء والمختصين.',
         ),
         LegalDocSection(
-          title: '٤. المتاجر الشريكة وإخلاء المسؤولية',
+          title:
+              '٤. الاستخدام المقبول وسياسة مكافحة التزييف العميق (Anti-Deepfake)',
           content:
-              'توفر المنصة حالياً استعراضاً وتوجيهاً لمنتجات المتاجر الشريكة. تقع مسؤولية الشحن والأسعار على عاتق البائعين الخارجيين.',
+              'يُحظر تماماً رفع صور أشخاص آخرين دون موافقتهم الصريحة، أو رفع محتوى غير لائق أو مسيء أو مضلل بغرض التزييف العميق. سيؤدي أي انتهاك لهذه السياسة إلى إغلاق الحساب نهائياً وفورياً مع اتخاذ الإجراءات القانونية اللازمة.',
         ),
         LegalDocSection(
-          title: '٥. تحديث الشروط والأحكام',
+          title: '٥. الملكية الفكرية وترخيص محتوى المستخدم',
           content:
-              'تحتفظ ستايل مورف بالحق في تعديل هذه الشروط في أي وقت مع إشعار المستخدمين عبر التطبيق.',
+              'يحتفظ المستخدم بملكية كاملة لجميع صوره المرفوعة وبيانات خزانته الرقمية. يمنح المستخدم منصة StyleMorph ترخيصاً محدوداً ومؤقتاً لمعالجة الصور لتنفيذ طلبات القياس والتنسيق فقط. جميع البرمجيات والعلامات التجارية لـ StyleMorph محمية ومملوكة للمنصة حصراً.',
+        ),
+        LegalDocSection(
+          title: '٦. اقتصاد StyleCoin والروابط مع المتاجر الخارجية',
+          content:
+              'تُستخدم عملة StyleCoin (بقيمة مرجعية تعادل تقريباً ٠.٠٢ دولار أمريكي للعملة) لتشغيل خدمات الذكاء الاصطناعي التوليدي. ترتبط المنصة بمتاجر شركاء معتمدين، وتقع مسؤولية الشحن والأسعار وجودة السلع الفعلية على عاتق المتاجر الخارجية المعنية وفقاً لسياساتها المستقلة.',
+        ),
+        LegalDocSection(
+          title: '٧. إنهاء الخدمة والقوانين المعمول بها وقنوات التواصل',
+          content:
+              'تحتفظ StyleMorph بالحق في تعليق الحسابات المخالفة لهذه الشروط. لأي استفسارات قانونية أو طلبات دعم، يُرجى التواصل معنا عبر البريد الإلكتروني الرسمي: support@stylemorph.app.',
         ),
       ];
     } else if (isTr) {
       sections = const [
         LegalDocSection(
-          title: '1. Şartların Kabulü ve Hizmet Kapsamı',
+          title: '1. Hizmet Kapsamı ve Yasal Yaş Uygunluğu',
           content:
-              'StyleMorph uygulamasını kullanarak bu koşulları kabul etmiş sayılırsınız. Platform, yapay zeka destekli sanal deneme ve kişisel stil danışmanlığı sunar.',
+              'StyleMorph uygulamasını ve web platformunu kullanarak bu Şartları kabul etmiş sayılırsınız. Hizmetlerimizi kullanmak için asgari yasal yaş 13\'tür (Avrupa Birliği/GDPR kapsamında 16\'dır). Reşit olmayan kullanıcılar ebeveyn veya yasal vasi onayına sahip olmalıdır.',
         ),
         LegalDocSection(
-          title: '2. Kullanıcı Hesapları ve Sorumluluklar',
+          title: '2. Hesap Güvenliği, E-posta Doğrulama ve Oturum Yönetimi',
           content:
-              'Kullanıcılar oturum bilgilerinin güvenliğinden sorumludur. Platformun kötüye kullanımı hesabın askıya alınmasına yol açabilir.',
+              'Kullanıcılar kimlik bilgilerinin ve yetkili oturumlarının güvenliğinden münhasıran sorumludur. StyleMorph esnek geçiş politikası uygular; gelişmiş yapay zeka oluşturma ve cüzdan işlemleri e-posta doğrulama gerektirir. Oturumlar sekmesinden aktif cihazlarınızı denetleyebilir ve sonlandırabilirsiniz.',
         ),
         LegalDocSection(
-          title: '3. Fikri Mülkiyet ve Yapay Zeka Çıktıları',
+          title: '3. Tıbbi Olmayan Sorumluluk Reddi ve Yapay Zeka Çıktıları',
           content:
-              'StyleMorph\'un tüm ticari markaları ve yazılım hakları saklıdır. Yapay zeka ile üretilen çıktılar kişisel kullanım için kullanıcının tasarrufundadır.',
+              'Sanal deneme odası, yapay zeka stilisti, atölye ve sağlık/bakım önerileri üretken yapay zekaya dayalı görsel simülasyon ve danışmanlık amaçlıdır. Bu çıktılar kesinlikle tıbbi, dermatolojik veya klinik tavsiye niteliği taşımaz ve sağlık uzmanlarının görüşünün yerine geçemez.',
         ),
         LegalDocSection(
-          title: '4. Üçüncü Taraf Mağazalar ve Sorumluluk Reddi',
+          title: '4. Kabul Edilebilir Kullanım ve Anti-Deepfake Politikası',
           content:
-              'Harici satıcı bağlantıları aracılığıyla yapılan alışverişlerde ürün teslimatı ve iade süreçleri ilgili satıcının sorumluluğundadır.',
+              'Açık rızası olmaksızın üçüncü şahıslara ait fotoğrafların yüklenmesi, müstehcen, yasa dışı, zararlı veya sahte içerik üretimi (deepfake) kesinlikle yasaktır. İhlal durumunda kullanıcı hesabı derhal ve kalıcı olarak feshedilir.',
         ),
         LegalDocSection(
-          title: '5. Şartlarda Değişiklik',
+          title: '5. Fikri Mülkiyet ve Kullanıcı İçeriği Lisansı',
           content:
-              'StyleMorph bu şartları güncelleme hakkını saklı tutar. Önemli güncellemeler uygulama içi bildirimle duyurulur.',
+              'Kullanıcılar yükledikleri fotoğrafların ve gardırop varlıklarının tüm mülkiyetini korur. StyleMorph\'a yalnızca talep edilen yapay zeka hizmetlerini gerçekleştirmek üzere sınırlı ve geçici bir işleme lisansı verilir. StyleMorph\'un tüm ticari markaları, algoritmaları ve yazılım hakları saklıdır.',
+        ),
+        LegalDocSection(
+          title: '6. StyleCoin Ekonomisi ve Üçüncü Taraf Mağazalar',
+          content:
+              'Platform içi StyleCoin birimi (referans değeri yaklaşık 0,02 USD) yapay zeka işlem maliyetleri için kullanılır ve satın alınan paraların süresi dolmaz. StyleMorph harici satıcı bağlantıları sunar; fiziksel ürünlerin kargolanması, fiyatlandırması ve iadesi ilgili satıcının sorumluluğundadır.',
+        ),
+        LegalDocSection(
+          title: '7. Fesih, Yürürlükteki Hukuk ve Resmi İletişim',
+          content:
+              'StyleMorph bu kuralları ihlal eden hesapları askıya alma hakkını saklı tutar. Yasal sorularınız ve geri bildirimleriniz için support@stylemorph.app adresi üzerinden ekibimizle iletişime geçebilirsiniz.',
         ),
       ];
     } else {
       sections = const [
         LegalDocSection(
-          title: '1. Acceptance of Terms & Service Scope',
+          title: '1. Scope of Service & Legal Age Eligibility',
           content:
-              'By accessing or using StyleMorph, you agree to be bound by these Terms of Service. StyleMorph provides personal AI stylist consulting, virtual garment fitting, and digital wardrobe organization powered by generative models.',
+              'By accessing or using StyleMorph, you agree to be bound by these Terms of Service. You must be at least 13 years old (or 16 in the European Union/EEA under GDPR) to use our platform. Minors must have express parental or legal guardian consent prior to accessing generative AI features.',
         ),
         LegalDocSection(
-          title: '2. User Accounts & Responsibilities',
+          title: '2. Account Security, Email Verification & Session Oversight',
           content:
-              'You are responsible for maintaining the confidentiality of your credentials and authorized devices. Any malicious use, automated scraping, or disruption of platform infrastructure will result in immediate account termination.',
+              'You are responsible for safeguarding your credentials and authorized devices. StyleMorph utilizes a soft-gate policy: browsing is open, while high-compute AI synthesis and wallet transactions strictly mandate a verified email. You may inspect and revoke authorized active sessions at any time via the Sessions dashboard.',
         ),
         LegalDocSection(
-          title: '3. Intellectual Property & AI-Generated Outputs',
+          title: '3. AI-Generated Outputs & Explicit Non-Medical Disclaimer',
           content:
-              'All trademarks, logos, UI designs, and proprietary models are owned exclusively by StyleMorph. AI fitting previews and styled imagery are licensed to you for authorized personal and editorial presentation.',
+              'All virtual garment try-ons, personal stylist chats, atelier portraits, and wellness recommendations are aesthetic visual simulations and advisory insights powered by generative models. They DO NOT constitute medical, clinical, dermatological, or healthcare advice and must never replace consultation with a licensed medical professional.',
         ),
         LegalDocSection(
-          title: '4. Partner Stores & Third-Party Disclaimer',
+          title: '4. Acceptable Use & Strict Anti-Deepfake Policy',
           content:
-              'StyleMorph connects users with curated external apparel merchants. Physical garment orders, shipping, and store warranties are executed directly under the merchant\'s independent policies.',
+              'Uploading imagery of third parties without their express verifiable consent, generating explicit, defamatory, or abusive content, or using StyleMorph for synthetic identity manipulation (deepfakes) is strictly prohibited. Violations will trigger immediate, permanent account termination and applicable law enforcement reporting.',
         ),
         LegalDocSection(
-          title: '5. Policy Updates & Modifications',
+          title: '5. Intellectual Property & Limited User Content License',
           content:
-              'We reserve the right to revise these Terms periodically. Notice of significant material changes will be provided directly through in-app notifications.',
+              'You retain 100% full ownership over your uploaded photos, styling preferences, and digital wardrobe items. You grant StyleMorph only a limited, revocable, non-exclusive license solely to process and render the AI features you actively request. All proprietary algorithms, logos, and UI designs belong exclusively to StyleMorph.',
+        ),
+        LegalDocSection(
+          title: '6. StyleCoin Economy & External Merchant Disclaimer',
+          content:
+              'The internal utility coin StyleCoin (pegged at approximately \$0.02 USD reference value) powers generative processing cycles; purchased coins do not expire. In the current release, StyleMorph curates links to verified partner apparel merchants. Physical fulfillment, shipping, returns, and product warranties are governed solely by the respective merchant\'s independent policies.',
+        ),
+        LegalDocSection(
+          title: '7. Suspension, Governing Law & Contact Support',
+          content:
+              'StyleMorph reserves the right to suspend or terminate accounts that breach these Terms. For legal inquiries, compliance audits, or account support, contact us directly at support@stylemorph.app.',
         ),
       ];
     }
@@ -177,113 +220,137 @@ class LegalDocModalSheet extends StatelessWidget {
     if (isFa) {
       sections = const [
         LegalDocSection(
-          title: '۱. تعهد بنیادین به حفاظت از حریم خصوصی',
+          title: '۱. دسته‌بندی داده‌های گردآوری‌شده',
           content:
-              'حفظ محرمانگی تصاویر و داده‌های شخصی کاربران اصل تغییرناپذیر استایل‌مورف است. ما هرگز اطلاعات بیومتریک، اندازه‌های خیاطی یا تصاویر چهره شما را به اشخاص ثالث، تبلیغ‌کنندگان یا دلالان داده نمی‌فروشیم.',
+              'ما داده‌های لازم را در چهار بخش شفاف جمع‌آوری می‌کنیم: ۱) اطلاعات هویتی و ثبت‌نامی (ایمیل، نام کاربری و اختیاری نام و شهر)، ۲) مشخصات دلخواه آناتومی، اندازه‌های خیاطی و سلیقه استایل، ۳) تصاویر کمد و پرو مجازی بارگذاری‌شده توسط کاربر، و ۴) تله‌متری امنیتی دستگاه و نشست‌ها.',
         ),
         LegalDocSection(
-          title: '۲. خط لوله پردازش امن تصاویر هوش مصنوعی',
+          title: '۲. زیرساخت ابری ایمن Google Cloud و استانداردهای رمزنگاری',
           content:
-              'تصاویر ورودی برای پرو مجازی منحصراً در حافظه موقت (RAM) پردازش شده و با امضای دیجیتال رمزنگاری‌شده SHA-256 هش می‌شوند تا از ارسال توکن‌های غیرضروری جلوگیری شود. پس از استخراج ویژگی‌های البسه، تصاویر خام موقت طبق خط‌مشی محرمانگی پاکسازی می‌گردند.',
+              'تمامی داده‌ها روی زیرساخت امن ابری گوگل (Google Cloud Platform / Firebase در منطقه europe-west3 فرانکفورت) نگهداری می‌شوند. تمامی ارتباطات داده‌ای تحت پروتکل TLS 1.3 رمزنگاری شده و داده‌های ذخیره شده در Firestore و Storage با استاندارد قدرتمند AES-256 محافظت می‌گردند.',
         ),
         LegalDocSection(
-          title: '۳. حالت آواتار خصوصی (Dual-Persona Privacy)',
+          title:
+              '۳. پردازش تصاویر و تضمین قطعی عدم فروش داده (Zero-Sale Guarantee)',
           content:
-              'کاربرانی که تمایل به استفاده از عکس واقعی چهره خود ندارند، می‌توانند در بخش رسانه حالت «مانکن دیجیتال مینیمال» را فعال کنند تا پرو لباس منحصراً روی فیگور خنثی انجام شود.',
+              'StyleMorph هرگز و تحت هیچ شرایطی تصاویر، مشخصات فیزیکی یا داده‌های شخصی کاربران را به واسطه‌های تبلیغاتی، دلالان داده یا اشخاص ثالث نمی‌فروشد. تصاویر بارگذاری‌شده هرگز برای آموزش مدل‌های عمومی هوش مصنوعی بدون رضایت صریح استفاده نمی‌شوند. تصاویر با امضای دیجیتال SHA-256 هش شده و کاربران می‌توانند از حالت مانکن دیجیتال (Dual-Persona Private Avatar) استفاده نمایند.',
         ),
         LegalDocSection(
-          title: '۴. رمزنگاری داده‌ها و امنیت نشست‌ها',
+          title: '۴. پردازشگرهای شخص ثالث ضروری و مورد اعتماد',
           content:
-              'کلیه ارتباطات شبکه با گواهی TLS/SSL رمزنگاری‌شده و پایگاه داده با استاندارد AES-256 محافظت می‌شود. سیستم مانیتورینگ نشست‌ها امکان رصد و قطع دسترسی دستگاه‌های ناشناس را در هر لحظه فراهم می‌سازد.',
+              'جهت ارائه پایدار خدمات، ما از خدمات زیربنایی استاندارد صنعت شامل احراز هویت و ذخیره‌سازی امن Firebase، مدل‌های پیشرفته هوش مصنوعی ابری Google Cloud AI، و سیستم حفاظتی ضد بات Cloudflare Turnstile بهره می‌بریم که همگی متعهد به استانداردهای سختگیرانه GDPR هستند.',
         ),
         LegalDocSection(
-          title: '۵. حق حذف دائمی اطلاعات',
+          title:
+              '۵. حقوق انحصاری کاربران (مطابق با GDPR، CCPA و استانداردهای Google & Apple)',
           content:
-              'کاربران در هر زمان حق دارند درخواست حذف کامل حساب کاربری، فایل‌های کمد، تصاویر ذخیره‌شده و سوابق آناتومی خود را ثبت کنند که بلافاصله از سرورها پاکسازی خواهد شد.',
+              'کاربران از حق دسترسی کامل، ویرایش، استخراج نسخه پشتیبان و «حذف دائمی و بلادرنگ حساب کاربری و کلیه داده‌های ذخیره‌شده» برخوردارند. امکان پاکسازی اطلاعات در هر زمان از طریق بخش تنظیمات پروفایل یا مکاتبه مستقیم با support@stylemorph.app مهیاست و کلیه اطلاعات کمد، تصاویر و نشست‌ها فوراً محو خواهند شد.',
+        ),
+        LegalDocSection(
+          title: '۶. حریم خصوصی کودکان و اصلاحات سیاست‌نامه',
+          content:
+              'سرویس‌های ما برای افراد زیر ۱۳ سال در نظر گرفته نشده و آگاهانه هیچ اطلاعاتی از کودکان جمع‌آوری نمی‌شود. هرگونه به‌روزرسانی اساسی در این سیاست‌نامه از طریق اعلان‌های درون‌برنامه‌ای به اطلاع کاربران خواهد رسید.',
         ),
       ];
     } else if (isAr) {
       sections = const [
         LegalDocSection(
-          title: '١. التزامنا الصارم بحماية الخصوصية',
+          title: '١. فئات البيانات التي يتم جمعها',
           content:
-              'تلتزم ستايل مورف بحماية صورك وبياناتك الشخصية. لا نبيع أبداً قياساتك أو صور وجهك لأي أطراف ثالثة أو معلنين.',
+              'تجمع منصة StyleMorph البيانات الضرورية ضمن أربع فئات واضحة: ١) بيانات الهوية والتسجيل (البريد الإلكتروني، اسم المستخدم، وبيانات الملف الشخصي الاختيارية)، ٢) تفضيلات القياس والأناتومي وتنسيق الأزياء، ٣) صور الخزانة والقياس الافتراضي المرفوعة، ٤) سجلات أمان الأجهزة والجلسات.',
         ),
         LegalDocSection(
-          title: '٢. معالجة الصور الآمنة بالذكاء الاصطناعي',
+          title: '٢. بنية Google Cloud التحتية ومعايير التشفير العالية',
           content:
-              'تتم معالجة الصور في الذاكرة المؤقتة فقط وتُشفر بتوقيعات رقمية SHA-256. تُحذف الصور الخام تلقائياً بعد استخراج سمات الملابس المطلوبة.',
+              'تُخزن جميع البيانات على بنية Google Cloud وFirebase المعتمدة عالمياً في منطقة فرانكفورت (europe-west3). جميع الاتصالات مشفرة ببروتوكول TLS 1.3 أثناء النقل، والبيانات المخزنة في Firestore وStorage محمية بتشفير AES-256 وفق سياسات أمان صارمة.',
         ),
         LegalDocSection(
-          title: '٣. وضع الأفاتار الخاص (المانيكان المحايد)',
+          title: '٣. معالجة الصور وضمان عدم بيع البيانات نهائياً (Zero-Sale)',
           content:
-              'يمكن للمستخدمين تفعيل وضع «المانيكان المحايد» لتجربة وتنسيق الملابس دون الحاجة لرفع صور شخصية حقيقية.',
+              'تلتزم StyleMorph التزاماً قاطعاً بعدم بيع صور المستخدمين أو قياساتهم أو بياناتهم الشخصية لأي معلنين أو سماسرة بيانات. لا تُستخدم الصور لتدريب نماذج الذكاء الاصطناعي العامة دون موافقة صريحة. تُشفر الصور بتوقيعات رقمية SHA-256، ويمكن للمستخدمين تفعيل وضع المانيكان المحايد للحفاظ التام على خصوصية الوجه.',
         ),
         LegalDocSection(
-          title: '٤. التشفير وأمان الجلسات',
+          title: '٤. معالجو البيانات الخارجيون الأساسيون',
           content:
-              'تُشفر جميع البيانات المنقولة والمخزنة بمعايير AES-256 وTLS. يمكنك مراقبة وإنهاء الجلسات النشطة في أي وقت عبر تبويب الجلسات.',
+              'لضمان استقرار الخدمة وكفاءتها، نعتمد على خدمات موثوقة متوافقة مع معايير الأمان العالمية، بما يشمل: خدمات Google Firebase للمصادقة وقواعد البيانات، خوادم Google Cloud AI لمعالجة الذكاء الاصطناعي، وخدمات Cloudflare Turnstile للحماية من الهجمات الآلية.',
         ),
         LegalDocSection(
-          title: '٥. حق الحذف النهائي للبيانات',
+          title: '٥. حقوق المستخدمين الإلزامية (GDPR وCCPA ومتاجر التطبيقات)',
           content:
-              'يحق لك في أي وقت حذف حسابك وجميع صور خزانتك وبياناتك نهائياً من خوادمنا بشكل فوري.',
+              'يتمتع المستخدم بكامل الحقوق القانونية في الوصول إلى بياناته، وتصحيحها، وتصديرها، و«الحذف الدائم والفوري للحساب وجميع البيانات والصور المرفوعة» في أي وقت عبر إعدادات الملف الشخصي أو بمراسلتنا على support@stylemorph.app.',
+        ),
+        LegalDocSection(
+          title: '٦. خصوصية الأطفال وتحديثات سياسة الخصوصية',
+          content:
+              'الخدمة غير موجهة للأطفال دون سن ١٣ عاماً ولا نجمع بياناتهم عن قصد. يتم إخطار المستخدمين بأي تحديثات جوهرية تطرأ على هذه السياسة عبر إشعارات التطبيق الرسمية.',
         ),
       ];
     } else if (isTr) {
       sections = const [
         LegalDocSection(
-          title: '1. Gizlilik İlkemiz ve Veri Güvenliği',
+          title: '1. Toplanan Veri Kategorileri',
           content:
-              'StyleMorph, kişisel fotoğraflarınızı ve ölçülerinizi korumayı taahhüt eder. Biyometrik verileriniz asla üçüncü taraflara satılmaz.',
+              'StyleMorph verileri dört şeffaf kategoride toplar: 1) Hesap ve kimlik bilgileri (e-posta, kullanıcı adı, isteğe bağlı profil alanları), 2) Beden ölçüleri, stil ve giyim tercihleri, 3) Sanal deneme ve dijital gardırop için yüklenen fotoğraflar, 4) Cihaz güvenliği ve oturum telemetrisi.',
         ),
         LegalDocSection(
-          title: '2. Yapay Zeka Görsel İşleme Standartları',
+          title: '2. Google Cloud ve Firebase Altyapı Güvenliği',
           content:
-              'Görseller geçici bellekte işlenir ve SHA-256 ile şifrelenir. Giysi özellikleri çıkarıldıktan sonra ham fotoğraflar otomatik olarak silinir.',
+              'Tüm veriler Google Cloud Platform / Firebase üzerinde (Frankfurt / europe-west3 bölgesi) barındırılır. Aktarım esnasında TLS 1.3, veritabanı ve depolama katmanında ise AES-256 şifreleme standartları uygulanır.',
         ),
         LegalDocSection(
-          title: '3. Gizlilik Odaklı Çift Kişilikli Avatar',
+          title: '3. Görsel İşleme ve Sıfır Veri Satışı Garantisi',
           content:
-              'Gerçek yüz fotoğrafınızı yüklemek istemiyorsanız, giysileri nötr bir manken üzerinde denemek için gizlilik avatarını seçebilirsiniz.',
+              'StyleMorph kişisel fotoğraflarınızı, yüz verilerinizi veya ölçülerinizi asla veri simsarlarına veya reklamcılara satmaz. Yüklenen fotoğraflar açık rıza olmaksızın halka açık genel yapay zeka modellerini eğitmek için kullanılmaz. Görseller SHA-256 ile imzalanır ve kullanıcılar nötr manken avatarı modunu tercih edebilir.',
         ),
         LegalDocSection(
-          title: '4. Uçtan Uca Şifreleme ve Oturum Güvenliği',
+          title: '4. Zorunlu ve Güvenilir Üçüncü Taraf İşleyiciler',
           content:
-              'Tüm veriler AES-256 ve TLS standartlarıyla korunur. Cihaz oturumlarınızı dilediğiniz an yönetebilir ve kapatabilirsiniz.',
+              'Hizmet sürekliliği için GDPR uyumlu küresel sağlayıcılarla çalışıyoruz: Google Firebase (Kimlik doğrulama ve depolama), Google Cloud AI (Yapay zeka işleme) ve Cloudflare Turnstile (Bot ve güvenlik koruması).',
         ),
         LegalDocSection(
-          title: '5. Veri Silme Hakkı',
+          title:
+              '5. Zorunlu Kullanıcı Hakları (GDPR, CCPA ve Mağaza Standartları)',
           content:
-              'Kullanıcılar diledikleri zaman hesaplarını, gardırop fotoğraflarını ve tüm verilerini kalıcı olarak silme hakkına sahiptir.',
+              'Kullanıcılar verilerine erişme, düzeltme, dışa aktarma ve «Hesabını ve Tüm Verilerini Kalıcı Olarak Silme» hakkına sahiptir. Bu işlem profil ayarlarından veya support@stylemorph.app adresine yazarak anında gerçekleştirilebilir.',
+        ),
+        LegalDocSection(
+          title: '6. Çocukların Gizliliği ve Politika Değişiklikleri',
+          content:
+              'StyleMorph 13 yaşın altındaki çocuklara yönelik değildir ve bilerek çocuk verisi toplamaz. Bu ilkelerdeki önemli güncellemeler uygulama içi bildirimler aracılığıyla duyurulur.',
         ),
       ];
     } else {
       sections = const [
         LegalDocSection(
-          title: '1. Core Privacy Commitment',
+          title: '1. Categories of Data Collected',
           content:
-              'StyleMorph strictly protects your personal images and tailoring measurements. We never sell, rent, or monetize your photos or facial biometric data to data brokers or advertisers.',
+              'We collect data across four transparent categories: 1) Identity and account credentials (email address, handle, optional name and location), 2) Optional anatomical tailoring specs and personal style preferences, 3) Digital wardrobe garments and try-on reference photographs, and 4) Session security, active device telemetry, and IP audit trails.',
         ),
         LegalDocSection(
-          title: '2. Secure AI Image Processing & Hashing',
+          title: '2. Google Cloud & Firebase Infrastructure Security',
           content:
-              'Images for virtual try-on are processed ephemeral in-memory and hashed via digital SHA-256 signatures to avoid redundant cloud token consumption. Raw temporary uploads expire automatically per privacy rules.',
+              'All customer data is hosted on enterprise Google Cloud Platform and Firebase infrastructure in Frankfurt, Germany (europe-west3). We enforce strict end-to-end TLS 1.3 in transit, AES-256 encryption at rest, and Zero-Trust Firestore and Cloud Storage security rules.',
         ),
         LegalDocSection(
-          title: '3. Dual-Persona Privacy Avatar Mode',
+          title: '3. AI Image Processing & Strict Zero-Sale Guarantee',
           content:
-              'Users who prefer not to use real facial photographs can select the neutral digital mannequin mode in Media Settings to fit garments on an anonymous silhouette.',
+              'StyleMorph strictly DOES NOT sell, monetize, or broker personal imagery, biometric features, or styling data to advertisers or commercial data aggregators. Customer photos are never used to train public, open, or third-party foundational AI models without explicit opt-in consent. Image uploads are verified ephemeral via digital SHA-256 hash caching, and users can enable Dual-Persona Private Avatar mode to fit clothes onto a neutral mannequin silhouette without displaying real facial photos.',
         ),
         LegalDocSection(
-          title: '4. Encryption & Session Oversight',
+          title: '4. Essential Third-Party Data Processors',
           content:
-              'All data in transit is encrypted with TLS/SSL and stored with AES-256 standards. Our session manager allows you to audit and terminate unrecognized devices at any time.',
+              'We partner only with rigorously audited, industry-standard infrastructure providers bound by strict GDPR/SOC-2 data processing agreements: Google Firebase (authentication and database), Google Cloud AI (generative inference pipelines), and Cloudflare Turnstile (bot mitigation and DDoS prevention).',
         ),
         LegalDocSection(
-          title: '5. Right to Erasure & Account Deletion',
+          title:
+              '5. Mandatory User Rights (GDPR, CCPA, Apple App Store & Google Play)',
           content:
-              'You retain full sovereignty over your data and may permanently delete your wardrobe assets, tailoring measurements, and account records at any time.',
+              'You hold unconditional legal rights to access, rectify, export, and enact the **Permanent Deletion of Your Account and Associated Data** at any time. Data erasure can be triggered immediately via Profile Settings or by emailing support@stylemorph.app; your wardrobe files, try-on history, and session records will be permanently purged from all servers.',
+        ),
+        LegalDocSection(
+          title: '6. Children\'s Privacy Protection & Policy Updates',
+          content:
+              'StyleMorph is not directed at children under the age of 13, and we do not knowingly collect personal data from minors. Any substantial updates to this Privacy Policy will be highlighted via in-app notifications and updated version logs.',
         ),
       ];
     }
@@ -300,58 +367,135 @@ class LegalDocModalSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
+    final viewInsets = MediaQuery.of(context).viewInsets.bottom;
 
-    return AppBottomSheetShell(
-      title: title,
-      titleLeading: FaIcon(icon, size: 16, color: colors.prt),
-      bottomBar: Padding(
-        padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-        child: AppButton(
-          variant: AppButtonVariant.outline,
-          isFullWidth: true,
-          text: strings.aboutClose,
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.88,
       ),
-      child: ListView.separated(
-        shrinkWrap: true,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-        itemCount: sections.length,
-        separatorBuilder: (_, _) => const SizedBox(height: AppSpacing.sm),
-        itemBuilder: (context, index) {
-          final sec = sections[index];
-          return AppCard(
-            variant: AppCardVariant.surface,
-            padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  sec.title,
-                  style: TextStyle(
-                    fontFamily: 'Vazirmatn',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    color: colors.tx,
-                    height: 1.3,
+      decoration: BoxDecoration(
+        color: colors.sf,
+        borderRadius: AppRadius.rSheetTop,
+        border: Border(top: BorderSide(color: colors.bd, width: 1.0)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: viewInsets),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Standardized Drag Handle
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 10, bottom: 8),
+                  decoration: BoxDecoration(
+                    color: colors.bd,
+                    borderRadius: AppRadius.rFull,
                   ),
                 ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  sec.content,
-                  style: TextStyle(
-                    fontFamily: 'Vazirmatn',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
-                    color: colors.mu,
-                    height: 1.5,
-                  ),
+              ),
+
+              // Header Bar with clean 2-line title wrapping & close button
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppSpacing.lg,
+                  0,
+                  AppSpacing.sm,
+                  AppSpacing.sm,
                 ),
-              ],
-            ),
-          );
-        },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    FaIcon(icon, size: 16, color: colors.prt),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.moduleTitle(color: colors.tx),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        size: 20,
+                        color: colors.mu,
+                      ),
+                      padding: const EdgeInsets.all(AppSpacing.xs),
+                      constraints: const BoxConstraints(
+                        minWidth: 34,
+                        minHeight: 34,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(color: colors.bd, height: 1.0),
+
+              // Scrollable Legal Sections
+              Expanded(
+                child: ListView.separated(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                  itemCount: sections.length,
+                  separatorBuilder: (_, _) =>
+                      const SizedBox(height: AppSpacing.sm),
+                  itemBuilder: (context, index) {
+                    final sec = sections[index];
+                    return AppCard(
+                      variant: AppCardVariant.surface,
+                      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            sec.title,
+                            style: TextStyle(
+                              fontFamily: 'Vazirmatn',
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: colors.tx,
+                              height: 1.3,
+                            ),
+                          ),
+                          const SizedBox(height: AppSpacing.xs),
+                          Text(
+                            sec.content,
+                            style: TextStyle(
+                              fontFamily: 'Vazirmatn',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w400,
+                              color: colors.mu,
+                              height: 1.55,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+
+              // Bottom Close Button Bar
+              Divider(color: colors.bd, height: 1.0),
+              Padding(
+                padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                child: AppButton(
+                  variant: AppButtonVariant.outline,
+                  isFullWidth: true,
+                  text: strings.aboutClose,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

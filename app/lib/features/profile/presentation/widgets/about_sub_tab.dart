@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -16,6 +17,10 @@ import 'about_actions.dart';
 import 'legal_doc_modal_sheet.dart';
 import 'open_source_licenses_sheet.dart';
 import 'social_links_modal.dart';
+
+export 'legal_doc_modal_sheet.dart';
+export 'open_source_licenses_sheet.dart';
+export 'social_links_modal.dart';
 
 enum UpdateCheckStatus { idle, checking, upToDate, updateAvailable, error }
 
@@ -38,6 +43,7 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
   UpdateCheckStatus _updateStatus = UpdateCheckStatus.idle;
   String? _availableVersion;
   String? _storeUrl;
+  bool _termsAgreed = false;
 
   Future<void> _checkForUpdates() async {
     setState(() => _updateStatus = UpdateCheckStatus.checking);
@@ -134,6 +140,8 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
+    final appState = ref.watch(appStateProvider);
+    final termsAcceptedAt = appState.termsAcceptedAt;
 
     return Padding(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -159,8 +167,13 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
           _buildUpdateCheckerCard(colors, strings),
           const SizedBox(height: AppSpacing.md),
 
-          // ── 4. What's New / Changelog Card ────────────────────────────────
-          _buildWhatsNewCard(colors, strings),
+          // ── 4. User Agreement & Consent Card ──────────────────────────────
+          _buildAgreementCard(
+            colors,
+            strings,
+            termsAcceptedAt,
+            appState.termsVersion,
+          ),
           const SizedBox(height: AppSpacing.md),
 
           // ── 5. Legal & Compliance Links ───────────────────────────────────
@@ -478,116 +491,221 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
     );
   }
 
-  // ── 4. What's New / Changelog Card ────────────────────────────────────────
-  Widget _buildWhatsNewCard(AppColors colors, AppStrings strings) {
-    final changelogItems = [
-      (
-        strings.aboutChangelog1Title,
-        strings.aboutChangelog1Desc,
-        FontAwesomeIcons.wandMagicSparkles,
-      ),
-      (
-        strings.aboutChangelog2Title,
-        strings.aboutChangelog2Desc,
-        FontAwesomeIcons.shirt,
-      ),
-      (
-        strings.aboutChangelog3Title,
-        strings.aboutChangelog3Desc,
-        FontAwesomeIcons.boltLightning,
-      ),
-      (
-        strings.aboutChangelog4Title,
-        strings.aboutChangelog4Desc,
-        FontAwesomeIcons.award,
-      ),
-      (
-        strings.aboutChangelog5Title,
-        strings.aboutChangelog5Desc,
-        FontAwesomeIcons.userShield,
-      ),
-    ];
+  // ── 4. User Agreement & Consent Card ──────────────────────────────────────
+  Widget _buildAgreementCard(
+    AppColors colors,
+    AppStrings strings,
+    DateTime? termsAcceptedAt,
+    String? termsVersion,
+  ) {
+    final theme = Theme.of(context);
+    final isSigned = termsAcceptedAt != null;
 
-    return AppCard(
-      variant: AppCardVariant.surface,
-      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.auto_awesome, size: 14, color: colors.prt),
-              const SizedBox(width: AppSpacing.xs),
-              Text(
-                strings.aboutWhatsNewTitle,
-                style: TextStyle(
-                  fontFamily: 'Vazirmatn',
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: colors.tx,
+    if (isSigned) {
+      final formattedDate =
+          '${termsAcceptedAt.year}/${termsAcceptedAt.month.toString().padLeft(2, '0')}/${termsAcceptedAt.day.toString().padLeft(2, '0')}';
+      final versionStr = termsVersion ?? '1.0';
+
+      return AppCard(
+        key: const Key('agreement_card'),
+        variant: AppCardVariant.surface,
+        padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+        borderColor: colors.ok.withValues(alpha: 0.4),
+        borderWidth: 1.2,
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              decoration: BoxDecoration(
+                color: colors.ok.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: colors.ok.withValues(alpha: 0.35),
+                  width: 1,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Divider(color: colors.bd, height: 16),
-          for (int i = 0; i < changelogItems.length; i++) ...[
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Row(
+              child: Center(
+                child: Icon(
+                  Icons.verified_user_rounded,
+                  size: 20,
+                  color: colors.ok,
+                ),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 2),
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      color: colors.pr.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Center(
-                      child: FaIcon(
-                        changelogItems[i].$3,
-                        size: 11,
-                        color: colors.prt,
+                  Row(
+                    children: [
+                      Container(
+                        key: const Key('agreement_signed_badge'),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2.5,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colors.ok.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                          border: Border.all(
+                            color: colors.ok.withValues(alpha: 0.35),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.check_circle_rounded,
+                              size: 13,
+                              color: colors.ok,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              strings.aboutAgreementSignedBadge,
+                              style: TextStyle(
+                                fontFamily: 'Vazirmatn',
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                                color: colors.ok,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          changelogItems[i].$1,
-                          style: TextStyle(
-                            fontFamily: 'Vazirmatn',
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: colors.tx,
-                            height: 1.25,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          changelogItems[i].$2,
-                          style: TextStyle(
-                            fontFamily: 'Vazirmatn',
-                            fontSize: 11,
-                            fontWeight: FontWeight.w400,
-                            color: colors.mu,
-                            height: 1.45,
-                          ),
-                        ),
-                      ],
+                  const SizedBox(height: 5),
+                  Text(
+                    strings.aboutAgreementSignedDate
+                        .replaceAll('{date}', formattedDate)
+                        .replaceAll('{version}', versionStr),
+                    style: TextStyle(
+                      fontFamily: 'Vazirmatn',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
+                      color: colors.mu,
                     ),
                   ),
                 ],
               ),
             ),
-            if (i < changelogItems.length - 1)
-              Divider(color: colors.bd.withValues(alpha: 0.5), height: 12),
           ],
+        ),
+      );
+    }
+
+    // Unsigned state: prominent warning/error accent border
+    return AppCard(
+      key: const Key('agreement_card'),
+      variant: AppCardVariant.surface,
+      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+      borderColor: theme.colorScheme.error.withValues(alpha: 0.75),
+      borderWidth: 1.5,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.error.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.warning_amber_rounded,
+                    size: 16,
+                    color: theme.colorScheme.error,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  strings.aboutAgreementTitle,
+                  style: TextStyle(
+                    fontFamily: 'Vazirmatn',
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: colors.tx,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            strings.aboutAgreementDesc,
+            style: TextStyle(
+              fontFamily: 'Vazirmatn',
+              fontSize: 11,
+              fontWeight: FontWeight.w400,
+              color: colors.mu,
+              height: 1.45,
+            ),
+          ),
+          Divider(color: colors.bd.withValues(alpha: 0.5), height: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Checkbox(
+                key: const Key('agreement_checkbox'),
+                value: _termsAgreed,
+                activeColor: colors.pr,
+                onChanged: (val) {
+                  setState(() => _termsAgreed = val ?? false);
+                },
+              ),
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() => _termsAgreed = !_termsAgreed);
+                  },
+                  child: Text(
+                    strings.aboutAgreementCheckbox,
+                    style: TextStyle(
+                      fontFamily: 'Vazirmatn',
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: colors.tx,
+                      height: 1.35,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          AppButton(
+            key: const Key('agreement_sign_button'),
+            variant: AppButtonVariant.primary,
+            isFullWidth: true,
+            icon: const Icon(Icons.draw_rounded, size: 16),
+            text: strings.aboutAgreementSignBtn,
+            onPressed: _termsAgreed
+                ? () async {
+                    await ref
+                        .read(appStateProvider.notifier)
+                        .acceptTerms(version: '1.0');
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          strings.aboutAgreementSignedToast,
+                          style: const TextStyle(fontFamily: 'Vazirmatn'),
+                        ),
+                        backgroundColor: colors.ok,
+                        duration: const Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                : null,
+          ),
         ],
       ),
     );

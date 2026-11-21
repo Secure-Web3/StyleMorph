@@ -176,6 +176,10 @@ class AppState {
   // Gate-level pre-fetch flag: true once loadProfileFromFirestore() completes
   final bool isProfileLoaded;
 
+  // Electronic User Agreement & Terms Consent
+  final DateTime? termsAcceptedAt;
+  final String? termsVersion;
+
   const AppState({
     this.isLoggedIn = false,
     this.currentTab = AppTab.profile,
@@ -216,6 +220,8 @@ class AppState {
     this.networkTier = 'Starter',
     this.referrals = const [],
     this.isProfileLoaded = false,
+    this.termsAcceptedAt,
+    this.termsVersion,
   });
 
   int get unreadNotificationsCount =>
@@ -255,6 +261,9 @@ class AppState {
     String? networkTier,
     List<ReferralEntry>? referrals,
     bool? isProfileLoaded,
+    DateTime? termsAcceptedAt,
+    String? termsVersion,
+    bool clearTerms = false,
   }) {
     return AppState(
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
@@ -291,6 +300,10 @@ class AppState {
       networkTier: networkTier ?? this.networkTier,
       referrals: referrals ?? this.referrals,
       isProfileLoaded: isProfileLoaded ?? this.isProfileLoaded,
+      termsAcceptedAt: clearTerms
+          ? null
+          : (termsAcceptedAt ?? this.termsAcceptedAt),
+      termsVersion: clearTerms ? null : (termsVersion ?? this.termsVersion),
     );
   }
 
@@ -598,6 +611,18 @@ class AppStateNotifier extends StateNotifier<AppState> {
             data['networkTier']?.toString() ??
             ReferralService.calculateTier(referralCount);
 
+        DateTime? termsAcceptedAt;
+        if (data['termsAcceptedAt'] != null) {
+          if (data['termsAcceptedAt'] is Timestamp) {
+            termsAcceptedAt = (data['termsAcceptedAt'] as Timestamp).toDate();
+          } else if (data['termsAcceptedAt'] is String) {
+            termsAcceptedAt = DateTime.tryParse(
+              data['termsAcceptedAt'] as String,
+            );
+          }
+        }
+        final String? termsVersion = data['termsVersion']?.toString();
+
         List<ReferralEntry> referralEntries = [];
         try {
           final snap = await FirebaseFirestore.instance
@@ -760,6 +785,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
               : (user.displayName ?? (user.email?.split('@').first ?? '')),
           userHandle: nick.isNotEmpty ? nick : '',
           hasUnsavedProfileChanges: false,
+          termsAcceptedAt: termsAcceptedAt,
+          termsVersion: termsVersion,
         );
 
         if (referralCode.isEmpty) {
@@ -1231,6 +1258,34 @@ class AppStateNotifier extends StateNotifier<AppState> {
       showHeaderCoins: false,
       hasUnsavedProfileChanges: false,
       isProfileLoaded: false,
+      clearTerms: true,
     );
+  }
+
+  /// Electronically signs and records agreement to Terms of Service & Privacy Policy.
+  Future<void> acceptTerms({String version = '1.0'}) async {
+    final now = DateTime.now();
+    state = state.copyWith(termsAcceptedAt: now, termsVersion: version);
+    try {
+      if (Firebase.apps.isNotEmpty) {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .set({
+                'termsAcceptedAt': FieldValue.serverTimestamp(),
+                'termsVersion': version,
+              }, SetOptions(merge: true));
+        }
+      }
+    } catch (e) {
+      debugPrint('[AppStateNotifier] acceptTerms error: $e');
+    }
+  }
+
+  /// Resets terms acceptance locally (used for testing or revocation).
+  void clearTerms() {
+    state = state.copyWith(clearTerms: true);
   }
 }

@@ -58,6 +58,8 @@ class SocialLinksModal extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
 
     final items = [
       SocialLinkItem(
@@ -184,15 +186,19 @@ class SocialLinksModal extends StatelessWidget {
                     width: 34,
                     height: 34,
                     decoration: BoxDecoration(
-                      color: colors.pr.withValues(alpha: 0.08),
+                      color: colorScheme.primary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(AppRadius.sm),
                       border: Border.all(
-                        color: colors.bd.withValues(alpha: 0.6),
+                        color: colorScheme.primary.withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
                     child: Center(
-                      child: FaIcon(item.icon, size: 15, color: colors.prt),
+                      child: FaIcon(
+                        item.icon,
+                        size: 15,
+                        color: colorScheme.primary,
+                      ),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
@@ -217,10 +223,10 @@ class SocialLinksModal extends StatelessWidget {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: colors.sf,
+                        color: colorScheme.primary.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(AppRadius.full),
                         border: Border.all(
-                          color: colors.pr.withValues(alpha: 0.35),
+                          color: colorScheme.primary.withValues(alpha: 0.3),
                           width: 1,
                         ),
                       ),
@@ -234,15 +240,15 @@ class SocialLinksModal extends StatelessWidget {
                               style: TextStyle(
                                 fontFamily: 'Vazirmatn',
                                 fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: colors.prt,
+                                fontWeight: FontWeight.w700,
+                                color: colorScheme.onSurface,
                               ),
                             ),
                             const SizedBox(width: 4),
                             Icon(
                               Icons.arrow_outward_rounded,
                               size: 11,
-                              color: colors.prt,
+                              color: colorScheme.primary,
                             ),
                           ],
                         ),

@@ -101,6 +101,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     final activeSessionsCount = sessionsAsync.valueOrNull
         ?.where((s) => !s.isBlocked && s.isActive)
         .length;
+    final isTermsUnsigned = appState.termsAcceptedAt == null;
 
     final subTabs = [
       _SubTabMeta('p-identity', strings.tIdent, FontAwesomeIcons.idCard),
@@ -196,6 +197,8 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                             badgeCount: subTabs[i].id == 'p-sessions'
                                 ? activeSessionsCount
                                 : null,
+                            showAlertBadge:
+                                subTabs[i].id == 'p-about' && isTermsUnsigned,
                             onTap: subTabs[i].isEnabled
                                 ? () {
                                     ref
@@ -301,6 +304,7 @@ class _SidebarTabButton extends StatelessWidget {
   final AppColors colors;
   final AppStrings strings;
   final int? badgeCount;
+  final bool showAlertBadge;
   final VoidCallback? onTap;
 
   const _SidebarTabButton({
@@ -310,6 +314,7 @@ class _SidebarTabButton extends StatelessWidget {
     required this.colors,
     required this.strings,
     this.badgeCount,
+    this.showAlertBadge = false,
     this.onTap,
   });
 
@@ -439,6 +444,29 @@ class _SidebarTabButton extends StatelessWidget {
                         color: colors.prt,
                         height: 1.1,
                       ),
+                    ),
+                  ),
+                ),
+              if (showAlertBadge)
+                PositionedDirectional(
+                  top: 0,
+                  end: 4,
+                  child: Container(
+                    key: const Key('sidebar_about_alert_badge'),
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.error,
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.error.withValues(alpha: 0.5),
+                          blurRadius: 4,
+                          spreadRadius: 1,
+                        ),
+                      ],
                     ),
                   ),
                 ),

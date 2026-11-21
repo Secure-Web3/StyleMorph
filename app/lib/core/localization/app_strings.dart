@@ -986,10 +986,10 @@ class AppStrings {
       'dialogConfirm': 'تأیید',
       // About & Updates Sub-Tab
       'tAbout': 'درباره برنامه',
-      'aboutHeader': 'درباره استایل‌مورف',
+      'aboutHeader': 'درباره StyleMorph',
       'aboutTagline': 'استودیوی اختصاصی استایلیست هوشمند و پرو مجازی لباس',
       'aboutMission':
-          'استایل‌مورف پلتفرمی نوآورانه در تقاطع مد، تکنولوژی و زیبایی است. ما با بهره‌گیری از هوش مصنوعی مولد، تجربه پرو فوق‌واقع‌گرایانه، مدیریت کمد دیجیتال و پیشنهادهای استایل اختصاصی را با بالاترین استانداردهای حریم خصوصی در اختیارتان قرار می‌دهیم.',
+          'StyleMorph پلتفرمی نوآورانه در تقاطع مد، تکنولوژی و زیبایی است. ما با بهره‌گیری از هوش مصنوعی مولد، تجربه پرو فوق‌واقع‌گرایانه، مدیریت کمد دیجیتال و پیشنهادهای استایل اختصاصی را با بالاترین استانداردهای حریم خصوصی در اختیارتان قرار می‌دهیم.',
       'aboutVersionLabel': 'نسخه برنامه',
       'aboutBuildLabel': 'شماره ساخت',
       'aboutReleaseDateLabel': 'تاریخ انتشار',
@@ -998,7 +998,7 @@ class AppStrings {
       'aboutEnvironmentVal': 'پایدار (پروداکشن)',
       'aboutCheckUpdatesBtn': 'بررسی به‌روزرسانی',
       'aboutChecking': 'در حال بررسی نسخه‌های جدید...',
-      'aboutUpToDate': 'شما از آخرین نسخه پایدار استایل‌مورف استفاده می‌کنید.',
+      'aboutUpToDate': 'شما از آخرین نسخه پایدار StyleMorph استفاده می‌کنید.',
       'aboutUpdateAvailable': 'نسخه جدید ({version}) در دسترس است!',
       'aboutUpdateActionWeb': 'نصب به‌روزرسانی و بارگذاری مجدد',
       'aboutUpdateActionMobile': 'دریافت نسخه جدید',
@@ -1022,9 +1022,20 @@ class AppStrings {
       'aboutTermsTitle': 'شرایط و مقررات استفاده از خدمات',
       'aboutPrivacyTitle': 'سیاست حفظ حریم خصوصی و امنیت تصاویر هوش مصنوعی',
       'aboutLicensesTitle': 'مجوزهای متن‌باز و اعتبارات نرم‌افزاری',
+      'aboutAgreementTitle': 'توافقنامه و امضای قوانین',
+      'aboutAgreementDesc':
+          'جهت استفاده از خدمات، مطالعه و پذیرش قوانین و سیاست حفظ حریم خصوصی الزامی است.',
+      'aboutAgreementCheckbox':
+          'شرایط و مقررات استفاده و سیاست حفظ حریم خصوصی StyleMorph را مطالعه کرده و می‌پذیرم.',
+      'aboutAgreementSignBtn': 'تأیید و امضای الکترونیکی',
+      'aboutAgreementSignedBadge': 'امضا و تأیید الکترونیکی شده',
+      'aboutAgreementSignedDate': 'تاریخ امضا: {date} (نسخه {version})',
+      'aboutAgreementSignedToast': 'توافقنامه کاربری با موفقیت امضا و ثبت شد.',
+      'aboutAgreementUnsignedWarning':
+          'توافقنامه کاربری هنوز امضا نشده است. لطفاً قوانین را مطالعه و تأیید نمایید.',
       'aboutContactSectionTitle': 'ارتباط و شبکه‌های رسمی',
       'aboutSocialMediaLabel': 'شبکه‌های اجتماعی',
-      'aboutSocialMediaSubtitle': '۱۳ کانال و صفحه رسمی استایل‌مورف',
+      'aboutSocialMediaSubtitle': '۱۳ کانال و صفحه رسمی StyleMorph',
       'aboutTelegramOfficial': 'تلگرام (کانال رسمی)',
       'aboutTelegramMain': 'تلگرام (کانال اصلی)',
       'aboutTelegramCommunity': 'تلگرام (جامعه و گفتگو)',
@@ -1039,7 +1050,7 @@ class AppStrings {
       'aboutInstagramLabel': 'صفحه اینستاگرام',
       'aboutTelegramLabel': 'کانال تلگرام',
       'aboutCopyrightNotice':
-          'تمامی حقوق برای پلتفرم استایل‌مورف محفوظ است © ۲۰۲۶',
+          'تمامی حقوق برای پلتفرم StyleMorph محفوظ است © ۲۰۲۶',
       'aboutLinkCopied': 'در کلیپ‌بورد کپی شد',
       'aboutClose': 'بستن',
     },
@@ -1968,6 +1979,18 @@ class AppStrings {
       'aboutTermsTitle': 'Terms of Service',
       'aboutPrivacyTitle': 'Privacy Policy & AI Image Data Protection',
       'aboutLicensesTitle': 'Open Source Licenses',
+      'aboutAgreementTitle': 'User Agreement & Consent',
+      'aboutAgreementDesc':
+          'Reviewing and accepting the Terms of Service and Privacy Policy is required to use services.',
+      'aboutAgreementCheckbox':
+          'I have read and agree to the StyleMorph Terms of Service and Privacy Policy.',
+      'aboutAgreementSignBtn': 'Confirm & Sign Electronically',
+      'aboutAgreementSignedBadge': 'Electronically Signed & Accepted',
+      'aboutAgreementSignedDate': 'Signed on: {date} (v{version})',
+      'aboutAgreementSignedToast':
+          'User agreement was successfully signed and recorded.',
+      'aboutAgreementUnsignedWarning':
+          'User agreement has not been signed yet. Please review and sign.',
       'aboutContactSectionTitle': 'Official Contact & Socials',
       'aboutSocialMediaLabel': 'Social Media',
       'aboutSocialMediaSubtitle': '13 official channels & communities',
@@ -2858,10 +2881,10 @@ class AppStrings {
       'dialogConfirm': 'تأكيد',
       // About & Updates Sub-Tab
       'tAbout': 'حول التطبيق',
-      'aboutHeader': 'حول ستايل مورف',
+      'aboutHeader': 'حول StyleMorph',
       'aboutTagline': 'استوديو المنسق الذكي والقياس الافتراضي الشخصي',
       'aboutMission':
-          'ستايل مورف هي منصة متطورة تجمع بين الموضة والتكنولوجيا والجمال. باستخدام أحدث نماذج الذكاء الاصطناعي التوليدي، نقدم تجربة قياس افتراضية واقعية وإدارة ذكية لخزانتك وتنسيقات أزياء مخصصة مع أعلى معايير الخصوصية.',
+          'StyleMorph هي منصة متطورة تجمع بين الموضة والتكنولوجيا والجمال. باستخدام أحدث نماذج الذكاء الاصطناعي التوليدي، نقدم تجربة قياس افتراضية واقعية وإدارة ذكية لخزانتك وتنسيقات أزياء مخصصة مع أعلى معايير الخصوصية.',
       'aboutVersionLabel': 'إصدار التطبيق',
       'aboutBuildLabel': 'رقم البناء',
       'aboutReleaseDateLabel': 'تاريخ الإصدار',
@@ -2870,7 +2893,7 @@ class AppStrings {
       'aboutEnvironmentVal': 'مستقر (الإنتاج)',
       'aboutCheckUpdatesBtn': 'التحقق من التحديثات',
       'aboutChecking': 'جارٍ التحقق من وجود تحديثات...',
-      'aboutUpToDate': 'أنت تستخدم أحدث إصدار من ستايل مورف.',
+      'aboutUpToDate': 'أنت تستخدم أحدث إصدار من StyleMorph.',
       'aboutUpdateAvailable': 'تحديث جديد ({version}) متوفر الآن!',
       'aboutUpdateActionWeb': 'تثبيت التحديث وإعادة التحميل',
       'aboutUpdateActionMobile': 'تنزيل التحديث',
@@ -2894,9 +2917,20 @@ class AppStrings {
       'aboutTermsTitle': 'شروط الخدمة والأحكام',
       'aboutPrivacyTitle': 'سياسة الخصوصية وحماية بيانات وصور الذكاء الاصطناعي',
       'aboutLicensesTitle': 'تراخيص البرمجيات مفتوحة المصدر',
+      'aboutAgreementTitle': 'اتفاقية المستخدم والموافقة',
+      'aboutAgreementDesc':
+          'يلزم مراجعة وقبول شروط الخدمة وسياسة الخصوصية لاستخدام خدمات المنصة.',
+      'aboutAgreementCheckbox':
+          'لقد قرأت شروط الخدمة وسياسة الخصوصية الخاصة بـ StyleMorph وأوافق عليها.',
+      'aboutAgreementSignBtn': 'تأكيد وتوقيع إلكترونياً',
+      'aboutAgreementSignedBadge': 'تم التوقيع والموافقة إلكترونياً',
+      'aboutAgreementSignedDate': 'تاريخ التوقيع: {date} (إصدار {version})',
+      'aboutAgreementSignedToast': 'تم توقيع وتسجيل اتفاقية المستخدم بنجاح.',
+      'aboutAgreementUnsignedWarning':
+          'لم يتم توقيع اتفاقية المستخدم بعد. يرجى المراجعة والتوقيع.',
       'aboutContactSectionTitle': 'التواصل والقنوات الرسمية',
       'aboutSocialMediaLabel': 'شبكات التواصل الاجتماعي',
-      'aboutSocialMediaSubtitle': '١٣ قناة ومجتمع رسمي لستايل مورف',
+      'aboutSocialMediaSubtitle': '١٣ قناة ومجتمع رسمي لـ StyleMorph',
       'aboutTelegramOfficial': 'تيليجرام (القناة الرسمية)',
       'aboutTelegramMain': 'تيليجرام (القناة الرئيسية)',
       'aboutTelegramCommunity': 'تيليجرام (مجتمع المستخدمين)',
@@ -2910,7 +2944,7 @@ class AppStrings {
       'aboutEmailLabel': 'البريد الإلكتروني للدعم',
       'aboutInstagramLabel': 'إنستغرام',
       'aboutTelegramLabel': 'تيليجرام',
-      'aboutCopyrightNotice': 'جميع الحقوق محفوظة لمنصة ستايل مورف © ٢٠٢٦',
+      'aboutCopyrightNotice': 'جميع الحقوق محفوظة لمنصة StyleMorph © ٢٠٢٦',
       'aboutLinkCopied': 'تم النسخ إلى الحافظة',
       'aboutClose': 'إغلاق',
     },
@@ -3854,6 +3888,18 @@ class AppStrings {
       'aboutPrivacyTitle':
           'Gizlilik Politikası ve Yapay Zeka Görsel Veri Koruması',
       'aboutLicensesTitle': 'Açık Kaynak Lisansları',
+      'aboutAgreementTitle': 'Kullanıcı Sözleşmesi ve Onayı',
+      'aboutAgreementDesc':
+          'Hizmetleri kullanmak için Hizmet Şartları ve Gizlilik Politikasının onaylanması gereklidir.',
+      'aboutAgreementCheckbox':
+          'StyleMorph Hizmet Şartları ve Gizlilik Politikasını okudum ve kabul ediyorum.',
+      'aboutAgreementSignBtn': 'Onayla ve Elektronik Olarak İmzala',
+      'aboutAgreementSignedBadge': 'Elektronik Olarak İmzalandı ve Onaylandı',
+      'aboutAgreementSignedDate': 'İmza Tarihi: {date} (v{version})',
+      'aboutAgreementSignedToast':
+          'Kullanıcı sözleşmesi başarıyla imzalandı ve kaydedildi.',
+      'aboutAgreementUnsignedWarning':
+          'Kullanıcı sözleşmesi henüz imzalanmadı. Lütfen inceleyip imzalayın.',
       'aboutContactSectionTitle': 'İletişim ve Sosyal Kanallar',
       'aboutSocialMediaLabel': 'Sosyal Medya',
       'aboutSocialMediaSubtitle': '13 resmi kanal ve topluluk',
@@ -4923,6 +4969,15 @@ class AppStrings {
   String get aboutTermsTitle => get('aboutTermsTitle');
   String get aboutPrivacyTitle => get('aboutPrivacyTitle');
   String get aboutLicensesTitle => get('aboutLicensesTitle');
+  String get aboutAgreementTitle => get('aboutAgreementTitle');
+  String get aboutAgreementDesc => get('aboutAgreementDesc');
+  String get aboutAgreementCheckbox => get('aboutAgreementCheckbox');
+  String get aboutAgreementSignBtn => get('aboutAgreementSignBtn');
+  String get aboutAgreementSignedBadge => get('aboutAgreementSignedBadge');
+  String get aboutAgreementSignedDate => get('aboutAgreementSignedDate');
+  String get aboutAgreementSignedToast => get('aboutAgreementSignedToast');
+  String get aboutAgreementUnsignedWarning =>
+      get('aboutAgreementUnsignedWarning');
   String get aboutContactSectionTitle => get('aboutContactSectionTitle');
   String get aboutSocialMediaLabel => get('aboutSocialMediaLabel');
   String get aboutSocialMediaSubtitle => get('aboutSocialMediaSubtitle');
