@@ -45,7 +45,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       FallbackChallengeController();
   String? _turnstileToken;
   bool _useSecurityFallback = false;
-  Timer? _turnstileTimeoutTimer;
 
   int _consecutiveLoginFailures = 0;
   int _lockoutSeconds = 0;
@@ -90,12 +89,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       curve: Curves.easeInOut,
     );
     _animController.forward();
-    _startTurnstileTimeoutTimer();
   }
 
   @override
   void dispose() {
-    _turnstileTimeoutTimer?.cancel();
     _lockoutTimer?.cancel();
     _emailController.dispose();
     _passwordController.dispose();
@@ -106,29 +103,21 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     super.dispose();
   }
 
-  void _startTurnstileTimeoutTimer() {
-    _turnstileTimeoutTimer?.cancel();
-    if (kIsWeb &&
-        !_useSecurityFallback &&
-        (_turnstileToken == null || _turnstileToken!.isEmpty)) {
-      _turnstileTimeoutTimer = Timer(const Duration(seconds: 8), () {
-        if (!mounted) return;
-        if (_turnstileToken == null || _turnstileToken!.isEmpty) {
-          setState(() {
-            _useSecurityFallback = true;
-          });
-        }
-      });
-    }
+  void _onVerificationTabChanged(bool useFallback) {
+    if (_useSecurityFallback == useFallback) return;
+    _turnstileController.reset();
+    _fallbackController.reset();
+    setState(() {
+      _turnstileToken = null;
+      _useSecurityFallback = useFallback;
+    });
   }
 
   void _switchMode(AuthMode mode) {
-    _turnstileTimeoutTimer?.cancel();
     _turnstileController.reset();
     _fallbackController.reset();
     _turnstileToken = null;
     _useSecurityFallback = false;
-    _startTurnstileTimeoutTimer();
     ref.read(authFormProvider.notifier).setMode(mode);
     _animController
       ..reset()
@@ -341,17 +330,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           turnstileController: _turnstileController,
           fallbackController: _fallbackController,
           useSecurityFallback: _useSecurityFallback,
+          onVerificationTabChanged: _onVerificationTabChanged,
           isTurnstileVerified:
               !kIsWeb ||
               (_turnstileToken != null && _turnstileToken!.isNotEmpty),
           lockoutSeconds: _lockoutSeconds,
           onTurnstileVerified: (token) {
-            _turnstileTimeoutTimer?.cancel();
             setState(() => _turnstileToken = token);
           },
           onTurnstileExpired: () => setState(() => _turnstileToken = null),
           onTurnstileError: () {
-            _turnstileTimeoutTimer?.cancel();
             setState(() {
               _turnstileToken = null;
               _useSecurityFallback = true;
@@ -383,16 +371,15 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           turnstileController: _turnstileController,
           fallbackController: _fallbackController,
           useSecurityFallback: _useSecurityFallback,
+          onVerificationTabChanged: _onVerificationTabChanged,
           isTurnstileVerified:
               !kIsWeb ||
               (_turnstileToken != null && _turnstileToken!.isNotEmpty),
           onTurnstileVerified: (token) {
-            _turnstileTimeoutTimer?.cancel();
             setState(() => _turnstileToken = token);
           },
           onTurnstileExpired: () => setState(() => _turnstileToken = null),
           onTurnstileError: () {
-            _turnstileTimeoutTimer?.cancel();
             setState(() {
               _turnstileToken = null;
               _useSecurityFallback = true;
@@ -489,6 +476,86 @@ class _LabelDivider extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Verification Method Selector Tab
+// ─────────────────────────────────────────────────────────────────────────────
+
+class _VerificationTabSelector extends StatelessWidget {
+  final bool useSecurityFallback;
+  final ValueChanged<bool> onTabSelected;
+
+  const _VerificationTabSelector({
+    required this.useSecurityFallback,
+    required this.onTabSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final strings = context.strings;
+
+    return Container(
+      height: 32,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        color: colors.sf,
+        borderRadius: AppRadius.rFull,
+        border: Border.all(color: colors.bd),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildTab(
+            title: strings.authVerificationCloudflare,
+            isSelected: !useSecurityFallback,
+            onTap: () => onTabSelected(false),
+            colors: colors,
+          ),
+          _buildTab(
+            title: strings.authVerificationMath,
+            isSelected: useSecurityFallback,
+            onTap: () => onTabSelected(true),
+            colors: colors,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTab({
+    required String title,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required AppColors colors,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeInOut,
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: 4,
+        ),
+        decoration: BoxDecoration(
+          color: isSelected ? colors.pr : Colors.transparent,
+          borderRadius: AppRadius.rFull,
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontFamily: AppTypography.fontFamily,
+            fontSize: 12,
+            fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+            color: isSelected ? colors.prt : colors.mu,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // 1. LOGIN FORM
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -499,6 +566,7 @@ class _LoginForm extends StatelessWidget {
   final bool isSubmitting;
   final bool isTurnstileVerified;
   final bool useSecurityFallback;
+  final ValueChanged<bool>? onVerificationTabChanged;
   final int lockoutSeconds;
   final bool rememberMe;
   final ValueChanged<bool> onRememberMeChanged;
@@ -523,6 +591,7 @@ class _LoginForm extends StatelessWidget {
     required this.isSubmitting,
     this.isTurnstileVerified = true,
     this.useSecurityFallback = false,
+    this.onVerificationTabChanged,
     this.lockoutSeconds = 0,
     this.rememberMe = true,
     required this.onRememberMeChanged,
@@ -625,6 +694,15 @@ class _LoginForm extends StatelessWidget {
 
           // Cloudflare Turnstile anti-bot verification or Smart Fallback (Web only)
           if (kIsWeb) ...[
+            if (onVerificationTabChanged != null) ...[
+              Center(
+                child: _VerificationTabSelector(
+                  useSecurityFallback: useSecurityFallback,
+                  onTabSelected: onVerificationTabChanged!,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
             Center(
               child: useSecurityFallback
                   ? FallbackSecurityChallenge(
@@ -741,6 +819,7 @@ class _SignupForm extends StatelessWidget {
   final bool isSubmitting;
   final bool isTurnstileVerified;
   final bool useSecurityFallback;
+  final ValueChanged<bool>? onVerificationTabChanged;
   final TurnstileController? turnstileController;
   final FallbackChallengeController? fallbackController;
   final ValueChanged<String>? onTurnstileVerified;
@@ -769,6 +848,7 @@ class _SignupForm extends StatelessWidget {
     required this.isSubmitting,
     this.isTurnstileVerified = true,
     this.useSecurityFallback = false,
+    this.onVerificationTabChanged,
     this.turnstileController,
     this.fallbackController,
     this.onTurnstileVerified,
@@ -918,6 +998,15 @@ class _SignupForm extends StatelessWidget {
 
           // Cloudflare Turnstile anti-bot verification or Smart Fallback (Web only)
           if (kIsWeb) ...[
+            if (onVerificationTabChanged != null) ...[
+              Center(
+                child: _VerificationTabSelector(
+                  useSecurityFallback: useSecurityFallback,
+                  onTabSelected: onVerificationTabChanged!,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
             Center(
               child: useSecurityFallback
                   ? FallbackSecurityChallenge(

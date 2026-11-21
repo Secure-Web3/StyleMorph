@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,28 @@ import 'package:stylemorph/features/auth/presentation/email_verification_provide
 import 'package:stylemorph/features/auth/presentation/email_verification_screen.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/change_email_dialog.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/identity_sub_tab.dart';
+
+class FakeGoogleUser extends Fake implements User {
+  @override
+  String? get email => 'googleuser@gmail.com';
+
+  @override
+  String get uid => 'google-user-123';
+
+  @override
+  List<UserInfo> get providerData => [
+    FakeUserInfo(providerId: 'google.com', email: 'googleuser@gmail.com'),
+  ];
+}
+
+class FakeUserInfo extends Fake implements UserInfo {
+  @override
+  final String providerId;
+  @override
+  final String? email;
+
+  FakeUserInfo({required this.providerId, this.email});
+}
 
 void main() {
   final testTheme = AppTheme.buildTheme(
@@ -49,7 +72,7 @@ void main() {
     );
   }
 
-  Widget buildDialogWidget({Locale locale = const Locale('fa')}) {
+  Widget buildDialogWidget({Locale locale = const Locale('fa'), User? user}) {
     return MaterialApp(
       theme: testTheme,
       locale: locale,
@@ -64,7 +87,9 @@ void main() {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: const Scaffold(body: Center(child: ChangeEmailDialog())),
+      home: Scaffold(
+        body: Center(child: ChangeEmailDialog(user: user)),
+      ),
     );
   }
 
@@ -192,6 +217,72 @@ void main() {
         );
         expect(
           find.text('Lost access to your old email? Contact Support'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'ChangeEmailDialog for Google user shows Verify with Google button and advances to Step 2',
+      (WidgetTester tester) async {
+        final googleUser = FakeGoogleUser();
+        await tester.pumpWidget(
+          buildDialogWidget(locale: const Locale('fa'), user: googleUser),
+        );
+        await tester.pumpAndSettle();
+
+        // Title and Step 1/2 indicator
+        expect(find.text('تغییر آدرس ایمیل'), findsOneWidget);
+        expect(find.text('1 / 2'), findsOneWidget);
+
+        // Google reauth subtitle should be present
+        expect(
+          find.text(
+            'جهت حفظ امنیت حساب، لطفاً هویت خود را با حساب گوگل تأیید کنید.',
+          ),
+          findsOneWidget,
+        );
+
+        // Current email shown
+        expect(find.text('googleuser@gmail.com'), findsOneWidget);
+
+        // Password field should NOT be present for Google users
+        expect(find.text('رمز عبور فعلی'), findsNothing);
+
+        // Official "Verify with Google" button should be present
+        final googleBtn = find.widgetWithText(AppButton, 'تأیید با گوگل');
+        expect(googleBtn, findsOneWidget);
+
+        // Tap "Verify with Google" -> advances to Step 2
+        await tester.tap(googleBtn);
+        await tester.pumpAndSettle();
+
+        expect(find.text('2 / 2'), findsOneWidget);
+        expect(find.text('آدرس ایمیل جدید'), findsOneWidget);
+        expect(
+          find.widgetWithText(AppButton, 'ارسال لینک تایید به ایمیل جدید'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'ChangeEmailDialog for Google user in English renders Verify with Google',
+      (WidgetTester tester) async {
+        final googleUser = FakeGoogleUser();
+        await tester.pumpWidget(
+          buildDialogWidget(locale: const Locale('en'), user: googleUser),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          find.text(
+            'For your security, please verify your identity using your Google account.',
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.widgetWithText(AppButton, 'Verify with Google'),
           findsOneWidget,
         );
       },

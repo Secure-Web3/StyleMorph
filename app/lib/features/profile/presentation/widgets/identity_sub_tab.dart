@@ -418,11 +418,8 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
       }
     } catch (_) {}
 
-    final bool isSocialUser =
-        user?.providerData.any(
-          (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
-        ) ??
-        false;
+    final bool isAppleUser =
+        user?.providerData.any((p) => p.providerId == 'apple.com') ?? false;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -718,8 +715,8 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                             ),
                           ),
                           Tooltip(
-                            message: isSocialUser
-                                ? strings.idSocialEmailNote
+                            message: isAppleUser
+                                ? strings.authAppleEmailManagedNote
                                 : '',
                             child: AppButton(
                               size: AppButtonSize.sm,
@@ -734,7 +731,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                                 size: 10,
                               ),
                               text: strings.idChangeEmail,
-                              onPressed: isSocialUser
+                              onPressed: isAppleUser
                                   ? null
                                   : () => ChangeEmailDialog.show(
                                       context,
@@ -753,9 +750,12 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                     placeholder: strings.idEmailPlaceholder,
                     keyboardType: TextInputType.emailAddress,
                     controller: _emailController,
-                    onChanged: (val) => _onFieldChanged('email', val),
+                    readOnly: isEmailVerified,
+                    onChanged: isEmailVerified
+                        ? null
+                        : (val) => _onFieldChanged('email', val),
                   ),
-                  if (isSocialUser) ...[
+                  if (isAppleUser) ...[
                     const SizedBox(height: AppSpacing.xxs),
                     Row(
                       children: [
@@ -763,7 +763,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                         const SizedBox(width: AppSpacing.xs),
                         Expanded(
                           child: Text(
-                            strings.idSocialEmailNote,
+                            strings.authAppleEmailManagedNote,
                             style: AppTypography.caption(color: colors.mu),
                           ),
                         ),

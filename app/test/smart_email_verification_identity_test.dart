@@ -6,6 +6,7 @@ import 'package:stylemorph/core/theme/app_colors.dart';
 import 'package:stylemorph/core/theme/app_theme.dart';
 import 'package:stylemorph/core/widgets/app_badge.dart';
 import 'package:stylemorph/core/widgets/app_button.dart';
+import 'package:stylemorph/core/widgets/app_text_field.dart';
 import 'package:stylemorph/features/auth/presentation/email_verification_provider.dart';
 import 'package:stylemorph/features/auth/presentation/email_verification_screen.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/identity_sub_tab.dart';
@@ -73,6 +74,35 @@ void main() {
         // Verify and Check Status buttons must NOT exist
         expect(find.widgetWithText(AppButton, 'تایید ایمیل'), findsNothing);
         expect(find.widgetWithText(AppButton, 'بررسی تایید'), findsNothing);
+
+        // Email field MUST be read-only to prevent manual tampering
+        final emailTextFieldFinder = find.byType(AppTextField);
+        final appTextFields = tester.widgetList<AppTextField>(
+          emailTextFieldFinder,
+        );
+        final emailField = appTextFields.firstWhere(
+          (field) => field.keyboardType == TextInputType.emailAddress,
+        );
+        expect(emailField.readOnly, isTrue);
+      },
+    );
+
+    testWidgets(
+      'when emailVerified == false, email AppTextField is editable (readOnly: false)',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(isVerified: false, locale: const Locale('fa')),
+        );
+        await tester.pumpAndSettle();
+
+        final emailTextFieldFinder = find.byType(AppTextField);
+        final appTextFields = tester.widgetList<AppTextField>(
+          emailTextFieldFinder,
+        );
+        final emailField = appTextFields.firstWhere(
+          (field) => field.keyboardType == TextInputType.emailAddress,
+        );
+        expect(emailField.readOnly, isFalse);
       },
     );
 

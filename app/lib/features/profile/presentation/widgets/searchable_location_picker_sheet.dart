@@ -1,5 +1,6 @@
 import 'package:country_state_city/country_state_city.dart' as csc;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -225,6 +226,16 @@ class _SearchableCountryViewState extends State<_SearchableCountryView> {
     });
   }
 
+  Future<void> _safePop([dynamic result]) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    try {
+      SystemChannels.textInput.invokeMethod('TextInput.hide');
+    } catch (_) {}
+    await Future<void>.delayed(const Duration(milliseconds: 160));
+    if (!mounted) return;
+    Navigator.of(context).pop(result);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -267,7 +278,7 @@ class _SearchableCountryViewState extends State<_SearchableCountryView> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => _safePop(),
                   ),
                 ],
               ),
@@ -343,7 +354,7 @@ class _SearchableCountryViewState extends State<_SearchableCountryView> {
                         ],
                       ],
                     ),
-                    onTap: () => Navigator.of(context).pop(c),
+                    onTap: () => _safePop(c),
                   );
                 },
               ),
@@ -447,6 +458,16 @@ class _SearchableProvinceViewState extends State<_SearchableProvinceView> {
     });
   }
 
+  Future<void> _safePop([dynamic result]) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    try {
+      SystemChannels.textInput.invokeMethod('TextInput.hide');
+    } catch (_) {}
+    await Future<void>.delayed(const Duration(milliseconds: 160));
+    if (!mounted) return;
+    Navigator.of(context).pop(result);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -486,7 +507,7 @@ class _SearchableProvinceViewState extends State<_SearchableProvinceView> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => _safePop(),
                   ),
                 ],
               ),
@@ -545,7 +566,7 @@ class _SearchableProvinceViewState extends State<_SearchableProvinceView> {
                             color: colors.pr,
                           )
                         : null,
-                    onTap: () => Navigator.of(context).pop(p),
+                    onTap: () => _safePop(p),
                   );
                 },
               ),
@@ -659,6 +680,16 @@ class _SearchableCityViewState extends State<_SearchableCityView> {
     });
   }
 
+  Future<void> _safePop([dynamic result]) async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    try {
+      SystemChannels.textInput.invokeMethod('TextInput.hide');
+    } catch (_) {}
+    await Future<void>.delayed(const Duration(milliseconds: 160));
+    if (!mounted) return;
+    Navigator.of(context).pop(result);
+  }
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
@@ -699,7 +730,7 @@ class _SearchableCityViewState extends State<_SearchableCityView> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.close, size: 20),
-                    onPressed: () => Navigator.of(context).pop(),
+                    onPressed: () => _safePop(),
                   ),
                 ],
               ),
@@ -731,7 +762,7 @@ class _SearchableCityViewState extends State<_SearchableCityView> {
                     color: colors.pr,
                   ),
                 ),
-                onTap: () => Navigator.of(context).pop(query),
+                onTap: () => _safePop(query),
               ),
               const Divider(height: 1),
             ],
@@ -778,7 +809,7 @@ class _SearchableCityViewState extends State<_SearchableCityView> {
                             color: colors.pr,
                           )
                         : null,
-                    onTap: () => Navigator.of(context).pop(localizedName),
+                    onTap: () => _safePop(localizedName),
                   );
                 },
               ),

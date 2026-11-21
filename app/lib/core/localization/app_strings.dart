@@ -221,10 +221,15 @@ class AppStrings {
       'idChangeEmail': 'تغییر ایمیل',
       'idSocialEmailNote':
           'ایمیل حساب‌های گوگل و اپل از طریق ارائه‌دهنده سرویس مدیریت می‌شود.',
+      'authAppleEmailManagedNote':
+          'ایمیل حساب‌های اپل از طریق ارائه‌دهنده سرویس (Apple ID) مدیریت می‌شود.',
       'idChangeEmailTitle': 'تغییر آدرس ایمیل',
       'idChangeEmailReauthSubtitle':
           'جهت حفظ امنیت حساب، لطفاً ابتدا رمز عبور فعلی خود را وارد کنید.',
+      'idChangeEmailReauthSubtitleGoogle':
+          'جهت حفظ امنیت حساب، لطفاً هویت خود را با حساب گوگل تأیید کنید.',
       'idCurrentPasswordLabel': 'رمز عبور فعلی',
+      'idVerifyWithGoogle': 'تأیید با گوگل',
       'idVerifyAndContinue': 'تایید رمز و ادامه',
       'idNewEmailLabel': 'آدرس ایمیل جدید',
       'idChangeEmailNotice':
@@ -877,6 +882,8 @@ class AppStrings {
       'authTurnstilePrompt': 'تایید امنیتی ورود',
       'authTurnstileRequired': 'لطفاً تایید امنیتی Cloudflare را تکمیل کنید.',
       'authTurnstileChecking': 'در حال بررسی امنیتی...',
+      'authVerificationCloudflare': 'کلودفلر',
+      'authVerificationMath': 'چالش اعداد',
       'authFallbackSecurityTitle': 'تایید امنیتی جایگزین',
       'authFallbackMathQuestion': '{a} + {b} = ؟',
       'authFallbackVerified': 'تایید شد',
@@ -1121,10 +1128,15 @@ class AppStrings {
       'idCheckEmailStatus': 'Check Status',
       'idChangeEmail': 'Change Email',
       'idSocialEmailNote': 'Social login emails are managed by your provider.',
+      'authAppleEmailManagedNote':
+          'Apple account email is managed via your Apple ID.',
       'idChangeEmailTitle': 'Change Email Address',
       'idChangeEmailReauthSubtitle':
           'For security purposes, please re-enter your current password.',
+      'idChangeEmailReauthSubtitleGoogle':
+          'For your security, please verify your identity using your Google account.',
       'idCurrentPasswordLabel': 'Current Password',
+      'idVerifyWithGoogle': 'Verify with Google',
       'idVerifyAndContinue': 'Verify & Continue',
       'idNewEmailLabel': 'New Email Address',
       'idChangeEmailNotice':
@@ -1780,6 +1792,8 @@ class AppStrings {
       'authTurnstileRequired':
           'Please complete the Cloudflare security verification.',
       'authTurnstileChecking': 'Performing security check...',
+      'authVerificationCloudflare': 'Cloudflare',
+      'authVerificationMath': 'Math Check',
       'authFallbackSecurityTitle': 'Security Verification',
       'authFallbackMathQuestion': '{a} + {b} = ?',
       'authFallbackVerified': 'Verified',
@@ -2023,10 +2037,14 @@ class AppStrings {
       'idChangeEmail': 'تغيير البريد',
       'idSocialEmailNote':
           'تتم إدارة بريد تسجيل الدخول عبر حسابات جوجل وآبل من خلال مزود الخدمة.',
+      'authAppleEmailManagedNote': 'تتم إدارة بريد حسابات Apple عبر Apple ID.',
       'idChangeEmailTitle': 'تغيير عنوان البريد الإلكتروني',
       'idChangeEmailReauthSubtitle':
           'لأسباب أمنية، يرجى إعادة إدخال كلمة المرور الحالية أولاً.',
+      'idChangeEmailReauthSubtitleGoogle':
+          'لأمان حسابك، يرجى التحقق من هويتك باستخدام حساب Google.',
       'idCurrentPasswordLabel': 'كلمة المرور الحالية',
+      'idVerifyWithGoogle': 'التحقق باستخدام Google',
       'idVerifyAndContinue': 'تأكيد ومتابعة',
       'idNewEmailLabel': 'عنوان البريد الإلكتروني الجديد',
       'idChangeEmailNotice':
@@ -2665,6 +2683,8 @@ class AppStrings {
       'authTurnstilePrompt': 'التحقق الأمني',
       'authTurnstileRequired': 'يرجى إكمال التحقق الأمني من Cloudflare.',
       'authTurnstileChecking': 'جارٍ التحقق من الأمان...',
+      'authVerificationCloudflare': 'كلودفلير',
+      'authVerificationMath': 'تحدي الأرقام',
       'authFallbackSecurityTitle': 'التحقق الأمني البديل',
       'authFallbackMathQuestion': '{a} + {b} = ؟',
       'authFallbackVerified': 'تم التحقق',
@@ -2906,10 +2926,15 @@ class AppStrings {
       'idChangeEmail': 'E-postayı Değiştir',
       'idSocialEmailNote':
           'Google ve Apple ile giriş yapılan e-postalar sağlayıcı tarafından yönetilir.',
+      'authAppleEmailManagedNote':
+          'Apple hesap e-postası Apple ID üzerinden yönetilir.',
       'idChangeEmailTitle': 'E-posta Adresini Değiştir',
       'idChangeEmailReauthSubtitle':
           'Güvenlik nedeniyle lütfen önce mevcut şifrenizi girin.',
+      'idChangeEmailReauthSubtitleGoogle':
+          'Hesap güvenliğiniz için lütfen Google hesabınızla kimliğinizi doğrulayın.',
       'idCurrentPasswordLabel': 'Mevcut Şifre',
+      'idVerifyWithGoogle': 'Google ile Doğrula',
       'idVerifyAndContinue': 'Doğrula ve Devam Et',
       'idNewEmailLabel': 'Yeni E-posta Adresi',
       'idChangeEmailNotice':
@@ -3576,6 +3601,8 @@ class AppStrings {
       'authTurnstileRequired':
           'Lütfen Cloudflare güvenlik doğrulamasını tamamlayın.',
       'authTurnstileChecking': 'Güvenlik kontrolü yapılıyor...',
+      'authVerificationCloudflare': 'Cloudflare',
+      'authVerificationMath': 'Matematik Kontrolü',
       'authFallbackSecurityTitle': 'Güvenlik Doğrulaması',
       'authFallbackMathQuestion': '{a} + {b} = ?',
       'authFallbackVerified': 'Doğrulandı',
@@ -3912,9 +3939,13 @@ class AppStrings {
   String get idCheckEmailStatus => get('idCheckEmailStatus');
   String get idChangeEmail => get('idChangeEmail');
   String get idSocialEmailNote => get('idSocialEmailNote');
+  String get authAppleEmailManagedNote => get('authAppleEmailManagedNote');
   String get idChangeEmailTitle => get('idChangeEmailTitle');
   String get idChangeEmailReauthSubtitle => get('idChangeEmailReauthSubtitle');
+  String get idChangeEmailReauthSubtitleGoogle =>
+      get('idChangeEmailReauthSubtitleGoogle');
   String get idCurrentPasswordLabel => get('idCurrentPasswordLabel');
+  String get idVerifyWithGoogle => get('idVerifyWithGoogle');
   String get idVerifyAndContinue => get('idVerifyAndContinue');
   String get idNewEmailLabel => get('idNewEmailLabel');
   String get idChangeEmailNotice => get('idChangeEmailNotice');
@@ -4589,6 +4620,8 @@ class AppStrings {
   String get authTurnstilePrompt => get('authTurnstilePrompt');
   String get authTurnstileRequired => get('authTurnstileRequired');
   String get authTurnstileChecking => get('authTurnstileChecking');
+  String get authVerificationCloudflare => get('authVerificationCloudflare');
+  String get authVerificationMath => get('authVerificationMath');
   String get authFallbackSecurityTitle => get('authFallbackSecurityTitle');
   String get authFallbackVerified => get('authFallbackVerified');
   String get authFallbackAnswerHint => get('authFallbackAnswerHint');

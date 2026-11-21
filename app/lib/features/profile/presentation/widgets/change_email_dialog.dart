@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
@@ -81,6 +82,51 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
       }
     }
     return null;
+  }
+
+  bool get _isGoogleUser {
+    final user = _currentUser;
+    if (user == null) return false;
+    return user.providerData.any((p) => p.providerId == 'google.com');
+  }
+
+  Future<void> _handleGoogleReauthenticate() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final user = _currentUser;
+      if (user != null && Firebase.apps.isNotEmpty) {
+        final provider = GoogleAuthProvider();
+        if (kIsWeb) {
+          await user.reauthenticateWithPopup(provider);
+        } else {
+          await user.reauthenticateWithProvider(provider);
+        }
+      }
+
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _currentStep = 2;
+        _errorMessage = null;
+      });
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _errorMessage = context.strings.authErrorMessage(e.code);
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _currentStep = 2;
+        _errorMessage = null;
+      });
+    }
   }
 
   Future<void> _handleReauthenticate() async {
@@ -307,7 +353,9 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
         ),
         const SizedBox(height: AppSpacing.md),
         Text(
-          strings.idChangeEmailReauthSubtitle,
+          _isGoogleUser
+              ? strings.idChangeEmailReauthSubtitleGoogle
+              : strings.idChangeEmailReauthSubtitle,
           style: AppTypography.bodySmall(color: colors.mu),
         ),
         const SizedBox(height: AppSpacing.md),
@@ -340,29 +388,53 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
           const SizedBox(height: AppSpacing.md),
         ],
 
-        // Password input field
-        AppTextField(
-          label: strings.idCurrentPasswordLabel,
-          placeholder: strings.authPasswordHint,
-          controller: _passwordController,
-          obscureText: !_isPasswordVisible,
-          prefix: Icon(Icons.lock_outline_rounded, size: 16, color: colors.mu),
-          suffix: GestureDetector(
-            onTap: () {
-              setState(() {
-                _isPasswordVisible = !_isPasswordVisible;
-              });
-            },
-            child: Icon(
-              _isPasswordVisible
-                  ? Icons.visibility_off_outlined
-                  : Icons.visibility_outlined,
-              size: 18,
+        if (_isGoogleUser) ...[
+          AppButton(
+            variant: AppButtonVariant.secondary,
+            isFullWidth: true,
+            icon: FaIcon(FontAwesomeIcons.google, size: 16, color: colors.tx),
+            text: _isLoading ? null : strings.idVerifyWithGoogle,
+            onPressed: _isLoading ? null : _handleGoogleReauthenticate,
+            child: _isLoading
+                ? SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colors.tx,
+                    ),
+                  )
+                : null,
+          ),
+        ] else ...[
+          // Password input field
+          AppTextField(
+            label: strings.idCurrentPasswordLabel,
+            placeholder: strings.authPasswordHint,
+            controller: _passwordController,
+            obscureText: !_isPasswordVisible,
+            prefix: Icon(
+              Icons.lock_outline_rounded,
+              size: 16,
               color: colors.mu,
             ),
+            suffix: GestureDetector(
+              onTap: () {
+                setState(() {
+                  _isPasswordVisible = !_isPasswordVisible;
+                });
+              },
+              child: Icon(
+                _isPasswordVisible
+                    ? Icons.visibility_off_outlined
+                    : Icons.visibility_outlined,
+                size: 18,
+                color: colors.mu,
+              ),
+            ),
+            onSubmitted: _isLoading ? null : _handleReauthenticate,
           ),
-          onSubmitted: _isLoading ? null : _handleReauthenticate,
-        ),
+        ],
 
         // Error message banner if any
         if (_errorMessage != null) ...[
@@ -388,38 +460,47 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
         const SizedBox(height: AppSpacing.lg),
 
         // Action Buttons
-        Row(
-          children: [
-            Expanded(
-              child: AppButton(
-                variant: AppButtonVariant.outline,
-                text: strings.back,
-                onPressed: _isLoading
-                    ? null
-                    : () => Navigator.of(context).pop(),
+        if (_isGoogleUser) ...[
+          AppButton(
+            variant: AppButtonVariant.outline,
+            isFullWidth: true,
+            text: strings.back,
+            onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+          ),
+        ] else ...[
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  variant: AppButtonVariant.outline,
+                  text: strings.back,
+                  onPressed: _isLoading
+                      ? null
+                      : () => Navigator.of(context).pop(),
+                ),
               ),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              flex: 2,
-              child: AppButton(
-                variant: AppButtonVariant.primary,
-                text: _isLoading ? null : strings.idVerifyAndContinue,
-                onPressed: _isLoading ? null : _handleReauthenticate,
-                child: _isLoading
-                    ? SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: colors.prt,
-                        ),
-                      )
-                    : null,
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                flex: 2,
+                child: AppButton(
+                  variant: AppButtonVariant.primary,
+                  text: _isLoading ? null : strings.idVerifyAndContinue,
+                  onPressed: _isLoading ? null : _handleReauthenticate,
+                  child: _isLoading
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colors.prt,
+                          ),
+                        )
+                      : null,
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ],
     );
   }

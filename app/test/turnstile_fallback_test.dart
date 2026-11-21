@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:stylemorph/core/localization/app_strings.dart';
 import 'package:stylemorph/features/auth/presentation/widgets/fallback_security_challenge.dart';
 
 void main() {
@@ -172,6 +173,29 @@ void main() {
         // TextField should be empty again and question prompt visible
         expect(find.text('Verified'), findsNothing);
         expect(find.byType(TextField), findsOneWidget);
+      },
+    );
+  });
+
+  group('Manual Turnstile / Math Tabs Localization Tests', () {
+    test(
+      'AppStrings provides authVerificationCloudflare and authVerificationMath in all 4 locales',
+      () {
+        final fa = AppStrings('fa');
+        expect(fa.authVerificationCloudflare, equals('کلودفلر'));
+        expect(fa.authVerificationMath, equals('چالش اعداد'));
+
+        final en = AppStrings('en');
+        expect(en.authVerificationCloudflare, equals('Cloudflare'));
+        expect(en.authVerificationMath, equals('Math Check'));
+
+        final ar = AppStrings('ar');
+        expect(ar.authVerificationCloudflare, equals('كلودفلير'));
+        expect(ar.authVerificationMath, equals('تحدي الأرقام'));
+
+        final tr = AppStrings('tr');
+        expect(tr.authVerificationCloudflare, equals('Cloudflare'));
+        expect(tr.authVerificationMath, equals('Matematik Kontrolü'));
       },
     );
   });
