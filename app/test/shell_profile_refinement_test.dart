@@ -217,7 +217,7 @@ void main() {
         expect(
           find.descendant(
             of: find.byType(Drawer),
-            matching: find.text('پاداش & شبکه'),
+            matching: find.text('رفرال'),
           ),
           findsOneWidget,
         );
@@ -226,7 +226,7 @@ void main() {
         await tester.tap(
           find.descendant(
             of: find.byType(Drawer),
-            matching: find.text('پاداش & شبکه'),
+            matching: find.text('رفرال'),
           ),
         );
         await tester.pumpAndSettle();
@@ -309,7 +309,7 @@ void main() {
           findsOneWidget,
         );
         expect(
-          find.descendant(of: profile, matching: find.text('پاداش & شبکه')),
+          find.descendant(of: profile, matching: find.text('رفرال')),
           findsOneWidget,
         );
         expect(
@@ -608,7 +608,7 @@ void main() {
           'Media',
           'AI Anatomy',
           'Wallet & Plan',
-          'Rewards & Net',
+          'Referral',
           'Companion',
           'Settings',
         ]) {
@@ -693,7 +693,7 @@ void main() {
           'الوسائط',
           'تشريح AI',
           'المحفظة والخطة',
-          'المكافآت',
+          'الإحالة',
           'المرافق الذكي',
           'الإعدادات',
         ]) {

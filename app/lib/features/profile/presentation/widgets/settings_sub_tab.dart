@@ -268,62 +268,6 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
           ),
           const SizedBox(height: AppSpacing.lg),
 
-          // Save Changes Button (Persist to users/{uid}.preferences in Firestore)
-          AppButton(
-            variant: AppButtonVariant.primary,
-            isFullWidth: true,
-            icon: appState.isSavingProfile
-                ? null
-                : FaIcon(
-                    FontAwesomeIcons.floppyDisk,
-                    size: 14,
-                    color: colors.prt,
-                  ),
-            text: appState.isSavingProfile ? null : strings.saveChanges,
-            onPressed: appState.isSavingProfile
-                ? null
-                : () async {
-                    final success = await ref
-                        .read(appStateProvider.notifier)
-                        .saveProfileToFirestore();
-                    if (!context.mounted) return;
-                    if (success) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            strings.profileSavedToast,
-                            style: const TextStyle(fontFamily: 'Vazirmatn'),
-                          ),
-                          backgroundColor: colors.ok,
-                          duration: const Duration(seconds: 2),
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            strings.profileSaveErrorToast,
-                            style: const TextStyle(fontFamily: 'Vazirmatn'),
-                          ),
-                          backgroundColor: colors.orColor,
-                          duration: const Duration(seconds: 3),
-                        ),
-                      );
-                    }
-                  },
-            child: appState.isSavingProfile
-                ? SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: colors.prt,
-                    ),
-                  )
-                : null,
-          ),
-          const SizedBox(height: AppSpacing.sm),
-
           // Logout Button
           AppButton(
             variant: AppButtonVariant.destructive,

@@ -89,6 +89,7 @@ class AppButton extends StatelessWidget {
           text!,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
           style: AppTypography.buttonLabel(
             color: fg,
             fontSize: resolvedFontSize,
@@ -117,6 +118,8 @@ class AppButton extends StatelessWidget {
         height: resolvedHeight,
         gap: AppSpacing.sm,
         leading: leadingWidget,
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         backgroundColor: bg,
         hoverBackgroundColor: bg.withValues(alpha: 0.92),
         foregroundColor: fg,
@@ -143,14 +146,16 @@ class AppButton extends StatelessWidget {
               ),
         child: isFullWidth
             ? DefaultTextStyle(
+                textAlign: TextAlign.center,
                 style: AppTypography.buttonLabel(
                   color: fg,
                   fontSize: resolvedFontSize,
                 ),
-                child: labelWidget,
+                child: Center(child: labelWidget),
               )
             : Flexible(
                 child: DefaultTextStyle(
+                  textAlign: TextAlign.center,
                   style: AppTypography.buttonLabel(
                     color: fg,
                     fontSize: resolvedFontSize,

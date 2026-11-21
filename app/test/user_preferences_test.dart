@@ -166,20 +166,10 @@ void main() {
         expect(find.text('نمایش موجودی سکه در هدر'), findsOneWidget);
         expect(find.text('پشتیبان‌گیری خودکار داده‌ها'), findsOneWidget);
 
-        // Verify Save Changes button is visible
-        final saveBtnFinder = find.text('ذخیره تغییرات');
-        expect(saveBtnFinder, findsOneWidget);
-
-        // Tap Save Changes button
-        await tester.tap(saveBtnFinder);
-        await tester.pump();
-
-        // Verify saveProfileToFirestore was triggered and success toast is displayed
-        expect(testNotifier.saveCalled, isTrue);
-        expect(
-          find.text('تغییرات پروفایل با موفقیت ذخیره شد.'),
-          findsOneWidget,
-        );
+        // Verify inline duplicate Save Changes button is removed and Logout button is visible
+        expect(find.text('ذخیره تغییرات'), findsNothing);
+        final logoutBtnFinder = find.text('خروج از حساب کاربری');
+        expect(logoutBtnFinder, findsOneWidget);
       },
     );
 
@@ -208,19 +198,10 @@ void main() {
         expect(find.text('Show Coin Balance in Header'), findsOneWidget);
         expect(find.text('Auto Data Backup'), findsOneWidget);
 
-        // Verify Save Changes button in English
-        final saveBtnFinder = find.text('Save Changes');
-        expect(saveBtnFinder, findsOneWidget);
-
-        // Tap Save Changes
-        await tester.tap(saveBtnFinder);
-        await tester.pump();
-
-        expect(testNotifier.saveCalled, isTrue);
-        expect(
-          find.text('Profile changes saved successfully.'),
-          findsOneWidget,
-        );
+        // Verify inline duplicate Save Changes button is removed and Logout button is visible
+        expect(find.text('Save Changes'), findsNothing);
+        final logoutBtnFinder = find.text('Sign Out of Account');
+        expect(logoutBtnFinder, findsOneWidget);
       },
     );
   });

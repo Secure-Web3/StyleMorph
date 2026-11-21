@@ -183,8 +183,8 @@ void main() {
 
         // Check required & optional badges
         expect(find.text('الزامی'), findsNWidgets(4));
-        expect(find.text('اختیاری'), findsNWidgets(2));
-        expect(find.text('پیشرفته (PRO)'), findsOneWidget);
+        expect(find.text('اختیاری'), findsNWidgets(3));
+        expect(find.text('پیشرفته (PRO)'), findsNothing);
       },
     );
 
@@ -258,8 +258,8 @@ void main() {
 
         // Badges
         expect(find.text('Required'), findsNWidgets(4));
-        expect(find.text('Optional'), findsNWidgets(2));
-        expect(find.text('Advanced (PRO)'), findsOneWidget);
+        expect(find.text('Optional'), findsNWidgets(3));
+        expect(find.text('Advanced (PRO)'), findsNothing);
 
         // Confirm no Persian strings leaked in English mode
         expect(find.text('در انتظار بارگذاری'), findsNothing);

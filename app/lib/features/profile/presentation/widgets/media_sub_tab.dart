@@ -27,7 +27,6 @@ class _MediaSlotDef {
   final String title;
   final bool isRequired;
   final bool isVideo;
-  final bool isPro;
   final FaIconData icon;
 
   const _MediaSlotDef({
@@ -35,7 +34,6 @@ class _MediaSlotDef {
     required this.title,
     required this.isRequired,
     this.isVideo = false,
-    this.isPro = false,
     required this.icon,
   });
 }
@@ -107,7 +105,6 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
         title: strings.galSlotScan360,
         isRequired: false,
         isVideo: true,
-        isPro: true,
         icon: FontAwesomeIcons.video,
       ),
     ];
@@ -678,9 +675,7 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                           decoration: BoxDecoration(
                             color: slot.isRequired
                                 ? colors.pr.withValues(alpha: 0.15)
-                                : (slot.isPro
-                                      ? colors.inColor.withValues(alpha: 0.15)
-                                      : colors.bg),
+                                : colors.bg,
                             borderRadius: AppRadius.rSm,
                             border: Border.all(
                               color: slot.isRequired
@@ -691,16 +686,12 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                           child: Text(
                             slot.isRequired
                                 ? strings.galRequired
-                                : (slot.isPro
-                                      ? strings.galProSlot
-                                      : strings.galOptional),
+                                : strings.galOptional,
                             style: TextStyle(
                               fontFamily: 'Vazirmatn',
                               fontSize: 9,
                               fontWeight: FontWeight.bold,
-                              color: slot.isRequired
-                                  ? colors.pr
-                                  : (slot.isPro ? colors.inColor : colors.mu),
+                              color: slot.isRequired ? colors.pr : colors.mu,
                             ),
                           ),
                         ),

@@ -527,7 +527,7 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                 style: TextStyle(
                   fontFamily: 'Vazirmatn',
                   fontSize: 10,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
                   color: colors.tx,
                 ),
               ),
