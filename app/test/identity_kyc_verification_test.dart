@@ -138,8 +138,8 @@ void main() {
         expect(find.text(faStrings.kycSectionSubtitle), findsOneWidget);
         expect(find.text(faStrings.kycStatusNotSubmitted), findsOneWidget);
         expect(find.text(faStrings.kycDocNationalId), findsOneWidget);
-        expect(find.text(faStrings.kycUploadFront), findsOneWidget);
-        expect(find.text(faStrings.kycUploadBack), findsOneWidget);
+        expect(find.text(faStrings.kycDocTileNationalIdFront), findsOneWidget);
+        expect(find.text(faStrings.kycDocTileNationalIdBack), findsOneWidget);
       },
     );
 
@@ -158,8 +158,8 @@ void main() {
       expect(find.text(enStrings.kycSectionTitle), findsOneWidget);
       expect(find.text(enStrings.kycStatusNotSubmitted), findsOneWidget);
       expect(find.text(enStrings.kycDocNationalId), findsOneWidget);
-      expect(find.text(enStrings.kycUploadFront), findsOneWidget);
-      expect(find.text(enStrings.kycUploadBack), findsOneWidget);
+      expect(find.text(enStrings.kycDocTileNationalIdFront), findsOneWidget);
+      expect(find.text(enStrings.kycDocTileNationalIdBack), findsOneWidget);
     });
 
     testWidgets(
@@ -174,17 +174,35 @@ void main() {
         );
         await tester.pumpAndSettle();
 
+        // Default: National ID tiles
+        expect(find.text(faStrings.kycDocTileNationalIdFront), findsOneWidget);
+        expect(find.text(faStrings.kycDocTileNationalIdBack), findsOneWidget);
+
         // Find passport chip and tap
         final passportChip = find.text(faStrings.kycDocPassport);
         expect(passportChip, findsOneWidget);
         await tester.tap(passportChip);
         await tester.pumpAndSettle();
 
+        // Dynamic Passport tiles
+        expect(find.text(faStrings.kycDocTilePassportFront), findsOneWidget);
+        expect(find.text(faStrings.kycDocTilePassportBack), findsOneWidget);
+
         // Find driver's license chip and tap
         final driversLicenseChip = find.text(faStrings.kycDocDriversLicense);
         expect(driversLicenseChip, findsOneWidget);
         await tester.tap(driversLicenseChip);
         await tester.pumpAndSettle();
+
+        // Dynamic Driver's License tiles
+        expect(
+          find.text(faStrings.kycDocTileDriversLicenseFront),
+          findsOneWidget,
+        );
+        expect(
+          find.text(faStrings.kycDocTileDriversLicenseBack),
+          findsOneWidget,
+        );
       },
     );
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
@@ -23,6 +24,9 @@ class AppTextField extends StatelessWidget {
   final bool readOnly;
   final VoidCallback? onTap;
   final String? errorText;
+  final List<TextInputFormatter>? inputFormatters;
+  final Iterable<String>? autofillHints;
+  final TextDirection? textDirection;
 
   const AppTextField({
     super.key,
@@ -44,6 +48,9 @@ class AppTextField extends StatelessWidget {
     this.readOnly = false,
     this.onTap,
     this.errorText,
+    this.inputFormatters,
+    this.autofillHints,
+    this.textDirection,
   });
 
   @override
@@ -86,6 +93,9 @@ class AppTextField extends StatelessWidget {
           onTap: onTap,
           maxLines: maxLines,
           maxLength: maxLength,
+          inputFormatters: inputFormatters,
+          autofillHints: autofillHints,
+          textDirection: textDirection,
           style: TextStyle(
             fontFamily: AppTypography.fontFamily,
             fontSize: 13,
@@ -116,11 +126,11 @@ class AppTextField extends StatelessWidget {
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: AppRadius.rLg,
-              borderSide: BorderSide(color: colors.orColor, width: 1.0),
+              borderSide: BorderSide(color: colors.orColor, width: 1.2),
             ),
             focusedErrorBorder: OutlineInputBorder(
               borderRadius: AppRadius.rLg,
-              borderSide: BorderSide(color: colors.orColor, width: 1.5),
+              borderSide: BorderSide(color: colors.orColor, width: 1.8),
             ),
             filled: true,
             fillColor: colors.bg,

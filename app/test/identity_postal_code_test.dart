@@ -14,8 +14,17 @@ void main() {
     isDark: false,
   );
 
-  Widget buildTestableWidget({Locale locale = const Locale('fa')}) {
+  Widget buildTestableWidget({
+    Locale locale = const Locale('fa'),
+    AppState? initialState,
+  }) {
     return ProviderScope(
+      overrides: [
+        if (initialState != null)
+          appStateProvider.overrideWith(
+            (ref) => _TestAppStateNotifier(initialState),
+          ),
+      ],
       child: MaterialApp(
         theme: testTheme,
         locale: locale,
@@ -95,7 +104,15 @@ void main() {
       'supports international alphanumeric formats up to 12 characters',
       (WidgetTester tester) async {
         await tester.pumpWidget(
-          buildTestableWidget(locale: const Locale('en')),
+          buildTestableWidget(
+            locale: const Locale('en'),
+            initialState: const AppState(
+              identityValues: {
+                'countryCode': 'GB',
+                'country': 'United Kingdom',
+              },
+            ),
+          ),
         );
         await tester.pumpAndSettle();
 
@@ -146,4 +163,13 @@ void main() {
       );
     });
   });
+}
+
+class _TestAppStateNotifier extends AppStateNotifier {
+  _TestAppStateNotifier(AppState initialState) : super() {
+    state = initialState;
+  }
+
+  @override
+  Future<void> loadProfileFromFirestore() async {}
 }

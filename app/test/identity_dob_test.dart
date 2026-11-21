@@ -83,32 +83,53 @@ void main() {
       );
     });
 
-    testWidgets('AppTextField readOnly and onTap open date picker on tap', (
-      WidgetTester tester,
-    ) async {
-      await tester.pumpWidget(buildTestableWidget(locale: const Locale('en')));
-      await tester.pumpAndSettle();
+    testWidgets(
+      'AppTextField supports controlled manual typing and calendar icon opens date picker',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(
+          buildTestableWidget(locale: const Locale('en')),
+        );
+        await tester.pumpAndSettle();
 
-      // Find the DOB AppTextField
-      final dobFieldFinder = find.widgetWithText(AppTextField, 'Date of Birth');
-      expect(dobFieldFinder, findsOneWidget);
+        // Find the DOB AppTextField
+        final dobFieldFinder = find.widgetWithText(
+          AppTextField,
+          'Date of Birth',
+        );
+        expect(dobFieldFinder, findsOneWidget);
 
-      final appTextField = tester.widget<AppTextField>(dobFieldFinder);
-      expect(appTextField.readOnly, isTrue);
-      expect(appTextField.onTap, isNotNull);
+        final appTextField = tester.widget<AppTextField>(dobFieldFinder);
+        expect(appTextField.readOnly, isFalse);
 
-      // Tap on the field
-      await tester.tap(dobFieldFinder);
-      await tester.pumpAndSettle();
+        // Tap calendar icon button
+        final calendarIconFinder = find.byWidgetPredicate(
+          (w) =>
+              w is FaIcon &&
+              w.icon?.codePoint == FontAwesomeIcons.calendar.codePoint,
+        );
+        expect(calendarIconFinder, findsOneWidget);
+        await tester.tap(calendarIconFinder);
+        await tester.pumpAndSettle();
 
-      // The Flutter DatePicker dialog should now be open
-      expect(find.byType(DatePickerDialog), findsOneWidget);
+        // The Flutter DatePicker dialog should now be open
+        expect(find.byType(DatePickerDialog), findsOneWidget);
 
-      // Dismiss dialog
-      await tester.tap(find.text('Cancel'));
-      await tester.pumpAndSettle();
-      expect(find.byType(DatePickerDialog), findsNothing);
-    });
+        // Dismiss dialog
+        await tester.tap(find.text('Cancel'));
+        await tester.pumpAndSettle();
+        expect(find.byType(DatePickerDialog), findsNothing);
+
+        // Test manual typing digits with auto-hyphen and Live Age pill
+        await tester.enterText(dobFieldFinder, '19900520');
+        await tester.pumpAndSettle();
+
+        // Formatted to YYYY-MM-DD
+        expect(find.text('1990-05-20'), findsOneWidget);
+
+        // Live Age Pill calculates age in years
+        expect(find.textContaining('yrs'), findsOneWidget);
+      },
+    );
 
     test('calculateProfileProgress includes dob in completion score', () {
       final withoutDob = AppStateNotifier.calculateProfileProgress(

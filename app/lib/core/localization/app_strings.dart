@@ -271,6 +271,20 @@ class AppStrings {
       'idErrInvalidZipTurkey': 'کد پستی ترکیه باید ۵ رقم عددی باشد',
       'idErrInvalidZipInternational': 'کد پستی نامعتبر است (۳ تا ۱۲ کاراکتر)',
       'idErrInvalidMobile': 'شماره موبایل وارد شده برای این کشور نامعتبر است',
+      'idAgeYears': '{age} سال',
+      'idErrDobInvalid': 'فرمت تاریخ تولد باید YYYY-MM-DD باشد',
+      'idErrDobFuture': 'تاریخ تولد نمی‌تواند در آینده باشد',
+      'idErrFirstName': 'نام باید فقط شامل حروف باشد (حداقل ۲ حرف)',
+      'idErrLastName': 'نام خانوادگی باید فقط شامل حروف باشد (حداقل ۲ حرف)',
+      'idErrValidationSummary':
+          'لطفاً خطاهای مشخص‌شده در فرم هویت را برطرف کنید.',
+      'kycDocTileNationalIdFront': 'روی کارت ملی (الزامی)',
+      'kycDocTileNationalIdBack': 'پشت کارت ملی (الزامی)',
+      'kycDocTilePassportFront': 'صفحه مشخصات پاسپورت (الزامی)',
+      'kycDocTilePassportBack': 'سلفی همراه پاسپورت (اختیاری)',
+      'kycDocTileDriversLicenseFront': 'روی گواهینامه (الزامی)',
+      'kycDocTileDriversLicenseBack': 'پشت گواهینامه (الزامی)',
+      'kycRemoveImage': 'حذف تصویر',
       'kycSectionTitle': 'احراز هویت (KYC)',
       'kycSectionSubtitle':
           'جهت فعال‌سازی قابلیت‌های پیشرفته و امنیت حساب، مدارک هویتی خود را ارسال کنید.',
@@ -1179,6 +1193,20 @@ class AppStrings {
       'idErrInvalidZipInternational':
           'Invalid Postal/ZIP Code (3-12 characters)',
       'idErrInvalidMobile': 'Invalid mobile number for selected country',
+      'idAgeYears': '{age} yrs',
+      'idErrDobInvalid': 'Date of birth format must be YYYY-MM-DD',
+      'idErrDobFuture': 'Date of birth cannot be in the future',
+      'idErrFirstName': 'First name must contain letters only (min 2 chars)',
+      'idErrLastName': 'Last name must contain letters only (min 2 chars)',
+      'idErrValidationSummary':
+          'Please fix the highlighted errors in the identity form.',
+      'kycDocTileNationalIdFront': 'Front of National ID (Required)',
+      'kycDocTileNationalIdBack': 'Back of National ID (Required)',
+      'kycDocTilePassportFront': 'Passport Info Page (Required)',
+      'kycDocTilePassportBack': 'Selfie Holding Passport (Optional)',
+      'kycDocTileDriversLicenseFront': 'Front of Driver\'s License (Required)',
+      'kycDocTileDriversLicenseBack': 'Back of Driver\'s License (Required)',
+      'kycRemoveImage': 'Remove Image',
       'kycSectionTitle': 'Identity Verification (KYC)',
       'kycSectionSubtitle':
           'Submit your identity documents to unlock advanced features and secure your account.',
@@ -2085,6 +2113,20 @@ class AppStrings {
       'idErrInvalidZipTurkey': 'يجب أن يتكون الرمز البريدي التركي من ٥ أرقام',
       'idErrInvalidZipInternational': 'الرمز البريدي غير صالح (٣-١٢ حرف)',
       'idErrInvalidMobile': 'رقم الجوال غير صالح للدولة المحددة',
+      'idAgeYears': '{age} سنة',
+      'idErrDobInvalid': 'يجب أن يكون تنسيق تاريخ الميلاد YYYY-MM-DD',
+      'idErrDobFuture': 'لا يمكن أن يكون تاريخ الميلاد في المستقبل',
+      'idErrFirstName':
+          'يجب أن يحتوي الاسم الأول على أحرف فقط (حرفين كحد أدنى)',
+      'idErrLastName': 'يجب أن يحتوي اسم العائلة على أحرف فقط (حرفين كحد أدنى)',
+      'idErrValidationSummary': 'يرجى تصحيح الأخطاء المحددة في نموذج الهوية.',
+      'kycDocTileNationalIdFront': 'وجه بطاقة الهوية (إلزامي)',
+      'kycDocTileNationalIdBack': 'ظهر بطاقة الهوية (إلزامي)',
+      'kycDocTilePassportFront': 'صفحة معلومات جواز السفر (إلزامي)',
+      'kycDocTilePassportBack': 'صورة شخصية مع جواز السفر (اختياري)',
+      'kycDocTileDriversLicenseFront': 'وجه رخصة القيادة (إلزامي)',
+      'kycDocTileDriversLicenseBack': 'ظهر رخصة القيادة (إلزامي)',
+      'kycRemoveImage': 'إزالة الصورة',
       'kycSectionTitle': 'التحقق من الهوية (KYC)',
       'kycSectionSubtitle':
           'أرسل وثائق هويتك لتفعيل الميزات المتقدمة وتأمين حسابك.',
@@ -2976,6 +3018,21 @@ class AppStrings {
       'idErrInvalidZipTurkey': 'Türkiye posta kodu 5 haneli olmalıdır',
       'idErrInvalidZipInternational': 'Geçersiz Posta Kodu (3-12 karakter)',
       'idErrInvalidMobile': 'Seçilen ülke için geçersiz cep telefonu',
+      'idAgeYears': '{age} yaş',
+      'idErrDobInvalid': 'Doğum tarihi formatı YYYY-MM-DD olmalıdır',
+      'idErrDobFuture': 'Doğum tarihi gelecekte olamaz',
+      'idErrFirstName': 'Ad yalnızca harflerden oluşmalıdır (en az 2 karakter)',
+      'idErrLastName':
+          'Soyad yalnızca harflerden oluşmalıdır (en az 2 karakter)',
+      'idErrValidationSummary':
+          'Lütfen kimlik formunda belirtilen hataları düzeltin.',
+      'kycDocTileNationalIdFront': 'Kimlik Kartı Ön Yüzü (Zorunlu)',
+      'kycDocTileNationalIdBack': 'Kimlik Kartı Arka Yüzü (Zorunlu)',
+      'kycDocTilePassportFront': 'Pasaport Bilgi Sayfası (Zorunlu)',
+      'kycDocTilePassportBack': 'Pasaport ile Selfie (İsteğe Bağlı)',
+      'kycDocTileDriversLicenseFront': 'Sürücü Belgesi Ön Yüzü (Zorunlu)',
+      'kycDocTileDriversLicenseBack': 'Sürücü Belgesi Arka Yüzü (Zorunlu)',
+      'kycRemoveImage': 'Resmi Kaldır',
       'kycSectionTitle': 'Kimlik Doğrulama (KYC)',
       'kycSectionSubtitle':
           'Gelişmiş özellikleri etkinleştirmek ve hesabınızı güvenceye almak için kimlik belgelerinizi gönderin.',
@@ -3987,6 +4044,28 @@ class AppStrings {
   String get idErrInvalidZipInternational =>
       get('idErrInvalidZipInternational');
   String get idErrInvalidMobile => get('idErrInvalidMobile');
+  String idAgeYears(int age) {
+    final lang = _normalizedLang(localeCode);
+    final ageStr = (lang == 'fa' || lang == 'ar')
+        ? formatNumber(age)
+        : age.toString();
+    return get('idAgeYears').replaceAll('{age}', ageStr);
+  }
+
+  String get idErrDobInvalid => get('idErrDobInvalid');
+  String get idErrDobFuture => get('idErrDobFuture');
+  String get idErrFirstName => get('idErrFirstName');
+  String get idErrLastName => get('idErrLastName');
+  String get idErrValidationSummary => get('idErrValidationSummary');
+  String get kycDocTileNationalIdFront => get('kycDocTileNationalIdFront');
+  String get kycDocTileNationalIdBack => get('kycDocTileNationalIdBack');
+  String get kycDocTilePassportFront => get('kycDocTilePassportFront');
+  String get kycDocTilePassportBack => get('kycDocTilePassportBack');
+  String get kycDocTileDriversLicenseFront =>
+      get('kycDocTileDriversLicenseFront');
+  String get kycDocTileDriversLicenseBack =>
+      get('kycDocTileDriversLicenseBack');
+  String get kycRemoveImage => get('kycRemoveImage');
 
   // KYC
   String get kycSectionTitle => get('kycSectionTitle');

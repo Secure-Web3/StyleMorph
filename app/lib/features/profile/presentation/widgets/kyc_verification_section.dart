@@ -59,6 +59,43 @@ class _KycVerificationSectionState
     }
   }
 
+  String _getTile1Label(AppStrings strings) {
+    switch (_selectedDocType) {
+      case KycDocType.passport:
+        return strings.kycDocTilePassportFront;
+      case KycDocType.driversLicense:
+        return strings.kycDocTileDriversLicenseFront;
+      case KycDocType.nationalId:
+        return strings.kycDocTileNationalIdFront;
+    }
+  }
+
+  String _getTile2Label(AppStrings strings) {
+    switch (_selectedDocType) {
+      case KycDocType.passport:
+        return strings.kycDocTilePassportBack;
+      case KycDocType.driversLicense:
+        return strings.kycDocTileDriversLicenseBack;
+      case KycDocType.nationalId:
+        return strings.kycDocTileNationalIdBack;
+    }
+  }
+
+  bool get _isTile2Required => _selectedDocType != KycDocType.passport;
+
+  bool _isSubmitReady(KycData kycData) {
+    final hasFront =
+        _frontFile != null || (_isEditing && kycData.frontUrl.isNotEmpty);
+    if (!hasFront) return false;
+    if (_isTile2Required) {
+      final hasBack =
+          _backFile != null ||
+          (_isEditing && (kycData.backUrl?.isNotEmpty ?? false));
+      if (!hasBack) return false;
+    }
+    return true;
+  }
+
   Future<void> _pickImage(bool isFront, ImageSource source) async {
     try {
       final picked = await _picker.pickImage(
@@ -129,10 +166,21 @@ class _KycVerificationSectionState
     final strings = context.strings;
     final kycData = ref.read(appStateProvider).kycData;
 
-    // Check front image requirement
-    if (_frontFile == null && kycData.frontUrl.isEmpty) {
+    final hasFront =
+        _frontFile != null || (_isEditing && kycData.frontUrl.isNotEmpty);
+    if (!hasFront) {
       AppFeedback.showError(context, strings.kycFrontRequired);
       return;
+    }
+
+    if (_isTile2Required) {
+      final hasBack =
+          _backFile != null ||
+          (_isEditing && (kycData.backUrl?.isNotEmpty ?? false));
+      if (!hasBack) {
+        AppFeedback.showError(context, strings.kycFrontRequired);
+        return;
+      }
     }
 
     setState(() => _isSubmitting = true);
@@ -608,7 +656,15 @@ class _KycVerificationSectionState
                   ? AppButtonVariant.primary
                   : AppButtonVariant.outline,
               text: _getDocTypeName(strings, type),
-              onPressed: () => setState(() => _selectedDocType = type),
+              onPressed: () {
+                if (_selectedDocType != type) {
+                  setState(() {
+                    _selectedDocType = type;
+                    _frontFile = null;
+                    _backFile = null;
+                  });
+                }
+              },
             );
           }).toList(),
         ),
@@ -620,7 +676,7 @@ class _KycVerificationSectionState
             // Front Image Slot (Required)
             Expanded(
               child: _buildUploadBox(
-                label: strings.kycUploadFront,
+                label: _getTile1Label(strings),
                 file: _frontFile,
                 existingUrl: kycData.frontUrl,
                 isRequired: true,
@@ -630,13 +686,13 @@ class _KycVerificationSectionState
               ),
             ),
             const SizedBox(width: AppSpacing.sm),
-            // Back/Selfie Image Slot (Optional)
+            // Back/Selfie Image Slot
             Expanded(
               child: _buildUploadBox(
-                label: strings.kycUploadBack,
+                label: _getTile2Label(strings),
                 file: _backFile,
                 existingUrl: kycData.backUrl,
-                isRequired: false,
+                isRequired: _isTile2Required,
                 isFront: false,
                 colors: colors,
                 strings: strings,
@@ -663,7 +719,9 @@ class _KycVerificationSectionState
                       )
                     : const FaIcon(FontAwesomeIcons.cloudArrowUp, size: 12),
                 text: _isSubmitting ? strings.kycSubmitting : strings.kycSubmit,
-                onPressed: _isSubmitting ? null : _handleSubmit,
+                onPressed: (_isSubmitting || !_isSubmitReady(kycData))
+                    ? null
+                    : _handleSubmit,
               ),
             ),
             if (_isEditing) ...[
@@ -758,8 +816,8 @@ class _KycVerificationSectionState
                 ),
               ),
 
-            // Top Status Pill
-            if (hasImage)
+            // Top Status & Remove Pill
+            if (hasImage) ...[
               PositionedDirectional(
                 top: 4,
                 end: 4,
@@ -773,6 +831,58 @@ class _KycVerificationSectionState
                     FontAwesomeIcons.check,
                     size: 8,
                     color: Colors.white,
+                  ),
+                ),
+              ),
+              PositionedDirectional(
+                top: 4,
+                start: 4,
+                child: InkWell(
+                  onTap: () {
+                    setState(() {
+                      if (isFront) {
+                        _frontFile = null;
+                      } else {
+                        _backFile = null;
+                      }
+                    });
+                  },
+                  borderRadius: AppRadius.rSm,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withValues(alpha: 0.6),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const FaIcon(
+                      FontAwesomeIcons.xmark,
+                      size: 9,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            if (file != null)
+              PositionedDirectional(
+                bottom: 4,
+                start: 4,
+                end: 4,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 4,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: AppRadius.rSm,
+                  ),
+                  child: Text(
+                    file.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 9, color: Colors.white),
                   ),
                 ),
               ),

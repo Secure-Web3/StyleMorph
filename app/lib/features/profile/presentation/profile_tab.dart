@@ -16,6 +16,7 @@ import 'widgets/referral_sub_tab.dart';
 import 'widgets/sessions_sub_tab.dart';
 import 'widgets/settings_sub_tab.dart';
 import 'widgets/wallet_sub_tab.dart';
+import '../data/identity_validator.dart';
 
 class ProfileTab extends ConsumerStatefulWidget {
   const ProfileTab({super.key});
@@ -31,6 +32,51 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     'p-companion',
     'p-settings',
   };
+
+  bool _isIdentityValid(Map<String, String> values) {
+    final first = values['firstName']?.trim() ?? '';
+    if (first.isNotEmpty && !IdentityValidator.isValidName(first)) return false;
+
+    final last = values['lastName']?.trim() ?? '';
+    if (last.isNotEmpty && !IdentityValidator.isValidName(last)) return false;
+
+    final nick = values['nick']?.trim() ?? '';
+    if (nick.isNotEmpty && !IdentityValidator.isValidHandle(nick)) return false;
+
+    final dob = values['dob']?.trim() ?? '';
+    if (dob.isNotEmpty) {
+      final age = IdentityValidator.calculateAge(dob);
+      if (age == null || age < 13) return false;
+    }
+
+    final nid = values['nid']?.trim() ?? '';
+    if (nid.isNotEmpty) {
+      final country = (values['countryCode'] ?? 'IR').toUpperCase();
+      if (country == 'IR' && !IdentityValidator.isValidIranianNationalId(nid)) {
+        return false;
+      } else if (country == 'TR' &&
+          !IdentityValidator.isValidTurkishKimlik(nid)) {
+        return false;
+      } else if (!IdentityValidator.isValidInternationalNationalId(nid)) {
+        return false;
+      }
+    }
+
+    final zip = values['zip']?.trim() ?? '';
+    if (zip.isNotEmpty) {
+      final country = (values['countryCode'] ?? 'IR').toUpperCase();
+      if (country == 'IR' && !IdentityValidator.isValidIranianPostalCode(zip)) {
+        return false;
+      } else if (country == 'TR' &&
+          !IdentityValidator.isValidTurkishPostalCode(zip)) {
+        return false;
+      } else if (!IdentityValidator.isValidInternationalPostalCode(zip)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
 
   @override
   void initState() {
@@ -187,6 +233,22 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                           hasChanges: appState.hasUnsavedProfileChanges,
                           isSaving: appState.isSavingProfile,
                           onSave: () async {
+                            if (!_isIdentityValid(appState.identityValues)) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    strings.idErrValidationSummary,
+                                    style: const TextStyle(
+                                      fontFamily: 'Vazirmatn',
+                                    ),
+                                  ),
+                                  backgroundColor: colors.orColor,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                              return;
+                            }
+
                             final success = await ref
                                 .read(appStateProvider.notifier)
                                 .saveProfileToFirestore();

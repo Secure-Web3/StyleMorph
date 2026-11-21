@@ -205,4 +205,69 @@ class IdentityValidator {
       subscriber: normalizeSubscriber(input),
     );
   }
+
+  // ── Name & Handle Validation ──────────────────────────────────────────────
+  static final RegExp _nameCharRegex = RegExp(
+    r'^[a-zA-Z\u00C0-\u024F\u0600-\u06FF\uFB50-\uFDFF\uFE70-\uFEFF\s\-]{2,40}$',
+  );
+
+  /// Validates first and last name: Unicode letters across Persian, English,
+  /// Arabic, Turkish, plus spaces and hyphens. Blocks digits and symbols.
+  static bool isValidName(String? input) {
+    if (input == null) return false;
+    final trimmed = input.trim();
+    if (trimmed.length < 2 || trimmed.length > 40) return false;
+    return _nameCharRegex.hasMatch(trimmed);
+  }
+
+  /// Validates handle/nickname: 2 to 30 chars of letters (including Unicode), digits, @, _, ., -
+  static bool isValidHandle(String? input) {
+    if (input == null || input.trim().isEmpty) return true;
+    final trimmed = input.trim();
+    if (trimmed.length < 2 || trimmed.length > 30) return false;
+    return RegExp(r"^[\p{L}\p{M}0-9@_\.\-]+$", unicode: true).hasMatch(trimmed);
+  }
+
+  // ── Date of Birth & Live Age ──────────────────────────────────────────────
+  /// Calculates age in whole years from an ISO YYYY-MM-DD date string.
+  /// Returns null if date is invalid, unparseable, or in the future.
+  static int? calculateAge(String? dob) {
+    if (dob == null || dob.trim().isEmpty) return null;
+    final match = RegExp(r'^(\d{4})-(\d{2})-(\d{2})$').firstMatch(dob.trim());
+    if (match == null) return null;
+
+    final y = int.tryParse(match.group(1)!);
+    final m = int.tryParse(match.group(2)!);
+    final d = int.tryParse(match.group(3)!);
+    if (y == null || m == null || d == null) return null;
+    if (m < 1 || m > 12 || d < 1 || d > 31) return null;
+
+    final isLeapYear = (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
+    final daysInMonth = [
+      31,
+      isLeapYear ? 29 : 28,
+      31,
+      30,
+      31,
+      30,
+      31,
+      31,
+      30,
+      31,
+      30,
+      31,
+    ];
+    if (d > daysInMonth[m - 1]) return null;
+
+    final birthDate = DateTime(y, m, d);
+    final now = DateTime.now();
+    if (birthDate.isAfter(now)) return null;
+
+    int age = now.year - birthDate.year;
+    if (now.month < birthDate.month ||
+        (now.month == birthDate.month && now.day < birthDate.day)) {
+      age--;
+    }
+    return age >= 0 ? age : null;
+  }
 }
