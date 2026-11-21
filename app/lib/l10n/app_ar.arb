@@ -655,5 +655,16 @@
   "tAbout": "حول التطبيق",
   "aboutHeader": "حول ستايل مورف",
   "aboutTagline": "استوديو المنسق الذكي والقياس الافتراضي الشخصي",
+  "aboutSocialMediaLabel": "شبكات التواصل الاجتماعي",
+  "aboutSocialMediaSubtitle": "١٣ قناة ومجتمع رسمي لستايل مورف",
+  "aboutTelegramOfficial": "تيليجرام (القناة الرسمية)",
+  "aboutTelegramMain": "تيليجرام (القناة الرئيسية)",
+  "aboutTelegramCommunity": "تيليجرام (مجتمع المستخدمين)",
+  "aboutTelegramBot": "تيليجرام (البوت الذكي)",
+  "aboutSearchLicensesHint": "البحث في الحزم والمكتبات...",
+  "aboutLicensesCount": "تراخيص",
+  "aboutLicenseSingular": "ترخيص",
+  "aboutNoLicensesFound": "لم يتم العثور على حزم مطابقة للبحث",
+  "aboutLoadingLicenses": "جارٍ تحميل تراخيص البرمجيات...",
   "newUser": "مستخدم جديد"
 }

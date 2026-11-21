@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,8 @@ import 'package:stylemorph/core/theme/app_theme.dart';
 import 'package:stylemorph/features/profile/presentation/profile_tab.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/about_sub_tab.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/legal_doc_modal_sheet.dart';
+import 'package:stylemorph/features/profile/presentation/widgets/open_source_licenses_sheet.dart';
+import 'package:stylemorph/features/profile/presentation/widgets/social_links_modal.dart';
 
 class _TestAppStateNotifier extends AppStateNotifier {
   _TestAppStateNotifier(AppState initial) : super() {
@@ -31,6 +34,19 @@ void main() {
     palette: AppPalette.editorial,
     isDark: false,
   );
+
+  setUpAll(() {
+    LicenseRegistry.addLicense(
+      () => Stream<LicenseEntry>.fromIterable([
+        const LicenseEntryWithLineBreaks([
+          'stylemorph_core',
+        ], 'StyleMorph Core License Apache 2.0'),
+        const LicenseEntryWithLineBreaks([
+          'sample_package',
+        ], 'Sample Package MIT License'),
+      ]),
+    );
+  });
 
   setUp(() {
     SharedPreferences.setMockInitialValues({
@@ -248,27 +264,126 @@ void main() {
       },
     );
 
-    testWidgets('renders Official Contact & Socials with interactive links', (
-      tester,
-    ) async {
-      await tester.pumpWidget(
-        createTestWidget(
-          child: const SingleChildScrollView(child: AboutSubTab()),
-        ),
-      );
-      await tester.pumpAndSettle();
+    testWidgets(
+      'renders Official Contact & Socials with single Social Media entry and opens SocialLinksModal',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestWidget(
+            child: const SingleChildScrollView(child: AboutSubTab()),
+          ),
+        );
+        await tester.pumpAndSettle();
 
-      expect(find.text('Official Contact & Socials'), findsOneWidget);
-      expect(find.text('Official Website'), findsOneWidget);
-      expect(find.text('https://stylemorph.app'), findsOneWidget);
-      expect(find.text('Support Email'), findsOneWidget);
-      expect(find.text('support@stylemorph.app'), findsOneWidget);
-      expect(find.text('@stylemorph.app'), findsOneWidget);
-      expect(find.text('@stylemorph'), findsOneWidget);
-      expect(
-        find.text('© 2026 StyleMorph. All rights reserved.'),
-        findsOneWidget,
-      );
-    });
+        expect(find.text('Official Contact & Socials'), findsOneWidget);
+        expect(find.text('Official Website'), findsOneWidget);
+        expect(find.text('https://stylemorph.app'), findsOneWidget);
+        expect(find.text('Support Email'), findsOneWidget);
+        expect(find.text('support@stylemorph.app'), findsOneWidget);
+        expect(find.text('Social Media'), findsOneWidget);
+        expect(find.text('13 official channels & communities'), findsOneWidget);
+        expect(
+          find.text('© 2026 StyleMorph. All rights reserved.'),
+          findsOneWidget,
+        );
+
+        final socialTile = find.text('Social Media');
+        await tester.scrollUntilVisible(socialTile, 100);
+        await tester.tap(socialTile);
+        await tester.pumpAndSettle();
+
+        // SocialLinksModal bottom sheet should be visible
+        expect(find.byType(SocialLinksModal), findsOneWidget);
+        expect(find.text('Instagram'), findsOneWidget);
+        expect(find.text('TikTok'), findsOneWidget);
+        expect(find.text('Telegram (Official)'), findsOneWidget);
+        expect(find.text('Telegram (Main)'), findsOneWidget);
+        expect(find.text('Telegram (Community)'), findsOneWidget);
+        expect(find.text('@stylemorph.official'), findsWidgets);
+        expect(find.text('@StyleMorph_official'), findsOneWidget);
+
+        // Scroll list to reveal subsequent channels
+        await tester.drag(find.byType(ListView), const Offset(0, -300));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Telegram (Bot)'), findsOneWidget);
+        expect(find.text('X (Twitter)'), findsOneWidget);
+        expect(find.text('Threads'), findsOneWidget);
+        expect(find.text('Pinterest'), findsOneWidget);
+        expect(find.text('@stylemorph_bot'), findsOneWidget);
+        expect(find.text('@StyleMorph_studio'), findsOneWidget);
+
+        await tester.drag(find.byType(ListView), const Offset(0, -300));
+        await tester.pumpAndSettle();
+
+        expect(find.text('Snapchat'), findsOneWidget);
+        expect(find.text('Facebook'), findsOneWidget);
+        expect(find.text('Reddit'), findsOneWidget);
+        expect(find.text('Bluesky'), findsOneWidget);
+        expect(find.text('@stylemorph'), findsOneWidget);
+        expect(find.text('u/StyleMorph_official'), findsOneWidget);
+        expect(find.text('@stylemorph.bsky.social'), findsOneWidget);
+
+        // Close modal
+        final closeBtn = find.text('Close');
+        expect(closeBtn, findsOneWidget);
+        await tester.tap(closeBtn);
+        await tester.pumpAndSettle();
+        expect(find.byType(SocialLinksModal), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'tapping Open Source Licenses opens OpenSourceLicensesSheet with search and details',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestWidget(
+            child: const SingleChildScrollView(child: AboutSubTab()),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final licensesTile = find.text('Open Source Licenses');
+        expect(licensesTile, findsOneWidget);
+
+        await tester.scrollUntilVisible(licensesTile, 100);
+        await tester.tap(licensesTile);
+        await tester.pumpAndSettle();
+
+        // OpenSourceLicensesSheet should be open
+        expect(find.byType(OpenSourceLicensesSheet), findsOneWidget);
+        expect(find.text('Search packages or libraries...'), findsOneWidget);
+
+        // The registered test packages should be rendered
+        expect(find.text('stylemorph_core'), findsOneWidget);
+        expect(find.text('sample_package'), findsOneWidget);
+
+        // Tap a package to view its full license details
+        await tester.tap(find.text('stylemorph_core'));
+        await tester.pumpAndSettle();
+
+        expect(
+          find.textContaining('StyleMorph Core License Apache 2.0'),
+          findsOneWidget,
+        );
+
+        // Close the detail dialog
+        final dialogClose = find.text('Close');
+        await tester.tap(dialogClose.last);
+        await tester.pumpAndSettle();
+
+        // Test filtering by typing in search
+        final searchField = find.byType(TextField);
+        await tester.enterText(searchField, 'sample');
+        await tester.pumpAndSettle();
+
+        expect(find.text('sample_package'), findsOneWidget);
+        expect(find.text('stylemorph_core'), findsNothing);
+
+        // Clear search
+        await tester.enterText(searchField, 'nonexistent_pkg_123');
+        await tester.pumpAndSettle();
+        expect(find.text('No packages match your search'), findsOneWidget);
+      },
+    );
   });
 }

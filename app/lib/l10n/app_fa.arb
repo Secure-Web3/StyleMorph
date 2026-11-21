@@ -655,5 +655,16 @@
   "tAbout": "درباره برنامه",
   "aboutHeader": "درباره استایل‌مورف",
   "aboutTagline": "استودیوی اختصاصی استایلیست هوشمند و پرو مجازی لباس",
+  "aboutSocialMediaLabel": "شبکه‌های اجتماعی",
+  "aboutSocialMediaSubtitle": "۱۳ کانال و صفحه رسمی استایل‌مورف",
+  "aboutTelegramOfficial": "تلگرام (کانال رسمی)",
+  "aboutTelegramMain": "تلگرام (کانال اصلی)",
+  "aboutTelegramCommunity": "تلگرام (جامعه و گفتگو)",
+  "aboutTelegramBot": "تلگرام (ربات هوشمند)",
+  "aboutSearchLicensesHint": "جستجوی نام پکیج یا کتابخانه...",
+  "aboutLicensesCount": "مجوز نرم‌افزاری",
+  "aboutLicenseSingular": "مجوز",
+  "aboutNoLicensesFound": "هیچ پکیجی مطابق با عبارت جستجو یافت نشد",
+  "aboutLoadingLicenses": "در حال بارگذاری مجوزهای متن‌باز...",
   "newUser": "کاربر جدید"
 }

@@ -655,5 +655,16 @@
   "tAbout": "About",
   "aboutHeader": "About StyleMorph",
   "aboutTagline": "Personal AI Stylist & Virtual Try-On Studio",
+  "aboutSocialMediaLabel": "Social Media",
+  "aboutSocialMediaSubtitle": "13 official channels & communities",
+  "aboutTelegramOfficial": "Telegram (Official)",
+  "aboutTelegramMain": "Telegram (Main)",
+  "aboutTelegramCommunity": "Telegram (Community)",
+  "aboutTelegramBot": "Telegram (Bot)",
+  "aboutSearchLicensesHint": "Search packages or libraries...",
+  "aboutLicensesCount": "licenses",
+  "aboutLicenseSingular": "license",
+  "aboutNoLicensesFound": "No packages match your search",
+  "aboutLoadingLicenses": "Loading open source licenses...",
   "newUser": "New User"
 }

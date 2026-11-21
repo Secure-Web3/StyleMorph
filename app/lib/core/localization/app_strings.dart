@@ -980,6 +980,17 @@ class AppStrings {
       'aboutPrivacyTitle': 'سیاست حفظ حریم خصوصی و امنیت تصاویر هوش مصنوعی',
       'aboutLicensesTitle': 'مجوزهای متن‌باز و اعتبارات نرم‌افزاری',
       'aboutContactSectionTitle': 'ارتباط و شبکه‌های رسمی',
+      'aboutSocialMediaLabel': 'شبکه‌های اجتماعی',
+      'aboutSocialMediaSubtitle': '۱۳ کانال و صفحه رسمی استایل‌مورف',
+      'aboutTelegramOfficial': 'تلگرام (کانال رسمی)',
+      'aboutTelegramMain': 'تلگرام (کانال اصلی)',
+      'aboutTelegramCommunity': 'تلگرام (جامعه و گفتگو)',
+      'aboutTelegramBot': 'تلگرام (ربات هوشمند)',
+      'aboutSearchLicensesHint': 'جستجوی نام پکیج یا کتابخانه...',
+      'aboutLicensesCount': 'مجوز نرم‌افزاری',
+      'aboutLicenseSingular': 'مجوز',
+      'aboutNoLicensesFound': 'هیچ پکیجی مطابق با عبارت جستجو یافت نشد',
+      'aboutLoadingLicenses': 'در حال بارگذاری مجوزهای متن‌باز...',
       'aboutWebsiteLabel': 'وب‌سایت رسمی',
       'aboutEmailLabel': 'ایمیل پشتیبانی رسمی',
       'aboutInstagramLabel': 'صفحه اینستاگرام',
@@ -1871,6 +1882,17 @@ class AppStrings {
       'aboutPrivacyTitle': 'Privacy Policy & AI Image Data Protection',
       'aboutLicensesTitle': 'Open Source Licenses',
       'aboutContactSectionTitle': 'Official Contact & Socials',
+      'aboutSocialMediaLabel': 'Social Media',
+      'aboutSocialMediaSubtitle': '13 official channels & communities',
+      'aboutTelegramOfficial': 'Telegram (Official)',
+      'aboutTelegramMain': 'Telegram (Main)',
+      'aboutTelegramCommunity': 'Telegram (Community)',
+      'aboutTelegramBot': 'Telegram (Bot)',
+      'aboutSearchLicensesHint': 'Search packages or libraries...',
+      'aboutLicensesCount': 'licenses',
+      'aboutLicenseSingular': 'license',
+      'aboutNoLicensesFound': 'No packages match your search',
+      'aboutLoadingLicenses': 'Loading open source licenses...',
       'aboutWebsiteLabel': 'Official Website',
       'aboutEmailLabel': 'Support Email',
       'aboutInstagramLabel': 'Instagram',
@@ -2743,6 +2765,17 @@ class AppStrings {
       'aboutPrivacyTitle': 'سياسة الخصوصية وحماية بيانات وصور الذكاء الاصطناعي',
       'aboutLicensesTitle': 'تراخيص البرمجيات مفتوحة المصدر',
       'aboutContactSectionTitle': 'التواصل والقنوات الرسمية',
+      'aboutSocialMediaLabel': 'شبكات التواصل الاجتماعي',
+      'aboutSocialMediaSubtitle': '١٣ قناة ومجتمع رسمي لستايل مورف',
+      'aboutTelegramOfficial': 'تيليجرام (القناة الرسمية)',
+      'aboutTelegramMain': 'تيليجرام (القناة الرئيسية)',
+      'aboutTelegramCommunity': 'تيليجرام (مجتمع المستخدمين)',
+      'aboutTelegramBot': 'تيليجرام (البوت الذكي)',
+      'aboutSearchLicensesHint': 'البحث في الحزم والمكتبات...',
+      'aboutLicensesCount': 'تراخيص',
+      'aboutLicenseSingular': 'ترخيص',
+      'aboutNoLicensesFound': 'لم يتم العثور على حزم مطابقة للبحث',
+      'aboutLoadingLicenses': 'جارٍ تحميل تراخيص البرمجيات...',
       'aboutWebsiteLabel': 'الموقع الرسمي',
       'aboutEmailLabel': 'البريد الإلكتروني للدعم',
       'aboutInstagramLabel': 'إنستغرام',
@@ -3648,6 +3681,17 @@ class AppStrings {
           'Gizlilik Politikası ve Yapay Zeka Görsel Veri Koruması',
       'aboutLicensesTitle': 'Açık Kaynak Lisansları',
       'aboutContactSectionTitle': 'İletişim ve Sosyal Kanallar',
+      'aboutSocialMediaLabel': 'Sosyal Medya',
+      'aboutSocialMediaSubtitle': '13 resmi kanal ve topluluk',
+      'aboutTelegramOfficial': 'Telegram (Resmi)',
+      'aboutTelegramMain': 'Telegram (Ana Kanal)',
+      'aboutTelegramCommunity': 'Telegram (Topluluk)',
+      'aboutTelegramBot': 'Telegram (Yapay Zeka Botu)',
+      'aboutSearchLicensesHint': 'Paket veya kütüphane ara...',
+      'aboutLicensesCount': 'lisans',
+      'aboutLicenseSingular': 'lisans',
+      'aboutNoLicensesFound': 'Aramanızla eşleşen paket bulunamadı',
+      'aboutLoadingLicenses': 'Açık kaynak lisansları yükleniyor...',
       'aboutWebsiteLabel': 'Resmi Web Sitesi',
       'aboutEmailLabel': 'Destek E-postası',
       'aboutInstagramLabel': 'Instagram',
@@ -4656,6 +4700,17 @@ class AppStrings {
   String get aboutPrivacyTitle => get('aboutPrivacyTitle');
   String get aboutLicensesTitle => get('aboutLicensesTitle');
   String get aboutContactSectionTitle => get('aboutContactSectionTitle');
+  String get aboutSocialMediaLabel => get('aboutSocialMediaLabel');
+  String get aboutSocialMediaSubtitle => get('aboutSocialMediaSubtitle');
+  String get aboutTelegramOfficial => get('aboutTelegramOfficial');
+  String get aboutTelegramMain => get('aboutTelegramMain');
+  String get aboutTelegramCommunity => get('aboutTelegramCommunity');
+  String get aboutTelegramBot => get('aboutTelegramBot');
+  String get aboutSearchLicensesHint => get('aboutSearchLicensesHint');
+  String get aboutLicensesCount => get('aboutLicensesCount');
+  String get aboutLicenseSingular => get('aboutLicenseSingular');
+  String get aboutNoLicensesFound => get('aboutNoLicensesFound');
+  String get aboutLoadingLicenses => get('aboutLoadingLicenses');
   String get aboutWebsiteLabel => get('aboutWebsiteLabel');
   String get aboutEmailLabel => get('aboutEmailLabel');
   String get aboutInstagramLabel => get('aboutInstagramLabel');

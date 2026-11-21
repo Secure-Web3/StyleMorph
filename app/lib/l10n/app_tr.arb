@@ -655,5 +655,16 @@
   "tAbout": "Hakkında",
   "aboutHeader": "StyleMorph Hakkında",
   "aboutTagline": "Kişisel Yapay Zeka Stilisti ve Sanal Deneme Stüdyosu",
+  "aboutSocialMediaLabel": "Sosyal Medya",
+  "aboutSocialMediaSubtitle": "13 resmi kanal ve topluluk",
+  "aboutTelegramOfficial": "Telegram (Resmi)",
+  "aboutTelegramMain": "Telegram (Ana Kanal)",
+  "aboutTelegramCommunity": "Telegram (Topluluk)",
+  "aboutTelegramBot": "Telegram (Yapay Zeka Botu)",
+  "aboutSearchLicensesHint": "Paket veya kütüphane ara...",
+  "aboutLicensesCount": "lisans",
+  "aboutLicenseSingular": "lisans",
+  "aboutNoLicensesFound": "Aramanızla eşleşen paket bulunamadı",
+  "aboutLoadingLicenses": "Açık kaynak lisansları yükleniyor...",
   "newUser": "Yeni Kullanıcı"
 }

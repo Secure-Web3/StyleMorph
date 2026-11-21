@@ -14,6 +14,8 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import 'about_actions.dart';
 import 'legal_doc_modal_sheet.dart';
+import 'open_source_licenses_sheet.dart';
+import 'social_links_modal.dart';
 
 enum UpdateCheckStatus { idle, checking, upToDate, updateAvailable, error }
 
@@ -634,14 +636,7 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
                 colors: colors,
                 icon: FontAwesomeIcons.codeBranch,
                 title: strings.aboutLicensesTitle,
-                onTap: () {
-                  showLicensePage(
-                    context: context,
-                    applicationName: 'StyleMorph',
-                    applicationVersion: 'v${AboutSubTab.currentVersion}',
-                    applicationLegalese: strings.aboutCopyrightNotice,
-                  );
-                },
+                onTap: () => OpenSourceLicensesSheet.show(context),
               ),
             ],
           ),
@@ -709,38 +704,11 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
               Divider(color: colors.bd, height: 1),
               _buildActionTile(
                 colors: colors,
-                icon: FontAwesomeIcons.instagram,
-                title: strings.aboutInstagramLabel,
-                subtitle: '@stylemorph.app',
-                trailingIcon: Icons.open_in_new_rounded,
-                onTap: () {
-                  if (kIsWeb) {
-                    openExternalUrl(AboutSubTab.officialInstagram);
-                  } else {
-                    _copyToClipboard(
-                      AboutSubTab.officialInstagram,
-                      strings.aboutInstagramLabel,
-                    );
-                  }
-                },
-              ),
-              Divider(color: colors.bd, height: 1),
-              _buildActionTile(
-                colors: colors,
-                icon: FontAwesomeIcons.telegram,
-                title: strings.aboutTelegramLabel,
-                subtitle: '@stylemorph',
-                trailingIcon: Icons.open_in_new_rounded,
-                onTap: () {
-                  if (kIsWeb) {
-                    openExternalUrl(AboutSubTab.officialTelegram);
-                  } else {
-                    _copyToClipboard(
-                      AboutSubTab.officialTelegram,
-                      strings.aboutTelegramLabel,
-                    );
-                  }
-                },
+                icon: FontAwesomeIcons.shareNodes,
+                title: strings.aboutSocialMediaLabel,
+                subtitle: strings.aboutSocialMediaSubtitle,
+                trailingIcon: Icons.chevron_right_rounded,
+                onTap: () => SocialLinksModal.show(context),
               ),
             ],
           ),
