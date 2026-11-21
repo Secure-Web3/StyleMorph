@@ -9,7 +9,9 @@ import '../../../../core/localization/locale_provider.dart';
 import '../../../../core/services/biometric_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -17,6 +19,7 @@ import '../../../../core/widgets/app_dropdown.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_switch.dart';
 import '../../../auth/presentation/auth_provider.dart';
+import 'change_password_dialog.dart';
 
 class SettingsSubTab extends ConsumerStatefulWidget {
   const SettingsSubTab({super.key});
@@ -218,7 +221,7 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
           ),
           const SizedBox(height: AppSpacing.sm),
 
-          // 5. Security & Biometric Section (Fingerprint / Face ID)
+          // 5. Security & Biometric Section (Fingerprint / Face ID & Change Password)
           AppCard(
             variant: AppCardVariant.subtle,
             padding: const EdgeInsetsDirectional.symmetric(
@@ -238,6 +241,64 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                       _toggleBiometric(val);
                     }
                   },
+                ),
+                Divider(height: 1, color: colors.bd),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => ChangePasswordDialog.show(context),
+                    borderRadius: AppRadius.rMd,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.sm,
+                      ),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 32,
+                            height: 32,
+                            decoration: BoxDecoration(
+                              color: colors.pr.withValues(alpha: 0.1),
+                              borderRadius: AppRadius.rMd,
+                            ),
+                            alignment: Alignment.center,
+                            child: FaIcon(
+                              FontAwesomeIcons.lock,
+                              size: 13,
+                              color: colors.pr,
+                            ),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  strings.setChangePasswordTitle,
+                                  style: TextStyle(
+                                    fontFamily: AppTypography.fontFamily,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: colors.tx,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  strings.setChangePasswordSubtitle,
+                                  style: TextStyle(
+                                    fontFamily: AppTypography.fontFamily,
+                                    fontSize: 11,
+                                    color: colors.mu,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Icon(Icons.chevron_right, size: 18, color: colors.mu),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:stylemorph/core/localization/app_strings.dart';
 import 'package:stylemorph/core/state/app_state.dart';
 import 'package:stylemorph/core/theme/app_colors.dart';
@@ -340,7 +341,6 @@ void main() {
     testWidgets(
       'shows KYC Verified badge in MainHeader when KYC status is verified',
       (WidgetTester tester) async {
-        final faStrings = const AppStrings('fa');
         final verifiedKycState = AppState(
           userName: 'علی رضایی',
           userHandle: '@ali_style',
@@ -359,18 +359,25 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        // Should show 'احراز هویت شده (KYC Verified) | @ali_style'
+        // User name is visible
+        expect(find.text('علی رضایی'), findsOneWidget);
+        // Verified circle check icon is rendered beside name
         expect(
-          find.text('${faStrings.kycVerifiedBadge} | @ali_style'),
+          find.byWidgetPredicate(
+            (w) =>
+                w is FaIcon &&
+                w.icon?.codePoint == FontAwesomeIcons.circleCheck.codePoint,
+          ),
           findsOneWidget,
         );
+        // Handle is omitted from header per Batch C
+        expect(find.text('@ali_style'), findsNothing);
       },
     );
 
     testWidgets(
-      'shows standard handle in MainHeader when KYC is not verified',
+      'does not show verified badge in MainHeader when KYC is not verified',
       (WidgetTester tester) async {
-        final faStrings = const AppStrings('fa');
         final unverifiedState = AppState(
           userName: 'علی رضایی',
           userHandle: '@ali_style',
@@ -386,12 +393,19 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        // Does not contain KYC Verified badge
+        // Name is rendered
+        expect(find.text('علی رضایی'), findsOneWidget);
+        // Does not contain verified check icon
         expect(
-          find.text('${faStrings.kycVerifiedBadge} | @ali_style'),
+          find.byWidgetPredicate(
+            (w) =>
+                w is FaIcon &&
+                w.icon?.codePoint == FontAwesomeIcons.circleCheck.codePoint,
+          ),
           findsNothing,
         );
-        expect(find.text('@ali_style'), findsOneWidget);
+        // Handle is omitted from header
+        expect(find.text('@ali_style'), findsNothing);
       },
     );
   });

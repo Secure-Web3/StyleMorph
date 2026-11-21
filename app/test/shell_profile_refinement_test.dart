@@ -181,7 +181,7 @@ void main() {
         );
         expect(find.byTooltip('Menu'), findsNothing);
 
-        // Avatar + username visible and clickable to open Drawer
+        // Avatar + user name visible (handle is removed from header per Batch C)
         expect(
           find.descendant(
             of: find.byType(MainHeader),
@@ -194,15 +194,27 @@ void main() {
             of: find.byType(MainHeader),
             matching: find.textContaining('@sara_ahmadi'),
           ),
-          findsOneWidget,
+          findsNothing,
         );
 
+        // Tapping name does NOT open drawer (strict tap isolation)
         await tester.tap(
           find.descendant(
             of: find.byType(MainHeader),
             matching: find.text('سارا احمدی'),
           ),
         );
+        await tester.pumpAndSettle();
+        expect(find.byType(Drawer), findsNothing);
+
+        // Tapping Avatar opens Drawer
+        final avatarInkWell = find
+            .descendant(
+              of: find.byType(MainHeader),
+              matching: find.byType(InkWell),
+            )
+            .first;
+        await tester.tap(avatarInkWell);
         await tester.pumpAndSettle();
 
         // Drawer is now open with navigation items

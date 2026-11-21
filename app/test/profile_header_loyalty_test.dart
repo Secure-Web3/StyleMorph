@@ -285,8 +285,10 @@ void main() {
       expect(find.textContaining('Bronze • 120 pts'), findsOneWidget);
     });
 
-    testWidgets('Subtitle respects showEmailInHeader toggle', (tester) async {
-      // 1. When showEmailInHeader is false: email is NOT shown
+    testWidgets('Header respects showEmailInHeader toggle and omits handle', (
+      tester,
+    ) async {
+      // 1. When showEmailInHeader is false: email and handle are NOT shown (clean vertically centered name)
       final stateEmailOff = AppState(
         isLoggedIn: true,
         currentTab: AppTab.profile,
@@ -299,8 +301,9 @@ void main() {
       await tester.pumpWidget(buildHeaderHarness(stateEmailOff));
       await tester.pumpAndSettle();
 
+      expect(find.text('Elena Rostova'), findsOneWidget);
       expect(find.text('elena@stylemorph.com'), findsNothing);
-      expect(find.text('@elena'), findsOneWidget);
+      expect(find.text('@elena'), findsNothing);
 
       // 2. When showEmailInHeader is true: email IS shown beneath name
       final stateEmailOn = AppState(
@@ -315,7 +318,9 @@ void main() {
       await tester.pumpWidget(buildHeaderHarness(stateEmailOn));
       await tester.pumpAndSettle();
 
+      expect(find.text('Elena Rostova'), findsOneWidget);
       expect(find.text('elena@stylemorph.com'), findsOneWidget);
+      expect(find.text('@elena'), findsNothing);
     });
 
     testWidgets(

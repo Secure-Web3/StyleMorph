@@ -18,7 +18,7 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
 
   const MainHeader({super.key, this.onOpenDrawer});
 
-  static const double _baseHeight = 58.0;
+  static const double _baseHeight = 66.0;
   static const double _profileExtraHeight = 52.0;
 
   @override
@@ -57,128 +57,122 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // User Info → taps to open Drawer
+                    // User Info
                     Expanded(
-                      child: InkWell(
-                        onTap: onOpenDrawer,
-                        borderRadius: AppRadius.rMd,
-                        child: Padding(
-                          padding: const EdgeInsetsDirectional.symmetric(
-                            vertical: AppSpacing.xs,
-                          ),
-                          child: Row(
+                      child: Row(
+                        children: [
+                          // Avatar + Tier/Points Badge Column
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              _buildAvatar(colors, strings, appState),
-                              const SizedBox(width: AppSpacing.md),
-                              Expanded(
-                                child: Builder(
-                                  builder: (context) {
-                                    User? user;
-                                    try {
-                                      if (Firebase.apps.isNotEmpty) {
-                                        user =
-                                            FirebaseAuth.instance.currentUser;
-                                      }
-                                    } catch (_) {}
-                                    final isKycVerified =
-                                        appState.kycData.isVerified;
-                                    final isVerified =
-                                        isKycVerified || isEmailVerified;
-                                    final displayName =
-                                        appState.userName.isNotEmpty
-                                        ? strings.tr(appState.userName)
-                                        : (user?.displayName ??
-                                              (user?.email?.split('@').first ??
-                                                  strings.newUser));
-                                    final userEmail =
-                                        user?.email ??
-                                        (appState.identityValues['email'] ??
-                                            '');
-
-                                    return Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        // Name + verified icon
-                                        Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Flexible(
-                                              child: Text(
-                                                displayName,
-                                                style: TextStyle(
-                                                  fontFamily: 'Vazirmatn',
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: colors.tx,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                            if (isVerified) ...[
-                                              const SizedBox(
-                                                width: AppSpacing.xs,
-                                              ),
-                                              FaIcon(
-                                                FontAwesomeIcons.circleCheck,
-                                                size: 12,
-                                                color: isKycVerified
-                                                    ? colors.ok
-                                                    : colors.inColor,
-                                              ),
-                                            ],
-                                            const SizedBox(
-                                              width: AppSpacing.xs,
-                                            ),
-                                            Flexible(
-                                              child: _buildRankPointsBadge(
-                                                context,
-                                                colors,
-                                                strings,
-                                                appState,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 2),
-                                        // Subtitle: verification | @username
-                                        if (appState
-                                                .preferences
-                                                .showEmailInHeader &&
-                                            userEmail.isNotEmpty) ...[
-                                          Text(
-                                            userEmail,
-                                            style: TextStyle(
-                                              fontFamily: 'Vazirmatn',
-                                              fontSize: 11,
-                                              color: colors.mu,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ] else if (appState
-                                            .userHandle
-                                            .isNotEmpty) ...[
-                                          Text(
-                                            isKycVerified
-                                                ? '${strings.kycVerifiedBadge} | ${appState.userHandle}'
-                                                : appState.userHandle,
-                                            style: TextStyle(
-                                              fontFamily: 'Vazirmatn',
-                                              fontSize: 11,
-                                              color: colors.mu,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ],
-                                      ],
-                                    );
-                                  },
-                                ),
+                              // Tapping ONLY Profile Avatar opens Drawer
+                              InkWell(
+                                onTap: () {
+                                  if (onOpenDrawer != null) {
+                                    onOpenDrawer!();
+                                  } else {
+                                    Scaffold.of(context).openDrawer();
+                                  }
+                                },
+                                borderRadius: BorderRadius.circular(20),
+                                child: _buildAvatar(colors, strings, appState),
+                              ),
+                              const SizedBox(height: 2),
+                              // Tier & Points Badge directly underneath avatar
+                              _buildRankPointsBadge(
+                                context,
+                                colors,
+                                strings,
+                                appState,
                               ),
                             ],
                           ),
-                        ),
+                          const SizedBox(width: AppSpacing.md),
+
+                          // User Name Block (Vertically centered or stacked with email)
+                          Expanded(
+                            child: Builder(
+                              builder: (context) {
+                                User? user;
+                                try {
+                                  if (Firebase.apps.isNotEmpty) {
+                                    user = FirebaseAuth.instance.currentUser;
+                                  }
+                                } catch (_) {}
+                                final isKycVerified =
+                                    appState.kycData.isVerified;
+                                final isVerified =
+                                    isKycVerified || isEmailVerified;
+                                final displayName = appState.userName.isNotEmpty
+                                    ? strings.tr(appState.userName)
+                                    : (user?.displayName ??
+                                          (user?.email?.split('@').first ??
+                                              strings.newUser));
+                                final userEmail =
+                                    user?.email ??
+                                    (appState.identityValues['email'] ?? '');
+                                final showEmail =
+                                    appState.preferences.showEmailInHeader &&
+                                    userEmail.isNotEmpty;
+
+                                final nameRow = Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        displayName,
+                                        style: TextStyle(
+                                          fontFamily: 'Vazirmatn',
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
+                                          color: colors.tx,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    if (isVerified) ...[
+                                      const SizedBox(width: AppSpacing.xs),
+                                      FaIcon(
+                                        FontAwesomeIcons.circleCheck,
+                                        size: 12,
+                                        color: isKycVerified
+                                            ? colors.ok
+                                            : colors.inColor,
+                                      ),
+                                    ],
+                                  ],
+                                );
+
+                                if (showEmail) {
+                                  return Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      nameRow,
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        userEmail,
+                                        style: TextStyle(
+                                          fontFamily: 'Vazirmatn',
+                                          fontSize: 11,
+                                          color: colors.mu,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  return Align(
+                                    alignment: AlignmentDirectional.centerStart,
+                                    child: nameRow,
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
 
@@ -304,7 +298,7 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
 
   // ── Avatar with Loyalty Rank border (no conic ring, no Lv1 badge) ──────
   Widget _buildAvatar(AppColors colors, AppStrings strings, AppState appState) {
-    const double avatarSize = 40.0;
+    const double avatarSize = 36.0;
     final rank = LoyaltyRankExtension.fromString(appState.loyaltyRank);
     final rankColor = rank.color;
 

@@ -11,9 +11,9 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_badge.dart';
-import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
+import 'share_actions.dart' as share_actions;
 
 class ReferralSubTab extends ConsumerStatefulWidget {
   const ReferralSubTab({super.key});
@@ -31,32 +31,27 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
     super.dispose();
   }
 
-  void _copyLink(BuildContext context, String link, AppStrings strings) {
+  Future<void> _shareOrCopyLink(
+    BuildContext context,
+    String link,
+    AppStrings strings,
+  ) async {
     if (link.isEmpty) return;
-    Clipboard.setData(ClipboardData(text: link));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          strings.refCopiedToast,
-          style: const TextStyle(fontFamily: 'Vazirmatn'),
-        ),
-        duration: const Duration(seconds: 2),
-      ),
-    );
-  }
+    final shared = await share_actions.shareLink(link, 'StyleMorph');
 
-  void _shareLink(BuildContext context, String link, AppStrings strings) {
-    if (link.isEmpty) return;
-    Clipboard.setData(ClipboardData(text: link));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          strings.refSharedToast,
-          style: const TextStyle(fontFamily: 'Vazirmatn'),
+    if (!shared) {
+      Clipboard.setData(ClipboardData(text: link));
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            strings.refCopiedToast,
+            style: const TextStyle(fontFamily: 'Vazirmatn'),
+          ),
+          duration: const Duration(seconds: 2),
         ),
-        duration: const Duration(seconds: 2),
-      ),
-    );
+      );
+    }
   }
 
   @override
@@ -129,68 +124,72 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // Referral Link Box
-          Text(
-            strings.refLinkLabel,
-            style: AppTypography.inputLabel(color: colors.tx),
-          ),
-          const SizedBox(height: AppSpacing.xs),
+          // Referral Link Box (Full-Width, Single-Tap Native Share / Copy)
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                child: Container(
-                  height: 40,
-                  alignment: AlignmentDirectional.centerStart,
-                  padding: const EdgeInsetsDirectional.symmetric(
-                    horizontal: AppSpacing.md,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colors.bg,
-                    borderRadius: AppRadius.rLg,
-                    border: Border.all(color: colors.bd),
-                  ),
-                  child: Text(
-                    referralLink,
-                    style: TextStyle(
-                      fontFamily: AppTypography.fontFamily,
-                      fontSize: 12,
-                      color: colors.mu,
-                    ),
-                    textDirection: TextDirection.ltr,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
+              Text(
+                strings.refLinkLabel,
+                style: AppTypography.inputLabel(color: colors.tx),
               ),
               const SizedBox(width: AppSpacing.xs),
-              AppButton(
-                size: AppButtonSize.sm,
-                height: 40,
-                icon: FaIcon(
-                  FontAwesomeIcons.copy,
-                  size: 12,
-                  color: colors.prt,
+              Flexible(
+                child: Text(
+                  strings.refTapToShare,
+                  style: TextStyle(
+                    fontFamily: 'Vazirmatn',
+                    fontSize: 10,
+                    color: colors.mu,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
-                text: strings.refCopy,
-                onPressed: referralLink.isNotEmpty
-                    ? () => _copyLink(context, referralLink, strings)
-                    : null,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              AppButton(
-                size: AppButtonSize.sm,
-                height: 40,
-                icon: FaIcon(
-                  FontAwesomeIcons.shareNodes,
-                  size: 12,
-                  color: colors.prt,
-                ),
-                text: strings.refShare,
-                onPressed: referralLink.isNotEmpty
-                    ? () => _shareLink(context, referralLink, strings)
-                    : null,
               ),
             ],
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: referralLink.isNotEmpty
+                  ? () => _shareOrCopyLink(context, referralLink, strings)
+                  : null,
+              borderRadius: AppRadius.rLg,
+              child: Container(
+                height: 44,
+                alignment: AlignmentDirectional.centerStart,
+                padding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: AppSpacing.md,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.bg,
+                  borderRadius: AppRadius.rLg,
+                  border: Border.all(color: colors.bd),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        referralLink,
+                        style: TextStyle(
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 12,
+                          color: colors.tx,
+                        ),
+                        textDirection: TextDirection.ltr,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    FaIcon(
+                      FontAwesomeIcons.shareNodes,
+                      size: 13,
+                      color: colors.pr,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
 

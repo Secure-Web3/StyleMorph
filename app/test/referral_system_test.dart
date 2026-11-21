@@ -138,22 +138,14 @@ void main() {
         expect(find.text('پایه'), findsOneWidget);
 
         // Verify real active web domain link
-        expect(
-          find.text('https://stylemorph-preview.web.app/?ref=8K7W3M9P'),
-          findsOneWidget,
+        final linkFinder = find.text(
+          'https://stylemorph-preview.web.app/?ref=8K7W3M9P',
         );
+        expect(linkFinder, findsOneWidget);
 
-        // Verify Copy and Share buttons
-        expect(find.text('کپی'), findsOneWidget);
-        expect(find.text('اشتراک‌گذاری'), findsOneWidget);
-        expect(
-          find.byWidgetPredicate(
-            (w) =>
-                w is FaIcon &&
-                w.icon?.codePoint == FontAwesomeIcons.copy.codePoint,
-          ),
-          findsOneWidget,
-        );
+        // Verify single-tap full-width box with trailing share icon (separate copy/share buttons removed)
+        expect(find.text('کپی'), findsNothing);
+        expect(find.text('اشتراک‌گذاری'), findsNothing);
         expect(
           find.byWidgetPredicate(
             (w) =>
@@ -169,9 +161,11 @@ void main() {
           findsOneWidget,
         );
 
-        // Tap Copy button -> should show toast
-        await tester.tap(find.text('کپی'));
+        // Tap referral link box -> should copy to clipboard and show toast
+        await tester.tap(linkFinder);
         await tester.pump();
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 100));
         expect(
           find.text('لینک اختصاصی دعوت در کلیپ‌بورد کپی شد!'),
           findsOneWidget,
@@ -206,9 +200,10 @@ void main() {
         expect(find.text('0 Coins'), findsOneWidget);
         expect(find.text('Starter'), findsOneWidget);
 
-        // Verify English buttons & empty state
-        expect(find.text('Copy'), findsOneWidget);
-        expect(find.text('Share'), findsOneWidget);
+        // Verify separate buttons are removed and single-tap hint & link exist
+        expect(find.text('Copy'), findsNothing);
+        expect(find.text('Share'), findsNothing);
+        expect(find.text('Tap to share or copy link'), findsOneWidget);
         expect(
           find.text('No friends have joined using your referral code yet'),
           findsOneWidget,

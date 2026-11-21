@@ -285,6 +285,28 @@ class AppStrings {
       'kycDocTileDriversLicenseFront': 'روی گواهینامه (الزامی)',
       'kycDocTileDriversLicenseBack': 'پشت گواهینامه (الزامی)',
       'kycRemoveImage': 'حذف تصویر',
+      'setChangePasswordTitle': 'تغییر رمز عبور',
+      'setChangePasswordSubtitle': 'به‌روزرسانی رمز عبور ورود به حساب',
+      'cpTitle': 'تغییر رمز عبور',
+      'cpSubtitle': 'برای امنیت حساب، ابتدا رمز عبور فعلی خود را وارد کنید',
+      'cpCurrentPassword': 'رمز عبور فعلی',
+      'cpCurrentPasswordPlaceholder': 'رمز عبور فعلی خود را وارد کنید',
+      'cpNewPassword': 'رمز عبور جدید',
+      'cpNewPasswordPlaceholder': 'حداقل ۸ نویسه شامل حروف و اعداد',
+      'cpConfirmPassword': 'تکرار رمز عبور جدید',
+      'cpConfirmPasswordPlaceholder': 'رمز عبور جدید را مجدداً وارد کنید',
+      'cpSubmit': 'به‌روزرسانی رمز عبور',
+      'cpSuccessToast': 'رمز عبور شما با موفقیت تغییر یافت.',
+      'cpErrMismatch': 'رمز عبور جدید و تکرار آن یکسان نیستند.',
+      'cpErrMinLength': 'رمز عبور باید حداقل ۸ نویسه باشد.',
+      'cpErrWrongPassword': 'رمز عبور فعلی نادرست است.',
+      'cpForgotPasswordLink':
+          'رمز فعلی را فراموش کرده‌اید؟ ارسال لینک بازیابی به ایمیل',
+      'cpResetEmailSent': 'لینک بازیابی رمز عبور به ایمیل شما ارسال شد.',
+      'cpGoogleUserNote':
+          'حساب شما با ورود گوگل فعال است و رمز عبور مستقیم ندارد. می‌توانید با دکمه زیر، لینک تنظیم رمز عبور را به ایمیل خود ارسال نمایید.',
+      'cpSendSetupEmail': 'ارسال لینک تنظیم رمز عبور به ایمیل',
+      'refTapToShare': 'برای اشتراک‌گذاری یا کپی لینک لمس کنید',
       'kycSectionTitle': 'احراز هویت (KYC)',
       'kycSectionSubtitle':
           'جهت فعال‌سازی قابلیت‌های پیشرفته و امنیت حساب، مدارک هویتی خود را ارسال کنید.',
@@ -1207,6 +1229,29 @@ class AppStrings {
       'kycDocTileDriversLicenseFront': 'Front of Driver\'s License (Required)',
       'kycDocTileDriversLicenseBack': 'Back of Driver\'s License (Required)',
       'kycRemoveImage': 'Remove Image',
+      'setChangePasswordTitle': 'Change Password',
+      'setChangePasswordSubtitle': 'Update your account login password',
+      'cpTitle': 'Change Password',
+      'cpSubtitle': 'For security, please enter your current password first',
+      'cpCurrentPassword': 'Current Password',
+      'cpCurrentPasswordPlaceholder': 'Enter your current password',
+      'cpNewPassword': 'New Password',
+      'cpNewPasswordPlaceholder':
+          'At least 8 characters with letters & numbers',
+      'cpConfirmPassword': 'Confirm New Password',
+      'cpConfirmPasswordPlaceholder': 'Re-enter your new password',
+      'cpSubmit': 'Update Password',
+      'cpSuccessToast': 'Your password has been updated successfully.',
+      'cpErrMismatch': 'New password and confirmation do not match.',
+      'cpErrMinLength': 'Password must be at least 8 characters long.',
+      'cpErrWrongPassword': 'Current password is incorrect.',
+      'cpForgotPasswordLink':
+          'Forgot current password? Send reset link to email',
+      'cpResetEmailSent': 'Password reset link has been sent to your email.',
+      'cpGoogleUserNote':
+          'Your account was created with Google Sign-In and does not have a direct password. You can send a password setup link to your email below.',
+      'cpSendSetupEmail': 'Send Password Setup Link to Email',
+      'refTapToShare': 'Tap to share or copy link',
       'kycSectionTitle': 'Identity Verification (KYC)',
       'kycSectionSubtitle':
           'Submit your identity documents to unlock advanced features and secure your account.',
@@ -2127,6 +2172,29 @@ class AppStrings {
       'kycDocTileDriversLicenseFront': 'وجه رخصة القيادة (إلزامي)',
       'kycDocTileDriversLicenseBack': 'ظهر رخصة القيادة (إلزامي)',
       'kycRemoveImage': 'إزالة الصورة',
+      'setChangePasswordTitle': 'تغيير كلمة المرور',
+      'setChangePasswordSubtitle': 'تحديث كلمة مرور تسجيل الدخول إلى حسابك',
+      'cpTitle': 'تغيير كلمة المرور',
+      'cpSubtitle': 'للأمان، يرجى إدخال كلمة المرور الحالية أولاً',
+      'cpCurrentPassword': 'كلمة المرور الحالية',
+      'cpCurrentPasswordPlaceholder': 'أدخل كلمة المرور الحالية',
+      'cpNewPassword': 'كلمة المرور الجديدة',
+      'cpNewPasswordPlaceholder': '8 أحرف على الأقل تحتوي على حروف وأرقام',
+      'cpConfirmPassword': 'تأكيد كلمة المرور الجديدة',
+      'cpConfirmPasswordPlaceholder': 'أعد إدخال كلمة المرور الجديدة',
+      'cpSubmit': 'تحديث كلمة المرور',
+      'cpSuccessToast': 'تم تحديث كلمة المرور بنجاح.',
+      'cpErrMismatch': 'كلمة المرور الجديدة وتأكيدها غير متطابقين.',
+      'cpErrMinLength': 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.',
+      'cpErrWrongPassword': 'كلمة المرور الحالية غير صحيحة.',
+      'cpForgotPasswordLink':
+          'نسيت كلمة المرور الحالية؟ إرسال رابط إعادة التعيين إلى البريد',
+      'cpResetEmailSent':
+          'تم إرسال رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.',
+      'cpGoogleUserNote':
+          'تم إنشاء حسابك عبر تسجيل الدخول باستخدام Google وليس لديه كلمة مرور مباشرة. يمكنك إرسال رابط إعداد كلمة المرور إلى بريدك الإلكتروني أدناه.',
+      'cpSendSetupEmail': 'إرسال رابط إعداد كلمة المرور إلى البريد',
+      'refTapToShare': 'انقر لمشاركة أو نسخ الرابط',
       'kycSectionTitle': 'التحقق من الهوية (KYC)',
       'kycSectionSubtitle':
           'أرسل وثائق هويتك لتفعيل الميزات المتقدمة وتأمين حسابك.',
@@ -3033,6 +3101,28 @@ class AppStrings {
       'kycDocTileDriversLicenseFront': 'Sürücü Belgesi Ön Yüzü (Zorunlu)',
       'kycDocTileDriversLicenseBack': 'Sürücü Belgesi Arka Yüzü (Zorunlu)',
       'kycRemoveImage': 'Resmi Kaldır',
+      'setChangePasswordTitle': 'Şifreyi Değiştir',
+      'setChangePasswordSubtitle': 'Hesap giriş şifrenizi güncelleyin',
+      'cpTitle': 'Şifreyi Değiştir',
+      'cpSubtitle': 'Güvenlik için lütfen önce mevcut şifrenizi girin',
+      'cpCurrentPassword': 'Mevcut Şifre',
+      'cpCurrentPasswordPlaceholder': 'Mevcut şifrenizi girin',
+      'cpNewPassword': 'Yeni Şifre',
+      'cpNewPasswordPlaceholder': 'Harf ve rakamlardan oluşan en az 8 karakter',
+      'cpConfirmPassword': 'Yeni Şifreyi Onayla',
+      'cpConfirmPasswordPlaceholder': 'Yeni şifrenizi tekrar girin',
+      'cpSubmit': 'Şifreyi Güncelle',
+      'cpSuccessToast': 'Şifreniz başarıyla güncellendi.',
+      'cpErrMismatch': 'Yeni şifre ve onayı eşleşmiyor.',
+      'cpErrMinLength': 'Şifre en az 8 karakter uzunluğunda olmalıdır.',
+      'cpErrWrongPassword': 'Mevcut şifre yanlış.',
+      'cpForgotPasswordLink':
+          'Mevcut şifrenizi mi unuttunuz? E-postaya sıfırlama bağlantısı gönderin',
+      'cpResetEmailSent': 'Şifre sıfırlama bağlantısı e-postanıza gönderildi.',
+      'cpGoogleUserNote':
+          'Hesabınız Google ile Giriş yapılarak oluşturuldu ve doğrudan bir şifresi yok. Aşağıdaki butona tıklayarak e-postanıza şifre belirleme bağlantısı gönderebilirsiniz.',
+      'cpSendSetupEmail': 'E-postaya Şifre Belirleme Bağlantısı Gönder',
+      'refTapToShare': 'Bağlantıyı paylaşmak veya kopyalamak için dokunun',
       'kycSectionTitle': 'Kimlik Doğrulama (KYC)',
       'kycSectionSubtitle':
           'Gelişmiş özellikleri etkinleştirmek ve hesabınızı güvenceye almak için kimlik belgelerinizi gönderin.',
@@ -4066,6 +4156,28 @@ class AppStrings {
   String get kycDocTileDriversLicenseBack =>
       get('kycDocTileDriversLicenseBack');
   String get kycRemoveImage => get('kycRemoveImage');
+  String get setChangePasswordTitle => get('setChangePasswordTitle');
+  String get setChangePasswordSubtitle => get('setChangePasswordSubtitle');
+  String get cpTitle => get('cpTitle');
+  String get cpSubtitle => get('cpSubtitle');
+  String get cpCurrentPassword => get('cpCurrentPassword');
+  String get cpCurrentPasswordPlaceholder =>
+      get('cpCurrentPasswordPlaceholder');
+  String get cpNewPassword => get('cpNewPassword');
+  String get cpNewPasswordPlaceholder => get('cpNewPasswordPlaceholder');
+  String get cpConfirmPassword => get('cpConfirmPassword');
+  String get cpConfirmPasswordPlaceholder =>
+      get('cpConfirmPasswordPlaceholder');
+  String get cpSubmit => get('cpSubmit');
+  String get cpSuccessToast => get('cpSuccessToast');
+  String get cpErrMismatch => get('cpErrMismatch');
+  String get cpErrMinLength => get('cpErrMinLength');
+  String get cpErrWrongPassword => get('cpErrWrongPassword');
+  String get cpForgotPasswordLink => get('cpForgotPasswordLink');
+  String get cpResetEmailSent => get('cpResetEmailSent');
+  String get cpGoogleUserNote => get('cpGoogleUserNote');
+  String get cpSendSetupEmail => get('cpSendSetupEmail');
+  String get refTapToShare => get('refTapToShare');
 
   // KYC
   String get kycSectionTitle => get('kycSectionTitle');
