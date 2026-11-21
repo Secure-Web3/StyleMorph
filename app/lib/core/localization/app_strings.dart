@@ -266,7 +266,7 @@ class AppStrings {
       'idErrInvalidZipTurkey': 'کد پستی ترکیه باید ۵ رقم عددی باشد',
       'idErrInvalidZipInternational': 'کد پستی نامعتبر است (۳ تا ۱۲ کاراکتر)',
       'idErrInvalidMobile': 'شماره موبایل وارد شده برای این کشور نامعتبر است',
-      'kycSectionTitle': 'احراز هویت و مدارک شناسایی (KYC)',
+      'kycSectionTitle': 'احراز هویت (KYC)',
       'kycSectionSubtitle':
           'جهت فعال‌سازی قابلیت‌های پیشرفته و امنیت حساب، مدارک هویتی خود را ارسال کنید.',
       'kycStatusNotSubmitted': 'تایید نشده',
@@ -1156,7 +1156,7 @@ class AppStrings {
       'idErrInvalidZipInternational':
           'Invalid Postal/ZIP Code (3-12 characters)',
       'idErrInvalidMobile': 'Invalid mobile number for selected country',
-      'kycSectionTitle': 'KYC Verification & Identity Documents',
+      'kycSectionTitle': 'Identity Verification (KYC)',
       'kycSectionSubtitle':
           'Submit your identity documents to unlock advanced features and secure your account.',
       'kycStatusNotSubmitted': 'Not Submitted',
@@ -2045,7 +2045,7 @@ class AppStrings {
       'idErrInvalidZipTurkey': 'يجب أن يتكون الرمز البريدي التركي من ٥ أرقام',
       'idErrInvalidZipInternational': 'الرمز البريدي غير صالح (٣-١٢ حرف)',
       'idErrInvalidMobile': 'رقم الجوال غير صالح للدولة المحددة',
-      'kycSectionTitle': 'التحقق من الهوية والوثائق (KYC)',
+      'kycSectionTitle': 'التحقق من الهوية (KYC)',
       'kycSectionSubtitle':
           'أرسل وثائق هويتك لتفعيل الميزات المتقدمة وتأمين حسابك.',
       'kycStatusNotSubmitted': 'غير مرسل',
@@ -2918,7 +2918,7 @@ class AppStrings {
       'idErrInvalidZipTurkey': 'Türkiye posta kodu 5 haneli olmalıdır',
       'idErrInvalidZipInternational': 'Geçersiz Posta Kodu (3-12 karakter)',
       'idErrInvalidMobile': 'Seçilen ülke için geçersiz cep telefonu',
-      'kycSectionTitle': 'Kimlik Doğrulama & Belgeler (KYC)',
+      'kycSectionTitle': 'Kimlik Doğrulama (KYC)',
       'kycSectionSubtitle':
           'Gelişmiş özellikleri etkinleştirmek ve hesabınızı güvenceye almak için kimlik belgelerinizi gönderin.',
       'kycStatusNotSubmitted': 'Gönderilmedi',

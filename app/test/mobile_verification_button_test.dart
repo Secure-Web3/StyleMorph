@@ -37,9 +37,9 @@ void main() {
     );
   }
 
-  group('Mobile Verification Button & Coming Soon Badge Tests', () {
+  group('Mobile Verification Section & Coming Soon Badge Tests', () {
     testWidgets(
-      'removes fake verified badge and renders disabled button with Coming Soon badge in Persian',
+      'renders clean mobile row with Coming Soon badge and no cramped inline verify button in Persian',
       (WidgetTester tester) async {
         await tester.pumpWidget(
           buildTestableWidget(locale: const Locale('fa')),
@@ -49,97 +49,77 @@ void main() {
         // Mobile label should exist
         expect(find.text('شماره موبایل'), findsOneWidget);
 
-        // Verify the mobile verification button exists
-        final buttonFinder = find.widgetWithText(AppButton, 'تایید');
-        expect(buttonFinder, findsOneWidget);
-
-        // Ensure button is strictly disabled (onPressed == null)
-        final appButton = tester.widget<AppButton>(buttonFinder);
-        expect(appButton.onPressed, isNull);
-
-        // Ensure "Coming Soon" (به زودی) badge exists
+        // Ensure "Coming Soon" (به زودی) badge exists in the label row
         final comingSoonBadge = find.widgetWithText(AppBadge, 'به زودی');
         expect(comingSoonBadge, findsOneWidget);
 
+        // Ensure the old cramped inline verify button has been removed from input row
+        expect(find.widgetWithText(AppButton, 'تایید'), findsNothing);
+
+        // Dial code picker button is present
+        expect(find.text('+98'), findsOneWidget);
+
         // Verify there is NO fake verified badge on mobile
-        // (The only "تایید شده" should be on email only if email is verified, but default is unverified "تأیید نشده")
         expect(find.widgetWithText(AppBadge, 'تایید شده'), findsNothing);
       },
     );
 
-    testWidgets(
-      'renders disabled mobile button and Coming Soon badge in English',
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          buildTestableWidget(locale: const Locale('en')),
-        );
-        await tester.pumpAndSettle();
+    testWidgets('renders clean mobile row with Coming Soon badge in English', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(buildTestableWidget(locale: const Locale('en')));
+      await tester.pumpAndSettle();
 
-        expect(find.text('Mobile Number'), findsOneWidget);
+      expect(find.text('Mobile Number'), findsOneWidget);
 
-        // "Verify" button disabled
-        final buttonFinder = find.widgetWithText(AppButton, 'Verify');
-        expect(buttonFinder, findsOneWidget);
-        final appButton = tester.widget<AppButton>(buttonFinder);
-        expect(appButton.onPressed, isNull);
+      // "Coming Soon" badge
+      final comingSoonBadge = find.widgetWithText(AppBadge, 'Coming Soon');
+      expect(comingSoonBadge, findsOneWidget);
 
-        // "Coming Soon" badge
-        final comingSoonBadge = find.widgetWithText(AppBadge, 'Coming Soon');
-        expect(comingSoonBadge, findsOneWidget);
-      },
-    );
+      // No cramped inline verify button
+      expect(find.widgetWithText(AppButton, 'Verify'), findsNothing);
+    });
 
-    testWidgets(
-      'renders disabled mobile button and Coming Soon badge in Arabic',
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          buildTestableWidget(locale: const Locale('ar')),
-        );
-        await tester.pumpAndSettle();
+    testWidgets('renders clean mobile row with Coming Soon badge in Arabic', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(buildTestableWidget(locale: const Locale('ar')));
+      await tester.pumpAndSettle();
 
-        expect(find.text('رقم الجوال'), findsOneWidget);
+      expect(find.text('رقم الجوال'), findsOneWidget);
 
-        final buttonFinder = find.widgetWithText(AppButton, 'تأكيد');
-        expect(buttonFinder, findsOneWidget);
-        final appButton = tester.widget<AppButton>(buttonFinder);
-        expect(appButton.onPressed, isNull);
+      final comingSoonBadge = find.widgetWithText(AppBadge, 'قريباً');
+      expect(comingSoonBadge, findsOneWidget);
 
-        final comingSoonBadge = find.widgetWithText(AppBadge, 'قريباً');
-        expect(comingSoonBadge, findsOneWidget);
-      },
-    );
+      expect(find.widgetWithText(AppButton, 'تأكيد'), findsNothing);
+    });
 
-    testWidgets(
-      'renders disabled mobile button and Coming Soon badge in Turkish',
-      (WidgetTester tester) async {
-        await tester.pumpWidget(
-          buildTestableWidget(locale: const Locale('tr')),
-        );
-        await tester.pumpAndSettle();
+    testWidgets('renders clean mobile row with Coming Soon badge in Turkish', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(buildTestableWidget(locale: const Locale('tr')));
+      await tester.pumpAndSettle();
 
-        expect(find.text('Cep Telefonu'), findsOneWidget);
+      expect(find.text('Cep Telefonu'), findsOneWidget);
 
-        final buttonFinder = find.widgetWithText(AppButton, 'Doğrula');
-        expect(buttonFinder, findsOneWidget);
-        final appButton = tester.widget<AppButton>(buttonFinder);
-        expect(appButton.onPressed, isNull);
+      final comingSoonBadge = find.widgetWithText(AppBadge, 'Yakında');
+      expect(comingSoonBadge, findsOneWidget);
 
-        final comingSoonBadge = find.widgetWithText(AppBadge, 'Yakında');
-        expect(comingSoonBadge, findsOneWidget);
-      },
-    );
+      expect(find.widgetWithText(AppButton, 'Doğrula'), findsNothing);
+    });
 
-    testWidgets('tapping disabled mobile button does nothing', (
+    testWidgets('dial code selector button is interactive', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(buildTestableWidget(locale: const Locale('fa')));
       await tester.pumpAndSettle();
 
-      final buttonFinder = find.widgetWithText(AppButton, 'تایید');
-      await tester.tap(buttonFinder);
+      final dialPickerFinder = find.text('+98');
+      expect(dialPickerFinder, findsOneWidget);
+      await tester.tap(dialPickerFinder);
       await tester.pumpAndSettle();
 
-      // State remains unchanged and no exceptions thrown
+      // State remains healthy and bottom sheet opened or handled cleanly
       expect(find.widgetWithText(AppBadge, 'به زودی'), findsOneWidget);
     });
   });

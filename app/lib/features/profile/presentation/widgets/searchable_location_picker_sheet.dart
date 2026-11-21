@@ -1,3 +1,4 @@
+import 'package:country_state_city/country_state_city.dart' as csc;
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
@@ -95,6 +96,7 @@ class SearchableLocationPickerSheet {
   static Future<String?> showCityPicker(
     BuildContext context, {
     required IsoProvince province,
+    String? countryCode,
     String? currentCity,
   }) {
     final colors = context.colors;
@@ -111,6 +113,7 @@ class SearchableLocationPickerSheet {
       builder: (ctx) {
         return _SearchableCityView(
           province: province,
+          countryCode: countryCode,
           currentCity: currentCity,
           title: strings.idSelectCity,
           localeCode: locale,
@@ -141,13 +144,60 @@ class _SearchableCountryView extends StatefulWidget {
 
 class _SearchableCountryViewState extends State<_SearchableCountryView> {
   final TextEditingController _searchCtrl = TextEditingController();
+  List<IsoCountry> _allCountries = [];
   List<IsoCountry> _filtered = [];
 
   @override
   void initState() {
     super.initState();
-    _filtered = IsoLocationData.countries;
+    _allCountries = IsoLocationData.countries;
+    _filtered = _allCountries;
     _searchCtrl.addListener(_onSearchChanged);
+    _loadWorldwideCountries();
+  }
+
+  Future<void> _loadWorldwideCountries() async {
+    try {
+      final worldwide = await csc.getAllCountries();
+      if (!mounted || worldwide.isEmpty) return;
+
+      final Map<String, IsoCountry> map = {
+        for (final c in IsoLocationData.countries) c.code.toUpperCase(): c,
+      };
+
+      for (final w in worldwide) {
+        final code = w.isoCode.toUpperCase();
+        if (!map.containsKey(code)) {
+          final cleanPhone = w.phoneCode.trim();
+          final formattedPhone = cleanPhone.startsWith('+')
+              ? cleanPhone
+              : '+$cleanPhone';
+
+          map[code] = IsoCountry(
+            code: w.isoCode,
+            flag: w.flag,
+            dialCode: formattedPhone,
+            subscriberLength: 10,
+            nameEn: w.name,
+            nameFa: w.name,
+            nameAr: w.name,
+            nameTr: w.name,
+          );
+        }
+      }
+
+      final list = map.values.toList()
+        ..sort((a, b) => a.nameEn.compareTo(b.nameEn));
+
+      if (mounted) {
+        setState(() {
+          _allCountries = list;
+          _onSearchChanged();
+        });
+      }
+    } catch (_) {
+      // Fallback cleanly to built-in IsoLocationData
+    }
   }
 
   @override
@@ -161,9 +211,9 @@ class _SearchableCountryViewState extends State<_SearchableCountryView> {
     final query = _searchCtrl.text.trim().toLowerCase();
     setState(() {
       if (query.isEmpty) {
-        _filtered = IsoLocationData.countries;
+        _filtered = _allCountries;
       } else {
-        _filtered = IsoLocationData.countries.where((c) {
+        _filtered = _allCountries.where((c) {
           return c.nameEn.toLowerCase().contains(query) ||
               c.nameFa.toLowerCase().contains(query) ||
               c.nameAr.toLowerCase().contains(query) ||
@@ -325,13 +375,52 @@ class _SearchableProvinceView extends StatefulWidget {
 
 class _SearchableProvinceViewState extends State<_SearchableProvinceView> {
   final TextEditingController _searchCtrl = TextEditingController();
+  List<IsoProvince> _allProvinces = [];
   List<IsoProvince> _filtered = [];
 
   @override
   void initState() {
     super.initState();
-    _filtered = widget.country.provinces;
+    _allProvinces = widget.country.provinces;
+    _filtered = _allProvinces;
     _searchCtrl.addListener(_onSearchChanged);
+    _loadWorldwideProvinces();
+  }
+
+  Future<void> _loadWorldwideProvinces() async {
+    try {
+      final worldwideStates = await csc.getStatesOfCountry(widget.country.code);
+      if (!mounted || worldwideStates.isEmpty) return;
+
+      final Map<String, IsoProvince> map = {
+        for (final p in widget.country.provinces) p.code.toUpperCase(): p,
+      };
+
+      for (final s in worldwideStates) {
+        final code = s.isoCode.toUpperCase();
+        if (!map.containsKey(code)) {
+          map[code] = IsoProvince(
+            code: s.isoCode.isNotEmpty ? s.isoCode : s.name,
+            nameEn: s.name,
+            nameFa: s.name,
+            nameAr: s.name,
+            nameTr: s.name,
+          );
+        }
+      }
+
+      final list = map.values.toList()
+        ..sort((a, b) => a.nameEn.compareTo(b.nameEn));
+
+      if (mounted) {
+        setState(() {
+          _allProvinces = list;
+          _onSearchChanged();
+        });
+      }
+    } catch (_) {
+      // Fallback cleanly
+    }
   }
 
   @override
@@ -345,9 +434,9 @@ class _SearchableProvinceViewState extends State<_SearchableProvinceView> {
     final query = _searchCtrl.text.trim().toLowerCase();
     setState(() {
       if (query.isEmpty) {
-        _filtered = widget.country.provinces;
+        _filtered = _allProvinces;
       } else {
-        _filtered = widget.country.provinces.where((p) {
+        _filtered = _allProvinces.where((p) {
           return p.nameEn.toLowerCase().contains(query) ||
               p.nameFa.toLowerCase().contains(query) ||
               p.nameAr.toLowerCase().contains(query) ||
@@ -470,12 +559,14 @@ class _SearchableProvinceViewState extends State<_SearchableProvinceView> {
 
 class _SearchableCityView extends StatefulWidget {
   final IsoProvince province;
+  final String? countryCode;
   final String? currentCity;
   final String title;
   final String localeCode;
 
   const _SearchableCityView({
     required this.province,
+    this.countryCode,
     this.currentCity,
     required this.title,
     required this.localeCode,
@@ -487,13 +578,62 @@ class _SearchableCityView extends StatefulWidget {
 
 class _SearchableCityViewState extends State<_SearchableCityView> {
   final TextEditingController _searchCtrl = TextEditingController();
+  List<IsoCity> _allCities = [];
   List<IsoCity> _filtered = [];
 
   @override
   void initState() {
     super.initState();
-    _filtered = widget.province.cities;
+    _allCities = widget.province.cities;
+    _filtered = _allCities;
     _searchCtrl.addListener(_onSearchChanged);
+    _loadWorldwideCities();
+  }
+
+  Future<void> _loadWorldwideCities() async {
+    try {
+      List<csc.City> cities = [];
+      if (widget.countryCode != null && widget.countryCode!.isNotEmpty) {
+        cities = await csc.getStateCities(
+          widget.countryCode!,
+          widget.province.code,
+        );
+        if (cities.isEmpty) {
+          cities = await csc.getCountryCities(widget.countryCode!);
+        }
+      }
+
+      if (!mounted || cities.isEmpty) return;
+
+      final Set<String> existing = {
+        for (final c in widget.province.cities) c.nameEn.toLowerCase(),
+      };
+
+      final List<IsoCity> additions = [];
+      for (final c in cities) {
+        if (!existing.contains(c.name.toLowerCase())) {
+          additions.add(
+            IsoCity(
+              nameEn: c.name,
+              nameFa: c.name,
+              nameAr: c.name,
+              nameTr: c.name,
+            ),
+          );
+          existing.add(c.name.toLowerCase());
+        }
+      }
+
+      final merged = [...widget.province.cities, ...additions];
+      if (mounted) {
+        setState(() {
+          _allCities = merged;
+          _onSearchChanged();
+        });
+      }
+    } catch (_) {
+      // Fallback cleanly
+    }
   }
 
   @override
@@ -507,9 +647,9 @@ class _SearchableCityViewState extends State<_SearchableCityView> {
     final query = _searchCtrl.text.trim().toLowerCase();
     setState(() {
       if (query.isEmpty) {
-        _filtered = widget.province.cities;
+        _filtered = _allCities;
       } else {
-        _filtered = widget.province.cities.where((c) {
+        _filtered = _allCities.where((c) {
           return c.nameEn.toLowerCase().contains(query) ||
               c.nameFa.toLowerCase().contains(query) ||
               c.nameAr.toLowerCase().contains(query) ||

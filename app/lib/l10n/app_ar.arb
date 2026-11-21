@@ -125,7 +125,7 @@
   "idAddressPlaceholder": "الشارع، رقم المبنى، الشقة",
   "idZip": "الرمز البريدي",
   "idZipPlaceholder": "الرمز البريدي",
-  "kycSectionTitle": "التحقق من الهوية والوثائق (KYC)",
+  "kycSectionTitle": "التحقق من الهوية (KYC)",
   "kycSectionSubtitle": "أرسل وثائق هويتك لتفعيل الميزات المتقدمة وتأمين حسابك.",
   "kycStatusNotSubmitted": "غير مرسل",
   "kycStatusPending": "قيد المراجعة",

@@ -125,7 +125,7 @@
   "idAddressPlaceholder": "Mahalle, cadde, sokak, no, daire",
   "idZip": "Posta Kodu",
   "idZipPlaceholder": "Posta Kodu",
-  "kycSectionTitle": "Kimlik Doğrulama & Belgeler (KYC)",
+  "kycSectionTitle": "Kimlik Doğrulama (KYC)",
   "kycSectionSubtitle": "Gelişmiş özellikleri etkinleştirmek ve hesabınızı güvenceye almak için kimlik belgelerinizi gönderin.",
   "kycStatusNotSubmitted": "Gönderilmedi",
   "kycStatusPending": "İncelemede",

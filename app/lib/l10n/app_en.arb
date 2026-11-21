@@ -125,7 +125,7 @@
   "idAddressPlaceholder": "Street name, building number, suite",
   "idZip": "Postal / ZIP Code",
   "idZipPlaceholder": "Postal / ZIP Code",
-  "kycSectionTitle": "KYC Verification & Identity Documents",
+  "kycSectionTitle": "Identity Verification (KYC)",
   "kycSectionSubtitle": "Submit your identity documents to unlock advanced features and secure your account.",
   "kycStatusNotSubmitted": "Not Submitted",
   "kycStatusPending": "Pending Review",

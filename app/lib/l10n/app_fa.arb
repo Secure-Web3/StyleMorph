@@ -125,7 +125,7 @@
   "idAddressPlaceholder": "خیابان، کوچه، پلاک، واحد",
   "idZip": "کد پستی",
   "idZipPlaceholder": "کد پستی / زیپ‌کد",
-  "kycSectionTitle": "احراز هویت و مدارک شناسایی (KYC)",
+  "kycSectionTitle": "احراز هویت (KYC)",
   "kycSectionSubtitle": "جهت فعال‌سازی قابلیت‌های پیشرفته و امنیت حساب، مدارک هویتی خود را ارسال کنید.",
   "kycStatusNotSubmitted": "تایید نشده",
   "kycStatusPending": "در حال بررسی",

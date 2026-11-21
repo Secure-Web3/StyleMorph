@@ -276,17 +276,16 @@ class _KycVerificationSectionState
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           // Header with Title & Live Status Badge
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.xs,
             children: [
-              Expanded(
-                child: AppSectionHeader(
-                  faIcon: FontAwesomeIcons.idCardClip,
-                  title: strings.kycSectionTitle,
-                ),
+              AppSectionHeader(
+                faIcon: FontAwesomeIcons.idCardClip,
+                title: strings.kycSectionTitle,
               ),
-              const SizedBox(width: AppSpacing.sm),
               _buildStatusBadge(colors, strings, kycData.status),
             ],
           ),
@@ -593,25 +592,23 @@ class _KycVerificationSectionState
           style: AppTypography.inputLabel(color: colors.tx),
         ),
         const SizedBox(height: AppSpacing.xs),
-        Row(
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
           children: KycDocType.values.map((type) {
             final isSelected = _selectedDocType == type;
-            return Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 2.0),
-                child: AppButton(
-                  size: AppButtonSize.sm,
-                  isFullWidth: true,
-                  padding: const EdgeInsetsDirectional.symmetric(
-                    horizontal: AppSpacing.xs,
-                  ),
-                  variant: isSelected
-                      ? AppButtonVariant.primary
-                      : AppButtonVariant.outline,
-                  text: _getDocTypeName(strings, type),
-                  onPressed: () => setState(() => _selectedDocType = type),
-                ),
+            return AppButton(
+              size: AppButtonSize.sm,
+              isFullWidth: false,
+              padding: const EdgeInsetsDirectional.symmetric(
+                horizontal: AppSpacing.md,
+                vertical: AppSpacing.xs,
               ),
+              variant: isSelected
+                  ? AppButtonVariant.primary
+                  : AppButtonVariant.outline,
+              text: _getDocTypeName(strings, type),
+              onPressed: () => setState(() => _selectedDocType = type),
             );
           }).toList(),
         ),
