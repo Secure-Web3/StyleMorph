@@ -217,6 +217,12 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
   bool _isTerminatingAll = false;
   String? _expandedSessionId;
 
+  // Auto-retry state for session stream & document synchronization
+  int _retryAttempt = 0;
+  static const int _maxRetryAttempts = 4;
+  Timer? _retryTimer;
+  bool _isAutoRetrying = false;
+
   @override
   void initState() {
     super.initState();
@@ -224,6 +230,50 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
       ref.read(sessionServiceProvider).upsertSession().catchError((e) {
         debugPrint('[SessionsSubTab] upsertSession on mount error: $e');
       });
+    });
+  }
+
+  @override
+  void dispose() {
+    _retryTimer?.cancel();
+    super.dispose();
+  }
+
+  void _scheduleAutoRetry() {
+    if (_retryAttempt >= _maxRetryAttempts || _isAutoRetrying || !mounted)
+      return;
+    _retryTimer?.cancel();
+
+    // Gentle backoff: 1.5s -> 3s -> 5s -> 5s
+    final delays = [
+      const Duration(milliseconds: 1500),
+      const Duration(milliseconds: 3000),
+      const Duration(milliseconds: 5000),
+      const Duration(milliseconds: 5000),
+    ];
+    final delay = delays[_retryAttempt.clamp(0, delays.length - 1)];
+
+    _retryTimer = Timer(delay, () async {
+      if (!mounted) return;
+      _isAutoRetrying = true;
+      _retryAttempt++;
+      debugPrint(
+        '[SessionsSubTab] Auto-retry attempt $_retryAttempt/$_maxRetryAttempts...',
+      );
+      try {
+        await ref.read(sessionServiceProvider).upsertSession();
+        if (mounted) {
+          ref.invalidate(allSessionsProvider);
+        }
+      } catch (e) {
+        debugPrint('[SessionsSubTab] Auto-retry upsertSession error: $e');
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isAutoRetrying = false;
+          });
+        }
+      }
     });
   }
 
@@ -372,6 +422,38 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
 
     final sessionsAsync = ref.watch(allSessionsProvider);
     final currentSessionAsync = ref.watch(currentSessionIdProvider);
+    final currentId = currentSessionAsync.valueOrNull ?? '';
+
+    // Evaluate auto-retry state whenever sessionsAsync updates
+    sessionsAsync.when(
+      data: (sessions) {
+        final currentFound = currentId.isNotEmpty
+            ? sessions.any((s) => s.sessionId == currentId)
+            : sessions.isNotEmpty;
+
+        if (sessions.isEmpty || !currentFound) {
+          if (_retryAttempt < _maxRetryAttempts && !_isAutoRetrying) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _scheduleAutoRetry();
+            });
+          }
+        } else {
+          if (_retryAttempt > 0 || _retryTimer != null) {
+            _retryTimer?.cancel();
+            _retryTimer = null;
+            _retryAttempt = 0;
+          }
+        }
+      },
+      error: (_, _) {
+        if (_retryAttempt < _maxRetryAttempts && !_isAutoRetrying) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _scheduleAutoRetry();
+          });
+        }
+      },
+      loading: () {},
+    );
 
     return Padding(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -440,26 +522,26 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
             ),
             error: (err, stack) {
               debugPrint(
-                '[SessionsSubTab] Firestore exception loading sessions: $err\n$stack',
+                '[SessionsSubTab] Firestore exception loading sessions: $err',
               );
-              // Automatically trigger an upsert attempt if collection was just created
-              Future.microtask(() {
-                ref.read(sessionServiceProvider).upsertSession().catchError((
-                  e,
-                ) {
-                  debugPrint('[SessionsSubTab] Retry upsertSession error: $e');
-                });
-              });
+              if (_retryAttempt < _maxRetryAttempts) {
+                return Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: colors.pr,
+                    ),
+                  ),
+                );
+              }
               return Center(
                 child: Padding(
                   padding: const EdgeInsets.all(AppSpacing.xl),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: colors.pr,
-                      ),
+                      Icon(LucideIcons.shieldAlert, size: 36, color: colors.mu),
                       const SizedBox(height: AppSpacing.md),
                       Text(
                         strings.sessEmpty,
@@ -473,25 +555,27 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
             },
             data: (sessions) {
               if (sessions.isEmpty) {
-                // If sessions haven't populated yet, trigger upsertSession immediately
-                Future.microtask(() {
-                  ref.read(sessionServiceProvider).upsertSession().catchError((
-                    e,
-                  ) {
-                    debugPrint(
-                      '[SessionsSubTab] upsertSession on empty error: $e',
-                    );
-                  });
-                });
+                if (_retryAttempt < _maxRetryAttempts) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colors.pr,
+                      ),
+                    ),
+                  );
+                }
                 return Center(
                   child: Padding(
                     padding: const EdgeInsets.all(AppSpacing.xl),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: colors.pr,
+                        Icon(
+                          LucideIcons.monitorOff,
+                          size: 36,
+                          color: colors.mu,
                         ),
                         const SizedBox(height: AppSpacing.md),
                         Text(
@@ -505,56 +589,46 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
                 );
               }
 
-              return currentSessionAsync.when(
-                loading: () => const SizedBox.shrink(),
-                error: (_, _) => const SizedBox.shrink(),
-                data: (currentId) {
-                  // Legacy fallback: if NO session document has isPrimary == true,
-                  // treat the earliest session (oldest createdAt) as Primary
-                  final hasExplicitPrimary = sessions.any((s) => s.isPrimary);
-                  String? fallbackPrimaryId;
-                  if (!hasExplicitPrimary && sessions.isNotEmpty) {
-                    final earliest = sessions.reduce(
-                      (a, b) => a.createdAt.isBefore(b.createdAt) ? a : b,
-                    );
-                    fallbackPrimaryId = earliest.sessionId;
-                  }
+              // Legacy fallback: if NO session document has isPrimary == true,
+              // treat the earliest session (oldest createdAt) as Primary
+              final hasExplicitPrimary = sessions.any((s) => s.isPrimary);
+              String? fallbackPrimaryId;
+              if (!hasExplicitPrimary && sessions.isNotEmpty) {
+                final earliest = sessions.reduce(
+                  (a, b) => a.createdAt.isBefore(b.createdAt) ? a : b,
+                );
+                fallbackPrimaryId = earliest.sessionId;
+              }
 
-                  final currentSession = sessions
-                      .cast<SessionInfo?>()
-                      .firstWhere(
-                        (s) => s?.sessionId == currentId,
-                        orElse: () => null,
-                      );
-                  final isCurrentDevicePrimary =
-                      (currentSession?.isPrimary ?? false) ||
-                      (fallbackPrimaryId != null &&
-                          currentId == fallbackPrimaryId);
+              final currentSession = sessions.cast<SessionInfo?>().firstWhere(
+                (s) => s?.sessionId == currentId,
+                orElse: () => null,
+              );
+              final isCurrentDevicePrimary =
+                  (currentSession?.isPrimary ?? false) ||
+                  (fallbackPrimaryId != null && currentId == fallbackPrimaryId);
 
-                  return Column(
-                    children: [
-                      for (final session in sessions) ...[
-                        _SessionCard(
-                          session: session,
-                          isCurrentDevice: session.sessionId == currentId,
-                          isPrimary:
-                              session.isPrimary ||
-                              (session.sessionId == fallbackPrimaryId),
-                          isViewerPrimary: isCurrentDevicePrimary,
-                          isExpanded: _expandedSessionId == session.sessionId,
-                          colors: colors,
-                          strings: strings,
-                          onToggleExpand: () =>
-                              _toggleExpand(session.sessionId),
-                          onBlock: () => _handleBlock(session),
-                          onUnblock: () => _handleUnblock(session),
-                          onDelete: () => _handleDelete(session),
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                      ],
-                    ],
-                  );
-                },
+              return Column(
+                children: [
+                  for (final session in sessions) ...[
+                    _SessionCard(
+                      session: session,
+                      isCurrentDevice: session.sessionId == currentId,
+                      isPrimary:
+                          session.isPrimary ||
+                          (session.sessionId == fallbackPrimaryId),
+                      isViewerPrimary: isCurrentDevicePrimary,
+                      isExpanded: _expandedSessionId == session.sessionId,
+                      colors: colors,
+                      strings: strings,
+                      onToggleExpand: () => _toggleExpand(session.sessionId),
+                      onBlock: () => _handleBlock(session),
+                      onUnblock: () => _handleUnblock(session),
+                      onDelete: () => _handleDelete(session),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                  ],
+                ],
               );
             },
           ),

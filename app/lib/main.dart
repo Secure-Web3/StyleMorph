@@ -11,6 +11,7 @@ import 'core/localization/locale_provider.dart';
 import 'core/services/biometric_service.dart';
 import 'core/services/emulator_config.dart';
 import 'core/services/referral_service.dart';
+import 'core/services/screenshot_protection_service.dart';
 import 'core/services/session_persistence_service.dart';
 import 'core/services/welcome_persistence_service.dart';
 import 'core/theme/app_theme.dart';
@@ -26,6 +27,7 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  ScreenshotProtectionService().enableProtection();
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -109,6 +111,9 @@ class _AuthGate extends ConsumerWidget {
       },
       data: (user) {
         if (user == null) {
+          if (appState.isProfileLoaded || appState.loadedUid != null) {
+            Future.microtask(() => appNotifier.resetProfileLoaded());
+          }
           return hasSeenWelcomeAsync.when(
             loading: () => const _Splash(),
             error: (_, _) => const AuthScreen(),
@@ -134,10 +139,8 @@ class _AuthGate extends ConsumerWidget {
           }
         }
 
-        // 2. Trigger profile load if not already loaded or in progress
-        if (!appState.isProfileLoaded) {
-          // Fire-and-forget; the finally block sets isProfileLoaded = true
-          // which triggers a rebuild and exits this branch.
+        // 2. Gate-Level Pre-Fetch: Ensure profile is loaded for current authenticated UID
+        if (!appState.isProfileLoaded || appState.loadedUid != user.uid) {
           Future.microtask(() => appNotifier.loadProfileFromFirestore());
           return const _Splash();
         }

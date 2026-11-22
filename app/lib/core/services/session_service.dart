@@ -640,9 +640,16 @@ class SessionService {
         .collection('users')
         .doc(uid)
         .collection('sessions')
-        .orderBy('lastActiveAt', descending: true)
         .snapshots()
-        .map((snap) => snap.docs.map(SessionInfo.fromDoc).toList());
+        .map((snap) {
+          final list = snap.docs.map(SessionInfo.fromDoc).toList();
+          list.sort((a, b) {
+            final cmp = b.lastActiveAt.compareTo(a.lastActiveAt);
+            if (cmp != 0) return cmp;
+            return b.createdAt.compareTo(a.createdAt);
+          });
+          return list;
+        });
   }
 
   // ── Config policy hook ────────────────────────────────────────────────────

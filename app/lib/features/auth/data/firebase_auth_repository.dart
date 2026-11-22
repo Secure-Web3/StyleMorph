@@ -312,7 +312,10 @@ class FirebaseAuthRepository implements AuthRepository {
                 .trim() ??
             '';
         final currentPhoto =
-            (existingData['photoURL'])?.toString().trim() ?? '';
+            (existingData['photoURL'] ?? existingData['photoUrl'])
+                ?.toString()
+                .trim() ??
+            '';
         final currentEmailVerified =
             existingData['emailVerified'] == true || user.emailVerified;
 
@@ -334,7 +337,10 @@ class FirebaseAuthRepository implements AuthRepository {
         }
 
         final existingDisplayName =
-            existingData['displayName']?.toString().trim() ?? '';
+            (existingData['displayName'] ?? existingData['name'])
+                ?.toString()
+                .trim() ??
+            '';
         if (existingDisplayName.isEmpty) {
           final newFullName = [
             updatedIdentity['firstName'] ?? currentFirst,
@@ -399,13 +405,18 @@ class FirebaseAuthRepository implements AuthRepository {
               0;
           final isVerified = isOAuth || currentEmailVerified || verifiedNow;
 
-          final stylePoints = LoyaltyService.calculateStylePoints(
+          final existingStylePoints =
+              (existingData['stylePoints'] as num?)?.toInt() ?? 0;
+          final calculatedStylePoints = LoyaltyService.calculateStylePoints(
             profileProgress: progress,
             isEmailVerified: isVerified,
             referralCount: referralCount,
             aiUsageCount: aiUsageCount,
             coinActivity: coins,
           );
+          final stylePoints = calculatedStylePoints > existingStylePoints
+              ? calculatedStylePoints
+              : existingStylePoints;
           updates['stylePoints'] = stylePoints;
           updates['loyaltyRank'] = LoyaltyService.getRank(
             stylePoints,

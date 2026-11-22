@@ -139,5 +139,61 @@ void main() {
         expect(service.lastActivityWriteTime, isNotNull);
       },
     );
+
+    test(
+      'Client-side session sorting places newest and pending sessions at top',
+      () {
+        final now = DateTime.now();
+        final olderSession = SessionInfo(
+          sessionId: 'old-1',
+          deviceId: 'd1',
+          deviceType: 'desktop_web',
+          deviceName: 'Chrome on Mac',
+          deviceModel: '',
+          platform: 'macOS',
+          osVersion: '14.0',
+          userAgent: '',
+          createdAt: now.subtract(const Duration(days: 2)),
+          lastActiveAt: now.subtract(const Duration(hours: 4)),
+        );
+
+        final newerSession = SessionInfo(
+          sessionId: 'new-2',
+          deviceId: 'd2',
+          deviceType: 'mobile_android',
+          deviceName: 'Pixel 8',
+          deviceModel: '',
+          platform: 'Android',
+          osVersion: '14.0',
+          userAgent: '',
+          createdAt: now.subtract(const Duration(hours: 1)),
+          lastActiveAt: now.subtract(const Duration(minutes: 10)),
+        );
+
+        final pendingSession = SessionInfo(
+          sessionId: 'pending-3',
+          deviceId: 'd3',
+          deviceType: 'mobile_ios',
+          deviceName: 'iPhone 15',
+          deviceModel: '',
+          platform: 'iOS',
+          osVersion: '17.0',
+          userAgent: '',
+          createdAt: now,
+          lastActiveAt: now,
+        );
+
+        final list = [olderSession, newerSession, pendingSession];
+        list.sort((a, b) {
+          final cmp = b.lastActiveAt.compareTo(a.lastActiveAt);
+          if (cmp != 0) return cmp;
+          return b.createdAt.compareTo(a.createdAt);
+        });
+
+        expect(list.first.sessionId, equals('pending-3'));
+        expect(list[1].sessionId, equals('new-2'));
+        expect(list.last.sessionId, equals('old-1'));
+      },
+    );
   });
 }

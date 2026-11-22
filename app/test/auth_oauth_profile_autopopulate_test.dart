@@ -200,6 +200,54 @@ void main() {
     );
   });
 
+  group('Gate-Level Pre-Fetch & AppState loadedUid tracking', () {
+    test(
+      'initial state has isProfileLoaded == false and loadedUid == null',
+      () {
+        const state = AppState();
+        expect(state.isProfileLoaded, isFalse);
+        expect(state.loadedUid, isNull);
+      },
+    );
+
+    test('state tracks loadedUid and isProfileLoaded when set', () {
+      final state = const AppState().copyWith(
+        isProfileLoaded: true,
+        loadedUid: 'user-abc-123',
+      );
+      expect(state.isProfileLoaded, isTrue);
+      expect(state.loadedUid, equals('user-abc-123'));
+    });
+
+    test('resetProfileLoaded cleanly clears isProfileLoaded and loadedUid', () {
+      final notifier = AppStateNotifier();
+      notifier.state = notifier.state.copyWith(
+        isProfileLoaded: true,
+        loadedUid: 'user-xyz-789',
+      );
+      expect(notifier.state.isProfileLoaded, isTrue);
+      expect(notifier.state.loadedUid, equals('user-xyz-789'));
+
+      notifier.resetProfileLoaded();
+      expect(notifier.state.isProfileLoaded, isFalse);
+      expect(notifier.state.loadedUid, isNull);
+    });
+
+    test('logout cleanly resets isProfileLoaded and loadedUid', () {
+      final notifier = AppStateNotifier();
+      notifier.state = notifier.state.copyWith(
+        isLoggedIn: true,
+        isProfileLoaded: true,
+        loadedUid: 'user-xyz-789',
+      );
+
+      notifier.logout();
+      expect(notifier.state.isLoggedIn, isFalse);
+      expect(notifier.state.isProfileLoaded, isFalse);
+      expect(notifier.state.loadedUid, isNull);
+    });
+  });
+
   group('MainHeader Avatar with AppState.photoUrl fallback', () {
     testWidgets('renders avatar image when photoUrl is present in AppState', (
       tester,

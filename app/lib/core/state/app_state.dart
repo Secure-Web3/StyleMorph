@@ -175,6 +175,7 @@ class AppState {
 
   // Gate-level pre-fetch flag: true once loadProfileFromFirestore() completes
   final bool isProfileLoaded;
+  final String? loadedUid;
 
   // Electronic User Agreement & Terms Consent
   final DateTime? termsAcceptedAt;
@@ -220,6 +221,7 @@ class AppState {
     this.networkTier = 'Starter',
     this.referrals = const [],
     this.isProfileLoaded = false,
+    this.loadedUid,
     this.termsAcceptedAt,
     this.termsVersion,
   });
@@ -261,6 +263,8 @@ class AppState {
     String? networkTier,
     List<ReferralEntry>? referrals,
     bool? isProfileLoaded,
+    String? loadedUid,
+    bool clearLoadedUid = false,
     DateTime? termsAcceptedAt,
     String? termsVersion,
     bool clearTerms = false,
@@ -300,6 +304,7 @@ class AppState {
       networkTier: networkTier ?? this.networkTier,
       referrals: referrals ?? this.referrals,
       isProfileLoaded: isProfileLoaded ?? this.isProfileLoaded,
+      loadedUid: clearLoadedUid ? null : (loadedUid ?? this.loadedUid),
       termsAcceptedAt: clearTerms
           ? null
           : (termsAcceptedAt ?? this.termsAcceptedAt),
@@ -452,12 +457,12 @@ class AppStateNotifier extends StateNotifier<AppState> {
   Future<void> loadProfileFromFirestore() async {
     try {
       if (Firebase.apps.isEmpty) {
-        state = state.copyWith(isProfileLoaded: true);
+        state = state.copyWith(isProfileLoaded: true, clearLoadedUid: true);
         return;
       }
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        state = state.copyWith(isProfileLoaded: true);
+        state = state.copyWith(isProfileLoaded: true, clearLoadedUid: true);
         return;
       }
 
@@ -844,8 +849,11 @@ class AppStateNotifier extends StateNotifier<AppState> {
     } catch (e) {
       debugPrint('[loadProfileFromFirestore] Error: $e');
     } finally {
-      // Always mark profile as loaded so the auth gate can proceed
-      state = state.copyWith(isProfileLoaded: true);
+      // Always mark profile as loaded for current user UID so auth gate can proceed
+      final currentUid = Firebase.apps.isNotEmpty
+          ? FirebaseAuth.instance.currentUser?.uid
+          : null;
+      state = state.copyWith(isProfileLoaded: true, loadedUid: currentUid);
     }
   }
 
@@ -1258,8 +1266,14 @@ class AppStateNotifier extends StateNotifier<AppState> {
       showHeaderCoins: false,
       hasUnsavedProfileChanges: false,
       isProfileLoaded: false,
+      clearLoadedUid: true,
       clearTerms: true,
     );
+  }
+
+  /// Resets profile loaded flag and loaded UID when switching accounts or signing out.
+  void resetProfileLoaded() {
+    state = state.copyWith(isProfileLoaded: false, clearLoadedUid: true);
   }
 
   /// Electronically signs and records agreement to Terms of Service & Privacy Policy.
