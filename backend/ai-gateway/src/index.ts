@@ -1,5 +1,5 @@
 import * as crypto from "node:crypto";
-import express from "express";
+import Fastify, { type FastifyInstance } from "fastify";
 import { computeInputSha256, Sha256ResultCache } from "./cache";
 import { callCaptureCoins, callReleaseCoins } from "./financialClient";
 import { MultiKeyLoadBalancer } from "./keyPool";
@@ -17,9 +17,6 @@ import {
   type GenerateResponse,
   type QualityTierRoute,
 } from "./types";
-
-const app = express();
-app.use(express.json({ limit: "10mb" }));
 
 const keyPool = new MultiKeyLoadBalancer();
 const resultCache = new Sha256ResultCache();
@@ -167,57 +164,112 @@ async function executeWithKeyPoolFailover(
   throw lastError;
 }
 
-// ── HTTP Routes ─────────────────────────────────────────────────────────────
+// ── HTTP Factory & Routes ──────────────────────────────────────────────────
 
-app.get("/health", (_req, res) => {
-  res.status(200).json({
-    status: "ok",
-    service: "stylemorph-ai-gateway",
-    mockMode: isMockAiEnabled(),
-    cacheEntries: resultCache.size(),
-    watermark: MANDATORY_AI_WATERMARK,
-    keys: keyPool.getMetrics(),
+function buildApp(): FastifyInstance {
+  const server = Fastify({
+    logger: false,
+    bodyLimit: 10 * 1024 * 1024,
   });
-});
 
-app.get("/metrics/keys", (_req, res) => {
-  res.status(200).json({
-    mockMode: isMockAiEnabled(),
-    keys: keyPool.getMetrics(),
-  });
-});
-
-app.post("/v1/generate", async (req, res) => {
-  const parsed = GenerateRequestSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({
-      error: "INVALID_GENERATE_REQUEST",
-      details: parsed.error.flatten(),
+  server.get("/health", async (_req, reply) => {
+    return reply.status(200).send({
+      status: "ok",
+      service: "stylemorph-ai-gateway",
+      mockMode: isMockAiEnabled(),
+      cacheEntries: resultCache.size(),
+      watermark: MANDATORY_AI_WATERMARK,
+      keys: keyPool.getMetrics(),
     });
-    return;
-  }
+  });
 
-  const input = parsed.data;
-  const route = resolveQualityTierRoute(input.qualityTier, input.serviceType);
-  const inputHash = computeInputSha256(input);
-  const jobId = `job_${crypto.randomUUID()}`;
+  server.get("/metrics/keys", async (_req, reply) => {
+    return reply.status(200).send({
+      mockMode: isMockAiEnabled(),
+      keys: keyPool.getMetrics(),
+    });
+  });
 
-  // 1. Check SHA-256 Cache before invoking AI provider keys
-  const cached = !input.simulateFailure && input.mockAnatomicalScore === undefined
-    ? resultCache.get(inputHash)
-    : null;
+  server.post("/v1/generate", async (req, reply) => {
+    const parsed = GenerateRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: "INVALID_GENERATE_REQUEST",
+        details: parsed.error.flatten(),
+      });
+    }
 
-  if (cached) {
+    const input = parsed.data;
+    const route = resolveQualityTierRoute(input.qualityTier, input.serviceType);
+    const inputHash = computeInputSha256(input);
+    const jobId = `job_${crypto.randomUUID()}`;
+
+    // 1. Check SHA-256 Cache before invoking AI provider keys
+    const cached = !input.simulateFailure && input.mockAnatomicalScore === undefined
+      ? resultCache.get(inputHash)
+      : null;
+
+    if (cached) {
+      try {
+        const capture = await callCaptureCoins({
+          holdId: input.holdId,
+          idempotencyKey: `cap_${input.idempotencyKey}`,
+          metadata: {
+            jobId,
+            inputHash,
+            cacheHit: true,
+            modelId: cached.modelId,
+            watermark: cached.artifact.watermarkText,
+          },
+        });
+
+        const response: GenerateResponse = {
+          jobId,
+          status: "COMPLETED",
+          serviceType: input.serviceType,
+          qualityTier: input.qualityTier,
+          coinCost: route.coinCost,
+          modelId: cached.modelId,
+          keyIdUsed: "sha256-cache",
+          cacheHit: true,
+          inputHash,
+          mockMode: isMockAiEnabled(),
+          validation: cached.validation,
+          artifact: cached.artifact,
+          captureTxId: capture.ledgerTxId,
+        };
+        return reply.status(200).send(response);
+      } catch (captureErr) {
+        const msg =
+          captureErr instanceof Error ? captureErr.message : String(captureErr);
+        return reply.status(502).send({ error: "CAPTURE_FAILED_ON_CACHE_HIT", detail: msg });
+      }
+    }
+
+    // 2. Execute generation via Multi-Key Pool + Anatomical Self-Correction
     try {
+      const generated = await executeWithKeyPoolFailover(input, route, jobId);
+
+      resultCache.set({
+        inputHash,
+        modelId: route.modelId,
+        artifact: generated.artifact,
+        validation: generated.validation,
+        cachedAtMs: Date.now(),
+      });
+
+      // 3. Finalize hold via captureCoins ONLY after validation & watermark succeed
       const capture = await callCaptureCoins({
         holdId: input.holdId,
         idempotencyKey: `cap_${input.idempotencyKey}`,
         metadata: {
           jobId,
           inputHash,
-          cacheHit: true,
-          modelId: cached.modelId,
-          watermark: cached.artifact.watermarkText,
+          cacheHit: false,
+          modelId: route.modelId,
+          keyIdUsed: generated.keyIdUsed,
+          anatomicalScore: generated.validation.anatomicalScore,
+          watermark: generated.artifact.watermarkText,
         },
       });
 
@@ -227,107 +279,65 @@ app.post("/v1/generate", async (req, res) => {
         serviceType: input.serviceType,
         qualityTier: input.qualityTier,
         coinCost: route.coinCost,
-        modelId: cached.modelId,
-        keyIdUsed: "sha256-cache",
-        cacheHit: true,
-        inputHash,
-        mockMode: isMockAiEnabled(),
-        validation: cached.validation,
-        artifact: cached.artifact,
-        captureTxId: capture.ledgerTxId,
-      };
-      res.status(200).json(response);
-      return;
-    } catch (captureErr) {
-      const msg =
-        captureErr instanceof Error ? captureErr.message : String(captureErr);
-      res.status(502).json({ error: "CAPTURE_FAILED_ON_CACHE_HIT", detail: msg });
-      return;
-    }
-  }
-
-  // 2. Execute generation via Multi-Key Pool + Anatomical Self-Correction
-  try {
-    const generated = await executeWithKeyPoolFailover(input, route, jobId);
-
-    resultCache.set({
-      inputHash,
-      modelId: route.modelId,
-      artifact: generated.artifact,
-      validation: generated.validation,
-      cachedAtMs: Date.now(),
-    });
-
-    // 3. Finalize hold via captureCoins ONLY after validation & watermark succeed
-    const capture = await callCaptureCoins({
-      holdId: input.holdId,
-      idempotencyKey: `cap_${input.idempotencyKey}`,
-      metadata: {
-        jobId,
-        inputHash,
-        cacheHit: false,
         modelId: route.modelId,
         keyIdUsed: generated.keyIdUsed,
-        anatomicalScore: generated.validation.anatomicalScore,
-        watermark: generated.artifact.watermarkText,
-      },
-    });
+        cacheHit: false,
+        inputHash,
+        mockMode: isMockAiEnabled(),
+        validation: generated.validation,
+        artifact: generated.artifact,
+        captureTxId: capture.ledgerTxId,
+      };
+      return reply.status(200).send(response);
+    } catch (genErr) {
+      // 4. Automatic Release on AI failure or failed anatomical self-correction
+      const reason =
+        genErr instanceof Error ? genErr.message : "AI_GENERATION_FAILED";
 
-    const response: GenerateResponse = {
-      jobId,
-      status: "COMPLETED",
-      serviceType: input.serviceType,
-      qualityTier: input.qualityTier,
-      coinCost: route.coinCost,
-      modelId: route.modelId,
-      keyIdUsed: generated.keyIdUsed,
-      cacheHit: false,
-      inputHash,
-      mockMode: isMockAiEnabled(),
-      validation: generated.validation,
-      artifact: generated.artifact,
-      captureTxId: capture.ledgerTxId,
-    };
-    res.status(200).json(response);
-  } catch (genErr) {
-    // 4. Automatic Release on AI failure or failed anatomical self-correction
-    const reason =
-      genErr instanceof Error ? genErr.message : "AI_GENERATION_FAILED";
-
-    try {
-      const release = await callReleaseCoins({
-        holdId: input.holdId,
-        reason,
-        idempotencyKey: `rel_${input.idempotencyKey}`,
-      });
-      res.status(422).json({
-        error: reason,
-        jobId,
-        holdId: input.holdId,
-        released: true,
-        releaseTxId: release.ledgerTxId,
-      });
-    } catch (releaseErr) {
-      const releaseMsg =
-        releaseErr instanceof Error ? releaseErr.message : String(releaseErr);
-      res.status(500).json({
-        error: reason,
-        releaseError: releaseMsg,
-        jobId,
-        holdId: input.holdId,
-        released: false,
-      });
+      try {
+        const release = await callReleaseCoins({
+          holdId: input.holdId,
+          reason,
+          idempotencyKey: `rel_${input.idempotencyKey}`,
+        });
+        return reply.status(422).send({
+          error: reason,
+          jobId,
+          holdId: input.holdId,
+          released: true,
+          releaseTxId: release.ledgerTxId,
+        });
+      } catch (releaseErr) {
+        const releaseMsg =
+          releaseErr instanceof Error ? releaseErr.message : String(releaseErr);
+        return reply.status(500).send({
+          error: reason,
+          releaseError: releaseMsg,
+          jobId,
+          holdId: input.holdId,
+          released: false,
+        });
+      }
     }
-  }
-});
+  });
+
+  return server;
+}
+
+const app = buildApp();
 
 if (require.main === module) {
   const port = Number(process.env["PORT"] ?? "8081");
-  app.listen(port, () => {
+  const host = process.env["HOST"] ?? "0.0.0.0";
+  app.listen({ port, host }, (err, address) => {
+    if (err) {
+      process.stderr.write(`Failed to start StyleMorph AI Gateway: ${err.message}\n`);
+      process.exit(1);
+    }
     process.stdout.write(
-      `StyleMorph AI Gateway listening on port ${port} (USE_MOCK_AI=${isMockAiEnabled()})\n`,
+      `StyleMorph AI Gateway listening on ${address} (USE_MOCK_AI=${isMockAiEnabled()})\n`,
     );
   });
 }
 
-export { app, keyPool, resultCache };
+export { app, buildApp, keyPool, resultCache };

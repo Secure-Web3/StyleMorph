@@ -14,11 +14,10 @@
     "node": "20"
   },
   "dependencies": {
-    "express": "^4.21.1",
+    "fastify": "^5.12.8",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@types/express": "^5.0.0",
     "@types/node": "^20.17.0",
     "typescript": "^5.6.3"
   },

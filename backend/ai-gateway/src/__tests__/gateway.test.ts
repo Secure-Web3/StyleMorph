@@ -2,7 +2,7 @@ import * as assert from "node:assert/strict";
 import * as http from "node:http";
 import test from "node:test";
 import { computeInputSha256, Sha256ResultCache } from "../cache";
-import { app } from "../index";
+import { buildApp } from "../index";
 import { MultiKeyLoadBalancer } from "../keyPool";
 import {
   injectMandatoryWatermark,
@@ -117,6 +117,34 @@ test("Quality tier routing & mandatory AI watermark injection", () => {
   assert.equal(watermarked.watermarkText, "ساختهشده با هوش مصنوعی");
 });
 
+test("Fastify HTTP endpoints: GET /health and GET /metrics/keys via native inject", async () => {
+  const app = buildApp();
+  try {
+    const health = await app.inject({ method: "GET", url: "/health" });
+    assert.equal(health.statusCode, 200);
+    const healthBody = JSON.parse(health.body) as Record<string, unknown>;
+    assert.equal(healthBody["status"], "ok");
+    assert.equal(healthBody["service"], "stylemorph-ai-gateway");
+    assert.equal(healthBody["watermark"], MANDATORY_AI_WATERMARK);
+
+    const metrics = await app.inject({ method: "GET", url: "/metrics/keys" });
+    assert.equal(metrics.statusCode, 200);
+    const metricsBody = JSON.parse(metrics.body) as Record<string, unknown>;
+    assert.ok(metricsBody["keys"]);
+
+    const badReq = await app.inject({
+      method: "POST",
+      url: "/v1/generate",
+      payload: { invalid: "payload" },
+    });
+    assert.equal(badReq.statusCode, 400);
+    const badReqBody = JSON.parse(badReq.body) as Record<string, unknown>;
+    assert.equal(badReqBody["error"], "INVALID_GENERATE_REQUEST");
+  } finally {
+    await app.close();
+  }
+});
+
 test("POST /v1/generate executes Capture on success, hits SHA-256 cache, and Releases on failure", async () => {
   let captureCount = 0;
   let releaseCount = 0;
@@ -166,12 +194,8 @@ test("POST /v1/generate executes Capture on success, hits SHA-256 cache, and Rel
   process.env["USE_MOCK_AI"] = "true";
   process.env["MOCK_AI_LATENCY_MS"] = "25";
 
-  const gatewayServer = await new Promise<http.Server>((resolve) => {
-    const s = app.listen(0, "127.0.0.1", () => resolve(s));
-  });
-  const gwAddr = gatewayServer.address();
-  assert.ok(gwAddr && typeof gwAddr === "object");
-  const gatewayUrl = `http://127.0.0.1:${gwAddr.port}`;
+  const app = buildApp();
+  const gatewayUrl = await app.listen({ port: 0, host: "127.0.0.1" });
 
   try {
     // 1. First request -> mock generation + watermark + captureCoins
@@ -267,7 +291,7 @@ test("POST /v1/generate executes Capture on success, hits SHA-256 cache, and Rel
     assert.equal(releaseCount, 1);
     assert.equal(captureCount, 3);
   } finally {
-    await new Promise<void>((resolve) => gatewayServer.close(() => resolve()));
+    await app.close();
     await new Promise<void>((resolve) =>
       mockFunctionsServer.close(() => resolve()),
     );
