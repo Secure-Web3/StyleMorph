@@ -6,6 +6,7 @@ import 'package:stylemorph/core/state/app_state.dart';
 import 'package:stylemorph/core/theme/app_colors.dart';
 import 'package:stylemorph/core/theme/app_theme.dart';
 import 'package:stylemorph/core/widgets/app_text_field.dart';
+import 'package:stylemorph/features/profile/data/user_preferences.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/identity_sub_tab.dart';
 
 void main() {
@@ -16,14 +17,15 @@ void main() {
 
   Widget buildTestableWidget({
     Locale locale = const Locale('fa'),
-    AppState? initialState,
+    AppState initialState = const AppState(
+      preferences: UserPreferences(appMode: 'advanced'),
+    ),
   }) {
     return ProviderScope(
       overrides: [
-        if (initialState != null)
-          appStateProvider.overrideWith(
-            (ref) => _TestAppStateNotifier(initialState),
-          ),
+        appStateProvider.overrideWith(
+          (ref) => _TestAppStateNotifier(initialState),
+        ),
       ],
       child: MaterialApp(
         theme: testTheme,
@@ -107,6 +109,7 @@ void main() {
           buildTestableWidget(
             locale: const Locale('en'),
             initialState: const AppState(
+              preferences: UserPreferences(appMode: 'advanced'),
               identityValues: {
                 'countryCode': 'GB',
                 'country': 'United Kingdom',

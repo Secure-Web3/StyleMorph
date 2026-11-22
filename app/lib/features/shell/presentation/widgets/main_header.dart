@@ -178,12 +178,17 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                                   builder: (_) => const NotificationSheet(),
                                 );
                               },
+                              style: IconButton.styleFrom(
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                minimumSize: const Size(32, 32),
+                                padding: const EdgeInsets.all(AppSpacing.xs),
+                              ),
+                              visualDensity: VisualDensity.compact,
                               icon: FaIcon(
                                 FontAwesomeIcons.bell,
                                 size: 15,
                                 color: colors.tx,
                               ),
-                              padding: const EdgeInsets.all(AppSpacing.xs),
                               constraints: const BoxConstraints(
                                 minWidth: 32,
                                 minHeight: 32,

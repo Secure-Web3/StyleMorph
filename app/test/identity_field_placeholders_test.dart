@@ -3,9 +3,17 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:stylemorph/core/localization/app_strings.dart';
+import 'package:stylemorph/core/state/app_state.dart';
 import 'package:stylemorph/core/theme/app_colors.dart';
 import 'package:stylemorph/core/theme/app_theme.dart';
+import 'package:stylemorph/features/profile/data/user_preferences.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/identity_sub_tab.dart';
+
+class _TestAppStateNotifier extends AppStateNotifier {
+  _TestAppStateNotifier(AppState initial) : super() {
+    state = initial;
+  }
+}
 
 void main() {
   final testTheme = AppTheme.buildTheme(
@@ -15,6 +23,13 @@ void main() {
 
   Widget buildTestableWidget({Locale locale = const Locale('fa')}) {
     return ProviderScope(
+      overrides: [
+        appStateProvider.overrideWith(
+          (ref) => _TestAppStateNotifier(
+            const AppState(preferences: UserPreferences(appMode: 'advanced')),
+          ),
+        ),
+      ],
       child: MaterialApp(
         theme: testTheme,
         locale: locale,

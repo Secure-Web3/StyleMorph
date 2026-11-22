@@ -175,19 +175,21 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                                       : colors.mu,
                                 ),
                                 const SizedBox(width: 5),
-                                Text(
-                                  strings.appModeSimple,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontFamily: AppTypography.fontFamily,
-                                    fontSize: 11,
-                                    fontWeight: appState.isSimpleMode
-                                        ? FontWeight.w700
-                                        : FontWeight.w500,
-                                    color: appState.isSimpleMode
-                                        ? colors.prt
-                                        : colors.mu,
+                                Flexible(
+                                  child: Text(
+                                    strings.appModeSimple,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: AppTypography.fontFamily,
+                                      fontSize: 11,
+                                      fontWeight: appState.isSimpleMode
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                      color: appState.isSimpleMode
+                                          ? colors.prt
+                                          : colors.mu,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -228,19 +230,21 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                                       : colors.mu,
                                 ),
                                 const SizedBox(width: 5),
-                                Text(
-                                  strings.appModeAdvanced,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontFamily: AppTypography.fontFamily,
-                                    fontSize: 11,
-                                    fontWeight: appState.isAdvancedMode
-                                        ? FontWeight.w700
-                                        : FontWeight.w500,
-                                    color: appState.isAdvancedMode
-                                        ? colors.prt
-                                        : colors.mu,
+                                Flexible(
+                                  child: Text(
+                                    strings.appModeAdvanced,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: AppTypography.fontFamily,
+                                      fontSize: 11,
+                                      fontWeight: appState.isAdvancedMode
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                      color: appState.isAdvancedMode
+                                          ? colors.prt
+                                          : colors.mu,
+                                    ),
                                   ),
                                 ),
                               ],

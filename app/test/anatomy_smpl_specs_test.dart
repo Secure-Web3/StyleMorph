@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:stylemorph/core/state/app_state.dart';
 import 'package:stylemorph/core/theme/app_colors.dart';
 import 'package:stylemorph/core/theme/app_theme.dart';
+import 'package:stylemorph/features/profile/data/user_preferences.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/anatomy_sub_tab.dart';
 
 class _TestAppStateNotifier extends AppStateNotifier {
@@ -58,6 +59,7 @@ void main() {
         addTearDown(() => tester.binding.setSurfaceSize(null));
 
         final state = const AppState(
+          preferences: UserPreferences(appMode: 'advanced'),
           aiDnaValues: {'gender': 'female', 'height': '170', 'weight': '60'},
         );
 
@@ -153,6 +155,7 @@ void main() {
         addTearDown(() => tester.binding.setSurfaceSize(null));
 
         final state = const AppState(
+          preferences: UserPreferences(appMode: 'advanced'),
           aiDnaValues: {'gender': 'female', 'height': '165', 'weight': '55'},
         );
 
@@ -223,6 +226,7 @@ void main() {
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
       final state = const AppState(
+        preferences: UserPreferences(appMode: 'advanced'),
         aiDnaValues: {'gender': 'male', 'height': '175', 'weight': '70'},
       );
 

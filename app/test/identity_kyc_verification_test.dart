@@ -10,6 +10,7 @@ import 'package:stylemorph/core/theme/app_theme.dart';
 import 'package:stylemorph/features/auth/presentation/email_verification_provider.dart';
 import 'package:stylemorph/features/auth/presentation/email_verification_screen.dart';
 import 'package:stylemorph/features/profile/data/kyc_model.dart';
+import 'package:stylemorph/features/profile/data/user_preferences.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/identity_sub_tab.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/kyc_verification_section.dart';
 import 'package:stylemorph/features/shell/presentation/widgets/main_header.dart';
@@ -329,6 +330,9 @@ void main() {
         buildTestableWidget(
           child: const IdentitySubTab(),
           locale: const Locale('fa'),
+          initialState: const AppState(
+            preferences: UserPreferences(appMode: 'advanced'),
+          ),
         ),
       );
       await tester.pumpAndSettle();
