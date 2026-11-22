@@ -1,27 +1,21 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/profile/data/kyc_model.dart';
-import '../../features/profile/data/profile_firestore_mapper.dart';
+import '../../features/profile/data/profile_sync_service.dart';
 import '../../features/profile/data/user_preferences.dart';
 import '../../features/profile/domain/legal_consent_audit.dart';
 import '../../features/profile/domain/profile_progress_calculator.dart';
 import '../../features/profile/domain/profile_snapshot.dart';
 import '../../features/shell/domain/app_tab.dart';
 import '../../features/shell/domain/notification_item.dart';
-import '../localization/locale_provider.dart';
-import '../services/biometric_service.dart';
 import '../services/loyalty_service.dart';
 import '../services/referral_service.dart';
-import '../services/session_service.dart';
 import '../services/web_unload_guard.dart';
-import '../theme/app_colors.dart';
-import '../theme/theme_provider.dart';
 
 export '../../features/profile/data/profile_firestore_mapper.dart';
+export '../../features/profile/data/profile_sync_service.dart';
 export '../../features/profile/domain/companion_settings.dart';
 export '../../features/profile/domain/legal_consent_audit.dart';
 export '../../features/profile/domain/profile_progress_calculator.dart';
@@ -262,8 +256,11 @@ final appStateProvider = StateNotifierProvider<AppStateNotifier, AppState>((
 
 class AppStateNotifier extends StateNotifier<AppState> {
   final Ref? _ref;
+  final ProfileSyncService _profileSyncService;
 
-  AppStateNotifier([this._ref]) : super(const AppState()) {
+  AppStateNotifier([this._ref, ProfileSyncService? profileSyncService])
+    : _profileSyncService = profileSyncService ?? const ProfileSyncService(),
+      super(const AppState()) {
     captureSavedSnapshot();
     loadProfileFromFirestore();
   }
@@ -334,6 +331,67 @@ class AppStateNotifier extends StateNotifier<AppState> {
     WebUnloadGuard.update(false);
   }
 
+  LoyaltyEvaluation _evaluateLoyalty(double progress) {
+    bool isEmailVerified = false;
+    try {
+      if (Firebase.apps.isNotEmpty) {
+        final user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          final isOAuth = user.providerData.any(
+            (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
+          );
+          isEmailVerified = isOAuth || user.emailVerified;
+        }
+      }
+    } catch (_) {}
+    return LoyaltyService.evaluate(
+      profileProgress: progress,
+      isEmailVerified: isEmailVerified,
+      referralCount: state.referralCount,
+      aiUsageCount: state.aiUsageCount,
+      coinActivity: state.coins,
+    );
+  }
+
+  void _updateProfileProgressAndLoyalty({
+    Map<String, String>? identity,
+    Map<String, String>? aiDna,
+    String? personaMode,
+    Map<String, String>? mediaSlots,
+    bool markDirty = false,
+    Map<String, String>? aiDnaSources,
+  }) {
+    final newIdentity = identity ?? state.identityValues;
+    final newAiDna = aiDna ?? state.aiDnaValues;
+    final newPersonaMode = personaMode ?? state.personaMode;
+    final newMediaSlots = mediaSlots ?? state.mediaSlots;
+
+    final progress = calculateProfileProgress(
+      identity: newIdentity,
+      aiDna: newAiDna,
+      personaMode: newPersonaMode,
+      mediaSlots: newMediaSlots,
+    );
+    final loyalty = _evaluateLoyalty(progress);
+
+    state = state.copyWith(
+      identityValues: newIdentity,
+      aiDnaValues: newAiDna,
+      personaMode: newPersonaMode,
+      mediaSlots: newMediaSlots,
+      aiDnaSources: aiDnaSources ?? state.aiDnaSources,
+      profileProgress: progress,
+      stylePoints: loyalty.points,
+      loyaltyRank: loyalty.rank,
+      hasUnsavedProfileChanges: markDirty
+          ? true
+          : state.hasUnsavedProfileChanges,
+    );
+    if (markDirty) {
+      WebUnloadGuard.update(true);
+    }
+  }
+
   /// Discards any unpersisted edits and rolls back all profile state fields
   /// to the exact values from the last-saved snapshot.
   void discardUnsavedChanges() {
@@ -345,8 +403,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
         personaMode: snapshot.personaMode,
         mediaSlots: state.mediaSlots,
       );
-      final points = _computeCurrentPoints(progress);
-      final rank = LoyaltyService.getRank(points).nameCapitalized;
+      final loyalty = _evaluateLoyalty(progress);
 
       state = state.copyWith(
         identityValues: Map<String, String>.from(snapshot.identityValues),
@@ -356,8 +413,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
         companionSettings: snapshot.companionSettings,
         personaMode: snapshot.personaMode,
         profileProgress: progress,
-        stylePoints: points,
-        loyaltyRank: rank,
+        stylePoints: loyalty.points,
+        loyaltyRank: loyalty.rank,
         hasUnsavedProfileChanges: false,
       );
     } else {
@@ -369,130 +426,57 @@ class AppStateNotifier extends StateNotifier<AppState> {
   /// Loads real user profile from Firestore `users/{uid}`.
   Future<void> loadProfileFromFirestore() async {
     try {
-      if (Firebase.apps.isEmpty) {
-        state = state.copyWith(isProfileLoaded: true, clearLoadedUid: true);
-        return;
-      }
-      final user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
+      if (Firebase.apps.isEmpty || FirebaseAuth.instance.currentUser == null) {
         state = state.copyWith(isProfileLoaded: true, clearLoadedUid: true);
         return;
       }
 
-      // Upsert current device session on profile load
-      SessionService().upsertSession().catchError((e) {
-        debugPrint('[AppStateNotifier] upsertSession error: $e');
-      });
-
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
-
-      final parsed = ProfileFirestoreMapper.parseDocument(
-        data: doc.data(),
-        user: user,
+      final result = await _profileSyncService.loadProfile(
         fallbackCompanion: state.companionSettings,
         fallbackPlan: state.currentPlan,
+        ref: _ref,
       );
 
-      List<ReferralEntry> referralEntries = [];
-      try {
-        final snap = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .collection('referrals')
-            .orderBy('createdAt', descending: true)
-            .get();
-        referralEntries = snap.docs.map(ReferralEntry.fromFirestore).toList();
-      } catch (_) {}
+      if (result != null) {
+        final parsed = result.parsed;
+        state = state.copyWith(
+          photoUrl: parsed.photoUrl,
+          identityValues: parsed.identity,
+          aiDnaValues: parsed.aiDna,
+          companionSettings: parsed.companion,
+          coins: parsed.coins,
+          currentPlan: parsed.currentPlan,
+          profileProgress: parsed.profileProgress,
+          stylePoints: parsed.stylePoints,
+          loyaltyRank: parsed.loyaltyRank,
+          aiUsageCount: parsed.aiUsageCount,
+          kycData: parsed.kyc,
+          personaMode: parsed.personaMode,
+          mediaSlots: parsed.mediaSlots,
+          preferences: parsed.preferences,
+          showFloatingSupport: parsed.preferences.showFloatingSupport,
+          showHeaderCoins: parsed.preferences.showHeaderCoins,
+          referralCode: parsed.referralCode,
+          referralCount: parsed.referralCount,
+          networkTier: parsed.networkTier,
+          referrals: result.referrals,
+          userName: parsed.userName,
+          userHandle: parsed.userHandle,
+          hasUnsavedProfileChanges: false,
+          termsAcceptedAt: parsed.termsAcceptedAt,
+          termsVersion: parsed.termsVersion,
+          legalConsent: parsed.legalConsent,
+        );
 
-      // Apply loaded preferences locally across the app
-      try {
-        final localPrefs = await SharedPreferences.getInstance();
-        await localPrefs.setString(
-          ThemeNotifier.keyThemePalette,
-          parsed.preferences.fashionThemePalette,
-        );
-        await localPrefs.setString(
-          ThemeNotifier.keyThemeMode,
-          parsed.preferences.brightnessMode,
-        );
-        await localPrefs.setString(
-          LocaleNotifier.keyAppLanguage,
-          parsed.preferences.appLanguage,
-        );
-      } catch (_) {}
-
-      if (_ref != null) {
-        for (final p in AppPalette.values) {
-          if (p.name == parsed.preferences.fashionThemePalette) {
-            _ref.read(themeProvider.notifier).setPalette(p);
-            break;
-          }
+        if (parsed.referralCode.isEmpty) {
+          _profileSyncService
+              .ensureReferralCode(FirebaseAuth.instance.currentUser!.uid)
+              .then((newCode) {
+                if (newCode != null && mounted) {
+                  state = state.copyWith(referralCode: newCode);
+                }
+              });
         }
-        for (final m in ThemeMode.values) {
-          if (m.name == parsed.preferences.brightnessMode) {
-            _ref.read(themeProvider.notifier).setThemeMode(m);
-            break;
-          }
-        }
-        _ref
-            .read(localeProvider.notifier)
-            .setLanguage(parsed.preferences.appLanguage);
-        _ref
-            .read(biometricServiceProvider)
-            .setBiometricLockEnabled(parsed.preferences.biometricLock);
-      }
-
-      if (parsed.backfillData.isNotEmpty) {
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .set(parsed.backfillData, SetOptions(merge: true))
-            .catchError((e) {
-              debugPrint('[loadProfileFromFirestore] backfill error: $e');
-            });
-      }
-
-      state = state.copyWith(
-        photoUrl: parsed.photoUrl,
-        identityValues: parsed.identity,
-        aiDnaValues: parsed.aiDna,
-        companionSettings: parsed.companion,
-        coins: parsed.coins,
-        currentPlan: parsed.currentPlan,
-        profileProgress: parsed.profileProgress,
-        stylePoints: parsed.stylePoints,
-        loyaltyRank: parsed.loyaltyRank,
-        aiUsageCount: parsed.aiUsageCount,
-        kycData: parsed.kyc,
-        personaMode: parsed.personaMode,
-        mediaSlots: parsed.mediaSlots,
-        preferences: parsed.preferences,
-        showFloatingSupport: parsed.preferences.showFloatingSupport,
-        showHeaderCoins: parsed.preferences.showHeaderCoins,
-        referralCode: parsed.referralCode,
-        referralCount: parsed.referralCount,
-        networkTier: parsed.networkTier,
-        referrals: referralEntries,
-        userName: parsed.userName,
-        userHandle: parsed.userHandle,
-        hasUnsavedProfileChanges: false,
-        termsAcceptedAt: parsed.termsAcceptedAt,
-        termsVersion: parsed.termsVersion,
-        legalConsent: parsed.legalConsent,
-      );
-
-      if (parsed.referralCode.isEmpty) {
-        Future.microtask(() async {
-          try {
-            final newCode = await ReferralService().ensureUserReferralCode(
-              user.uid,
-            );
-            state = state.copyWith(referralCode: newCode);
-          } catch (_) {}
-        });
       }
     } catch (e) {
       debugPrint('[loadProfileFromFirestore] Error: $e');
@@ -508,122 +492,52 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   /// Persists real profile data directly to Firestore `users/{uid}`.
   Future<bool> saveProfileToFirestore() async {
-    if (Firebase.apps.isEmpty) {
-      saveProfileChanges();
-      return true;
-    }
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
+    if (Firebase.apps.isEmpty || FirebaseAuth.instance.currentUser == null) {
       saveProfileChanges();
       return true;
     }
 
     state = state.copyWith(isSavingProfile: true);
     try {
-      final uid = user.uid;
-      final progress = calculateProfileProgress(
-        identity: state.identityValues,
-        aiDna: state.aiDnaValues,
-        personaMode: state.personaMode,
-        mediaSlots: state.mediaSlots,
-      );
-
-      final isOAuth = user.providerData.any(
-        (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
-      );
-      final isEmailVerified = isOAuth || user.emailVerified;
-
-      final points = LoyaltyService.calculateStylePoints(
-        profileProgress: progress,
-        isEmailVerified: isEmailVerified,
-        referralCount: state.referralCount,
-        aiUsageCount: state.aiUsageCount,
-        coinActivity: state.coins,
-      );
-      final rank = LoyaltyService.getRank(points).nameCapitalized;
-
-      String currentPalette = state.preferences.fashionThemePalette;
-      String currentMode = state.preferences.brightnessMode;
-      String currentLang = state.preferences.appLanguage;
-      try {
-        final prefs = await SharedPreferences.getInstance();
-        final p = prefs.getString(ThemeNotifier.keyThemePalette);
-        if (p != null) currentPalette = p;
-        final m = prefs.getString(ThemeNotifier.keyThemeMode);
-        if (m != null) currentMode = m;
-        final l = prefs.getString(LocaleNotifier.keyAppLanguage);
-        if (l != null) currentLang = l;
-      } catch (_) {}
-
-      final updatedPreferences = state.preferences.copyWith(
-        fashionThemePalette: currentPalette,
-        brightnessMode: currentMode,
-        appLanguage: currentLang,
-        showFloatingSupport: state.showFloatingSupport,
-        showHeaderCoins: state.showHeaderCoins,
-      );
-
-      final dataToSave = ProfileFirestoreMapper.toFirestorePayload(
-        user: user,
+      final result = await _profileSyncService.saveProfile(
         identityValues: state.identityValues,
         aiDnaValues: state.aiDnaValues,
         personaMode: state.personaMode,
         mediaSlots: state.mediaSlots,
         companionSettings: state.companionSettings,
-        userPreferences: updatedPreferences,
-        currentThemePalette: currentPalette,
-        currentThemeMode: currentMode,
-        profileProgress: progress,
-        stylePoints: points,
-        loyaltyRank: rank,
-        fallbackHandle: state.userHandle,
+        currentPreferences: state.preferences,
+        showFloatingSupport: state.showFloatingSupport,
+        showHeaderCoins: state.showHeaderCoins,
+        referralCount: state.referralCount,
+        aiUsageCount: state.aiUsageCount,
+        coins: state.coins,
+        currentUserName: state.userName,
+        currentUserHandle: state.userHandle,
       );
 
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .set(dataToSave, SetOptions(merge: true));
-
-      final first = state.identityValues['firstName']?.trim() ?? '';
-      final last = state.identityValues['lastName']?.trim() ?? '';
-      final fullName = '$first $last'.trim();
-      final nick = state.identityValues['nick']?.trim() ?? state.userHandle;
-
-      state = state.copyWith(
-        isSavingProfile: false,
-        hasUnsavedProfileChanges: false,
-        preferences: updatedPreferences,
-        profileProgress: progress,
-        stylePoints: points,
-        loyaltyRank: rank,
-        userName: fullName.isNotEmpty ? fullName : state.userName,
-        userHandle: nick.isNotEmpty ? nick : state.userHandle,
-      );
-      WebUnloadGuard.update(false);
-      captureSavedSnapshot();
-      return true;
+      if (result != null && result.success) {
+        state = state.copyWith(
+          isSavingProfile: false,
+          hasUnsavedProfileChanges: false,
+          preferences: result.preferences,
+          profileProgress: result.profileProgress,
+          stylePoints: result.stylePoints,
+          loyaltyRank: result.loyaltyRank,
+          userName: result.userName,
+          userHandle: result.userHandle,
+        );
+        WebUnloadGuard.update(false);
+        captureSavedSnapshot();
+        return true;
+      } else {
+        state = state.copyWith(isSavingProfile: false);
+        return false;
+      }
     } catch (e) {
       debugPrint('[saveProfileToFirestore] Error: $e');
       state = state.copyWith(isSavingProfile: false);
       return false;
     }
-  }
-
-  int _computeCurrentPoints(double progress) {
-    bool isEmailVerified = false;
-    try {
-      if (Firebase.apps.isNotEmpty) {
-        isEmailVerified =
-            FirebaseAuth.instance.currentUser?.emailVerified ?? false;
-      }
-    } catch (_) {}
-    return LoyaltyService.calculateStylePoints(
-      profileProgress: progress,
-      isEmailVerified: isEmailVerified,
-      referralCount: state.referralCount,
-      aiUsageCount: state.aiUsageCount,
-      coinActivity: state.coins,
-    );
   }
 
   void saveProfileChanges() {
@@ -638,14 +552,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
       personaMode: state.personaMode,
       mediaSlots: state.mediaSlots,
     );
-    final points = _computeCurrentPoints(progress);
-    final rank = LoyaltyService.getRank(points).nameCapitalized;
+    final loyalty = _evaluateLoyalty(progress);
 
     state = state.copyWith(
       hasUnsavedProfileChanges: false,
       profileProgress: progress,
-      stylePoints: points,
-      loyaltyRank: rank,
+      stylePoints: loyalty.points,
+      loyaltyRank: loyalty.rank,
       userName: fullName.isNotEmpty ? fullName : state.userName,
       userHandle: nick.isNotEmpty ? nick : state.userHandle,
     );
@@ -656,22 +569,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   void updateIdentityField(String key, String value) {
     final updated = Map<String, String>.from(state.identityValues)
       ..[key] = value;
-    final progress = calculateProfileProgress(
-      identity: updated,
-      aiDna: state.aiDnaValues,
-      personaMode: state.personaMode,
-      mediaSlots: state.mediaSlots,
-    );
-    final points = _computeCurrentPoints(progress);
-    final rank = LoyaltyService.getRank(points).nameCapitalized;
-    state = state.copyWith(
-      identityValues: updated,
-      profileProgress: progress,
-      stylePoints: points,
-      loyaltyRank: rank,
-      hasUnsavedProfileChanges: true,
-    );
-    WebUnloadGuard.update(true);
+    _updateProfileProgressAndLoyalty(identity: updated, markDirty: true);
   }
 
   void updateKycData(KycData kyc) {
@@ -679,58 +577,17 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   void setPersonaMode(String mode) {
-    final progress = calculateProfileProgress(
-      identity: state.identityValues,
-      aiDna: state.aiDnaValues,
-      personaMode: mode,
-      mediaSlots: state.mediaSlots,
-    );
-    final points = _computeCurrentPoints(progress);
-    final rank = LoyaltyService.getRank(points).nameCapitalized;
-    state = state.copyWith(
-      personaMode: mode,
-      profileProgress: progress,
-      stylePoints: points,
-      loyaltyRank: rank,
-      hasUnsavedProfileChanges: true,
-    );
-    WebUnloadGuard.update(true);
+    _updateProfileProgressAndLoyalty(personaMode: mode, markDirty: true);
   }
 
   void updateMediaSlot(String slotKey, String url) {
     final updated = Map<String, String>.from(state.mediaSlots)..[slotKey] = url;
-    final progress = calculateProfileProgress(
-      identity: state.identityValues,
-      aiDna: state.aiDnaValues,
-      personaMode: state.personaMode,
-      mediaSlots: updated,
-    );
-    final points = _computeCurrentPoints(progress);
-    final rank = LoyaltyService.getRank(points).nameCapitalized;
-    state = state.copyWith(
-      mediaSlots: updated,
-      profileProgress: progress,
-      stylePoints: points,
-      loyaltyRank: rank,
-    );
+    _updateProfileProgressAndLoyalty(mediaSlots: updated);
   }
 
   void deleteMediaSlot(String slotKey) {
     final updated = Map<String, String>.from(state.mediaSlots)..remove(slotKey);
-    final progress = calculateProfileProgress(
-      identity: state.identityValues,
-      aiDna: state.aiDnaValues,
-      personaMode: state.personaMode,
-      mediaSlots: updated,
-    );
-    final points = _computeCurrentPoints(progress);
-    final rank = LoyaltyService.getRank(points).nameCapitalized;
-    state = state.copyWith(
-      mediaSlots: updated,
-      profileProgress: progress,
-      stylePoints: points,
-      loyaltyRank: rank,
-    );
+    _updateProfileProgressAndLoyalty(mediaSlots: updated);
   }
 
   void updateCompanionSettings(CompanionSettings settings) {
@@ -754,23 +611,11 @@ class AppStateNotifier extends StateNotifier<AppState> {
       ..[key] = value;
     final updatedSources = Map<String, String>.from(state.aiDnaSources)
       ..[key] = 'USER';
-    final progress = calculateProfileProgress(
-      identity: state.identityValues,
+    _updateProfileProgressAndLoyalty(
       aiDna: updatedValues,
-      personaMode: state.personaMode,
-      mediaSlots: state.mediaSlots,
-    );
-    final points = _computeCurrentPoints(progress);
-    final rank = LoyaltyService.getRank(points).nameCapitalized;
-    state = state.copyWith(
-      aiDnaValues: updatedValues,
       aiDnaSources: updatedSources,
-      profileProgress: progress,
-      stylePoints: points,
-      loyaltyRank: rank,
-      hasUnsavedProfileChanges: true,
+      markDirty: true,
     );
-    WebUnloadGuard.update(true);
   }
 
   void toggleSupport([bool? open]) {
@@ -944,67 +789,18 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   /// Electronically signs and records agreement to Terms of Service & Privacy Policy.
   Future<void> acceptTerms({String version = '1.0'}) async {
-    final now = DateTime.now().toUtc();
-    String uid = state.loadedUid ?? '';
-    String name = state.userName;
-    String email = state.identityValues['email'] ?? '';
-
-    try {
-      if (Firebase.apps.isNotEmpty) {
-        final user = FirebaseAuth.instance.currentUser;
-        if (user != null) {
-          if (uid.isEmpty) uid = user.uid;
-          if (email.isEmpty && user.email != null) email = user.email!;
-          if (name.isEmpty && user.displayName != null) {
-            name = user.displayName!;
-          }
-        }
-      }
-    } catch (_) {}
-
-    String? ip;
-    String? location;
-    try {
-      final ipRes = await SessionService.detectIpAndLocation().timeout(
-        const Duration(seconds: 3),
-      );
-      ip = ipRes.ip;
-      location = ipRes.location;
-    } catch (_) {}
-
-    String deviceInfo = 'Unknown Device';
-    try {
-      deviceInfo = SessionService.resolveDeviceDescriptor();
-    } catch (_) {}
-
-    final audit = LegalConsentAudit(
-      acceptedAt: now,
-      contractVersion: version,
-      signerUid: uid,
-      signerName: name,
-      signerEmail: email,
-      ipAddress: ip,
-      ipLocation: location,
-      deviceInfo: deviceInfo,
+    final audit = await _profileSyncService.recordLegalConsent(
+      version: version,
+      loadedUid: state.loadedUid,
+      currentName: state.userName,
+      currentEmail: state.identityValues['email'],
     );
 
     state = state.copyWith(
-      termsAcceptedAt: now,
+      termsAcceptedAt: audit.acceptedAt,
       termsVersion: version,
       legalConsent: audit,
     );
-
-    try {
-      if (Firebase.apps.isNotEmpty && uid.isNotEmpty) {
-        await FirebaseFirestore.instance.collection('users').doc(uid).set({
-          'termsAcceptedAt': FieldValue.serverTimestamp(),
-          'termsVersion': version,
-          'legalConsent': audit.toMap(),
-        }, SetOptions(merge: true));
-      }
-    } catch (e) {
-      debugPrint('[AppStateNotifier] acceptTerms error: $e');
-    }
   }
 
   /// Resets terms acceptance locally (used for testing or revocation).

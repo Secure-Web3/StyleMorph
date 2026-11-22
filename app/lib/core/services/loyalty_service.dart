@@ -125,8 +125,35 @@ extension LoyaltyRankExtension on LoyaltyRank {
   }
 }
 
+@immutable
+class LoyaltyEvaluation {
+  final int points;
+  final String rank;
+
+  const LoyaltyEvaluation({required this.points, required this.rank});
+}
+
 class LoyaltyService {
   LoyaltyService._();
+
+  /// Evaluates both StylePoints and the corresponding capitalized rank name.
+  static LoyaltyEvaluation evaluate({
+    required double profileProgress,
+    required bool isEmailVerified,
+    int referralCount = 0,
+    int aiUsageCount = 0,
+    int coinActivity = 0,
+  }) {
+    final points = calculateStylePoints(
+      profileProgress: profileProgress,
+      isEmailVerified: isEmailVerified,
+      referralCount: referralCount,
+      aiUsageCount: aiUsageCount,
+      coinActivity: coinActivity,
+    );
+    final rank = getRank(points).nameCapitalized;
+    return LoyaltyEvaluation(points: points, rank: rank);
+  }
 
   /// Calculates real StylePoints from transparent user activity.
   static int calculateStylePoints({
