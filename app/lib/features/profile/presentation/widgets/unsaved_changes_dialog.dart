@@ -66,32 +66,77 @@ class UnsavedChangesDialog extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.lg),
 
-        // Action 1: Save & Continue
-        AppButton(
-          variant: AppButtonVariant.primary,
-          size: AppButtonSize.md,
-          text: strings.unsavedChangesSaveAndContinue,
-          onPressed: () =>
-              Navigator.of(context).pop(UnsavedChangesAction.saveAndContinue),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-
-        // Action 2: Discard & Leave
-        AppButton(
-          variant: AppButtonVariant.destructive,
-          size: AppButtonSize.md,
-          text: strings.unsavedChangesDiscardAndLeave,
-          onPressed: () =>
-              Navigator.of(context).pop(UnsavedChangesAction.discardAndLeave),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-
-        // Action 3: Stay / Cancel
-        AppButton(
-          variant: AppButtonVariant.ghost,
-          size: AppButtonSize.md,
-          text: strings.unsavedChangesStay,
-          onPressed: () => Navigator.of(context).pop(UnsavedChangesAction.stay),
+        // ── Single Horizontal 3-Button Row ──────────────────────────────
+        Row(
+          children: [
+            Expanded(
+              child: AppButton(
+                variant: AppButtonVariant.primary,
+                size: AppButtonSize.sm,
+                height: 38,
+                padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    strings.unsavedChangesSaveAndContinue,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+                onPressed: () => Navigator.of(
+                  context,
+                ).pop(UnsavedChangesAction.saveAndContinue),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(
+              child: AppButton(
+                variant: AppButtonVariant.destructive,
+                size: AppButtonSize.sm,
+                height: 38,
+                padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    strings.unsavedChangesDiscardAndLeave,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+                onPressed: () => Navigator.of(
+                  context,
+                ).pop(UnsavedChangesAction.discardAndLeave),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            Expanded(
+              child: AppButton(
+                variant: AppButtonVariant.ghost,
+                size: AppButtonSize.sm,
+                height: 38,
+                padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    strings.unsavedChangesStay,
+                    maxLines: 1,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w500,
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+                onPressed: () =>
+                    Navigator.of(context).pop(UnsavedChangesAction.stay),
+              ),
+            ),
+          ],
         ),
       ],
     );

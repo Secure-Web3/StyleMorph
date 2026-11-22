@@ -724,5 +724,12 @@
   "unsavedChangesMessage": "لديك تغييرات غير محفوظة في هذا النموذج. هل ترغب في حفظها قبل المتابعة أو تجاهلها؟",
   "unsavedChangesSaveAndContinue": "حفظ ومتابعة",
   "unsavedChangesDiscardAndLeave": "مغادرة دون حفظ",
-  "unsavedChangesStay": "إلغاء / البقاء"
+  "unsavedChangesStay": "إلغاء / البقاء",
+  "appModeCardDesc": "قم بالتبديل بين الوضع البسيط (واجهة مبسطة وسلسة للاستخدام اليومي) والوضع المتقدم (وصول كامل لجميع الأدوات والمقاييس والتوثيق وإدارة الجلسات). يتم تطبيق التغييرات فوراً في جميع أنحاء التطبيق.",
+  "sessIpAddress": "عنوان IP",
+  "sessIpLocation": "الموقع الجغرافي (IP)",
+  "commonUnavailable": "غير متاح",
+  "aboutOpenContractBtn": "مراجعة نص الاتفاقية والتوقيع الإلكتروني",
+  "aboutContractModalTitle": "شروط الخدمة وسياسة الخصوصية",
+  "aboutCancelSignBtn": "إغلاق دون توقيع"
 }

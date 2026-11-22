@@ -12,6 +12,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -19,7 +20,6 @@ import '../../../auth/presentation/email_verification_provider.dart';
 import '../../data/identity_validator.dart';
 import '../../data/iso_location_data.dart';
 import 'change_email_dialog.dart';
-import 'email_verification_banner.dart';
 import 'kyc_verification_section.dart';
 import 'searchable_location_picker_sheet.dart';
 
@@ -985,6 +985,70 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     );
   }
 
+  Widget _buildTopVerificationNotice(
+    AppColors colors,
+    AppStrings strings,
+    bool isEmailVerified,
+  ) {
+    if (isEmailVerified) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      margin: const EdgeInsetsDirectional.only(bottom: AppSpacing.md),
+      child: AppCard(
+        variant: AppCardVariant.surface,
+        padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+        child: Container(
+          decoration: BoxDecoration(
+            border: BorderDirectional(
+              start: BorderSide(color: colors.wn, width: 3),
+            ),
+          ),
+          padding: const EdgeInsetsDirectional.only(start: AppSpacing.sm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: colors.wn.withValues(alpha: 0.12),
+                      borderRadius: AppRadius.rSm,
+                    ),
+                    alignment: Alignment.center,
+                    child: FaIcon(
+                      FontAwesomeIcons.triangleExclamation,
+                      size: 15,
+                      color: colors.wn,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      strings.emailVerificationBannerTitle,
+                      style: AppTypography.cardTitle(color: colors.tx),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                strings.emailVerificationBannerDesc,
+                style: AppTypography.caption(
+                  color: colors.mu,
+                ).copyWith(height: 1.45),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen<AppState>(appStateProvider, (previous, next) {
@@ -1020,8 +1084,8 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Non-blocking Email Verification Status Banner
-              const EmailVerificationBanner(),
+              // Non-blocking Email Verification Status Banner (information only, action buttons are on email field)
+              _buildTopVerificationNotice(colors, strings, isEmailVerified),
 
               AppSectionHeader(
                 faIcon: FontAwesomeIcons.userShield,

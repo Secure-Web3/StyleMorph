@@ -43,7 +43,6 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
   UpdateCheckStatus _updateStatus = UpdateCheckStatus.idle;
   String? _availableVersion;
   String? _storeUrl;
-  bool _termsAgreed = false;
 
   Future<void> _checkForUpdates() async {
     setState(() => _updateStatus = UpdateCheckStatus.checking);
@@ -159,15 +158,11 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
           _buildBrandHeroCard(colors, strings),
           const SizedBox(height: AppSpacing.md),
 
-          // ── 2. App Version & Build Status Spec Card ───────────────────────
-          _buildVersionSpecCard(colors, strings),
+          // ── 2. Unified App Version Specs & Check for Updates Card ──────────
+          _buildUnifiedVersionAndUpdatesCard(colors, strings),
           const SizedBox(height: AppSpacing.md),
 
-          // ── 3. Manual "Check for Updates" Interactive Section ─────────────
-          _buildUpdateCheckerCard(colors, strings),
-          const SizedBox(height: AppSpacing.md),
-
-          // ── 4. User Agreement & Consent Card ──────────────────────────────
+          // ── 3. User Agreement & Consent Card ──────────────────────────────
           _buildAgreementCard(
             colors,
             strings,
@@ -176,11 +171,11 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // ── 5. Legal & Compliance Links ───────────────────────────────────
+          // ── 4. Legal & Compliance Links ───────────────────────────────────
           _buildLegalSection(colors, strings),
           const SizedBox(height: AppSpacing.md),
 
-          // ── 6. Official Contact & Socials ─────────────────────────────────
+          // ── 5. Official Contact & Socials ─────────────────────────────────
           _buildContactSection(colors, strings),
           const SizedBox(height: AppSpacing.xl),
 
@@ -288,14 +283,18 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
     );
   }
 
-  // ── 2. App Version & Build Status Spec Card ───────────────────────────────
-  Widget _buildVersionSpecCard(AppColors colors, AppStrings strings) {
+  // ── 2. Unified App Version Specs & Check for Updates Card ──────────
+  Widget _buildUnifiedVersionAndUpdatesCard(
+    AppColors colors,
+    AppStrings strings,
+  ) {
     final formattedBuild = strings.formatNumber(AboutSubTab.currentBuildNumber);
 
     return AppCard(
       variant: AppCardVariant.surface,
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           _buildSpecRow(
             colors: colors,
@@ -326,54 +325,9 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
             value: strings.aboutEnvironmentVal,
             valueColor: colors.ok,
           ),
-        ],
-      ),
-    );
-  }
+          Divider(color: colors.bd, height: 24),
 
-  Widget _buildSpecRow({
-    required AppColors colors,
-    required IconData icon,
-    required String label,
-    required String value,
-    bool isBold = false,
-    Color? valueColor,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: colors.mu),
-        const SizedBox(width: AppSpacing.sm),
-        Text(
-          label,
-          style: TextStyle(
-            fontFamily: 'Vazirmatn',
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: colors.mu,
-          ),
-        ),
-        const Spacer(),
-        Text(
-          value,
-          style: TextStyle(
-            fontFamily: 'Vazirmatn',
-            fontSize: 12,
-            fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
-            color: valueColor ?? colors.tx,
-          ),
-        ),
-      ],
-    );
-  }
-
-  // ── 3. Manual "Check for Updates" Button Card ─────────────────────────────
-  Widget _buildUpdateCheckerCard(AppColors colors, AppStrings strings) {
-    return AppCard(
-      variant: AppCardVariant.surface,
-      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
+          // Integrated Manual Check for Updates Button
           AppButton(
             variant: AppButtonVariant.primary,
             isFullWidth: true,
@@ -491,6 +445,41 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
     );
   }
 
+  Widget _buildSpecRow({
+    required AppColors colors,
+    required IconData icon,
+    required String label,
+    required String value,
+    bool isBold = false,
+    Color? valueColor,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: colors.mu),
+        const SizedBox(width: AppSpacing.sm),
+        Text(
+          label,
+          style: TextStyle(
+            fontFamily: 'Vazirmatn',
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: colors.mu,
+          ),
+        ),
+        const Spacer(),
+        Text(
+          value,
+          style: TextStyle(
+            fontFamily: 'Vazirmatn',
+            fontSize: 12,
+            fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
+            color: valueColor ?? colors.tx,
+          ),
+        ),
+      ],
+    );
+  }
+
   // ── 4. User Agreement & Consent Card ──────────────────────────────────────
   Widget _buildAgreementCard(
     AppColors colors,
@@ -597,7 +586,7 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
       );
     }
 
-    // Unsigned state: prominent warning/error accent border
+    // Unsigned state: prominent warning card opening the full interactive agreement contract modal
     return AppCard(
       key: const Key('agreement_card'),
       variant: AppCardVariant.surface,
@@ -610,8 +599,8 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
           Row(
             children: [
               Container(
-                width: 28,
-                height: 28,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
                   color: theme.colorScheme.error.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(AppRadius.sm),
@@ -619,7 +608,7 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
                 child: Center(
                   child: Icon(
                     Icons.warning_amber_rounded,
-                    size: 16,
+                    size: 18,
                     color: theme.colorScheme.error,
                   ),
                 ),
@@ -649,66 +638,42 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
               height: 1.45,
             ),
           ),
-          Divider(color: colors.bd.withValues(alpha: 0.5), height: 16),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Checkbox(
-                key: const Key('agreement_checkbox'),
-                value: _termsAgreed,
-                activeColor: colors.pr,
-                onChanged: (val) {
-                  setState(() => _termsAgreed = val ?? false);
-                },
-              ),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    setState(() => _termsAgreed = !_termsAgreed);
-                  },
-                  child: Text(
-                    strings.aboutAgreementCheckbox,
-                    style: TextStyle(
-                      fontFamily: 'Vazirmatn',
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: colors.tx,
-                      height: 1.35,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.md),
           AppButton(
-            key: const Key('agreement_sign_button'),
+            key: const Key('agreement_open_modal_button'),
             variant: AppButtonVariant.primary,
             isFullWidth: true,
-            icon: const Icon(Icons.draw_rounded, size: 16),
-            text: strings.aboutAgreementSignBtn,
-            onPressed: _termsAgreed
-                ? () async {
-                    await ref
-                        .read(appStateProvider.notifier)
-                        .acceptTerms(version: '1.0');
-                    if (!mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          strings.aboutAgreementSignedToast,
-                          style: const TextStyle(fontFamily: 'Vazirmatn'),
-                        ),
-                        backgroundColor: colors.ok,
-                        duration: const Duration(seconds: 3),
-                      ),
-                    );
-                  }
-                : null,
+            icon: const Icon(Icons.assignment_turned_in_rounded, size: 16),
+            text: strings.aboutOpenContractBtn,
+            onPressed: _openContractModal,
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _openContractModal() async {
+    final colors = context.colors;
+    final strings = context.strings;
+    final signed = await FullContractModalSheet.show(
+      context,
+      onSign: () async {
+        await ref.read(appStateProvider.notifier).acceptTerms(version: '1.0');
+      },
+    );
+
+    if (signed == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            strings.aboutAgreementSignedToast,
+            style: const TextStyle(fontFamily: 'Vazirmatn'),
+          ),
+          backgroundColor: colors.ok,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    }
   }
 
   // ── 5. Legal & Compliance Links ───────────────────────────────────────────

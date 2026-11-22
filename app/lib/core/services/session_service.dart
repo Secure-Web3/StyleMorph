@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'ai_http_transport_stub.dart'
+    if (dart.library.io) 'ai_http_transport_io.dart'
+    as session_http;
 import 'session_storage.dart';
 
 // ── Model ──────────────────────────────────────────────────────────────────
@@ -24,6 +28,8 @@ class SessionInfo {
   final bool isActive;
   final DateTime createdAt;
   final DateTime lastActiveAt;
+  final String? ipAddress;
+  final String? ipLocation;
 
   const SessionInfo({
     required this.sessionId,
@@ -39,6 +45,8 @@ class SessionInfo {
     this.isActive = true,
     required this.createdAt,
     required this.lastActiveAt,
+    this.ipAddress,
+    this.ipLocation,
   });
 
   factory SessionInfo.fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
@@ -58,6 +66,8 @@ class SessionInfo {
       createdAt: (d['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       lastActiveAt:
           (d['lastActiveAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      ipAddress: d['ipAddress'] as String?,
+      ipLocation: d['ipLocation'] as String?,
     );
   }
 
@@ -75,6 +85,8 @@ class SessionInfo {
     'isActive': isActive,
     'createdAt': Timestamp.fromDate(createdAt),
     'lastActiveAt': Timestamp.fromDate(lastActiveAt),
+    if (ipAddress != null) 'ipAddress': ipAddress,
+    if (ipLocation != null) 'ipLocation': ipLocation,
   };
 
   SessionInfo copyWith({
@@ -91,6 +103,8 @@ class SessionInfo {
     bool? isActive,
     DateTime? createdAt,
     DateTime? lastActiveAt,
+    String? ipAddress,
+    String? ipLocation,
   }) {
     return SessionInfo(
       sessionId: sessionId ?? this.sessionId,
@@ -106,6 +120,8 @@ class SessionInfo {
       isActive: isActive ?? this.isActive,
       createdAt: createdAt ?? this.createdAt,
       lastActiveAt: lastActiveAt ?? this.lastActiveAt,
+      ipAddress: ipAddress ?? this.ipAddress,
+      ipLocation: ipLocation ?? this.ipLocation,
     );
   }
 }
@@ -131,6 +147,60 @@ class SessionService {
 
   @visibleForTesting
   set lastActivityWriteTime(DateTime? val) => _lastActivityWriteTime = val;
+
+  @visibleForTesting
+  static Future<({String? ip, String? location})> Function()?
+  ipResolverOverride;
+
+  /// Detects the public IP address and IP-based location asynchronously with a 3-second timeout.
+  /// Falls back safely to `null` if offline, timed out, or in test environment.
+  static Future<({String? ip, String? location})> detectIpAndLocation() async {
+    if (ipResolverOverride != null) {
+      try {
+        return await ipResolverOverride!();
+      } catch (_) {
+        return (ip: null, location: null);
+      }
+    }
+
+    try {
+      final response = await session_http
+          .sendHttpRequest(
+            method: 'GET',
+            uri: Uri.parse('https://freeipapi.com/api/json'),
+            timeout: const Duration(seconds: 3),
+          )
+          .timeout(const Duration(seconds: 3));
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
+        final data = jsonDecode(response.body);
+        if (data is Map<String, dynamic>) {
+          final ip = data['ipAddress']?.toString().trim();
+          final city = data['cityName']?.toString().trim() ?? '';
+          final country = data['countryName']?.toString().trim() ?? '';
+
+          String? location;
+          if (city.isNotEmpty && country.isNotEmpty) {
+            location = '$city, $country';
+          } else if (country.isNotEmpty) {
+            location = country;
+          } else if (city.isNotEmpty) {
+            location = city;
+          }
+
+          return (
+            ip: (ip != null && ip.isNotEmpty) ? ip : null,
+            location: (location != null && location.isNotEmpty)
+                ? location
+                : null,
+          );
+        }
+      }
+    } catch (_) {
+      // Safe fallback: never block or throw
+    }
+    return (ip: null, location: null);
+  }
 
   SessionService({FirebaseFirestore? firestore, FirebaseAuth? auth})
     : _customFirestore = firestore,
@@ -407,6 +477,14 @@ class SessionService {
           'userAgent': meta['userAgent'],
         };
 
+        final ipData = await detectIpAndLocation();
+        if (ipData.ip != null) {
+          updateData['ipAddress'] = ipData.ip;
+        }
+        if (ipData.location != null) {
+          updateData['ipLocation'] = ipData.location;
+        }
+
         // Throttle lastActiveAt updates to at most once every 15 minutes
         final shouldUpdateLastActive =
             _lastActivityWriteTime == null ||
@@ -420,6 +498,7 @@ class SessionService {
 
         await docRef.update(updateData);
       } else {
+        final ipData = await detectIpAndLocation();
         final session = SessionInfo(
           sessionId: sessionId,
           deviceId: deviceId,
@@ -434,6 +513,8 @@ class SessionService {
           isActive: !isDeviceBlocked,
           createdAt: DateTime.now(),
           lastActiveAt: DateTime.now(),
+          ipAddress: ipData.ip,
+          ipLocation: ipData.location,
         );
         await docRef.set(session.toMap());
         _lastActivityWriteTime = DateTime.now();

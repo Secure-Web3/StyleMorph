@@ -83,6 +83,27 @@ void main() {
       notifier.setFashionThemePalette('obsidian');
       expect(notifier.state.hasUnsavedChanges, isTrue);
     });
+
+    test('discardUnsavedChanges restores exact pre-edit snapshot values', () {
+      final notifier = AppStateNotifier();
+      notifier.updateIdentityField('firstName', 'Initial');
+      notifier.captureSavedSnapshot();
+      expect(notifier.state.identityValues['firstName'], equals('Initial'));
+      expect(notifier.state.hasUnsavedChanges, isFalse);
+
+      // Mutate fields
+      notifier.updateIdentityField('firstName', 'Mutated');
+      notifier.updateAiDnaField('height', '195');
+      expect(notifier.state.identityValues['firstName'], equals('Mutated'));
+      expect(notifier.state.aiDnaValues['height'], equals('195'));
+      expect(notifier.state.hasUnsavedChanges, isTrue);
+
+      // Discard
+      notifier.discardUnsavedChanges();
+      expect(notifier.state.identityValues['firstName'], equals('Initial'));
+      expect(notifier.state.aiDnaValues['height'], isNull);
+      expect(notifier.state.hasUnsavedChanges, isFalse);
+    });
   });
 
   group('UnsavedChangesDialog Widget Tests', () {

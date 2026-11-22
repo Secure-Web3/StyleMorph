@@ -303,6 +303,16 @@ void main() {
         // Card should be rendered in unsigned state
         expect(find.byKey(const Key('agreement_card')), findsOneWidget);
         expect(find.text('User Agreement & Consent'), findsOneWidget);
+
+        final triggerBtn = find.byKey(const Key('agreement_open_modal_button'));
+        expect(triggerBtn, findsOneWidget);
+
+        // Tap trigger button to open Full Contract modal
+        await tester.scrollUntilVisible(triggerBtn, 100);
+        await tester.tap(triggerBtn);
+        await tester.pumpAndSettle();
+
+        expect(find.byType(FullContractModalSheet), findsOneWidget);
         expect(
           find.text(
             'I have read and agree to the StyleMorph Terms of Service and Privacy Policy.',
@@ -317,10 +327,9 @@ void main() {
         final btnWidgetBefore = tester.widget<AppButton>(signBtn);
         expect(btnWidgetBefore.onPressed, isNull);
 
-        // Scroll until checkbox is visible before tapping
+        // Tap checkbox
         final checkbox = find.byKey(const Key('agreement_checkbox'));
         expect(checkbox, findsOneWidget);
-        await tester.scrollUntilVisible(checkbox, 100);
         await tester.tap(checkbox);
         await tester.pumpAndSettle();
 
@@ -329,14 +338,52 @@ void main() {
         expect(btnWidgetAfter.onPressed, isNotNull);
 
         // Tap sign button
-        await tester.scrollUntilVisible(signBtn, 100);
         await tester.tap(signBtn);
         await tester.pumpAndSettle();
 
-        // After signing, verified green badge is shown
+        // Modal closes and verified green badge is shown
+        expect(find.byType(FullContractModalSheet), findsNothing);
         expect(find.byKey(const Key('agreement_signed_badge')), findsOneWidget);
         expect(find.text('Electronically Signed & Accepted'), findsOneWidget);
         expect(find.textContaining('(v1.0)'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'FullContractModalSheet can be dismissed without signing via Close button',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestWidget(
+            initialState: const AppState(
+              isLoggedIn: true,
+              currentTab: AppTab.profile,
+              currentProfileTab: 'p-about',
+              termsAcceptedAt: null,
+            ),
+            child: const SingleChildScrollView(child: AboutSubTab()),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final triggerBtn = find.byKey(const Key('agreement_open_modal_button'));
+        await tester.scrollUntilVisible(triggerBtn, 100);
+        await tester.tap(triggerBtn);
+        await tester.pumpAndSettle();
+
+        expect(find.byType(FullContractModalSheet), findsOneWidget);
+
+        final cancelBtn = find.byKey(const Key('agreement_cancel_button'));
+        expect(cancelBtn, findsOneWidget);
+        await tester.tap(cancelBtn);
+        await tester.pumpAndSettle();
+
+        expect(find.byType(FullContractModalSheet), findsNothing);
+        // Remains unsigned
+        expect(
+          find.byKey(const Key('agreement_open_modal_button')),
+          findsOneWidget,
+        );
+        expect(find.byKey(const Key('agreement_signed_badge')), findsNothing);
       },
     );
 

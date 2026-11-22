@@ -75,6 +75,16 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AppState>(appStateProvider, (previous, next) {
+      if (previous?.preferences != next.preferences &&
+          !next.hasUnsavedProfileChanges) {
+        setState(() {
+          _backupFrequency = next.preferences.autoDataBackup;
+          _biometricLockEnabled = next.preferences.biometricLock;
+        });
+      }
+    });
+
     final colors = context.colors;
     final strings = context.strings;
     final themeState = ref.watch(themeProvider);
@@ -91,6 +101,160 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
             title: strings.setHeader,
           ),
           const SizedBox(height: AppSpacing.md),
+
+          // ── Top Experience Mode Toggle Switch Card ────────────────────────
+          AppCard(
+            variant: AppCardVariant.surface,
+            padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      appState.isAdvancedMode
+                          ? Icons.tune_rounded
+                          : Icons.bolt_rounded,
+                      size: 16,
+                      color: colors.pr,
+                    ),
+                    const SizedBox(width: AppSpacing.xs),
+                    Text(
+                      strings.appModeLabel,
+                      style: AppTypography.cardTitle(color: colors.tx),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  strings.appModeCardDesc,
+                  style: TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 11,
+                    color: colors.mu,
+                    height: 1.45,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    color: colors.bg,
+                    borderRadius: AppRadius.rFull,
+                    border: Border.all(color: colors.bd),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            ref
+                                .read(appStateProvider.notifier)
+                                .setAppMode('simple', persistImmediately: true);
+                          },
+                          borderRadius: BorderRadius.circular(AppRadius.full),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 160),
+                            padding: const EdgeInsets.symmetric(vertical: 7),
+                            decoration: BoxDecoration(
+                              color: appState.isSimpleMode
+                                  ? colors.pr
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.full,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.bolt_rounded,
+                                  size: 14,
+                                  color: appState.isSimpleMode
+                                      ? colors.prt
+                                      : colors.mu,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  strings.appModeSimple,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: AppTypography.fontFamily,
+                                    fontSize: 11,
+                                    fontWeight: appState.isSimpleMode
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
+                                    color: appState.isSimpleMode
+                                        ? colors.prt
+                                        : colors.mu,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () {
+                            ref
+                                .read(appStateProvider.notifier)
+                                .setAppMode(
+                                  'advanced',
+                                  persistImmediately: true,
+                                );
+                          },
+                          borderRadius: BorderRadius.circular(AppRadius.full),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 160),
+                            padding: const EdgeInsets.symmetric(vertical: 7),
+                            decoration: BoxDecoration(
+                              color: appState.isAdvancedMode
+                                  ? colors.pr
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(
+                                AppRadius.full,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.tune_rounded,
+                                  size: 14,
+                                  color: appState.isAdvancedMode
+                                      ? colors.prt
+                                      : colors.mu,
+                                ),
+                                const SizedBox(width: 5),
+                                Text(
+                                  strings.appModeAdvanced,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: AppTypography.fontFamily,
+                                    fontSize: 11,
+                                    fontWeight: appState.isAdvancedMode
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
+                                    color: appState.isAdvancedMode
+                                        ? colors.prt
+                                        : colors.mu,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
 
           // 1. Theme Palette Selector Dropdown
           AppDropdown<AppPalette>(
@@ -176,46 +340,6 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
             },
           ),
           const SizedBox(height: AppSpacing.sm),
-
-          // 4. App Experience Mode (Simple / Advanced)
-          AppDropdown<String>(
-            label: strings.appModeLabel,
-            value: appState.preferences.appMode,
-            items: [
-              DropdownMenuItem(
-                value: 'simple',
-                child: Text(strings.appModeSimple),
-              ),
-              DropdownMenuItem(
-                value: 'advanced',
-                child: Text(strings.appModeAdvanced),
-              ),
-            ],
-            onChanged: (mode) {
-              if (mode != null) {
-                ref.read(appStateProvider.notifier).setAppMode(mode);
-              }
-            },
-          ),
-          Padding(
-            padding: const EdgeInsetsDirectional.only(
-              start: AppSpacing.xs,
-              top: 2,
-              bottom: AppSpacing.sm,
-            ),
-            child: Text(
-              appState.isSimpleMode
-                  ? strings.appModeSimpleDesc
-                  : strings.appModeAdvancedDesc,
-              style: TextStyle(
-                fontFamily: AppTypography.fontFamily,
-                fontSize: 11,
-                color: colors.mu,
-                height: 1.35,
-              ),
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xs),
 
           // 4. Interactive Display Switches
           AppCard(

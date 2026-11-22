@@ -724,5 +724,12 @@
   "unsavedChangesMessage": "You have unsaved changes in this form. Would you like to save them before proceeding, or discard them?",
   "unsavedChangesSaveAndContinue": "Save & Continue",
   "unsavedChangesDiscardAndLeave": "Discard & Leave",
-  "unsavedChangesStay": "Stay / Cancel"
+  "unsavedChangesStay": "Stay / Cancel",
+  "appModeCardDesc": "Switch between Simple Mode (streamlined daily essentials with smart defaults) and Advanced Mode (full access to all tools, granular measurements, KYC, and session management). Changes take effect immediately across the entire app.",
+  "sessIpAddress": "IP Address",
+  "sessIpLocation": "Location (IP)",
+  "commonUnavailable": "Unavailable",
+  "aboutOpenContractBtn": "Review Full Agreement & Sign Electronically",
+  "aboutContractModalTitle": "Terms of Service & Privacy Policy",
+  "aboutCancelSignBtn": "Close without Signing"
 }

@@ -125,7 +125,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
           );
         }
       } else if (action == UnsavedChangesAction.discardAndLeave) {
-        ref.read(appStateProvider.notifier).clearDirty();
+        ref.read(appStateProvider.notifier).discardUnsavedChanges();
         ref.read(appStateProvider.notifier).switchProfileTab(targetId);
       }
       return;

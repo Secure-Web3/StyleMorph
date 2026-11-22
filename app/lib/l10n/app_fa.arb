@@ -724,5 +724,12 @@
   "unsavedChangesMessage": "تغییراتی در فرم ایجاد کرده‌اید که هنوز ذخیره نشده‌اند. مایلید تغییرات را ذخیره کنید یا نادیده بگیرید؟",
   "unsavedChangesSaveAndContinue": "ذخیره و ادامه",
   "unsavedChangesDiscardAndLeave": "خروج بدون ذخیره",
-  "unsavedChangesStay": "انصراف"
+  "unsavedChangesStay": "انصراف",
+  "appModeCardDesc": "بین حالت ساده (رابط کاربری روان و بهینه برای استفاده روزمره با تنظیمات خودکار) و حالت پیشرفته (دسترسی به تمام ابزارها، اندازه‌گیری‌های تخصصی، احراز هویت و مدیریت نشست‌ها) سوییچ کنید. تغییرات بلافاصله در تمام بخش‌های برنامه اعمال می‌شود.",
+  "sessIpAddress": "آدرس IP",
+  "sessIpLocation": "موقعیت مکانی (IP)",
+  "commonUnavailable": "در دسترس نیست",
+  "aboutOpenContractBtn": "مشاهده متن کامل شرایط و امضای قرارداد",
+  "aboutContractModalTitle": "شرایط خدمات و توافق‌نامه حریم خصوصی",
+  "aboutCancelSignBtn": "بستن بدون امضا"
 }

@@ -724,5 +724,12 @@
   "unsavedChangesMessage": "Bu formda kaydedilmemiş değişiklikleriniz var. Devam etmeden önce kaydetmek mi istersiniz, yoksa vazgeçmek mi?",
   "unsavedChangesSaveAndContinue": "Kaydet ve Devam Et",
   "unsavedChangesDiscardAndLeave": "Kaydetmeden Çık",
-  "unsavedChangesStay": "İptal / Kal"
+  "unsavedChangesStay": "İptal / Kal",
+  "appModeCardDesc": "Basit Mod (akıllı varsayılanlarla sade günlük kullanım) ile Gelişmiş Mod (tüm araçlara, ayrıntılı ölçümlere, KYC ve oturum yönetimine tam erişim) arasında geçiş yapın. Değişiklikler tüm uygulamada anında geçerli olur.",
+  "sessIpAddress": "IP Adresi",
+  "sessIpLocation": "Konum (IP)",
+  "commonUnavailable": "Kullanılamıyor",
+  "aboutOpenContractBtn": "Tam Sözleşmeyi İncele ve Elektronik Olarak İmzala",
+  "aboutContractModalTitle": "Hizmet Şartları ve Gizlilik Politikası",
+  "aboutCancelSignBtn": "İmzalamadan Kapat"
 }

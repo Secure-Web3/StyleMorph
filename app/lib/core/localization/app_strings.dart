@@ -316,6 +316,8 @@ class AppStrings {
           'رابط کاربری خلوت، روان و مناسب استفاده روزمره بدون جزئیات اداری',
       'appModeAdvancedDesc':
           'دسترسی کامل به تمام ابزارها، اسلایدرهای اندازه‌گیری، احراز هویت و مدیریت نشست‌ها',
+      'appModeCardDesc':
+          'بین حالت ساده (رابط کاربری روان و بهینه برای استفاده روزمره با تنظیمات خودکار) و حالت پیشرفته (دسترسی به تمام ابزارها، اندازه‌گیری‌های تخصصی، احراز هویت و مدیریت نشست‌ها) سوییچ کنید. تغییرات بلافاصله در تمام بخش‌های برنامه اعمال می‌شود.',
       'unsavedChangesTitle': 'تغییرات ذخیره‌نشده',
       'unsavedChangesMessage':
           'تغییراتی در فرم ایجاد کرده‌اید که هنوز ذخیره نشده‌اند. مایلید تغییرات را ذخیره کنید یا نادیده بگیرید؟',
@@ -967,6 +969,9 @@ class AppStrings {
       'sessCurrentDevice': 'این دستگاه',
       'sessEmpty': 'هیچ نشست فعالی یافت نشد.',
       'sessPlatform': 'پلتفرم',
+      'sessIpAddress': 'آدرس IP',
+      'sessIpLocation': 'موقعیت مکانی (IP)',
+      'commonUnavailable': 'در دسترس نیست',
       'sessOs': 'سیستم‌عامل',
       'sessUserAgent': 'مرورگر / اپ',
       'sessLoginTime': 'زمان ورود',
@@ -1043,6 +1048,9 @@ class AppStrings {
       'aboutAgreementCheckbox':
           'شرایط و مقررات استفاده و سیاست حفظ حریم خصوصی StyleMorph را مطالعه کرده و می‌پذیرم.',
       'aboutAgreementSignBtn': 'تأیید و امضای الکترونیکی',
+      'aboutOpenContractBtn': 'مشاهده متن کامل شرایط و امضای قرارداد',
+      'aboutContractModalTitle': 'شرایط خدمات و توافق‌نامه حریم خصوصی',
+      'aboutCancelSignBtn': 'بستن بدون امضا',
       'aboutAgreementSignedBadge': 'امضا و تأیید الکترونیکی شده',
       'aboutAgreementSignedDate': 'تاریخ امضا: {date} (نسخه {version})',
       'aboutAgreementSignedToast': 'توافقنامه کاربری با موفقیت امضا و ثبت شد.',
@@ -1288,6 +1296,8 @@ class AppStrings {
           'Streamlined, clean interface for everyday use without complex fields',
       'appModeAdvancedDesc':
           'Full access to all tools, granular measurements, KYC, and session management',
+      'appModeCardDesc':
+          'Switch between Simple Mode (streamlined daily essentials with smart defaults) and Advanced Mode (full access to all tools, granular measurements, KYC, and session management). Changes take effect immediately across the entire app.',
       'unsavedChangesTitle': 'Unsaved Changes',
       'unsavedChangesMessage':
           'You have unsaved changes in this form. Would you like to save them before proceeding, or discard them?',
@@ -1939,6 +1949,9 @@ class AppStrings {
       'sessCurrentDevice': 'This Device',
       'sessEmpty': 'No active sessions found.',
       'sessPlatform': 'Platform',
+      'sessIpAddress': 'IP Address',
+      'sessIpLocation': 'Location (IP)',
+      'commonUnavailable': 'Unavailable',
       'sessOs': 'OS',
       'sessUserAgent': 'Browser / App',
       'sessLoginTime': 'Login Time',
@@ -2016,6 +2029,9 @@ class AppStrings {
       'aboutAgreementCheckbox':
           'I have read and agree to the StyleMorph Terms of Service and Privacy Policy.',
       'aboutAgreementSignBtn': 'Confirm & Sign Electronically',
+      'aboutOpenContractBtn': 'Review Full Agreement & Sign Electronically',
+      'aboutContractModalTitle': 'Terms of Service & Privacy Policy',
+      'aboutCancelSignBtn': 'Close without Signing',
       'aboutAgreementSignedBadge': 'Electronically Signed & Accepted',
       'aboutAgreementSignedDate': 'Signed on: {date} (v{version})',
       'aboutAgreementSignedToast':
@@ -2258,6 +2274,8 @@ class AppStrings {
           'واجهة مبسطة وسلسة للاستخدام اليومي دون تعقيدات إدارية',
       'appModeAdvancedDesc':
           'وصول كامل لجميع الأدوات، مقاييس القياس الدقيقة، التوثيق وإدارة الجلسات',
+      'appModeCardDesc':
+          'قم بالتبديل بين الوضع البسيط (واجهة مبسطة وسلسة للاستخدام اليومي) والوضع المتقدم (وصول كامل لجميع الأدوات والمقاييس والتوثيق وإدارة الجلسات). يتم تطبيق التغييرات فوراً في جميع أنحاء التطبيق.',
       'unsavedChangesTitle': 'تغييرات غير محفوظة',
       'unsavedChangesMessage':
           'لديك تغييرات غير محفوظة في هذا النموذج. هل ترغب في حفظها قبل المتابعة أو تجاهلها؟',
@@ -2893,6 +2911,9 @@ class AppStrings {
       'sessCurrentDevice': 'هذا الجهاز',
       'sessEmpty': 'لا توجد جلسات نشطة.',
       'sessPlatform': 'المنصة',
+      'sessIpAddress': 'عنوان IP',
+      'sessIpLocation': 'الموقع الجغرافي (IP)',
+      'commonUnavailable': 'غير متاح',
       'sessOs': 'نظام التشغيل',
       'sessUserAgent': 'المتصفح / التطبيق',
       'sessLoginTime': 'وقت الدخول',
@@ -2969,6 +2990,9 @@ class AppStrings {
       'aboutAgreementCheckbox':
           'لقد قرأت شروط الخدمة وسياسة الخصوصية الخاصة بـ StyleMorph وأوافق عليها.',
       'aboutAgreementSignBtn': 'تأكيد وتوقيع إلكترونياً',
+      'aboutOpenContractBtn': 'مراجعة نص الاتفاقية والتوقيع الإلكتروني',
+      'aboutContractModalTitle': 'شروط الخدمة وسياسة الخصوصية',
+      'aboutCancelSignBtn': 'إغلاق دون توقيع',
       'aboutAgreementSignedBadge': 'تم التوقيع والموافقة إلكترونياً',
       'aboutAgreementSignedDate': 'تاريخ التوقيع: {date} (إصدار {version})',
       'aboutAgreementSignedToast': 'تم توقيع وتسجيل اتفاقية المستخدم بنجاح.',
@@ -3213,6 +3237,8 @@ class AppStrings {
           'Karmaşık alanlar olmadan günlük kullanım için sade ve akıcı arayüz',
       'appModeAdvancedDesc':
           'Tüm araçlara, ayrıntılı ölçümlere, KYC ve oturum yönetimine tam erişim',
+      'appModeCardDesc':
+          'Basit Mod (akıllı varsayılanlarla sade günlük kullanım) ile Gelişmiş Mod (tüm araçlara, ayrıntılı ölçümlere, KYC ve oturum yönetimine tam erişim) arasında geçiş yapın. Değişiklikler tüm uygulamada anında geçerli olur.',
       'unsavedChangesTitle': 'Kaydedilmemiş Değişiklikler',
       'unsavedChangesMessage':
           'Bu formda kaydedilmemiş değişiklikleriniz var. Devam etmeden önce kaydetmek mi istersiniz, yoksa vazgeçmek mi?',
@@ -3877,6 +3903,9 @@ class AppStrings {
       'sessCurrentDevice': 'Bu Cihaz',
       'sessEmpty': 'Aktif oturum bulunamadı.',
       'sessPlatform': 'Platform',
+      'sessIpAddress': 'IP Adresi',
+      'sessIpLocation': 'Konum (IP)',
+      'commonUnavailable': 'Kullanılamıyor',
       'sessOs': 'İşletim Sistemi',
       'sessUserAgent': 'Tarayıcı / Uygulama',
       'sessLoginTime': 'Giriş Zamanı',
@@ -3956,6 +3985,10 @@ class AppStrings {
       'aboutAgreementCheckbox':
           'StyleMorph Hizmet Şartları ve Gizlilik Politikasını okudum ve kabul ediyorum.',
       'aboutAgreementSignBtn': 'Onayla ve Elektronik Olarak İmzala',
+      'aboutOpenContractBtn':
+          'Tam Sözleşmeyi İncele ve Elektronik Olarak İmzala',
+      'aboutContractModalTitle': 'Hizmet Şartları ve Gizlilik Politikası',
+      'aboutCancelSignBtn': 'İmzalamadan Kapat',
       'aboutAgreementSignedBadge': 'Elektronik Olarak İmzalandı ve Onaylandı',
       'aboutAgreementSignedDate': 'İmza Tarihi: {date} (v{version})',
       'aboutAgreementSignedToast':
@@ -4293,6 +4326,7 @@ class AppStrings {
   String get appModeAdvanced => get('appModeAdvanced');
   String get appModeSimpleDesc => get('appModeSimpleDesc');
   String get appModeAdvancedDesc => get('appModeAdvancedDesc');
+  String get appModeCardDesc => get('appModeCardDesc');
   String get unsavedChangesTitle => get('unsavedChangesTitle');
   String get unsavedChangesMessage => get('unsavedChangesMessage');
   String get unsavedChangesSaveAndContinue =>
@@ -4988,6 +5022,9 @@ class AppStrings {
   String get sessCurrentDevice => get('sessCurrentDevice');
   String get sessEmpty => get('sessEmpty');
   String get sessPlatform => get('sessPlatform');
+  String get sessIpAddress => get('sessIpAddress');
+  String get sessIpLocation => get('sessIpLocation');
+  String get commonUnavailable => get('commonUnavailable');
   String get sessOs => get('sessOs');
   String get sessUserAgent => get('sessUserAgent');
   String get sessLoginTime => get('sessLoginTime');
@@ -5049,6 +5086,9 @@ class AppStrings {
   String get aboutAgreementDesc => get('aboutAgreementDesc');
   String get aboutAgreementCheckbox => get('aboutAgreementCheckbox');
   String get aboutAgreementSignBtn => get('aboutAgreementSignBtn');
+  String get aboutOpenContractBtn => get('aboutOpenContractBtn');
+  String get aboutContractModalTitle => get('aboutContractModalTitle');
+  String get aboutCancelSignBtn => get('aboutCancelSignBtn');
   String get aboutAgreementSignedBadge => get('aboutAgreementSignedBadge');
   String get aboutAgreementSignedDate => get('aboutAgreementSignedDate');
   String get aboutAgreementSignedToast => get('aboutAgreementSignedToast');

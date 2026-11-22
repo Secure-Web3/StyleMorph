@@ -42,9 +42,18 @@ class LegalDocModalSheet extends StatelessWidget {
 
   static void showTerms(BuildContext context) {
     final strings = context.strings;
-    final isFa = strings.localeCode == 'fa';
-    final isAr = strings.localeCode == 'ar';
-    final isTr = strings.localeCode == 'tr';
+    show(
+      context,
+      title: strings.aboutTermsTitle,
+      icon: FontAwesomeIcons.fileContract,
+      sections: getTermsSections(strings.localeCode),
+    );
+  }
+
+  static List<LegalDocSection> getTermsSections(String localeCode) {
+    final isFa = localeCode == 'fa';
+    final isAr = localeCode == 'ar';
+    final isTr = localeCode == 'tr';
 
     List<LegalDocSection> sections;
     if (isFa) {
@@ -201,20 +210,23 @@ class LegalDocModalSheet extends StatelessWidget {
         ),
       ];
     }
-
-    show(
-      context,
-      title: strings.aboutTermsTitle,
-      icon: FontAwesomeIcons.fileContract,
-      sections: sections,
-    );
+    return sections;
   }
 
   static void showPrivacy(BuildContext context) {
     final strings = context.strings;
-    final isFa = strings.localeCode == 'fa';
-    final isAr = strings.localeCode == 'ar';
-    final isTr = strings.localeCode == 'tr';
+    show(
+      context,
+      title: strings.aboutPrivacyTitle,
+      icon: FontAwesomeIcons.shieldHalved,
+      sections: getPrivacySections(strings.localeCode),
+    );
+  }
+
+  static List<LegalDocSection> getPrivacySections(String localeCode) {
+    final isFa = localeCode == 'fa';
+    final isAr = localeCode == 'ar';
+    final isTr = localeCode == 'tr';
 
     List<LegalDocSection> sections;
     if (isFa) {
@@ -354,13 +366,7 @@ class LegalDocModalSheet extends StatelessWidget {
         ),
       ];
     }
-
-    show(
-      context,
-      title: strings.aboutPrivacyTitle,
-      icon: FontAwesomeIcons.shieldHalved,
-      sections: sections,
-    );
+    return sections;
   }
 
   @override
@@ -491,6 +497,341 @@ class LegalDocModalSheet extends StatelessWidget {
                   isFullWidth: true,
                   text: strings.aboutClose,
                   onPressed: () => Navigator.of(context).pop(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Full interactive agreement modal sheet displaying the complete Terms & Privacy text
+/// with 3 pinned bottom controls (Signature Checkbox, Confirm & Sign Button, Cancel Button).
+class FullContractModalSheet extends StatefulWidget {
+  final Future<void> Function() onSign;
+
+  const FullContractModalSheet({super.key, required this.onSign});
+
+  static Future<bool?> show(
+    BuildContext context, {
+    required Future<void> Function() onSign,
+  }) {
+    return AppModal.showSheet<bool>(
+      context: context,
+      child: FullContractModalSheet(onSign: onSign),
+    );
+  }
+
+  @override
+  State<FullContractModalSheet> createState() => _FullContractModalSheetState();
+}
+
+class _FullContractModalSheetState extends State<FullContractModalSheet> {
+  bool _agreed = false;
+  bool _isSigning = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final strings = context.strings;
+    final terms = LegalDocModalSheet.getTermsSections(strings.localeCode);
+    final privacy = LegalDocModalSheet.getPrivacySections(strings.localeCode);
+    final viewInsets = MediaQuery.of(context).viewInsets.bottom;
+
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * 0.90,
+      ),
+      decoration: BoxDecoration(
+        color: colors.sf,
+        borderRadius: AppRadius.rSheetTop,
+        border: Border(top: BorderSide(color: colors.bd, width: 1.0)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: viewInsets),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Drag Handle
+              Center(
+                child: Container(
+                  width: 36,
+                  height: 4,
+                  margin: const EdgeInsets.only(top: 10, bottom: 8),
+                  decoration: BoxDecoration(
+                    color: colors.bd,
+                    borderRadius: AppRadius.rFull,
+                  ),
+                ),
+              ),
+
+              // Header Bar with clean icon, title, and close button
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  AppSpacing.lg,
+                  0,
+                  AppSpacing.sm,
+                  AppSpacing.sm,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    FaIcon(
+                      FontAwesomeIcons.fileContract,
+                      size: 16,
+                      color: colors.prt,
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        strings.aboutContractModalTitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.moduleTitle(color: colors.tx),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: _isSigning
+                          ? null
+                          : () => Navigator.of(context).pop(false),
+                      icon: Icon(
+                        Icons.close_rounded,
+                        size: 20,
+                        color: colors.mu,
+                      ),
+                      padding: const EdgeInsets.all(AppSpacing.xs),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(color: colors.bd, height: 1.0),
+
+              // Scrollable Legal Contract Text
+              Expanded(
+                child: ListView(
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                  children: [
+                    // Section 1: Terms of Service
+                    Row(
+                      children: [
+                        FaIcon(
+                          FontAwesomeIcons.fileShield,
+                          size: 14,
+                          color: colors.pr,
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Expanded(
+                          child: Text(
+                            strings.aboutTermsTitle,
+                            style: TextStyle(
+                              fontFamily: 'Vazirmatn',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: colors.pr,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    ...terms.map(
+                      (sec) => Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: AppCard(
+                          variant: AppCardVariant.surface,
+                          padding: const EdgeInsetsDirectional.all(
+                            AppSpacing.md,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                sec.title,
+                                style: TextStyle(
+                                  fontFamily: 'Vazirmatn',
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: colors.tx,
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.xs),
+                              Text(
+                                sec.content,
+                                style: TextStyle(
+                                  fontFamily: 'Vazirmatn',
+                                  fontSize: 12,
+                                  color: colors.mu,
+                                  height: 1.55,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+
+                    // Section 2: Privacy Policy
+                    Row(
+                      children: [
+                        FaIcon(
+                          FontAwesomeIcons.userLock,
+                          size: 14,
+                          color: colors.pr,
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Expanded(
+                          child: Text(
+                            strings.aboutPrivacyTitle,
+                            style: TextStyle(
+                              fontFamily: 'Vazirmatn',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: colors.pr,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    ...privacy.map(
+                      (sec) => Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: AppCard(
+                          variant: AppCardVariant.surface,
+                          padding: const EdgeInsetsDirectional.all(
+                            AppSpacing.md,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                sec.title,
+                                style: TextStyle(
+                                  fontFamily: 'Vazirmatn',
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: colors.tx,
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.xs),
+                              Text(
+                                sec.content,
+                                style: TextStyle(
+                                  fontFamily: 'Vazirmatn',
+                                  fontSize: 12,
+                                  color: colors.mu,
+                                  height: 1.55,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Pinned Bottom 3 Controls
+              Divider(color: colors.bd, height: 1.0),
+              Padding(
+                padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Control 1: Electronic Signature Consent Checkbox
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Checkbox(
+                          key: const Key('agreement_checkbox'),
+                          value: _agreed,
+                          activeColor: colors.pr,
+                          onChanged: _isSigning
+                              ? null
+                              : (val) {
+                                  setState(() => _agreed = val ?? false);
+                                },
+                        ),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: _isSigning
+                                ? null
+                                : () {
+                                    setState(() => _agreed = !_agreed);
+                                  },
+                            child: Text(
+                              strings.aboutAgreementCheckbox,
+                              style: TextStyle(
+                                fontFamily: 'Vazirmatn',
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                color: colors.tx,
+                                height: 1.35,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+
+                    // Control 2: Confirm & Sign Electronically Button
+                    AppButton(
+                      key: const Key('agreement_sign_button'),
+                      variant: AppButtonVariant.primary,
+                      isFullWidth: true,
+                      icon: _isSigning
+                          ? null
+                          : const Icon(Icons.draw_rounded, size: 16),
+                      text: _isSigning ? null : strings.aboutAgreementSignBtn,
+                      onPressed: (_agreed && !_isSigning)
+                          ? () async {
+                              setState(() => _isSigning = true);
+                              try {
+                                await widget.onSign();
+                                if (context.mounted) {
+                                  Navigator.of(context).pop(true);
+                                }
+                              } finally {
+                                if (mounted) {
+                                  setState(() => _isSigning = false);
+                                }
+                              }
+                            }
+                          : null,
+                      child: _isSigning
+                          ? SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: colors.sf,
+                              ),
+                            )
+                          : null,
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+
+                    // Control 3: Close / Cancel Button
+                    AppButton(
+                      key: const Key('agreement_cancel_button'),
+                      variant: AppButtonVariant.outline,
+                      size: AppButtonSize.sm,
+                      isFullWidth: true,
+                      text: strings.aboutCancelSignBtn,
+                      onPressed: _isSigning
+                          ? null
+                          : () => Navigator.of(context).pop(false),
+                    ),
+                  ],
                 ),
               ),
             ],

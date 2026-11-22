@@ -917,6 +917,26 @@ class _SessionCard extends StatelessWidget {
                       maxLines: 2,
                     ),
                   _InfoRow(
+                    icon: FontAwesomeIcons.networkWired,
+                    label: strings.sessIpAddress,
+                    value:
+                        (session.ipAddress != null &&
+                            session.ipAddress!.trim().isNotEmpty)
+                        ? session.ipAddress!
+                        : strings.commonUnavailable,
+                    colors: colors,
+                  ),
+                  _InfoRow(
+                    icon: FontAwesomeIcons.locationDot,
+                    label: strings.sessIpLocation,
+                    value:
+                        (session.ipLocation != null &&
+                            session.ipLocation!.trim().isNotEmpty)
+                        ? session.ipLocation!
+                        : strings.commonUnavailable,
+                    colors: colors,
+                  ),
+                  _InfoRow(
                     icon: FontAwesomeIcons.rightToBracket,
                     label: strings.sessLoginTime,
                     value: strings.formatRelativeTime(session.createdAt),

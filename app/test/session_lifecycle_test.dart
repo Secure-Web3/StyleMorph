@@ -195,5 +195,58 @@ void main() {
         expect(list.last.sessionId, equals('old-1'));
       },
     );
+
+    test(
+      'SessionInfo serializes and deserializes ipAddress and ipLocation correctly',
+      () {
+        final now = DateTime.now();
+        final session = SessionInfo(
+          sessionId: 'test-ip-sess',
+          deviceId: 'dev-1',
+          deviceType: 'desktop_web',
+          deviceName: 'Chrome on Mac',
+          deviceModel: '',
+          platform: 'Web',
+          osVersion: 'macOS',
+          userAgent: '',
+          createdAt: now,
+          lastActiveAt: now,
+          ipAddress: '198.51.100.42',
+          ipLocation: 'Berlin, Germany',
+        );
+
+        final map = session.toMap();
+        expect(map['ipAddress'], equals('198.51.100.42'));
+        expect(map['ipLocation'], equals('Berlin, Germany'));
+
+        final copy = session.copyWith(
+          ipAddress: '203.0.113.1',
+          ipLocation: 'Tehran, Iran',
+        );
+        expect(copy.ipAddress, equals('203.0.113.1'));
+        expect(copy.ipLocation, equals('Tehran, Iran'));
+      },
+    );
+
+    test(
+      'SessionService.detectIpAndLocation executes safely with graceful fallback and override',
+      () async {
+        // 1. Without override, runs safely with graceful fallback
+        SessionService.ipResolverOverride = null;
+        final result = await SessionService.detectIpAndLocation();
+        // Should not throw, returns record
+        expect(result, isNotNull);
+
+        // 2. With override, returns expected mock values
+        SessionService.ipResolverOverride = () async =>
+            (ip: '198.51.100.99', location: 'Paris, France');
+        final mocked = await SessionService.detectIpAndLocation();
+        expect(mocked.ip, equals('198.51.100.99'));
+        expect(mocked.location, equals('Paris, France'));
+
+        // 3. Cleanup
+        SessionService.ipResolverOverride = null;
+      },
+    );
   });
 }

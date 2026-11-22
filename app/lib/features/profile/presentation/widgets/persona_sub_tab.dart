@@ -132,6 +132,15 @@ class _PersonaSubTabState extends ConsumerState<PersonaSubTab> {
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<AppState>(appStateProvider, (previous, next) {
+      if (previous?.companionSettings != next.companionSettings &&
+          !next.hasUnsavedProfileChanges) {
+        if (_customNameController.text != next.companionSettings.customName) {
+          _customNameController.text = next.companionSettings.customName;
+        }
+      }
+    });
+
     final colors = context.colors;
     final strings = context.strings;
     final settings = ref.watch(

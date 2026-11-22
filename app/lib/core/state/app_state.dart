@@ -130,6 +130,25 @@ class CompanionSettings {
 }
 
 @immutable
+class ProfileSnapshot {
+  final Map<String, String> identityValues;
+  final Map<String, String> aiDnaValues;
+  final Map<String, String> aiDnaSources;
+  final UserPreferences preferences;
+  final CompanionSettings companionSettings;
+  final String personaMode;
+
+  const ProfileSnapshot({
+    required this.identityValues,
+    required this.aiDnaValues,
+    required this.aiDnaSources,
+    required this.preferences,
+    required this.companionSettings,
+    required this.personaMode,
+  });
+}
+
+@immutable
 class AppState {
   final bool isLoggedIn;
   final AppTab currentTab;
@@ -183,6 +202,9 @@ class AppState {
   final DateTime? termsAcceptedAt;
   final String? termsVersion;
 
+  // Snapshot of last-persisted profile data for true discard rollback
+  final ProfileSnapshot? savedSnapshot;
+
   const AppState({
     this.isLoggedIn = false,
     this.currentTab = AppTab.profile,
@@ -226,6 +248,7 @@ class AppState {
     this.loadedUid,
     this.termsAcceptedAt,
     this.termsVersion,
+    this.savedSnapshot,
   });
 
   int get unreadNotificationsCount =>
@@ -273,6 +296,7 @@ class AppState {
     DateTime? termsAcceptedAt,
     String? termsVersion,
     bool clearTerms = false,
+    ProfileSnapshot? savedSnapshot,
   }) {
     return AppState(
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
@@ -314,6 +338,7 @@ class AppState {
           ? null
           : (termsAcceptedAt ?? this.termsAcceptedAt),
       termsVersion: clearTerms ? null : (termsVersion ?? this.termsVersion),
+      savedSnapshot: savedSnapshot ?? this.savedSnapshot,
     );
   }
 
@@ -341,6 +366,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   final Ref? _ref;
 
   AppStateNotifier([this._ref]) : super(const AppState()) {
+    captureSavedSnapshot();
     loadProfileFromFirestore();
   }
 
@@ -466,6 +492,54 @@ class AppStateNotifier extends StateNotifier<AppState> {
   void markDirty() => setHasUnsavedChanges(true);
 
   void clearDirty() => setHasUnsavedChanges(false);
+
+  /// Captures a frozen snapshot of the currently saved profile & preferences state.
+  void captureSavedSnapshot() {
+    state = state.copyWith(
+      savedSnapshot: ProfileSnapshot(
+        identityValues: Map.unmodifiable(state.identityValues),
+        aiDnaValues: Map.unmodifiable(state.aiDnaValues),
+        aiDnaSources: Map.unmodifiable(state.aiDnaSources),
+        preferences: state.preferences,
+        companionSettings: state.companionSettings,
+        personaMode: state.personaMode,
+      ),
+      hasUnsavedProfileChanges: false,
+    );
+    WebUnloadGuard.update(false);
+  }
+
+  /// Discards any unpersisted edits and rolls back all profile state fields
+  /// to the exact values from the last-saved snapshot.
+  void discardUnsavedChanges() {
+    final snapshot = state.savedSnapshot;
+    if (snapshot != null) {
+      final progress = calculateProfileProgress(
+        identity: snapshot.identityValues,
+        aiDna: snapshot.aiDnaValues,
+        personaMode: snapshot.personaMode,
+        mediaSlots: state.mediaSlots,
+      );
+      final points = _computeCurrentPoints(progress);
+      final rank = LoyaltyService.getRank(points).nameCapitalized;
+
+      state = state.copyWith(
+        identityValues: Map<String, String>.from(snapshot.identityValues),
+        aiDnaValues: Map<String, String>.from(snapshot.aiDnaValues),
+        aiDnaSources: Map<String, String>.from(snapshot.aiDnaSources),
+        preferences: snapshot.preferences,
+        companionSettings: snapshot.companionSettings,
+        personaMode: snapshot.personaMode,
+        profileProgress: progress,
+        stylePoints: points,
+        loyaltyRank: rank,
+        hasUnsavedProfileChanges: false,
+      );
+    } else {
+      state = state.copyWith(hasUnsavedProfileChanges: false);
+    }
+    WebUnloadGuard.update(false);
+  }
 
   /// Loads real user profile from Firestore `users/{uid}`.
   Future<void> loadProfileFromFirestore() async {
@@ -868,6 +942,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
           ? FirebaseAuth.instance.currentUser?.uid
           : null;
       state = state.copyWith(isProfileLoaded: true, loadedUid: currentUid);
+      captureSavedSnapshot();
     }
   }
 
@@ -984,6 +1059,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
         userHandle: nick.isNotEmpty ? nick : state.userHandle,
       );
       WebUnloadGuard.update(false);
+      captureSavedSnapshot();
       return true;
     } catch (e) {
       debugPrint('[saveProfileToFirestore] Error: $e');
@@ -1033,6 +1109,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       userHandle: nick.isNotEmpty ? nick : state.userHandle,
     );
     WebUnloadGuard.update(false);
+    captureSavedSnapshot();
   }
 
   void updateIdentityField(String key, String value) {
@@ -1230,12 +1307,16 @@ class AppStateNotifier extends StateNotifier<AppState> {
     String mode, {
     bool persistImmediately = false,
   }) async {
+    final hadUnsaved = state.hasUnsavedProfileChanges;
     state = state.copyWith(
       preferences: state.preferences.copyWith(appMode: mode),
-      hasUnsavedProfileChanges: !persistImmediately,
+      hasUnsavedProfileChanges: !persistImmediately && hadUnsaved,
     );
     if (persistImmediately) {
       await saveProfileToFirestore();
+      if (!hadUnsaved) {
+        captureSavedSnapshot();
+      }
     } else {
       WebUnloadGuard.update(true);
     }
