@@ -8,6 +8,7 @@ import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../domain/shop_product.dart';
 import 'try_on_sheet.dart';
 import 'seller_redirect_sheet.dart';
@@ -122,13 +123,9 @@ class _ShopProductDetailSheetState extends State<ShopProductDetailSheet> {
             );
           } else {
             Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  strings.shopOrderPlaced(localizedName),
-                  style: const TextStyle(fontFamily: 'Vazirmatn'),
-                ),
-              ),
+            AppToast.showSuccess(
+              context,
+              strings.shopOrderPlaced(localizedName),
             );
           }
         },

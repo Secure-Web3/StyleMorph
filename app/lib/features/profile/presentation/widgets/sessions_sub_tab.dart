@@ -17,6 +17,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_section_header.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../auth/presentation/auth_provider.dart';
 
 // ── Remote sign-out & device block listener widget ────────────────────────
@@ -129,9 +130,7 @@ class _SessionRevocationListenerState
   }
 
   Future<void> _performBlockedSignOut() async {
-    final messenger = ScaffoldMessenger.of(context);
     final notice = context.strings.sessDeviceBlockedNotice;
-    final alertColor = context.colors.orColor;
 
     try {
       await ref.read(authRepositoryProvider).signOut();
@@ -141,23 +140,12 @@ class _SessionRevocationListenerState
     } catch (_) {}
     if (mounted) {
       ref.read(appStateProvider.notifier).logout();
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            notice,
-            style: const TextStyle(fontFamily: 'Vazirmatn'),
-          ),
-          backgroundColor: alertColor,
-          duration: const Duration(seconds: 4),
-        ),
-      );
+      AppToast.showError(context, notice, duration: const Duration(seconds: 4));
     }
   }
 
   Future<void> _performExpiredSignOut() async {
-    final messenger = ScaffoldMessenger.of(context);
     final notice = context.strings.authSessionExpired;
-    final alertColor = context.colors.orColor;
 
     try {
       await ref.read(authRepositoryProvider).signOut();
@@ -167,15 +155,10 @@ class _SessionRevocationListenerState
     } catch (_) {}
     if (mounted) {
       ref.read(appStateProvider.notifier).logout();
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(
-            notice,
-            style: const TextStyle(fontFamily: 'Vazirmatn'),
-          ),
-          backgroundColor: alertColor,
-          duration: const Duration(seconds: 4),
-        ),
+      AppToast.showWarning(
+        context,
+        notice,
+        duration: const Duration(seconds: 4),
       );
     }
   }
@@ -715,15 +698,10 @@ class _SessionCard extends StatelessWidget {
 
   void _copySessionId(BuildContext context) {
     Clipboard.setData(ClipboardData(text: session.sessionId));
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          strings.sessCopiedToast,
-          style: const TextStyle(fontFamily: 'Vazirmatn'),
-        ),
-        backgroundColor: colors.ok,
-        duration: const Duration(seconds: 2),
-      ),
+    AppToast.showSuccess(
+      context,
+      strings.sessCopiedToast,
+      duration: const Duration(seconds: 2),
     );
   }
 

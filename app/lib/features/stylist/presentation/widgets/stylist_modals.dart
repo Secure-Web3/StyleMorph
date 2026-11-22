@@ -6,6 +6,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
+import '../../../../core/widgets/app_toast.dart';
 
 class WeeklyPlannerSheet extends StatelessWidget {
   const WeeklyPlannerSheet({super.key});
@@ -30,13 +31,9 @@ class WeeklyPlannerSheet extends StatelessWidget {
       actionLabel: strings.styAddCalEvent,
       onAction: () {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              strings.tr('مناسبت جدید با تقویم گوشی همگام‌سازی شد.'),
-              style: const TextStyle(fontFamily: 'Vazirmatn'),
-            ),
-          ),
+        AppToast.showSuccess(
+          context,
+          strings.tr('مناسبت جدید با تقویم گوشی همگام‌سازی شد.'),
         );
       },
       child: Column(

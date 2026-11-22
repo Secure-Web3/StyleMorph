@@ -148,6 +148,63 @@ class ProfileSnapshot {
   });
 }
 
+// ── Electronic User Agreement & Terms Consent Audit Trail ───────────────────
+
+@immutable
+class LegalConsentAudit {
+  final DateTime acceptedAt;
+  final String contractVersion;
+  final String signerUid;
+  final String signerName;
+  final String signerEmail;
+  final String? ipAddress;
+  final String? ipLocation;
+  final String? deviceInfo;
+
+  const LegalConsentAudit({
+    required this.acceptedAt,
+    required this.contractVersion,
+    required this.signerUid,
+    required this.signerName,
+    required this.signerEmail,
+    this.ipAddress,
+    this.ipLocation,
+    this.deviceInfo,
+  });
+
+  Map<String, dynamic> toMap() => {
+    'acceptedAt': acceptedAt.toIso8601String(),
+    'contractVersion': contractVersion,
+    'signerUid': signerUid,
+    'signerName': signerName,
+    'signerEmail': signerEmail,
+    if (ipAddress != null) 'ipAddress': ipAddress,
+    if (ipLocation != null) 'ipLocation': ipLocation,
+    if (deviceInfo != null) 'deviceInfo': deviceInfo,
+  };
+
+  factory LegalConsentAudit.fromMap(Map<String, dynamic> map) {
+    DateTime dt = DateTime.now();
+    if (map['acceptedAt'] != null) {
+      if (map['acceptedAt'] is Timestamp) {
+        dt = (map['acceptedAt'] as Timestamp).toDate();
+      } else if (map['acceptedAt'] is String) {
+        dt = DateTime.tryParse(map['acceptedAt'] as String) ?? dt;
+      }
+    }
+    return LegalConsentAudit(
+      acceptedAt: dt,
+      contractVersion: map['contractVersion']?.toString() ?? '1.0',
+      signerUid: map['signerUid']?.toString() ?? '',
+      signerName: map['signerName']?.toString() ?? '',
+      signerEmail: map['signerEmail']?.toString() ?? '',
+      ipAddress: map['ipAddress']?.toString(),
+      ipLocation: map['ipLocation']?.toString(),
+      deviceInfo: map['deviceInfo']?.toString(),
+    );
+  }
+}
+
 @immutable
 class AppState {
   final bool isLoggedIn;
@@ -201,6 +258,7 @@ class AppState {
   // Electronic User Agreement & Terms Consent
   final DateTime? termsAcceptedAt;
   final String? termsVersion;
+  final LegalConsentAudit? legalConsent;
 
   // Snapshot of last-persisted profile data for true discard rollback
   final ProfileSnapshot? savedSnapshot;
@@ -248,6 +306,7 @@ class AppState {
     this.loadedUid,
     this.termsAcceptedAt,
     this.termsVersion,
+    this.legalConsent,
     this.savedSnapshot,
   });
 
@@ -295,6 +354,7 @@ class AppState {
     bool clearLoadedUid = false,
     DateTime? termsAcceptedAt,
     String? termsVersion,
+    LegalConsentAudit? legalConsent,
     bool clearTerms = false,
     ProfileSnapshot? savedSnapshot,
   }) {
@@ -338,6 +398,7 @@ class AppState {
           ? null
           : (termsAcceptedAt ?? this.termsAcceptedAt),
       termsVersion: clearTerms ? null : (termsVersion ?? this.termsVersion),
+      legalConsent: clearTerms ? null : (legalConsent ?? this.legalConsent),
       savedSnapshot: savedSnapshot ?? this.savedSnapshot,
     );
   }
@@ -716,6 +777,26 @@ class AppStateNotifier extends StateNotifier<AppState> {
         }
         final String? termsVersion = data['termsVersion']?.toString();
 
+        LegalConsentAudit? legalConsent;
+        if (data['legalConsent'] is Map) {
+          legalConsent = LegalConsentAudit.fromMap(
+            Map<String, dynamic>.from(data['legalConsent'] as Map),
+          );
+        } else if (termsAcceptedAt != null) {
+          legalConsent = LegalConsentAudit(
+            acceptedAt: termsAcceptedAt,
+            contractVersion: termsVersion ?? '1.0',
+            signerUid: user.uid,
+            signerName: fullName.isNotEmpty
+                ? fullName
+                : (user.displayName ?? (user.email?.split('@').first ?? '')),
+            signerEmail: user.email ?? (data['email']?.toString() ?? ''),
+            ipAddress: null,
+            ipLocation: null,
+            deviceInfo: null,
+          );
+        }
+
         List<ReferralEntry> referralEntries = [];
         try {
           final snap = await FirebaseFirestore.instance
@@ -880,6 +961,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
           hasUnsavedProfileChanges: false,
           termsAcceptedAt: termsAcceptedAt,
           termsVersion: termsVersion,
+          legalConsent: legalConsent,
         );
 
         if (referralCode.isEmpty) {
@@ -1403,20 +1485,63 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
   /// Electronically signs and records agreement to Terms of Service & Privacy Policy.
   Future<void> acceptTerms({String version = '1.0'}) async {
-    final now = DateTime.now();
-    state = state.copyWith(termsAcceptedAt: now, termsVersion: version);
+    final now = DateTime.now().toUtc();
+    String uid = state.loadedUid ?? '';
+    String name = state.userName;
+    String email = state.identityValues['email'] ?? '';
+
     try {
       if (Firebase.apps.isNotEmpty) {
         final user = FirebaseAuth.instance.currentUser;
         if (user != null) {
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
-              .set({
-                'termsAcceptedAt': FieldValue.serverTimestamp(),
-                'termsVersion': version,
-              }, SetOptions(merge: true));
+          if (uid.isEmpty) uid = user.uid;
+          if (email.isEmpty && user.email != null) email = user.email!;
+          if (name.isEmpty && user.displayName != null) {
+            name = user.displayName!;
+          }
         }
+      }
+    } catch (_) {}
+
+    String? ip;
+    String? location;
+    try {
+      final ipRes = await SessionService.detectIpAndLocation().timeout(
+        const Duration(seconds: 3),
+      );
+      ip = ipRes.ip;
+      location = ipRes.location;
+    } catch (_) {}
+
+    String deviceInfo = 'Unknown Device';
+    try {
+      deviceInfo = SessionService.resolveDeviceDescriptor();
+    } catch (_) {}
+
+    final audit = LegalConsentAudit(
+      acceptedAt: now,
+      contractVersion: version,
+      signerUid: uid,
+      signerName: name,
+      signerEmail: email,
+      ipAddress: ip,
+      ipLocation: location,
+      deviceInfo: deviceInfo,
+    );
+
+    state = state.copyWith(
+      termsAcceptedAt: now,
+      termsVersion: version,
+      legalConsent: audit,
+    );
+
+    try {
+      if (Firebase.apps.isNotEmpty && uid.isNotEmpty) {
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'termsAcceptedAt': FieldValue.serverTimestamp(),
+          'termsVersion': version,
+          'legalConsent': audit.toMap(),
+        }, SetOptions(merge: true));
       }
     } catch (e) {
       debugPrint('[AppStateNotifier] acceptTerms error: $e');

@@ -7,6 +7,7 @@ import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_toast.dart';
 import 'widgets/about_sub_tab.dart';
 import 'widgets/ai_dna_sub_tab.dart';
 import 'widgets/gallery_sub_tab.dart';
@@ -90,17 +91,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
       if (action == UnsavedChangesAction.saveAndContinue) {
         if (!_isIdentityValid(appState.identityValues)) {
           final strings = context.strings;
-          final colors = context.colors;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                strings.idErrValidationSummary,
-                style: const TextStyle(fontFamily: 'Vazirmatn'),
-              ),
-              backgroundColor: colors.orColor,
-              duration: const Duration(seconds: 3),
-            ),
-          );
+          AppToast.showWarning(context, strings.idErrValidationSummary);
           return;
         }
 
@@ -112,17 +103,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
           ref.read(appStateProvider.notifier).switchProfileTab(targetId);
         } else {
           final strings = context.strings;
-          final colors = context.colors;
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                strings.profileSaveErrorToast,
-                style: const TextStyle(fontFamily: 'Vazirmatn'),
-              ),
-              backgroundColor: colors.orColor,
-              duration: const Duration(seconds: 3),
-            ),
-          );
+          AppToast.showError(context, strings.profileSaveErrorToast);
         }
       } else if (action == UnsavedChangesAction.discardAndLeave) {
         ref.read(appStateProvider.notifier).discardUnsavedChanges();
@@ -225,6 +206,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
       builder: (context, constraints) {
         final compactSidebar = constraints.maxHeight < 560;
         final itemVerticalPad = compactSidebar ? 3.0 : 6.0;
+        final firstBottomTabId = isAdvanced ? 'p-sessions' : 'p-settings';
 
         return SizedBox(
           width: constraints.maxWidth,
@@ -247,9 +229,11 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                     child: Column(
                       children: [
                         for (int i = 0; i < subTabs.length; i++) ...[
-                          if (subTabs[i].id == 'p-sessions' && !compactSidebar)
+                          if (subTabs[i].id == firstBottomTabId &&
+                              !compactSidebar)
                             const Spacer(),
                           _SidebarTabButton(
+                            key: Key('profile_nav_${subTabs[i].id}'),
                             tab: subTabs[i],
                             isActive: activeTabId == subTabs[i].id,
                             verticalPad: itemVerticalPad,
@@ -265,7 +249,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                                 : null,
                           ),
                           if (i < subTabs.length - 1 &&
-                              subTabs[i + 1].id != 'p-sessions')
+                              subTabs[i + 1].id != firstBottomTabId)
                             SizedBox(height: compactSidebar ? 1 : 3),
                         ],
                       ],
@@ -294,17 +278,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                           isSaving: appState.isSavingProfile,
                           onSave: () async {
                             if (!_isIdentityValid(appState.identityValues)) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    strings.idErrValidationSummary,
-                                    style: const TextStyle(
-                                      fontFamily: 'Vazirmatn',
-                                    ),
-                                  ),
-                                  backgroundColor: colors.orColor,
-                                  duration: const Duration(seconds: 3),
-                                ),
+                              AppToast.showWarning(
+                                context,
+                                strings.idErrValidationSummary,
                               );
                               return;
                             }
@@ -314,30 +290,14 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                                 .saveProfileToFirestore();
                             if (!context.mounted) return;
                             if (success) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    strings.profileSavedToast,
-                                    style: const TextStyle(
-                                      fontFamily: 'Vazirmatn',
-                                    ),
-                                  ),
-                                  backgroundColor: colors.ok,
-                                  duration: const Duration(seconds: 2),
-                                ),
+                              AppToast.showSuccess(
+                                context,
+                                strings.profileSavedToast,
                               );
                             } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    strings.profileSaveErrorToast,
-                                    style: const TextStyle(
-                                      fontFamily: 'Vazirmatn',
-                                    ),
-                                  ),
-                                  backgroundColor: colors.orColor,
-                                  duration: const Duration(seconds: 3),
-                                ),
+                              AppToast.showError(
+                                context,
+                                strings.profileSaveErrorToast,
                               );
                             }
                           },
@@ -365,6 +325,7 @@ class _SidebarTabButton extends StatelessWidget {
   final VoidCallback? onTap;
 
   const _SidebarTabButton({
+    super.key,
     required this.tab,
     required this.isActive,
     required this.verticalPad,

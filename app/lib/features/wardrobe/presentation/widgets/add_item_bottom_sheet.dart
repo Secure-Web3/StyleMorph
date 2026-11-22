@@ -9,6 +9,7 @@ import '../../../../core/widgets/app_chip.dart';
 import '../../../../core/widgets/app_dropdown.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../domain/wardrobe_item.dart';
 
 class AddItemBottomSheet extends StatefulWidget {
@@ -116,14 +117,10 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
             borderColor: _imageSelected ? colors.ok : colors.bd,
             onTap: () {
               setState(() => _imageSelected = true);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    strings.wardImgToast,
-                    style: const TextStyle(fontFamily: 'Vazirmatn'),
-                  ),
-                  duration: const Duration(seconds: 2),
-                ),
+              AppToast.showSuccess(
+                context,
+                strings.wardImgToast,
+                duration: const Duration(seconds: 2),
               );
             },
             child: Center(

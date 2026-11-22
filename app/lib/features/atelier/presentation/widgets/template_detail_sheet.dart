@@ -10,6 +10,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_switch.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/email_verification_gate.dart';
 import '../../domain/atelier_models.dart';
 import '../atelier_provider.dart';
@@ -44,13 +45,9 @@ class _TemplateDetailSheetState extends ConsumerState<TemplateDetailSheet> {
       ref.read(atelierProvider.notifier).generateTemplate(widget.template);
       ref.read(atelierProvider.notifier).switchTab('creations');
       Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${strings.tr('سفارش قالب')} «${strings.tr(widget.template.name)}» ${strings.tr('ثبت شد و به صف هوش مصنوعی رفت.')}',
-            style: const TextStyle(fontFamily: 'Vazirmatn'),
-          ),
-        ),
+      AppToast.showSuccess(
+        context,
+        '${strings.tr('سفارش قالب')} «${strings.tr(widget.template.name)}» ${strings.tr('ثبت شد و به صف هوش مصنوعی رفت.')}',
       );
     } catch (e) {
       setState(() => _error = e.toString().replaceAll('Exception: ', ''));

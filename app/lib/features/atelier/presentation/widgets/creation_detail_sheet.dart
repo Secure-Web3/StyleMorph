@@ -7,6 +7,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../domain/atelier_models.dart';
 
 class CreationDetailSheet extends StatefulWidget {
@@ -153,14 +154,10 @@ class _CreationDetailSheetState extends State<CreationDetailSheet> {
                   ),
                   text: strings.atelDownload,
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          strings.tr(
-                            'فایل خروجی با بالاترین کیفیت در گالری ذخیره شد.',
-                          ),
-                          style: const TextStyle(fontFamily: 'Vazirmatn'),
-                        ),
+                    AppToast.showSuccess(
+                      context,
+                      strings.tr(
+                        'فایل خروجی با بالاترین کیفیت در گالری ذخیره شد.',
                       ),
                     );
                   },

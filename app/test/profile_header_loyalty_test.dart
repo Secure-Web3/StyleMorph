@@ -339,8 +339,8 @@ void main() {
         expect(find.text('Basic (Free)'), findsNothing);
         expect(find.text('عادی (رایگان)'), findsNothing);
 
-        // Contains "Profile completion" label, percentage, and "Complete" button
-        expect(find.text('Profile completion'), findsOneWidget);
+        // Contains loyalty rank badge, percentage, and "Complete" button
+        expect(find.textContaining('Bronze'), findsOneWidget);
         expect(find.text('75%'), findsOneWidget);
         expect(find.text('Complete'), findsOneWidget);
       },

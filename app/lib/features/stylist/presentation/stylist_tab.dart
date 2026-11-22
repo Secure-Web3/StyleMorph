@@ -13,6 +13,7 @@ import '../../../core/widgets/app_chip.dart';
 import '../../../core/widgets/app_icon_button.dart';
 import '../../../core/widgets/app_modal.dart';
 import '../../../core/widgets/app_section_header.dart';
+import '../../../core/widgets/app_toast.dart';
 import '../domain/stylist_models.dart';
 import 'stylist_provider.dart';
 import 'widgets/try_on_dialog.dart';
@@ -476,14 +477,7 @@ class _OutfitCard extends StatelessWidget {
                   isActive: false,
                   colors: colors,
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          strings.stySwapToast,
-                          style: const TextStyle(fontFamily: 'Vazirmatn'),
-                        ),
-                      ),
-                    );
+                    AppToast.showInfo(context, strings.stySwapToast);
                   },
                 ),
               ),

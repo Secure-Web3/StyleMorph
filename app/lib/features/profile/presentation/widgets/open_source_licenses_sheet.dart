@@ -87,8 +87,9 @@ class _OpenSourceLicensesSheetState extends State<OpenSourceLicensesSheet> {
     final colors = context.colors;
     final strings = context.strings;
     final count = group.entries.length;
+    final formattedCount = strings.formatNumber(count);
     final countLabel =
-        '$count ${count == 1 ? strings.aboutLicenseSingular : strings.aboutLicensesCount}';
+        '$formattedCount ${count == 1 ? strings.aboutLicenseSingular : strings.aboutLicensesCount}';
 
     AppModal.showAppDialog(
       context: context,
@@ -402,7 +403,7 @@ class _OpenSourceLicensesSheetState extends State<OpenSourceLicensesSheet> {
                             variant: AppBadgeVariant.standard,
                             size: AppBadgeSize.sm,
                             child: Text(
-                              '${item.entries.length}',
+                              strings.formatNumber(item.entries.length),
                               style: const TextStyle(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,

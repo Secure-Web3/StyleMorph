@@ -110,4 +110,25 @@ class AppTypography {
     height: 1.2,
     color: color,
   );
+
+  /// Resolves the primary font family for the target locale.
+  /// For LTR languages (`en`, `tr`), returns null to use platform-native Latin typography,
+  /// preventing fonts with Arabic glyph mappings from altering ASCII Latin digits.
+  static String? fontFamilyFor(String? localeCode) {
+    if (localeCode == null) return fontFamily;
+    final lang = localeCode.toLowerCase().split(RegExp(r'[-_]')).first;
+    if (lang == 'en' || lang == 'tr') {
+      return null;
+    }
+    return fontFamily;
+  }
+
+  /// Fallback font list per locale.
+  static List<String> fontFamilyFallbackFor(String? localeCode) {
+    final lang = localeCode?.toLowerCase().split(RegExp(r'[-_]')).first;
+    if (lang == 'en' || lang == 'tr') {
+      return const ['Roboto', 'Arial', 'sans-serif', 'Vazirmatn'];
+    }
+    return const ['Vazirmatn', 'Roboto', 'Arial', 'sans-serif'];
+  }
 }

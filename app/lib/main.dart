@@ -60,8 +60,16 @@ class StyleMorphApp extends ConsumerWidget {
     return MaterialApp(
       title: 'StyleMorph',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.buildTheme(palette: themeState.palette, isDark: false),
-      darkTheme: AppTheme.buildTheme(palette: themeState.palette, isDark: true),
+      theme: AppTheme.buildTheme(
+        palette: themeState.palette,
+        isDark: false,
+        localeCode: currentLang.code,
+      ),
+      darkTheme: AppTheme.buildTheme(
+        palette: themeState.palette,
+        isDark: true,
+        localeCode: currentLang.code,
+      ),
       themeMode: themeState.mode,
       locale: currentLang.locale,
       supportedLocales: AppLanguage.supportedLanguages

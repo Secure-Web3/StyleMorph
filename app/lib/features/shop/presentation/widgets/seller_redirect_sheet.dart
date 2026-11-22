@@ -7,6 +7,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../domain/shop_product.dart';
 
 class SellerRedirectSheet extends StatelessWidget {
@@ -49,13 +50,9 @@ class SellerRedirectSheet extends StatelessWidget {
               text: strings.shopRedirectBtn,
               onPressed: () {
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      strings.shopRedirectMsg(localizedStore),
-                      style: const TextStyle(fontFamily: 'Vazirmatn'),
-                    ),
-                  ),
+                AppToast.showInfo(
+                  context,
+                  strings.shopRedirectMsg(localizedStore),
                 );
               },
             ),

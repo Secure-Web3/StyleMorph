@@ -15,6 +15,7 @@ import '../../../core/widgets/app_modal.dart';
 import '../../../core/widgets/app_section_header.dart';
 import '../../../core/widgets/app_switch.dart';
 import '../../../core/widgets/app_text_field.dart';
+import '../../../core/widgets/app_toast.dart';
 import '../domain/shop_product.dart';
 import 'shop_provider.dart';
 import 'widgets/shop_product_card.dart';
@@ -451,15 +452,9 @@ class _ShopTabState extends ConsumerState<ShopTab> {
                   size: AppButtonSize.sm,
                   text: strings.compare,
                   onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          strings.shopCompareReady(
-                            shopState.compareList.length,
-                          ),
-                          style: const TextStyle(fontFamily: 'Vazirmatn'),
-                        ),
-                      ),
+                    AppToast.showInfo(
+                      context,
+                      strings.shopCompareReady(shopState.compareList.length),
                     );
                   },
                 ),

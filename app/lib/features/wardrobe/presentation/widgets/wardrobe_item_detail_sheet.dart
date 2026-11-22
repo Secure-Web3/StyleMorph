@@ -6,6 +6,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../domain/wardrobe_item.dart';
 
 class WardrobeItemDetailSheet extends StatelessWidget {
@@ -78,13 +79,9 @@ class WardrobeItemDetailSheet extends StatelessWidget {
             text: strings.wardStyleInStylist,
             onPressed: () {
               Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    strings.wardSentToStylist(localizedName),
-                    style: const TextStyle(fontFamily: 'Vazirmatn'),
-                  ),
-                ),
+              AppToast.showSuccess(
+                context,
+                strings.wardSentToStylist(localizedName),
               );
             },
           ),

@@ -257,7 +257,14 @@ class SessionService {
 
   // ── Device metadata & resolution ──────────────────────────────────────────
 
-  Map<String, String> _buildDeviceMeta() {
+  static String resolveDeviceDescriptor() {
+    final meta = buildDeviceMeta();
+    return meta['deviceName'] ?? meta['deviceModel'] ?? 'Unknown Device';
+  }
+
+  Map<String, String> _buildDeviceMeta() => buildDeviceMeta();
+
+  static Map<String, String> buildDeviceMeta() {
     if (kIsWeb) {
       final ua = SessionLocalStorage.getUserAgent() ?? '';
       final isMobile = RegExp(

@@ -10,9 +10,11 @@ import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/digit_formatter.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
+import '../../../../core/widgets/app_toast.dart';
 import 'about_actions.dart';
 import 'legal_doc_modal_sheet.dart';
 import 'open_source_licenses_sheet.dart';
@@ -122,16 +124,10 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
     Clipboard.setData(ClipboardData(text: text));
     if (!mounted) return;
     final strings = context.strings;
-    final colors = context.colors;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          '$label ${strings.aboutLinkCopied}',
-          style: const TextStyle(fontFamily: 'Vazirmatn'),
-        ),
-        backgroundColor: colors.ok,
-        duration: const Duration(seconds: 2),
-      ),
+    AppToast.showSuccess(
+      context,
+      '$label ${strings.aboutLinkCopied}',
+      duration: const Duration(seconds: 2),
     );
   }
 
@@ -140,7 +136,6 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
     final colors = context.colors;
     final strings = context.strings;
     final appState = ref.watch(appStateProvider);
-    final termsAcceptedAt = appState.termsAcceptedAt;
 
     return Padding(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -163,12 +158,7 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
           const SizedBox(height: AppSpacing.md),
 
           // ── 3. User Agreement & Consent Card ──────────────────────────────
-          _buildAgreementCard(
-            colors,
-            strings,
-            termsAcceptedAt,
-            appState.termsVersion,
-          ),
+          _buildAgreementCard(colors, strings, appState),
           const SizedBox(height: AppSpacing.md),
 
           // ── 4. Legal & Compliance Links ───────────────────────────────────
@@ -300,7 +290,8 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
             colors: colors,
             icon: Icons.verified_rounded,
             label: strings.aboutVersionLabel,
-            value: 'v${AboutSubTab.currentVersion}',
+            value:
+                'v${DigitFormatter.localizeDigits(AboutSubTab.currentVersion, strings.localeCode)}',
             isBold: true,
           ),
           Divider(color: colors.bd, height: 16),
@@ -406,7 +397,10 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
                         child: Text(
                           strings.aboutUpdateAvailable.replaceAll(
                             '{version}',
-                            _availableVersion ?? '1.0.1',
+                            DigitFormatter.localizeDigits(
+                              _availableVersion ?? '1.0.1',
+                              strings.localeCode,
+                            ),
                           ),
                           style: TextStyle(
                             fontFamily: 'Vazirmatn',
@@ -484,104 +478,124 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
   Widget _buildAgreementCard(
     AppColors colors,
     AppStrings strings,
-    DateTime? termsAcceptedAt,
-    String? termsVersion,
+    AppState appState,
   ) {
     final theme = Theme.of(context);
+    final termsAcceptedAt = appState.termsAcceptedAt;
     final isSigned = termsAcceptedAt != null;
 
     if (isSigned) {
-      final formattedDate =
+      final rawDate =
           '${termsAcceptedAt.year}/${termsAcceptedAt.month.toString().padLeft(2, '0')}/${termsAcceptedAt.day.toString().padLeft(2, '0')}';
-      final versionStr = termsVersion ?? '1.0';
+      final formattedDate = DigitFormatter.localizeDigits(
+        rawDate,
+        strings.localeCode,
+      );
+      final versionStr = DigitFormatter.localizeDigits(
+        appState.termsVersion ?? '1.0',
+        strings.localeCode,
+      );
 
-      return AppCard(
-        key: const Key('agreement_card'),
-        variant: AppCardVariant.surface,
-        padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-        borderColor: colors.ok.withValues(alpha: 0.4),
-        borderWidth: 1.2,
-        child: Row(
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: colors.ok.withValues(alpha: 0.12),
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: colors.ok.withValues(alpha: 0.35),
-                  width: 1,
+      return InkWell(
+        key: const Key('agreement_signed_clickable_card'),
+        onTap: () {
+          FullContractModalSheet.show(
+            context,
+            isReadOnlyAudit: true,
+            audit: appState.legalConsent,
+          );
+        },
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        child: AppCard(
+          key: const Key('agreement_card'),
+          variant: AppCardVariant.surface,
+          padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+          borderColor: colors.ok.withValues(alpha: 0.4),
+          borderWidth: 1.2,
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: colors.ok.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: colors.ok.withValues(alpha: 0.35),
+                    width: 1,
+                  ),
+                ),
+                child: Center(
+                  child: Icon(
+                    Icons.verified_user_rounded,
+                    size: 20,
+                    color: colors.ok,
+                  ),
                 ),
               ),
-              child: Center(
-                child: Icon(
-                  Icons.verified_user_rounded,
-                  size: 20,
-                  color: colors.ok,
-                ),
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        key: const Key('agreement_signed_badge'),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2.5,
-                        ),
-                        decoration: BoxDecoration(
-                          color: colors.ok.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(AppRadius.sm),
-                          border: Border.all(
-                            color: colors.ok.withValues(alpha: 0.35),
-                            width: 1,
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          key: const Key('agreement_signed_badge'),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2.5,
                           ),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.check_circle_rounded,
-                              size: 13,
-                              color: colors.ok,
+                          decoration: BoxDecoration(
+                            color: colors.ok.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(AppRadius.sm),
+                            border: Border.all(
+                              color: colors.ok.withValues(alpha: 0.35),
+                              width: 1,
                             ),
-                            const SizedBox(width: 4),
-                            Text(
-                              strings.aboutAgreementSignedBadge,
-                              style: TextStyle(
-                                fontFamily: 'Vazirmatn',
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.check_circle_rounded,
+                                size: 13,
                                 color: colors.ok,
                               ),
-                            ),
-                          ],
+                              const SizedBox(width: 4),
+                              Text(
+                                strings.aboutAgreementSignedBadge,
+                                style: TextStyle(
+                                  fontFamily: 'Vazirmatn',
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  color: colors.ok,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 5),
-                  Text(
-                    strings.aboutAgreementSignedDate
-                        .replaceAll('{date}', formattedDate)
-                        .replaceAll('{version}', versionStr),
-                    style: TextStyle(
-                      fontFamily: 'Vazirmatn',
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: colors.mu,
+                      ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 5),
+                    Text(
+                      strings.aboutAgreementSignedDate
+                          .replaceAll('{date}', formattedDate)
+                          .replaceAll('{version}', versionStr),
+                      style: TextStyle(
+                        fontFamily: 'Vazirmatn',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: colors.mu,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              const SizedBox(width: AppSpacing.xs),
+              Icon(Icons.chevron_right_rounded, size: 20, color: colors.mu),
+            ],
+          ),
         ),
       );
     }
@@ -653,7 +667,6 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
   }
 
   Future<void> _openContractModal() async {
-    final colors = context.colors;
     final strings = context.strings;
     final signed = await FullContractModalSheet.show(
       context,
@@ -663,15 +676,10 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
     );
 
     if (signed == true && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            strings.aboutAgreementSignedToast,
-            style: const TextStyle(fontFamily: 'Vazirmatn'),
-          ),
-          backgroundColor: colors.ok,
-          duration: const Duration(seconds: 3),
-        ),
+      AppToast.showSuccess(
+        context,
+        strings.aboutAgreementSignedToast,
+        duration: const Duration(seconds: 3),
       );
     }
   }

@@ -19,7 +19,7 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
   const MainHeader({super.key, this.onOpenDrawer});
 
   static const double _baseHeight = 66.0;
-  static const double _profileExtraHeight = 52.0;
+  static const double _profileExtraHeight = 44.0;
 
   @override
   Size get preferredSize =>
@@ -49,192 +49,124 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
           child: Padding(
             padding: const EdgeInsetsDirectional.symmetric(
               horizontal: AppSpacing.lg,
+              vertical: 4,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 // ── Top Row ─────────────────────────────────────────────────
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    // User Info
+                    // Start: Larger circular user avatar with colored loyalty-tier border ring
+                    InkWell(
+                      onTap: () {
+                        if (onOpenDrawer != null) {
+                          onOpenDrawer!();
+                        } else {
+                          Scaffold.of(context).openDrawer();
+                        }
+                      },
+                      borderRadius: BorderRadius.circular(24),
+                      child: _buildAvatar(colors, strings, appState),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+
+                    // Center (Expanded): User full name above email address
                     Expanded(
-                      child: Row(
-                        children: [
-                          // Avatar + Tier/Points Badge Column
-                          Column(
+                      child: Builder(
+                        builder: (context) {
+                          User? user;
+                          try {
+                            if (Firebase.apps.isNotEmpty) {
+                              user = FirebaseAuth.instance.currentUser;
+                            }
+                          } catch (_) {}
+                          final isKycVerified = appState.kycData.isVerified;
+                          final isVerified = isKycVerified || isEmailVerified;
+                          final displayName = appState.userName.isNotEmpty
+                              ? strings.tr(appState.userName)
+                              : (user?.displayName ??
+                                    (user?.email?.split('@').first ??
+                                        strings.newUser));
+                          final userEmail =
+                              user?.email ??
+                              (appState.identityValues['email'] ?? '');
+                          final showEmail =
+                              appState.preferences.showEmailInHeader &&
+                              userEmail.isNotEmpty;
+
+                          final nameRow = Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              // Tapping ONLY Profile Avatar opens Drawer
-                              InkWell(
-                                onTap: () {
-                                  if (onOpenDrawer != null) {
-                                    onOpenDrawer!();
-                                  } else {
-                                    Scaffold.of(context).openDrawer();
-                                  }
-                                },
-                                borderRadius: BorderRadius.circular(20),
-                                child: _buildAvatar(colors, strings, appState),
+                              Flexible(
+                                child: Text(
+                                  displayName,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: 'Vazirmatn',
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w700,
+                                    color: colors.tx,
+                                  ),
+                                ),
                               ),
-                              const SizedBox(height: 2),
-                              // Tier & Points Badge directly underneath avatar
-                              _buildRankPointsBadge(
-                                context,
-                                colors,
-                                strings,
-                                appState,
-                              ),
+                              if (isVerified) ...[
+                                const SizedBox(width: AppSpacing.xs),
+                                FaIcon(
+                                  FontAwesomeIcons.circleCheck,
+                                  size: 12,
+                                  color: isKycVerified
+                                      ? colors.ok
+                                      : colors.inColor,
+                                ),
+                              ],
                             ],
-                          ),
-                          const SizedBox(width: AppSpacing.md),
+                          );
 
-                          // User Name Block (Vertically centered or stacked with email)
-                          Expanded(
-                            child: Builder(
-                              builder: (context) {
-                                User? user;
-                                try {
-                                  if (Firebase.apps.isNotEmpty) {
-                                    user = FirebaseAuth.instance.currentUser;
-                                  }
-                                } catch (_) {}
-                                final isKycVerified =
-                                    appState.kycData.isVerified;
-                                final isVerified =
-                                    isKycVerified || isEmailVerified;
-                                final displayName = appState.userName.isNotEmpty
-                                    ? strings.tr(appState.userName)
-                                    : (user?.displayName ??
-                                          (user?.email?.split('@').first ??
-                                              strings.newUser));
-                                final userEmail =
-                                    user?.email ??
-                                    (appState.identityValues['email'] ?? '');
-                                final showEmail =
-                                    appState.preferences.showEmailInHeader &&
-                                    userEmail.isNotEmpty;
-
-                                final nameRow = Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        displayName,
-                                        style: TextStyle(
-                                          fontFamily: 'Vazirmatn',
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                          color: colors.tx,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    if (isVerified) ...[
-                                      const SizedBox(width: AppSpacing.xs),
-                                      FaIcon(
-                                        FontAwesomeIcons.circleCheck,
-                                        size: 12,
-                                        color: isKycVerified
-                                            ? colors.ok
-                                            : colors.inColor,
-                                      ),
-                                    ],
-                                  ],
-                                );
-
-                                if (showEmail) {
-                                  return Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      nameRow,
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        userEmail,
-                                        style: TextStyle(
-                                          fontFamily: 'Vazirmatn',
-                                          fontSize: 11,
-                                          color: colors.mu,
-                                        ),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  );
-                                } else {
-                                  return Align(
-                                    alignment: AlignmentDirectional.centerStart,
-                                    child: nameRow,
-                                  );
-                                }
-                              },
-                            ),
-                          ),
-                        ],
+                          if (showEmail) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                nameRow,
+                                const SizedBox(height: 2),
+                                Text(
+                                  userEmail,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    fontFamily: 'Vazirmatn',
+                                    fontSize: 11,
+                                    color: colors.mu,
+                                  ),
+                                ),
+                              ],
+                            );
+                          } else {
+                            return Align(
+                              alignment: AlignmentDirectional.centerStart,
+                              child: nameRow,
+                            );
+                          }
+                        },
                       ),
                     ),
+                    const SizedBox(width: AppSpacing.sm),
 
-                    // ── Action Buttons ───────────────────────────────────────
-                    Row(
+                    // End: Compact vertical stack with Notification Bell on top & Coins pill below
+                    Column(
                       mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // StyleCoin Chip
-                        if (appState.showHeaderCoins) ...[
-                          InkWell(
-                            onTap:
-                                null, // Tap navigation disabled while Wallet & Plan is temporarily disabled
-                            borderRadius: AppRadius.rFull,
-                            child: Container(
-                              padding: const EdgeInsetsDirectional.symmetric(
-                                horizontal: 10,
-                                vertical: 5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colors.wnb,
-                                borderRadius: AppRadius.rFull,
-                                border: Border.all(color: colors.bd),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  FaIcon(
-                                    FontAwesomeIcons.coins,
-                                    size: 12,
-                                    color: colors.wn,
-                                  ),
-                                  const SizedBox(width: 5),
-                                  Text(
-                                    strings.formatNumber(appState.coins),
-                                    style: TextStyle(
-                                      fontFamily: 'Vazirmatn',
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: colors.tx,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 3),
-                                  Text(
-                                    strings.coin,
-                                    style: TextStyle(
-                                      fontFamily: 'Vazirmatn',
-                                      fontSize: 11,
-                                      color: colors.mu,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.xs),
-                        ],
-
                         // Notification Bell
                         Stack(
                           clipBehavior: Clip.none,
                           children: [
                             IconButton(
+                              key: const Key('header_notifications_bell'),
                               onPressed: () {
                                 showModalBottomSheet<void>(
                                   context: context,
@@ -248,24 +180,24 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                               },
                               icon: FaIcon(
                                 FontAwesomeIcons.bell,
-                                size: 16,
+                                size: 15,
                                 color: colors.tx,
                               ),
-                              padding: const EdgeInsets.all(AppSpacing.sm),
+                              padding: const EdgeInsets.all(AppSpacing.xs),
                               constraints: const BoxConstraints(
-                                minWidth: 36,
-                                minHeight: 36,
+                                minWidth: 32,
+                                minHeight: 32,
                               ),
                               tooltip: strings.notificationsTitle,
                             ),
                             // Orange notification dot (only when unread > 0)
                             if (appState.unreadNotificationsCount > 0)
                               PositionedDirectional(
-                                top: 7,
-                                end: 7,
+                                top: 4,
+                                end: 4,
                                 child: Container(
-                                  width: 8,
-                                  height: 8,
+                                  width: 7,
+                                  height: 7,
                                   decoration: BoxDecoration(
                                     color: colors.orColor,
                                     shape: BoxShape.circle,
@@ -278,15 +210,27 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
                               ),
                           ],
                         ),
+
+                        // StyleCoin Chip
+                        if (appState.showHeaderCoins) ...[
+                          const SizedBox(height: 1),
+                          _buildCoinsBadge(colors, strings, appState),
+                        ],
                       ],
                     ),
                   ],
                 ),
 
-                // ── Profile Completion Row (only on Profile tab) ─────────────
+                // ── Bottom Row (Full Width - only on Profile tab) ───────────
                 if (isProfileMode) ...[
                   const SizedBox(height: 6),
-                  _buildProfileProgressSection(ref, colors, strings, appState),
+                  _buildProfileProgressSection(
+                    ref,
+                    context,
+                    colors,
+                    strings,
+                    appState,
+                  ),
                 ],
               ],
             ),
@@ -296,9 +240,58 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  // ── Avatar with Loyalty Rank border (no conic ring, no Lv1 badge) ──────
+  // ── Coins pill badge ───────────────────────────────────────────────────────
+  Widget _buildCoinsBadge(
+    AppColors colors,
+    AppStrings strings,
+    AppState appState,
+  ) {
+    return InkWell(
+      key: const Key('header_coins_chip'),
+      onTap: null,
+      borderRadius: AppRadius.rFull,
+      child: Container(
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: 7,
+          vertical: 2,
+        ),
+        decoration: BoxDecoration(
+          color: colors.wnb,
+          borderRadius: AppRadius.rFull,
+          border: Border.all(color: colors.bd),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FaIcon(FontAwesomeIcons.coins, size: 10, color: colors.wn),
+            const SizedBox(width: 4),
+            Text(
+              strings.formatNumber(appState.coins),
+              style: TextStyle(
+                fontFamily: 'Vazirmatn',
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: colors.tx,
+              ),
+            ),
+            const SizedBox(width: 3),
+            Text(
+              strings.coin,
+              style: TextStyle(
+                fontFamily: 'Vazirmatn',
+                fontSize: 10,
+                color: colors.mu,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Avatar with Loyalty Rank border ───────────────────────────────────────
   Widget _buildAvatar(AppColors colors, AppStrings strings, AppState appState) {
-    const double avatarSize = 36.0;
+    const double avatarSize = 42.0;
     final rank = LoyaltyRankExtension.fromString(appState.loyaltyRank);
     final rankColor = rank.color;
 
@@ -361,6 +354,7 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
         '${strings.formatNumber(appState.stylePoints)} ${strings.pts}';
 
     return GestureDetector(
+      key: const Key('header_loyalty_rank_badge'),
       onTap: () {
         LoyaltyModalSheet.show(
           context,
@@ -470,26 +464,20 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
   // ── Profile completion progress bar ─────────────────────────────────────
   Widget _buildProfileProgressSection(
     WidgetRef ref,
+    BuildContext context,
     AppColors colors,
     AppStrings strings,
     AppState appState,
   ) {
     return Row(
       children: [
-        // 1. Pin "Profile completion" to start edge
-        Text(
-          strings.pcT,
-          style: TextStyle(
-            fontFamily: 'Vazirmatn',
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            color: colors.tx,
-          ),
-        ),
+        // 1. Start: Loyalty tier & points pill badge (tapping opens LoyaltyModalSheet)
+        _buildRankPointsBadge(context, colors, strings, appState),
         const SizedBox(width: AppSpacing.sm),
 
-        // 2. Middle span fills the entire space: Expanded progress bar + percentage
+        // 2. Middle (Expanded): Smooth horizontal profile completion progress bar + localized percentage
         Expanded(
+          key: const Key('header_profile_progress_bar'),
           child: Row(
             children: [
               Expanded(
@@ -530,20 +518,23 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
         ),
         const SizedBox(width: AppSpacing.sm),
 
-        // 3. Pin "Complete" action button to end edge
+        // 3. End: Compact dark pill action button (Complete Profile)
         InkWell(
+          key: const Key('header_complete_profile_btn'),
           onTap: () {
             ref.read(appStateProvider.notifier).switchProfileTab('p-identity');
           },
-          borderRadius: AppRadius.rSm,
+          borderRadius: AppRadius.rFull,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: colors.pr,
-              borderRadius: AppRadius.rSm,
+              borderRadius: AppRadius.rFull,
             ),
             child: Text(
               strings.hFin,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: TextStyle(
                 fontFamily: 'Vazirmatn',
                 fontSize: 10,

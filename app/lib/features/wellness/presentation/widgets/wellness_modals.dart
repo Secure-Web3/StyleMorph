@@ -15,6 +15,7 @@ import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_segmented_control.dart';
 import '../../../../core/widgets/app_switch.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/email_verification_gate.dart';
 import '../wellness_provider.dart';
 
@@ -471,14 +472,10 @@ class MindDetailSheet extends StatelessWidget {
             subtitle: strings.tr('آرام‌سازی فوری ذهن با ضرباهنگ ۴-۴-۴'),
             colors: colors,
             onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    strings.tr(
-                      'تمرین تنفس آرام‌بخش شروع شد. ۴ ثانیه دم، ۴ ثانیه حبس، ۴ ثانیه بازدم.',
-                    ),
-                    style: const TextStyle(fontFamily: 'Vazirmatn'),
-                  ),
+              AppToast.showInfo(
+                context,
+                strings.tr(
+                  'تمرین تنفس آرام‌بخش شروع شد. ۴ ثانیه دم، ۴ ثانیه حبس، ۴ ثانیه بازدم.',
                 ),
               );
             },
@@ -810,13 +807,9 @@ class _DailyCheckInSheetState extends State<DailyCheckInSheet> {
       actionLabel: strings.tr('ذخیره در پرونده سلامت'),
       onAction: () {
         Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              strings.tr('اطلاعات روزانه با موفقیت در داشبورد ثبت شد.'),
-              style: const TextStyle(fontFamily: 'Vazirmatn'),
-            ),
-          ),
+        AppToast.showSuccess(
+          context,
+          strings.tr('اطلاعات روزانه با موفقیت در داشبورد ثبت شد.'),
         );
       },
       child: Column(

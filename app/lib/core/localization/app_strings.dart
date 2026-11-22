@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../utils/digit_formatter.dart';
 import 'app_translations_data.dart';
 
 class AppStrings {
@@ -11,62 +12,14 @@ class AppStrings {
     return AppStrings(locale);
   }
 
-  static const _faDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-  static const _arDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
-
   static String _normalizedLang(String localeCode) =>
-      localeCode.toLowerCase().split(RegExp(r'[-_]')).first;
+      DigitFormatter.normalizeLang(localeCode);
 
   /// Converts ASCII/Persian/Arabic digits according to the active locale.
   /// Returns Western digits (0-9) for `en` and `tr`, Persian digits for `fa`,
   /// and Eastern Arabic digits for `ar`.
   String formatNumber(Object input) {
-    final raw = input.toString();
-    final ascii = _toAsciiDigits(raw);
-    final lang = _normalizedLang(localeCode);
-    if (lang == 'fa') {
-      return _replaceDigits(ascii, _faDigits).replaceAll('%', '٪');
-    }
-    if (lang == 'ar') {
-      return _replaceDigits(ascii, _arDigits).replaceAll('%', '٪');
-    }
-    return ascii
-        .replaceAll('٪', '%')
-        .replaceAll('٬', ',')
-        .replaceAll('،', ',')
-        .replaceAll('٫', '.');
-  }
-
-  static String _toAsciiDigits(String s) {
-    final buf = StringBuffer();
-    for (final rune in s.runes) {
-      final ch = String.fromCharCode(rune);
-      final faIdx = _faDigits.indexOf(ch);
-      if (faIdx != -1) {
-        buf.write(faIdx);
-        continue;
-      }
-      final arIdx = _arDigits.indexOf(ch);
-      if (arIdx != -1) {
-        buf.write(arIdx);
-        continue;
-      }
-      buf.write(ch);
-    }
-    return buf.toString();
-  }
-
-  static String _replaceDigits(String ascii, List<String> targets) {
-    final buf = StringBuffer();
-    for (final rune in ascii.runes) {
-      final code = rune - 48;
-      if (code >= 0 && code <= 9) {
-        buf.write(targets[code]);
-      } else {
-        buf.writeCharCode(rune);
-      }
-    }
-    return buf.toString();
+    return DigitFormatter.localizeDigits(input, localeCode);
   }
 
   String formatPercent(num pct) {
@@ -1056,6 +1009,16 @@ class AppStrings {
       'aboutAgreementSignedToast': 'توافقنامه کاربری با موفقیت امضا و ثبت شد.',
       'aboutAgreementUnsignedWarning':
           'توافقنامه کاربری هنوز امضا نشده است. لطفاً قوانین را مطالعه و تأیید نمایید.',
+      'aboutAuditReceiptTitle': 'رسید دیجیتال تأیید و امضای الکترونیک',
+      'aboutAuditVerifiedBadge': 'امضا شده و تأییدشده دیجیتال',
+      'aboutAuditSignedAt': 'زمان و تاریخ ثبت امضا',
+      'aboutAuditSignerName': 'نام امضاکننده',
+      'aboutAuditSignerEmail': 'نشانی ایمیل',
+      'aboutAuditSignerUid': 'شناسه حساب کاربری (UID)',
+      'aboutAuditContractVer': 'نسخه قرارداد',
+      'aboutAuditIpLoc': 'نشانی IP و موقعیت جغرافیایی',
+      'aboutAuditDevice': 'مشخصات دستگاه و مرورگر',
+      'aboutAuditNotRecorded': 'ثبت‌نشده (امضای قبلی)',
       'aboutContactSectionTitle': 'ارتباط و شبکه‌های رسمی',
       'aboutSocialMediaLabel': 'شبکه‌های اجتماعی',
       'aboutSocialMediaSubtitle': '۱۳ کانال و صفحه رسمی StyleMorph',
@@ -2038,6 +2001,16 @@ class AppStrings {
           'User agreement was successfully signed and recorded.',
       'aboutAgreementUnsignedWarning':
           'User agreement has not been signed yet. Please review and sign.',
+      'aboutAuditReceiptTitle': 'Electronic Signature Audit Receipt',
+      'aboutAuditVerifiedBadge': 'Electronically Signed & Verified',
+      'aboutAuditSignedAt': 'Signature Date & Time',
+      'aboutAuditSignerName': 'Signer Name',
+      'aboutAuditSignerEmail': 'Signer Email',
+      'aboutAuditSignerUid': 'Account ID (UID)',
+      'aboutAuditContractVer': 'Contract Version',
+      'aboutAuditIpLoc': 'IP Address & Location',
+      'aboutAuditDevice': 'Device & Browser Descriptor',
+      'aboutAuditNotRecorded': 'Not recorded (legacy signature)',
       'aboutContactSectionTitle': 'Official Contact & Socials',
       'aboutSocialMediaLabel': 'Social Media',
       'aboutSocialMediaSubtitle': '13 official channels & communities',
@@ -2998,6 +2971,16 @@ class AppStrings {
       'aboutAgreementSignedToast': 'تم توقيع وتسجيل اتفاقية المستخدم بنجاح.',
       'aboutAgreementUnsignedWarning':
           'لم يتم توقيع اتفاقية المستخدم بعد. يرجى المراجعة والتوقيع.',
+      'aboutAuditReceiptTitle': 'إيصال تدقيق التوقيع الإلكتروني',
+      'aboutAuditVerifiedBadge': 'تم التوقيع والتحقق إلكترونياً',
+      'aboutAuditSignedAt': 'تاريخ ووقت التوقيع',
+      'aboutAuditSignerName': 'اسم الموقع',
+      'aboutAuditSignerEmail': 'البريد الإلكتروني',
+      'aboutAuditSignerUid': 'معرف الحساب (UID)',
+      'aboutAuditContractVer': 'نسخة العقد',
+      'aboutAuditIpLoc': 'عنوان IP والموقع الجغرافي',
+      'aboutAuditDevice': 'بيانات الجهاز والمتصفح',
+      'aboutAuditNotRecorded': 'غير مسجل (توقيع سابق)',
       'aboutContactSectionTitle': 'التواصل والقنوات الرسمية',
       'aboutSocialMediaLabel': 'شبكات التواصل الاجتماعي',
       'aboutSocialMediaSubtitle': '١٣ قناة ومجتمع رسمي لـ StyleMorph',
@@ -3995,6 +3978,16 @@ class AppStrings {
           'Kullanıcı sözleşmesi başarıyla imzalandı ve kaydedildi.',
       'aboutAgreementUnsignedWarning':
           'Kullanıcı sözleşmesi henüz imzalanmadı. Lütfen inceleyip imzalayın.',
+      'aboutAuditReceiptTitle': 'Elektronik İmza Denetim Makbuzu',
+      'aboutAuditVerifiedBadge': 'Elektronik Olarak İmzalandı ve Doğrulandı',
+      'aboutAuditSignedAt': 'İmza Tarihi ve Saati',
+      'aboutAuditSignerName': 'İmzalayan Adı',
+      'aboutAuditSignerEmail': 'İmzalayan E-postası',
+      'aboutAuditSignerUid': 'Hesap Kimliği (UID)',
+      'aboutAuditContractVer': 'Sözleşme Versiyonu',
+      'aboutAuditIpLoc': 'IP Adresi ve Konum',
+      'aboutAuditDevice': 'Cihaz ve Tarayıcı Bilgisi',
+      'aboutAuditNotRecorded': 'Kayıtlı değil (eski imza)',
       'aboutContactSectionTitle': 'İletişim ve Sosyal Kanallar',
       'aboutSocialMediaLabel': 'Sosyal Medya',
       'aboutSocialMediaSubtitle': '13 resmi kanal ve topluluk',
@@ -5094,6 +5087,16 @@ class AppStrings {
   String get aboutAgreementSignedToast => get('aboutAgreementSignedToast');
   String get aboutAgreementUnsignedWarning =>
       get('aboutAgreementUnsignedWarning');
+  String get aboutAuditReceiptTitle => get('aboutAuditReceiptTitle');
+  String get aboutAuditVerifiedBadge => get('aboutAuditVerifiedBadge');
+  String get aboutAuditSignedAt => get('aboutAuditSignedAt');
+  String get aboutAuditSignerName => get('aboutAuditSignerName');
+  String get aboutAuditSignerEmail => get('aboutAuditSignerEmail');
+  String get aboutAuditSignerUid => get('aboutAuditSignerUid');
+  String get aboutAuditContractVer => get('aboutAuditContractVer');
+  String get aboutAuditIpLoc => get('aboutAuditIpLoc');
+  String get aboutAuditDevice => get('aboutAuditDevice');
+  String get aboutAuditNotRecorded => get('aboutAuditNotRecorded');
   String get aboutContactSectionTitle => get('aboutContactSectionTitle');
   String get aboutSocialMediaLabel => get('aboutSocialMediaLabel');
   String get aboutSocialMediaSubtitle => get('aboutSocialMediaSubtitle');

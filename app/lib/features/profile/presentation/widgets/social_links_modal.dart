@@ -8,6 +8,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_modal.dart';
+import '../../../../core/widgets/app_toast.dart';
 import 'about_actions.dart';
 
 class SocialLinkItem {
@@ -40,16 +41,10 @@ class SocialLinksModal extends StatelessWidget {
     } else {
       Clipboard.setData(ClipboardData(text: item.url));
       final strings = context.strings;
-      final colors = context.colors;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '${item.name} ${strings.aboutLinkCopied}',
-            style: const TextStyle(fontFamily: 'Vazirmatn'),
-          ),
-          backgroundColor: colors.ok,
-          duration: const Duration(seconds: 2),
-        ),
+      AppToast.showSuccess(
+        context,
+        '${item.name} ${strings.aboutLinkCopied}',
+        duration: const Duration(seconds: 2),
       );
     }
   }

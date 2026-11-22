@@ -9,6 +9,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/email_verification_gate.dart';
 import '../../domain/shop_product.dart';
 
@@ -44,27 +45,13 @@ class TryOnSheet extends ConsumerWidget {
         onPressed: () {
           if (!checkEmailVerificationGate(context, ref)) return;
           if (userCoins < 5) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  strings.shopInsufficientCoins,
-                  style: const TextStyle(fontFamily: 'Vazirmatn'),
-                ),
-              ),
-            );
+            AppToast.showWarning(context, strings.shopInsufficientCoins);
             return;
           }
 
           ref.read(appStateProvider.notifier).addCoins(-5);
           Navigator.pop(context);
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                strings.shopTryOnSent(localizedName),
-                style: const TextStyle(fontFamily: 'Vazirmatn'),
-              ),
-            ),
-          );
+          AppToast.showSuccess(context, strings.shopTryOnSent(localizedName));
         },
       ),
       child: Column(

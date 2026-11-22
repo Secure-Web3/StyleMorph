@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/digit_formatter.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
@@ -510,17 +512,30 @@ class LegalDocModalSheet extends StatelessWidget {
 /// Full interactive agreement modal sheet displaying the complete Terms & Privacy text
 /// with 3 pinned bottom controls (Signature Checkbox, Confirm & Sign Button, Cancel Button).
 class FullContractModalSheet extends StatefulWidget {
-  final Future<void> Function() onSign;
+  final Future<void> Function()? onSign;
+  final bool isReadOnlyAudit;
+  final LegalConsentAudit? audit;
 
-  const FullContractModalSheet({super.key, required this.onSign});
+  const FullContractModalSheet({
+    super.key,
+    this.onSign,
+    this.isReadOnlyAudit = false,
+    this.audit,
+  });
 
   static Future<bool?> show(
     BuildContext context, {
-    required Future<void> Function() onSign,
+    Future<void> Function()? onSign,
+    bool isReadOnlyAudit = false,
+    LegalConsentAudit? audit,
   }) {
     return AppModal.showSheet<bool>(
       context: context,
-      child: FullContractModalSheet(onSign: onSign),
+      child: FullContractModalSheet(
+        onSign: onSign,
+        isReadOnlyAudit: isReadOnlyAudit,
+        audit: audit,
+      ),
     );
   }
 
@@ -739,105 +754,322 @@ class _FullContractModalSheetState extends State<FullContractModalSheet> {
                 ),
               ),
 
-              // Pinned Bottom 3 Controls
+              // Pinned Bottom Controls (Audit Receipt if signed, else Checkbox & Sign)
               Divider(color: colors.bd, height: 1.0),
-              Padding(
-                padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Control 1: Electronic Signature Consent Checkbox
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Checkbox(
-                          key: const Key('agreement_checkbox'),
-                          value: _agreed,
-                          activeColor: colors.pr,
-                          onChanged: _isSigning
-                              ? null
-                              : (val) {
-                                  setState(() => _agreed = val ?? false);
-                                },
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: _isSigning
+              if (widget.isReadOnlyAudit)
+                _buildAuditReceiptFooter(context, colors, strings)
+              else
+                Padding(
+                  padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      // Control 1: Electronic Signature Consent Checkbox
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Checkbox(
+                            key: const Key('agreement_checkbox'),
+                            value: _agreed,
+                            activeColor: colors.pr,
+                            onChanged: _isSigning
                                 ? null
-                                : () {
-                                    setState(() => _agreed = !_agreed);
+                                : (val) {
+                                    setState(() => _agreed = val ?? false);
                                   },
-                            child: Text(
-                              strings.aboutAgreementCheckbox,
-                              style: TextStyle(
-                                fontFamily: 'Vazirmatn',
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: colors.tx,
-                                height: 1.35,
+                          ),
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: _isSigning
+                                  ? null
+                                  : () {
+                                      setState(() => _agreed = !_agreed);
+                                    },
+                              child: Text(
+                                strings.aboutAgreementCheckbox,
+                                style: TextStyle(
+                                  fontFamily: 'Vazirmatn',
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: colors.tx,
+                                  height: 1.35,
+                                ),
                               ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+
+                      // Control 2: Confirm & Sign Electronically Button
+                      AppButton(
+                        key: const Key('agreement_sign_button'),
+                        variant: AppButtonVariant.primary,
+                        isFullWidth: true,
+                        icon: _isSigning
+                            ? null
+                            : const Icon(Icons.draw_rounded, size: 16),
+                        text: _isSigning ? null : strings.aboutAgreementSignBtn,
+                        onPressed:
+                            (_agreed && !_isSigning && widget.onSign != null)
+                            ? () async {
+                                setState(() => _isSigning = true);
+                                try {
+                                  await widget.onSign!();
+                                  if (context.mounted) {
+                                    Navigator.of(context).pop(true);
+                                  }
+                                } finally {
+                                  if (mounted) {
+                                    setState(() => _isSigning = false);
+                                  }
+                                }
+                              }
+                            : null,
+                        child: _isSigning
+                            ? SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: colors.sf,
+                                ),
+                              )
+                            : null,
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+
+                      // Control 3: Close / Cancel Button
+                      AppButton(
+                        key: const Key('agreement_cancel_button'),
+                        variant: AppButtonVariant.outline,
+                        size: AppButtonSize.sm,
+                        isFullWidth: true,
+                        text: strings.aboutCancelSignBtn,
+                        onPressed: _isSigning
+                            ? null
+                            : () => Navigator.of(context).pop(false),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuditReceiptFooter(
+    BuildContext context,
+    AppColors colors,
+    AppStrings strings,
+  ) {
+    final audit = widget.audit;
+    final acceptedAt = audit?.acceptedAt;
+    final dateStr = acceptedAt != null
+        ? '${acceptedAt.year}-${acceptedAt.month.toString().padLeft(2, '0')}-${acceptedAt.day.toString().padLeft(2, '0')} ${acceptedAt.hour.toString().padLeft(2, '0')}:${acceptedAt.minute.toString().padLeft(2, '0')} UTC'
+        : strings.aboutAuditNotRecorded;
+    final localizedDate = DigitFormatter.localizeDigits(
+      dateStr,
+      strings.localeCode,
+    );
+
+    final signerName =
+        (audit?.signerName != null && audit!.signerName.isNotEmpty)
+        ? audit.signerName
+        : strings.aboutAuditNotRecorded;
+    final signerEmail =
+        (audit?.signerEmail != null && audit!.signerEmail.isNotEmpty)
+        ? audit.signerEmail
+        : strings.aboutAuditNotRecorded;
+    final signerUid = (audit?.signerUid != null && audit!.signerUid.isNotEmpty)
+        ? audit.signerUid
+        : strings.aboutAuditNotRecorded;
+
+    final rawVer =
+        (audit?.contractVersion != null && audit!.contractVersion.isNotEmpty)
+        ? audit.contractVersion
+        : '1.0';
+    final cleanVer = rawVer.startsWith('v') ? rawVer : 'v$rawVer';
+    final versionStr = DigitFormatter.localizeDigits(
+      cleanVer,
+      strings.localeCode,
+    );
+
+    final ipLoc = [
+      if (audit?.ipAddress != null && audit!.ipAddress!.isNotEmpty)
+        audit.ipAddress!,
+      if (audit?.ipLocation != null && audit!.ipLocation!.isNotEmpty)
+        audit.ipLocation!,
+    ].join(' · ');
+    final ipDisplay = ipLoc.isNotEmpty
+        ? DigitFormatter.localizeDigits(ipLoc, strings.localeCode)
+        : strings.aboutAuditNotRecorded;
+
+    final deviceDisplay =
+        (audit?.deviceInfo != null && audit!.deviceInfo!.isNotEmpty)
+        ? audit.deviceInfo!
+        : strings.aboutAuditNotRecorded;
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Audit Receipt Card
+          AppCard(
+            key: const Key('contract_audit_receipt_card'),
+            variant: AppCardVariant.surface,
+            padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+            borderColor: colors.ok.withValues(alpha: 0.5),
+            borderWidth: 1.2,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Top Verification Header
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.verified_user_rounded,
+                          size: 16,
+                          color: colors.ok,
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Expanded(
+                          child: Text(
+                            strings.aboutAuditReceiptTitle,
+                            style: TextStyle(
+                              fontFamily: 'Vazirmatn',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: colors.tx,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.sm),
-
-                    // Control 2: Confirm & Sign Electronically Button
-                    AppButton(
-                      key: const Key('agreement_sign_button'),
-                      variant: AppButtonVariant.primary,
-                      isFullWidth: true,
-                      icon: _isSigning
-                          ? null
-                          : const Icon(Icons.draw_rounded, size: 16),
-                      text: _isSigning ? null : strings.aboutAgreementSignBtn,
-                      onPressed: (_agreed && !_isSigning)
-                          ? () async {
-                              setState(() => _isSigning = true);
-                              try {
-                                await widget.onSign();
-                                if (context.mounted) {
-                                  Navigator.of(context).pop(true);
-                                }
-                              } finally {
-                                if (mounted) {
-                                  setState(() => _isSigning = false);
-                                }
-                              }
-                            }
-                          : null,
-                      child: _isSigning
-                          ? SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: colors.sf,
-                              ),
-                            )
-                          : null,
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-
-                    // Control 3: Close / Cancel Button
-                    AppButton(
-                      key: const Key('agreement_cancel_button'),
-                      variant: AppButtonVariant.outline,
-                      size: AppButtonSize.sm,
-                      isFullWidth: true,
-                      text: strings.aboutCancelSignBtn,
-                      onPressed: _isSigning
-                          ? null
-                          : () => Navigator.of(context).pop(false),
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 7,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.ok.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(AppRadius.sm),
+                        border: Border.all(
+                          color: colors.ok.withValues(alpha: 0.35),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.check_circle_rounded,
+                            size: 11,
+                            color: colors.ok,
+                          ),
+                          const SizedBox(width: 3),
+                          Text(
+                            strings.aboutAuditVerifiedBadge,
+                            style: TextStyle(
+                              fontFamily: 'Vazirmatn',
+                              fontSize: 10,
+                              fontWeight: FontWeight.w700,
+                              color: colors.ok,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
-            ],
+                const SizedBox(height: AppSpacing.sm),
+                Divider(color: colors.bd.withValues(alpha: 0.5), height: 1),
+                const SizedBox(height: AppSpacing.sm),
+
+                // Key Audit Details
+                _buildAuditRow(
+                  strings.aboutAuditSignedAt,
+                  localizedDate,
+                  colors,
+                ),
+                const SizedBox(height: 4),
+                _buildAuditRow(
+                  strings.aboutAuditSignerName,
+                  signerName,
+                  colors,
+                ),
+                const SizedBox(height: 4),
+                _buildAuditRow(
+                  strings.aboutAuditSignerEmail,
+                  signerEmail,
+                  colors,
+                ),
+                const SizedBox(height: 4),
+                _buildAuditRow(strings.aboutAuditSignerUid, signerUid, colors),
+                const SizedBox(height: 4),
+                _buildAuditRow(
+                  strings.aboutAuditContractVer,
+                  versionStr,
+                  colors,
+                ),
+                const SizedBox(height: 4),
+                _buildAuditRow(strings.aboutAuditIpLoc, ipDisplay, colors),
+                const SizedBox(height: 4),
+                _buildAuditRow(strings.aboutAuditDevice, deviceDisplay, colors),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+
+          // Close Button
+          AppButton(
+            key: const Key('contract_audit_close_button'),
+            variant: AppButtonVariant.primary,
+            isFullWidth: true,
+            text: strings.aboutClose,
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAuditRow(String label, String value, AppColors colors) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: 120,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Vazirmatn',
+              fontSize: 10.5,
+              fontWeight: FontWeight.w500,
+              color: colors.mu,
+            ),
           ),
         ),
-      ),
+        const SizedBox(width: AppSpacing.xs),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              fontFamily: 'Vazirmatn',
+              fontSize: 10.5,
+              fontWeight: FontWeight.w600,
+              color: colors.tx,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

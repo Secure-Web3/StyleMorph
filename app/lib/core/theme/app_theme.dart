@@ -10,14 +10,18 @@ class AppTheme {
   static ThemeData buildTheme({
     required AppPalette palette,
     required bool isDark,
+    String? localeCode,
   }) {
     final colors = AppColors.resolve(palette, isDark);
     final brightness = isDark ? Brightness.dark : Brightness.light;
+    final targetFont = AppTypography.fontFamilyFor(localeCode);
+    final fontFallback = AppTypography.fontFamilyFallbackFor(localeCode);
 
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
-      fontFamily: AppTypography.fontFamily,
+      fontFamily: targetFont,
+      fontFamilyFallback: fontFallback,
       scaffoldBackgroundColor: colors.bg,
       canvasColor: colors.sf,
       cardColor: colors.sf,
@@ -41,7 +45,8 @@ class AppTheme {
         scrolledUnderElevation: 0,
         centerTitle: false,
         titleTextStyle: TextStyle(
-          fontFamily: AppTypography.fontFamily,
+          fontFamily: targetFont,
+          fontFamilyFallback: fontFallback,
           fontSize: 16,
           fontWeight: FontWeight.bold,
           color: colors.tx,
