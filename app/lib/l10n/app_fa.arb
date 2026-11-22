@@ -719,5 +719,10 @@
   "appModeSimple": "ساده (پیش‌فرض)",
   "appModeAdvanced": "پیشرفته (حرفه‌ای)",
   "appModeSimpleDesc": "رابط کاربری خلوت، روان و مناسب استفاده روزمره بدون جزئیات اداری",
-  "appModeAdvancedDesc": "دسترسی کامل به تمام ابزارها، اسلایدرهای اندازه‌گیری، احراز هویت و مدیریت نشست‌ها"
+  "appModeAdvancedDesc": "دسترسی کامل به تمام ابزارها، اسلایدرهای اندازه‌گیری، احراز هویت و مدیریت نشست‌ها",
+  "unsavedChangesTitle": "تغییرات ذخیره‌نشده",
+  "unsavedChangesMessage": "تغییراتی در فرم ایجاد کرده‌اید که هنوز ذخیره نشده‌اند. مایلید تغییرات را ذخیره کنید یا نادیده بگیرید؟",
+  "unsavedChangesSaveAndContinue": "ذخیره و ادامه",
+  "unsavedChangesDiscardAndLeave": "خروج بدون ذخیره",
+  "unsavedChangesStay": "انصراف"
 }

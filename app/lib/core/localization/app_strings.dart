@@ -316,6 +316,12 @@ class AppStrings {
           'رابط کاربری خلوت، روان و مناسب استفاده روزمره بدون جزئیات اداری',
       'appModeAdvancedDesc':
           'دسترسی کامل به تمام ابزارها، اسلایدرهای اندازه‌گیری، احراز هویت و مدیریت نشست‌ها',
+      'unsavedChangesTitle': 'تغییرات ذخیره‌نشده',
+      'unsavedChangesMessage':
+          'تغییراتی در فرم ایجاد کرده‌اید که هنوز ذخیره نشده‌اند. مایلید تغییرات را ذخیره کنید یا نادیده بگیرید؟',
+      'unsavedChangesSaveAndContinue': 'ذخیره و ادامه',
+      'unsavedChangesDiscardAndLeave': 'خروج بدون ذخیره',
+      'unsavedChangesStay': 'انصراف',
       'kycSectionTitle': 'احراز هویت (KYC)',
       'kycSectionSubtitle':
           'جهت فعال‌سازی قابلیت‌های پیشرفته و امنیت حساب، مدارک هویتی خود را ارسال کنید.',
@@ -1282,6 +1288,12 @@ class AppStrings {
           'Streamlined, clean interface for everyday use without complex fields',
       'appModeAdvancedDesc':
           'Full access to all tools, granular measurements, KYC, and session management',
+      'unsavedChangesTitle': 'Unsaved Changes',
+      'unsavedChangesMessage':
+          'You have unsaved changes in this form. Would you like to save them before proceeding, or discard them?',
+      'unsavedChangesSaveAndContinue': 'Save & Continue',
+      'unsavedChangesDiscardAndLeave': 'Discard & Leave',
+      'unsavedChangesStay': 'Stay / Cancel',
       'kycSectionTitle': 'Identity Verification (KYC)',
       'kycSectionSubtitle':
           'Submit your identity documents to unlock advanced features and secure your account.',
@@ -2246,6 +2258,12 @@ class AppStrings {
           'واجهة مبسطة وسلسة للاستخدام اليومي دون تعقيدات إدارية',
       'appModeAdvancedDesc':
           'وصول كامل لجميع الأدوات، مقاييس القياس الدقيقة، التوثيق وإدارة الجلسات',
+      'unsavedChangesTitle': 'تغييرات غير محفوظة',
+      'unsavedChangesMessage':
+          'لديك تغييرات غير محفوظة في هذا النموذج. هل ترغب في حفظها قبل المتابعة أو تجاهلها؟',
+      'unsavedChangesSaveAndContinue': 'حفظ ومتابعة',
+      'unsavedChangesDiscardAndLeave': 'مغادرة دون حفظ',
+      'unsavedChangesStay': 'إلغاء / البقاء',
       'kycSectionTitle': 'التحقق من الهوية (KYC)',
       'kycSectionSubtitle':
           'أرسل وثائق هويتك لتفعيل الميزات المتقدمة وتأمين حسابك.',
@@ -3195,6 +3213,12 @@ class AppStrings {
           'Karmaşık alanlar olmadan günlük kullanım için sade ve akıcı arayüz',
       'appModeAdvancedDesc':
           'Tüm araçlara, ayrıntılı ölçümlere, KYC ve oturum yönetimine tam erişim',
+      'unsavedChangesTitle': 'Kaydedilmemiş Değişiklikler',
+      'unsavedChangesMessage':
+          'Bu formda kaydedilmemiş değişiklikleriniz var. Devam etmeden önce kaydetmek mi istersiniz, yoksa vazgeçmek mi?',
+      'unsavedChangesSaveAndContinue': 'Kaydet ve Devam Et',
+      'unsavedChangesDiscardAndLeave': 'Kaydetmeden Çık',
+      'unsavedChangesStay': 'İptal / Kal',
       'kycSectionTitle': 'Kimlik Doğrulama (KYC)',
       'kycSectionSubtitle':
           'Gelişmiş özellikleri etkinleştirmek ve hesabınızı güvenceye almak için kimlik belgelerinizi gönderin.',
@@ -4269,6 +4293,13 @@ class AppStrings {
   String get appModeAdvanced => get('appModeAdvanced');
   String get appModeSimpleDesc => get('appModeSimpleDesc');
   String get appModeAdvancedDesc => get('appModeAdvancedDesc');
+  String get unsavedChangesTitle => get('unsavedChangesTitle');
+  String get unsavedChangesMessage => get('unsavedChangesMessage');
+  String get unsavedChangesSaveAndContinue =>
+      get('unsavedChangesSaveAndContinue');
+  String get unsavedChangesDiscardAndLeave =>
+      get('unsavedChangesDiscardAndLeave');
+  String get unsavedChangesStay => get('unsavedChangesStay');
 
   // KYC
   String get kycSectionTitle => get('kycSectionTitle');

@@ -1,0 +1,1 @@
+void updateWebUnloadGuard(bool hasUnsavedChanges) {}

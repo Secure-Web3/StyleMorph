@@ -719,5 +719,10 @@
   "appModeSimple": "Basit (Varsayılan)",
   "appModeAdvanced": "Gelişmiş (Profesyonel)",
   "appModeSimpleDesc": "Karmaşık alanlar olmadan günlük kullanım için sade ve akıcı arayüz",
-  "appModeAdvancedDesc": "Tüm araçlara, ayrıntılı ölçümlere, KYC ve oturum yönetimine tam erişim"
+  "appModeAdvancedDesc": "Tüm araçlara, ayrıntılı ölçümlere, KYC ve oturum yönetimine tam erişim",
+  "unsavedChangesTitle": "Kaydedilmemiş Değişiklikler",
+  "unsavedChangesMessage": "Bu formda kaydedilmemiş değişiklikleriniz var. Devam etmeden önce kaydetmek mi istersiniz, yoksa vazgeçmek mi?",
+  "unsavedChangesSaveAndContinue": "Kaydet ve Devam Et",
+  "unsavedChangesDiscardAndLeave": "Kaydetmeden Çık",
+  "unsavedChangesStay": "İptal / Kal"
 }

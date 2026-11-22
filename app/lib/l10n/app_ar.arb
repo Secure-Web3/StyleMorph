@@ -719,5 +719,10 @@
   "appModeSimple": "بسيط (افتراضي)",
   "appModeAdvanced": "متقدم (احترافي)",
   "appModeSimpleDesc": "واجهة مبسطة وسلسة للاستخدام اليومي دون تعقيدات إدارية",
-  "appModeAdvancedDesc": "وصول كامل لجميع الأدوات، مقاييس القياس الدقيقة، التوثيق وإدارة الجلسات"
+  "appModeAdvancedDesc": "وصول كامل لجميع الأدوات، مقاييس القياس الدقيقة، التوثيق وإدارة الجلسات",
+  "unsavedChangesTitle": "تغييرات غير محفوظة",
+  "unsavedChangesMessage": "لديك تغييرات غير محفوظة في هذا النموذج. هل ترغب في حفظها قبل المتابعة أو تجاهلها؟",
+  "unsavedChangesSaveAndContinue": "حفظ ومتابعة",
+  "unsavedChangesDiscardAndLeave": "مغادرة دون حفظ",
+  "unsavedChangesStay": "إلغاء / البقاء"
 }

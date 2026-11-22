@@ -7,7 +7,8 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 
 class AppBottomNav extends ConsumerWidget {
-  const AppBottomNav({super.key});
+  final ValueChanged<AppTab>? onTabSelected;
+  const AppBottomNav({super.key, this.onTabSelected});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -60,7 +61,11 @@ class AppBottomNav extends ConsumerWidget {
               return Expanded(
                 child: InkWell(
                   onTap: () {
-                    ref.read(appStateProvider.notifier).switchTab(item.tab);
+                    if (onTabSelected != null) {
+                      onTabSelected!(item.tab);
+                    } else {
+                      ref.read(appStateProvider.notifier).switchTab(item.tab);
+                    }
                   },
                   splashColor: colors.pr.withValues(alpha: 0.1),
                   highlightColor: Colors.transparent,

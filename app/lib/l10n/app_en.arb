@@ -719,5 +719,10 @@
   "appModeSimple": "Simple (Default)",
   "appModeAdvanced": "Advanced (Pro)",
   "appModeSimpleDesc": "Streamlined, clean interface for everyday use without complex fields",
-  "appModeAdvancedDesc": "Full access to all tools, granular measurements, KYC, and session management"
+  "appModeAdvancedDesc": "Full access to all tools, granular measurements, KYC, and session management",
+  "unsavedChangesTitle": "Unsaved Changes",
+  "unsavedChangesMessage": "You have unsaved changes in this form. Would you like to save them before proceeding, or discard them?",
+  "unsavedChangesSaveAndContinue": "Save & Continue",
+  "unsavedChangesDiscardAndLeave": "Discard & Leave",
+  "unsavedChangesStay": "Stay / Cancel"
 }

@@ -12,6 +12,7 @@ import '../services/biometric_service.dart';
 import '../services/loyalty_service.dart';
 import '../services/referral_service.dart';
 import '../services/session_service.dart';
+import '../services/web_unload_guard.dart';
 import '../theme/app_colors.dart';
 import '../theme/theme_provider.dart';
 
@@ -151,6 +152,7 @@ class AppState {
 
   // Profile dirty-state & form data
   final bool hasUnsavedProfileChanges;
+  bool get hasUnsavedChanges => hasUnsavedProfileChanges;
   final bool isSavingProfile;
   final Map<String, String> identityValues;
   final CompanionSettings companionSettings;
@@ -451,10 +453,19 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   void markProfileDirty([bool dirty = true]) {
-    if (state.hasUnsavedProfileChanges != dirty) {
-      state = state.copyWith(hasUnsavedProfileChanges: dirty);
+    setHasUnsavedChanges(dirty);
+  }
+
+  void setHasUnsavedChanges(bool value) {
+    if (state.hasUnsavedProfileChanges != value) {
+      state = state.copyWith(hasUnsavedProfileChanges: value);
+      WebUnloadGuard.update(value);
     }
   }
+
+  void markDirty() => setHasUnsavedChanges(true);
+
+  void clearDirty() => setHasUnsavedChanges(false);
 
   /// Loads real user profile from Firestore `users/{uid}`.
   Future<void> loadProfileFromFirestore() async {
@@ -972,6 +983,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
         userName: fullName.isNotEmpty ? fullName : state.userName,
         userHandle: nick.isNotEmpty ? nick : state.userHandle,
       );
+      WebUnloadGuard.update(false);
       return true;
     } catch (e) {
       debugPrint('[saveProfileToFirestore] Error: $e');
@@ -1020,6 +1032,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       userName: fullName.isNotEmpty ? fullName : state.userName,
       userHandle: nick.isNotEmpty ? nick : state.userHandle,
     );
+    WebUnloadGuard.update(false);
   }
 
   void updateIdentityField(String key, String value) {
@@ -1040,6 +1053,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       loyaltyRank: rank,
       hasUnsavedProfileChanges: true,
     );
+    WebUnloadGuard.update(true);
   }
 
   void updateKycData(KycData kyc) {
@@ -1062,6 +1076,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       loyaltyRank: rank,
       hasUnsavedProfileChanges: true,
     );
+    WebUnloadGuard.update(true);
   }
 
   void updateMediaSlot(String slotKey, String url) {
@@ -1105,6 +1120,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       companionSettings: settings,
       hasUnsavedProfileChanges: true,
     );
+    WebUnloadGuard.update(true);
   }
 
   void resetCompanionSettings() {
@@ -1112,6 +1128,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       companionSettings: const CompanionSettings(),
       hasUnsavedProfileChanges: true,
     );
+    WebUnloadGuard.update(true);
   }
 
   void updateAiDnaField(String key, String value) {
@@ -1135,6 +1152,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       loyaltyRank: rank,
       hasUnsavedProfileChanges: true,
     );
+    WebUnloadGuard.update(true);
   }
 
   void toggleSupport([bool? open]) {
@@ -1148,6 +1166,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       isSupportOpen: show ? state.isSupportOpen : false,
       hasUnsavedProfileChanges: true,
     );
+    WebUnloadGuard.update(true);
   }
 
   void toggleHeaderCoins(bool show) {
@@ -1156,6 +1175,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       preferences: state.preferences.copyWith(showHeaderCoins: show),
       hasUnsavedProfileChanges: true,
     );
+    WebUnloadGuard.update(true);
   }
 
   void toggleShowEmailInHeader(bool show) {
@@ -1163,6 +1183,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       preferences: state.preferences.copyWith(showEmailInHeader: show),
       hasUnsavedProfileChanges: true,
     );
+    WebUnloadGuard.update(true);
   }
 
   void setFashionThemePalette(String palette) {
@@ -1170,6 +1191,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       preferences: state.preferences.copyWith(fashionThemePalette: palette),
       hasUnsavedProfileChanges: true,
     );
+    WebUnloadGuard.update(true);
   }
 
   void setBrightnessMode(String mode) {
@@ -1177,6 +1199,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       preferences: state.preferences.copyWith(brightnessMode: mode),
       hasUnsavedProfileChanges: true,
     );
+    WebUnloadGuard.update(true);
   }
 
   void setAppLanguage(String code) {
@@ -1184,6 +1207,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       preferences: state.preferences.copyWith(appLanguage: code),
       hasUnsavedProfileChanges: true,
     );
+    WebUnloadGuard.update(true);
   }
 
   void setAutoDataBackup(String frequency) {
@@ -1191,6 +1215,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       preferences: state.preferences.copyWith(autoDataBackup: frequency),
       hasUnsavedProfileChanges: true,
     );
+    WebUnloadGuard.update(true);
   }
 
   void setBiometricLock(bool enabled) {
@@ -1198,6 +1223,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
       preferences: state.preferences.copyWith(biometricLock: enabled),
       hasUnsavedProfileChanges: true,
     );
+    WebUnloadGuard.update(true);
   }
 
   Future<void> setAppMode(
@@ -1210,6 +1236,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
     );
     if (persistImmediately) {
       await saveProfileToFirestore();
+    } else {
+      WebUnloadGuard.update(true);
     }
   }
 

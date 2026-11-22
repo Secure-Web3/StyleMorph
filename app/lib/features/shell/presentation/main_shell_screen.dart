@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../atelier/presentation/atelier_tab.dart';
 import '../../profile/presentation/profile_tab.dart';
+import '../../profile/presentation/widgets/unsaved_changes_dialog.dart';
 import '../../shop/presentation/shop_tab.dart';
 import '../../stylist/presentation/stylist_tab.dart';
 import '../../wardrobe/presentation/wardrobe_tab.dart';
@@ -37,6 +38,32 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     });
   }
 
+  Future<void> _handleTabSwitch(AppTab targetTab) async {
+    final appState = ref.read(appStateProvider);
+    if (targetTab == appState.currentTab) return;
+
+    if (appState.hasUnsavedChanges) {
+      final action = await UnsavedChangesDialog.show(context);
+      if (!mounted) return;
+
+      if (action == UnsavedChangesAction.saveAndContinue) {
+        final success = await ref
+            .read(appStateProvider.notifier)
+            .saveProfileToFirestore();
+        if (!mounted) return;
+        if (success) {
+          ref.read(appStateProvider.notifier).switchTab(targetTab);
+        }
+      } else if (action == UnsavedChangesAction.discardAndLeave) {
+        ref.read(appStateProvider.notifier).clearDirty();
+        ref.read(appStateProvider.notifier).switchTab(targetTab);
+      }
+      return;
+    }
+
+    ref.read(appStateProvider.notifier).switchTab(targetTab);
+  }
+
   Widget _buildBody(AppTab tab) {
     switch (tab) {
       case AppTab.wardrobe:
@@ -61,6 +88,9 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     final currentLang = ref.watch(localeProvider);
     final isDark = themeState.resolveIsDark(context);
     final currentTab = ref.watch(appStateProvider.select((s) => s.currentTab));
+    final hasUnsavedChanges = ref.watch(
+      appStateProvider.select((s) => s.hasUnsavedChanges),
+    );
     final showFloatingSupport = ref.watch(
       appStateProvider.select((s) => s.showFloatingSupport),
     );
@@ -93,29 +123,57 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
               ),
               // ClipRect ensures the drawer and overlays do not render outside the frame.
               child: ClipRect(
-                child: Scaffold(
-                  key: _scaffoldKey,
-                  backgroundColor: colors.bg,
-                  appBar: MainHeader(
-                    onOpenDrawer: () => _scaffoldKey.currentState?.openDrawer(),
-                  ),
-                  drawer: const AppDrawer(),
-                  body: LayoutBuilder(
-                    builder: (context, bodyConstraints) {
-                      return Stack(
-                        children: [
-                          Positioned.fill(child: _buildBody(currentTab)),
-                          if (showFloatingSupport || isSupportOpen)
-                            Positioned.fill(
-                              child: SupportWidget(
-                                bodySize: bodyConstraints.biggest,
+                child: PopScope(
+                  canPop: !hasUnsavedChanges,
+                  onPopInvokedWithResult: (didPop, result) async {
+                    if (didPop) return;
+                    if (hasUnsavedChanges) {
+                      final navigator = Navigator.of(context);
+                      final action = await UnsavedChangesDialog.show(context);
+                      if (!mounted) return;
+                      if (action == UnsavedChangesAction.saveAndContinue) {
+                        final success = await ref
+                            .read(appStateProvider.notifier)
+                            .saveProfileToFirestore();
+                        if (success && mounted) {
+                          navigator.maybePop(result);
+                        }
+                      } else if (action ==
+                          UnsavedChangesAction.discardAndLeave) {
+                        ref.read(appStateProvider.notifier).clearDirty();
+                        if (mounted) {
+                          navigator.maybePop(result);
+                        }
+                      }
+                    }
+                  },
+                  child: Scaffold(
+                    key: _scaffoldKey,
+                    backgroundColor: colors.bg,
+                    appBar: MainHeader(
+                      onOpenDrawer: () =>
+                          _scaffoldKey.currentState?.openDrawer(),
+                    ),
+                    drawer: const AppDrawer(),
+                    body: LayoutBuilder(
+                      builder: (context, bodyConstraints) {
+                        return Stack(
+                          children: [
+                            Positioned.fill(child: _buildBody(currentTab)),
+                            if (showFloatingSupport || isSupportOpen)
+                              Positioned.fill(
+                                child: SupportWidget(
+                                  bodySize: bodyConstraints.biggest,
+                                ),
                               ),
-                            ),
-                        ],
-                      );
-                    },
+                          ],
+                        );
+                      },
+                    ),
+                    bottomNavigationBar: AppBottomNav(
+                      onTabSelected: _handleTabSwitch,
+                    ),
                   ),
-                  bottomNavigationBar: const AppBottomNav(),
                 ),
               ),
             ),

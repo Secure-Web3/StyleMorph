@@ -15,6 +15,7 @@ import 'widgets/persona_sub_tab.dart';
 import 'widgets/referral_sub_tab.dart';
 import 'widgets/sessions_sub_tab.dart';
 import 'widgets/settings_sub_tab.dart';
+import 'widgets/unsaved_changes_dialog.dart';
 import 'widgets/wallet_sub_tab.dart';
 import '../data/identity_validator.dart';
 
@@ -76,6 +77,61 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     }
 
     return true;
+  }
+
+  Future<void> _handleSubTabSwitch(String targetId) async {
+    final appState = ref.read(appStateProvider);
+    if (targetId == appState.currentProfileTab) return;
+
+    if (appState.hasUnsavedChanges) {
+      final action = await UnsavedChangesDialog.show(context);
+      if (!mounted) return;
+
+      if (action == UnsavedChangesAction.saveAndContinue) {
+        if (!_isIdentityValid(appState.identityValues)) {
+          final strings = context.strings;
+          final colors = context.colors;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                strings.idErrValidationSummary,
+                style: const TextStyle(fontFamily: 'Vazirmatn'),
+              ),
+              backgroundColor: colors.orColor,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+          return;
+        }
+
+        final success = await ref
+            .read(appStateProvider.notifier)
+            .saveProfileToFirestore();
+        if (!mounted) return;
+        if (success) {
+          ref.read(appStateProvider.notifier).switchProfileTab(targetId);
+        } else {
+          final strings = context.strings;
+          final colors = context.colors;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                strings.profileSaveErrorToast,
+                style: const TextStyle(fontFamily: 'Vazirmatn'),
+              ),
+              backgroundColor: colors.orColor,
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      } else if (action == UnsavedChangesAction.discardAndLeave) {
+        ref.read(appStateProvider.notifier).clearDirty();
+        ref.read(appStateProvider.notifier).switchProfileTab(targetId);
+      }
+      return;
+    }
+
+    ref.read(appStateProvider.notifier).switchProfileTab(targetId);
   }
 
   @override
@@ -205,11 +261,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                             showAlertBadge:
                                 subTabs[i].id == 'p-about' && isTermsUnsigned,
                             onTap: subTabs[i].isEnabled
-                                ? () {
-                                    ref
-                                        .read(appStateProvider.notifier)
-                                        .switchProfileTab(subTabs[i].id);
-                                  }
+                                ? () => _handleSubTabSwitch(subTabs[i].id)
                                 : null,
                           ),
                           if (i < subTabs.length - 1 &&
@@ -238,7 +290,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                         _StickySaveBar(
                           colors: colors,
                           strings: strings,
-                          hasChanges: appState.hasUnsavedProfileChanges,
+                          hasChanges: appState.hasUnsavedChanges,
                           isSaving: appState.isSavingProfile,
                           onSave: () async {
                             if (!_isIdentityValid(appState.identityValues)) {
