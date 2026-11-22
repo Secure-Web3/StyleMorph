@@ -12,6 +12,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_provider.dart';
+import '../../../../core/utils/password_generator.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_feedback.dart';
@@ -195,6 +196,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
   }
 
   Future<void> _handleSignup() async {
+    final formState = ref.read(authFormProvider);
+    if (formState.password.length < 8) {
+      AppFeedback.showError(context, context.strings.cpErrMinLength);
+      return;
+    }
+
     if (kIsWeb && (_turnstileToken == null || _turnstileToken!.isEmpty)) {
       AppFeedback.showError(context, context.strings.authTurnstileRequired);
       return;
@@ -909,7 +916,27 @@ class _SignupForm extends StatelessWidget {
             placeholder: strings.authPasswordHint,
             controller: passwordController,
             onChanged: onPasswordChanged,
+            errorText:
+                (passwordController.text.isNotEmpty &&
+                    passwordController.text.length < 8)
+                ? strings.cpErrMinLength
+                : null,
             obscureText: !isPasswordVisible,
+            onGeneratePassword: () {
+              final newPw = generateStrongPassword(12);
+              passwordController.text = newPw;
+              confirmPasswordController.text = newPw;
+              onPasswordChanged(newPw);
+              onConfirmPasswordChanged(newPw);
+              if (!isPasswordVisible) {
+                onTogglePasswordVisibility();
+              }
+              if (!isConfirmPasswordVisible) {
+                onToggleConfirmPasswordVisibility();
+              }
+              AppFeedback.showSuccess(context, strings.passwordGeneratedToast);
+            },
+            generatePasswordTooltip: strings.authGeneratePasswordTooltip,
             prefix: Icon(
               Icons.lock_outline_rounded,
               size: 16,
@@ -945,6 +972,13 @@ class _SignupForm extends StatelessWidget {
             placeholder: strings.authConfirmPasswordHint,
             controller: confirmPasswordController,
             onChanged: onConfirmPasswordChanged,
+            errorText:
+                (confirmPasswordController.text.isNotEmpty &&
+                    confirmPasswordController.text.length < 8)
+                ? strings.cpErrMinLength
+                : (!passwordsMatch && confirmPasswordController.text.isNotEmpty)
+                ? strings.authPwMismatch
+                : null,
             obscureText: !isConfirmPasswordVisible,
             prefix: Icon(Icons.lock_reset_rounded, size: 16, color: colors.mu),
             suffix: GestureDetector(

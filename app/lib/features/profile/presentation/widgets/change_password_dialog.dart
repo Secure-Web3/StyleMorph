@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/password_generator.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/app_text_field.dart';
@@ -373,10 +374,28 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
               controller: _newPasswordController,
               errorText: _newPasswordError,
               obscureText: !_isNewPasswordVisible,
+              onGeneratePassword: () {
+                final generated = generateStrongPassword(12);
+                setState(() {
+                  _newPasswordController.text = generated;
+                  _confirmPasswordController.text = generated;
+                  _isNewPasswordVisible = true;
+                  _isConfirmPasswordVisible = true;
+                  _newPasswordError = null;
+                  _confirmPasswordError = null;
+                });
+                AppFeedback.showSuccess(
+                  context,
+                  strings.passwordGeneratedToast,
+                );
+              },
+              generatePasswordTooltip: strings.authGeneratePasswordTooltip,
               onChanged: (_) {
                 setState(() {
-                  if (_newPasswordError != null &&
-                      _newPasswordController.text.length >= 8) {
+                  if (_newPasswordController.text.isNotEmpty &&
+                      _newPasswordController.text.length < 8) {
+                    _newPasswordError = strings.cpErrMinLength;
+                  } else {
                     _newPasswordError = null;
                   }
                   if (_confirmPasswordError != null &&
@@ -415,11 +434,17 @@ class _ChangePasswordDialogState extends State<ChangePasswordDialog> {
               errorText: _confirmPasswordError,
               obscureText: !_isConfirmPasswordVisible,
               onChanged: (_) {
-                if (_confirmPasswordError != null &&
-                    _confirmPasswordController.text ==
-                        _newPasswordController.text) {
-                  setState(() => _confirmPasswordError = null);
-                }
+                setState(() {
+                  if (_confirmPasswordController.text.isNotEmpty &&
+                      _confirmPasswordController.text.length < 8) {
+                    _confirmPasswordError = strings.cpErrMinLength;
+                  } else if (_confirmPasswordController.text !=
+                      _newPasswordController.text) {
+                    _confirmPasswordError = strings.cpErrMismatch;
+                  } else {
+                    _confirmPasswordError = null;
+                  }
+                });
               },
               suffix: IconButton(
                 icon: Icon(

@@ -65,6 +65,10 @@ void main() {
       expect(prefs.biometricLock, false);
       // Auto Data Backup: Weekly (Recommended)
       expect(prefs.autoDataBackup, 'weekly');
+      // App Mode: Simple (Default)
+      expect(prefs.appMode, 'simple');
+      expect(prefs.isSimpleMode, true);
+      expect(prefs.isAdvancedMode, false);
     });
 
     test('UserPreferences serialization toMap and fromMap roundtrip', () {
@@ -76,6 +80,7 @@ void main() {
         showHeaderCoins: true,
         biometricLock: true,
         autoDataBackup: 'monthly',
+        appMode: 'advanced',
       );
 
       final map = original.toMap();
@@ -88,6 +93,8 @@ void main() {
       expect(restored.showHeaderCoins, true);
       expect(restored.biometricLock, true);
       expect(restored.autoDataBackup, 'monthly');
+      expect(restored.appMode, 'advanced');
+      expect(restored.isAdvancedMode, true);
       expect(restored, original);
     });
 
@@ -103,6 +110,8 @@ void main() {
       expect(appState.preferences.showHeaderCoins, false);
       expect(appState.preferences.biometricLock, false);
       expect(appState.preferences.autoDataBackup, 'weekly');
+      expect(appState.preferences.appMode, 'simple');
+      expect(appState.isSimpleMode, true);
     });
   });
 

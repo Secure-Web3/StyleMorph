@@ -229,6 +229,9 @@ class AppState {
   int get unreadNotificationsCount =>
       notifications.where((n) => !n.isRead).length;
 
+  bool get isSimpleMode => preferences.isSimpleMode;
+  bool get isAdvancedMode => preferences.isAdvancedMode;
+
   AppState copyWith({
     bool? isLoggedIn,
     AppTab? currentTab,
@@ -1195,6 +1198,19 @@ class AppStateNotifier extends StateNotifier<AppState> {
       preferences: state.preferences.copyWith(biometricLock: enabled),
       hasUnsavedProfileChanges: true,
     );
+  }
+
+  Future<void> setAppMode(
+    String mode, {
+    bool persistImmediately = false,
+  }) async {
+    state = state.copyWith(
+      preferences: state.preferences.copyWith(appMode: mode),
+      hasUnsavedProfileChanges: !persistImmediately,
+    );
+    if (persistImmediately) {
+      await saveProfileToFirestore();
+    }
   }
 
   void markNotificationRead(String id) {

@@ -712,5 +712,12 @@
   "cpResetEmailSent": "Password reset link has been sent to your email.",
   "cpGoogleUserNote": "Your account was created with Google Sign-In and does not have a direct password. You can send a password setup link to your email below.",
   "cpSendSetupEmail": "Send Password Setup Link to Email",
-  "refTapToShare": "Tap to share or copy link"
+  "refTapToShare": "Tap to share or copy link",
+  "authGeneratePasswordTooltip": "Generate strong random password",
+  "passwordGeneratedToast": "Strong 12-character password generated and filled",
+  "appModeLabel": "App Experience Mode",
+  "appModeSimple": "Simple (Default)",
+  "appModeAdvanced": "Advanced (Pro)",
+  "appModeSimpleDesc": "Streamlined, clean interface for everyday use without complex fields",
+  "appModeAdvancedDesc": "Full access to all tools, granular measurements, KYC, and session management"
 }

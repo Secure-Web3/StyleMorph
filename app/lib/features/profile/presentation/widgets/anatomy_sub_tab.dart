@@ -75,6 +75,7 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
     final colors = context.colors;
     final strings = context.strings;
     final appState = ref.watch(appStateProvider);
+    final isAdvanced = appState.isAdvancedMode;
     final aiDna = appState.aiDnaValues;
 
     final gender = aiDna['gender'] ?? '';
@@ -128,14 +129,16 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
           const SizedBox(height: AppSpacing.xl),
 
           // =========================================================
-          // LAYER 3: Anthropometric Fit Dimensions
+          // LAYER 3: Anthropometric Fit Dimensions (Advanced Only)
           // =========================================================
-          _buildLayer3Anthropometrics(
-            context,
-            aiDna,
-            isFemale: gender == 'female',
-          ),
-          const SizedBox(height: AppSpacing.xl),
+          if (isAdvanced) ...[
+            _buildLayer3Anthropometrics(
+              context,
+              aiDna,
+              isFemale: gender == 'female',
+            ),
+            const SizedBox(height: AppSpacing.xl),
+          ],
 
           // =========================================================
           // LAYER 4: Fit Preference

@@ -6,6 +6,7 @@ import 'package:stylemorph/core/services/session_service.dart';
 import 'package:stylemorph/core/state/app_state.dart';
 import 'package:stylemorph/core/theme/app_colors.dart';
 import 'package:stylemorph/core/theme/app_theme.dart';
+import 'package:stylemorph/features/profile/data/user_preferences.dart';
 import 'package:stylemorph/features/profile/presentation/profile_tab.dart';
 
 class _TestAppStateNotifier extends AppStateNotifier {
@@ -68,6 +69,7 @@ void main() {
     final state = const AppState(
       currentTab: AppTab.profile,
       currentProfileTab: 'p-identity',
+      preferences: UserPreferences(appMode: 'advanced'),
     );
 
     return ProviderScope(

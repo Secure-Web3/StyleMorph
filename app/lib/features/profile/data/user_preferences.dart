@@ -6,6 +6,7 @@ class UserPreferences {
   final String fashionThemePalette;
   final String brightnessMode;
   final String appLanguage;
+  final String appMode; // 'simple' or 'advanced'
   final bool showFloatingSupport;
   final bool showHeaderCoins;
   final bool showEmailInHeader;
@@ -16,6 +17,7 @@ class UserPreferences {
     this.fashionThemePalette = 'editorial',
     this.brightnessMode = 'light',
     this.appLanguage = 'en',
+    this.appMode = 'simple',
     this.showFloatingSupport = false,
     this.showHeaderCoins = false,
     this.showEmailInHeader = false,
@@ -23,11 +25,15 @@ class UserPreferences {
     this.autoDataBackup = 'weekly',
   });
 
+  bool get isSimpleMode => appMode == 'simple';
+  bool get isAdvancedMode => appMode == 'advanced';
+
   Map<String, dynamic> toMap() {
     return {
       'fashionThemePalette': fashionThemePalette,
       'brightnessMode': brightnessMode,
       'appLanguage': appLanguage,
+      'appMode': appMode,
       'showFloatingSupport': showFloatingSupport,
       'showHeaderCoins': showHeaderCoins,
       'showEmailInHeader': showEmailInHeader,
@@ -49,6 +55,7 @@ class UserPreferences {
           'light',
       appLanguage:
           map['appLanguage']?.toString() ?? map['language']?.toString() ?? 'en',
+      appMode: map['appMode']?.toString() ?? 'simple',
       showFloatingSupport:
           map['showFloatingSupport'] as bool? ??
           map['floatingSupport'] as bool? ??
@@ -73,6 +80,7 @@ class UserPreferences {
     String? fashionThemePalette,
     String? brightnessMode,
     String? appLanguage,
+    String? appMode,
     bool? showFloatingSupport,
     bool? showHeaderCoins,
     bool? showEmailInHeader,
@@ -83,6 +91,7 @@ class UserPreferences {
       fashionThemePalette: fashionThemePalette ?? this.fashionThemePalette,
       brightnessMode: brightnessMode ?? this.brightnessMode,
       appLanguage: appLanguage ?? this.appLanguage,
+      appMode: appMode ?? this.appMode,
       showFloatingSupport: showFloatingSupport ?? this.showFloatingSupport,
       showHeaderCoins: showHeaderCoins ?? this.showHeaderCoins,
       showEmailInHeader: showEmailInHeader ?? this.showEmailInHeader,
@@ -99,6 +108,7 @@ class UserPreferences {
           fashionThemePalette == other.fashionThemePalette &&
           brightnessMode == other.brightnessMode &&
           appLanguage == other.appLanguage &&
+          appMode == other.appMode &&
           showFloatingSupport == other.showFloatingSupport &&
           showHeaderCoins == other.showHeaderCoins &&
           showEmailInHeader == other.showEmailInHeader &&
@@ -110,6 +120,7 @@ class UserPreferences {
       fashionThemePalette.hashCode ^
       brightnessMode.hashCode ^
       appLanguage.hashCode ^
+      appMode.hashCode ^
       showFloatingSupport.hashCode ^
       showHeaderCoins.hashCode ^
       showEmailInHeader.hashCode ^

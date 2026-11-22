@@ -307,6 +307,15 @@ class AppStrings {
           'حساب شما با ورود گوگل فعال است و رمز عبور مستقیم ندارد. می‌توانید با دکمه زیر، لینک تنظیم رمز عبور را به ایمیل خود ارسال نمایید.',
       'cpSendSetupEmail': 'ارسال لینک تنظیم رمز عبور به ایمیل',
       'refTapToShare': 'برای اشتراک‌گذاری یا کپی لینک لمس کنید',
+      'authGeneratePasswordTooltip': 'تولید رمز عبور تصادفی قوی',
+      'passwordGeneratedToast': 'رمز عبور قوی ۱۲ کاراکتری تولید و درج شد',
+      'appModeLabel': 'حالت تجربه کاربری',
+      'appModeSimple': 'ساده (پیش‌فرض)',
+      'appModeAdvanced': 'پیشرفته (حرفه‌ای)',
+      'appModeSimpleDesc':
+          'رابط کاربری خلوت، روان و مناسب استفاده روزمره بدون جزئیات اداری',
+      'appModeAdvancedDesc':
+          'دسترسی کامل به تمام ابزارها، اسلایدرهای اندازه‌گیری، احراز هویت و مدیریت نشست‌ها',
       'kycSectionTitle': 'احراز هویت (KYC)',
       'kycSectionSubtitle':
           'جهت فعال‌سازی قابلیت‌های پیشرفته و امنیت حساب، مدارک هویتی خود را ارسال کنید.',
@@ -1263,6 +1272,16 @@ class AppStrings {
           'Your account was created with Google Sign-In and does not have a direct password. You can send a password setup link to your email below.',
       'cpSendSetupEmail': 'Send Password Setup Link to Email',
       'refTapToShare': 'Tap to share or copy link',
+      'authGeneratePasswordTooltip': 'Generate strong random password',
+      'passwordGeneratedToast':
+          'Strong 12-character password generated and filled',
+      'appModeLabel': 'App Experience Mode',
+      'appModeSimple': 'Simple (Default)',
+      'appModeAdvanced': 'Advanced (Pro)',
+      'appModeSimpleDesc':
+          'Streamlined, clean interface for everyday use without complex fields',
+      'appModeAdvancedDesc':
+          'Full access to all tools, granular measurements, KYC, and session management',
       'kycSectionTitle': 'Identity Verification (KYC)',
       'kycSectionSubtitle':
           'Submit your identity documents to unlock advanced features and secure your account.',
@@ -2218,6 +2237,15 @@ class AppStrings {
           'تم إنشاء حسابك عبر تسجيل الدخول باستخدام Google وليس لديه كلمة مرور مباشرة. يمكنك إرسال رابط إعداد كلمة المرور إلى بريدك الإلكتروني أدناه.',
       'cpSendSetupEmail': 'إرسال رابط إعداد كلمة المرور إلى البريد',
       'refTapToShare': 'انقر لمشاركة أو نسخ الرابط',
+      'authGeneratePasswordTooltip': 'توليد كلمة مرور قوية وعشوائية',
+      'passwordGeneratedToast': 'تم توليد كلمة مرور قوية من 12 حرفاً وإدراجها',
+      'appModeLabel': 'وضع تجربة التطبيق',
+      'appModeSimple': 'بسيط (افتراضي)',
+      'appModeAdvanced': 'متقدم (احترافي)',
+      'appModeSimpleDesc':
+          'واجهة مبسطة وسلسة للاستخدام اليومي دون تعقيدات إدارية',
+      'appModeAdvancedDesc':
+          'وصول كامل لجميع الأدوات، مقاييس القياس الدقيقة، التوثيق وإدارة الجلسات',
       'kycSectionTitle': 'التحقق من الهوية (KYC)',
       'kycSectionSubtitle':
           'أرسل وثائق هويتك لتفعيل الميزات المتقدمة وتأمين حسابك.',
@@ -3157,6 +3185,16 @@ class AppStrings {
           'Hesabınız Google ile Giriş yapılarak oluşturuldu ve doğrudan bir şifresi yok. Aşağıdaki butona tıklayarak e-postanıza şifre belirleme bağlantısı gönderebilirsiniz.',
       'cpSendSetupEmail': 'E-postaya Şifre Belirleme Bağlantısı Gönder',
       'refTapToShare': 'Bağlantıyı paylaşmak veya kopyalamak için dokunun',
+      'authGeneratePasswordTooltip': 'Güçlü rastgele şifre oluştur',
+      'passwordGeneratedToast':
+          '12 karakterli güçlü şifre oluşturuldu ve dolduruldu',
+      'appModeLabel': 'Uygulama Deneyimi Modu',
+      'appModeSimple': 'Basit (Varsayılan)',
+      'appModeAdvanced': 'Gelişmiş (Profesyonel)',
+      'appModeSimpleDesc':
+          'Karmaşık alanlar olmadan günlük kullanım için sade ve akıcı arayüz',
+      'appModeAdvancedDesc':
+          'Tüm araçlara, ayrıntılı ölçümlere, KYC ve oturum yönetimine tam erişim',
       'kycSectionTitle': 'Kimlik Doğrulama (KYC)',
       'kycSectionSubtitle':
           'Gelişmiş özellikleri etkinleştirmek ve hesabınızı güvenceye almak için kimlik belgelerinizi gönderin.',
@@ -4224,6 +4262,13 @@ class AppStrings {
   String get cpGoogleUserNote => get('cpGoogleUserNote');
   String get cpSendSetupEmail => get('cpSendSetupEmail');
   String get refTapToShare => get('refTapToShare');
+  String get authGeneratePasswordTooltip => get('authGeneratePasswordTooltip');
+  String get passwordGeneratedToast => get('passwordGeneratedToast');
+  String get appModeLabel => get('appModeLabel');
+  String get appModeSimple => get('appModeSimple');
+  String get appModeAdvanced => get('appModeAdvanced');
+  String get appModeSimpleDesc => get('appModeSimpleDesc');
+  String get appModeAdvancedDesc => get('appModeAdvancedDesc');
 
   // KYC
   String get kycSectionTitle => get('kycSectionTitle');

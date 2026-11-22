@@ -712,5 +712,12 @@
   "cpResetEmailSent": "Şifre sıfırlama bağlantısı e-postanıza gönderildi.",
   "cpGoogleUserNote": "Hesabınız Google ile Giriş yapılarak oluşturuldu ve doğrudan bir şifresi yok. Aşağıdaki butona tıklayarak e-postanıza şifre belirleme bağlantısı gönderebilirsiniz.",
   "cpSendSetupEmail": "E-postaya Şifre Belirleme Bağlantısı Gönder",
-  "refTapToShare": "Bağlantıyı paylaşmak veya kopyalamak için dokunun"
+  "refTapToShare": "Bağlantıyı paylaşmak veya kopyalamak için dokunun",
+  "authGeneratePasswordTooltip": "Güçlü rastgele şifre oluştur",
+  "passwordGeneratedToast": "12 karakterli güçlü şifre oluşturuldu ve dolduruldu",
+  "appModeLabel": "Uygulama Deneyimi Modu",
+  "appModeSimple": "Basit (Varsayılan)",
+  "appModeAdvanced": "Gelişmiş (Profesyonel)",
+  "appModeSimpleDesc": "Karmaşık alanlar olmadan günlük kullanım için sade ve akıcı arayüz",
+  "appModeAdvancedDesc": "Tüm araçlara, ayrıntılı ölçümlere, KYC ve oturum yönetimine tam erişim"
 }

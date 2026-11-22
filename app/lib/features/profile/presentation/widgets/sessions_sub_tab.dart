@@ -240,8 +240,9 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
   }
 
   void _scheduleAutoRetry() {
-    if (_retryAttempt >= _maxRetryAttempts || _isAutoRetrying || !mounted)
+    if (_retryAttempt >= _maxRetryAttempts || _isAutoRetrying || !mounted) {
       return;
+    }
     _retryTimer?.cancel();
 
     // Gentle backoff: 1.5s -> 3s -> 5s -> 5s

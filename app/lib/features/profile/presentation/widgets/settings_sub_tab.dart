@@ -175,7 +175,47 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
               }
             },
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
+
+          // 4. App Experience Mode (Simple / Advanced)
+          AppDropdown<String>(
+            label: strings.appModeLabel,
+            value: appState.preferences.appMode,
+            items: [
+              DropdownMenuItem(
+                value: 'simple',
+                child: Text(strings.appModeSimple),
+              ),
+              DropdownMenuItem(
+                value: 'advanced',
+                child: Text(strings.appModeAdvanced),
+              ),
+            ],
+            onChanged: (mode) {
+              if (mode != null) {
+                ref.read(appStateProvider.notifier).setAppMode(mode);
+              }
+            },
+          ),
+          Padding(
+            padding: const EdgeInsetsDirectional.only(
+              start: AppSpacing.xs,
+              top: 2,
+              bottom: AppSpacing.sm,
+            ),
+            child: Text(
+              appState.isSimpleMode
+                  ? strings.appModeSimpleDesc
+                  : strings.appModeAdvancedDesc,
+              style: TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 11,
+                color: colors.mu,
+                height: 1.35,
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
 
           // 4. Interactive Display Switches
           AppCard(

@@ -9,6 +9,7 @@ import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_logo.dart';
@@ -192,6 +193,129 @@ class AppDrawer extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  // ── Quick-Access Mode Switcher Pill (Simple / Advanced) ──
+                  Container(
+                    margin: const EdgeInsetsDirectional.only(
+                      bottom: AppSpacing.sm,
+                    ),
+                    padding: const EdgeInsets.all(3),
+                    decoration: BoxDecoration(
+                      color: colors.bg,
+                      borderRadius: AppRadius.rFull,
+                      border: Border.all(color: colors.bd),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              ref
+                                  .read(appStateProvider.notifier)
+                                  .setAppMode(
+                                    'simple',
+                                    persistImmediately: true,
+                                  );
+                            },
+                            borderRadius: BorderRadius.circular(AppRadius.full),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 160),
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              decoration: BoxDecoration(
+                                color: appState.isSimpleMode
+                                    ? colors.pr
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.full,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.bolt_rounded,
+                                    size: 13,
+                                    color: appState.isSimpleMode
+                                        ? colors.prt
+                                        : colors.mu,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    strings.appModeSimple,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: AppTypography.fontFamily,
+                                      fontSize: 10,
+                                      fontWeight: appState.isSimpleMode
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                      color: appState.isSimpleMode
+                                          ? colors.prt
+                                          : colors.mu,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: InkWell(
+                            onTap: () {
+                              ref
+                                  .read(appStateProvider.notifier)
+                                  .setAppMode(
+                                    'advanced',
+                                    persistImmediately: true,
+                                  );
+                            },
+                            borderRadius: BorderRadius.circular(AppRadius.full),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 160),
+                              padding: const EdgeInsets.symmetric(vertical: 5),
+                              decoration: BoxDecoration(
+                                color: appState.isAdvancedMode
+                                    ? colors.pr
+                                    : Colors.transparent,
+                                borderRadius: BorderRadius.circular(
+                                  AppRadius.full,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.tune_rounded,
+                                    size: 13,
+                                    color: appState.isAdvancedMode
+                                        ? colors.prt
+                                        : colors.mu,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    strings.appModeAdvanced,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontFamily: AppTypography.fontFamily,
+                                      fontSize: 10,
+                                      fontWeight: appState.isAdvancedMode
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                      color: appState.isAdvancedMode
+                                          ? colors.prt
+                                          : colors.mu,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                   // Row: palette dots + 3-mode brightness toggle + language
                   Row(
                     children: [

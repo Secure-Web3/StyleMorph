@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_radius.dart';
 import '../theme/app_spacing.dart';
@@ -27,6 +28,8 @@ class AppTextField extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   final Iterable<String>? autofillHints;
   final TextDirection? textDirection;
+  final VoidCallback? onGeneratePassword;
+  final String? generatePasswordTooltip;
 
   const AppTextField({
     super.key,
@@ -51,11 +54,34 @@ class AppTextField extends StatelessWidget {
     this.inputFormatters,
     this.autofillHints,
     this.textDirection,
+    this.onGeneratePassword,
+    this.generatePasswordTooltip,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+
+    Widget? effectiveSuffix = suffix;
+    if (onGeneratePassword != null) {
+      final wandBtn = IconButton(
+        icon: const Icon(LucideIcons.wandSparkles, size: 17),
+        tooltip: generatePasswordTooltip ?? 'Generate strong password',
+        color: colors.pr,
+        onPressed: onGeneratePassword,
+        splashRadius: 16,
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+      );
+      if (suffix != null) {
+        effectiveSuffix = Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [wandBtn, suffix!],
+        );
+      } else {
+        effectiveSuffix = wandBtn;
+      }
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -111,7 +137,7 @@ class AppTextField extends StatelessWidget {
               color: colors.mu,
             ),
             prefixIcon: prefix,
-            suffixIcon: suffix,
+            suffixIcon: effectiveSuffix,
             suffixText: suffixText,
             suffixStyle: TextStyle(
               fontFamily: AppTypography.fontFamily,

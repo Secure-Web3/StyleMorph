@@ -103,6 +103,8 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
         .length;
     final isTermsUnsigned = appState.termsAcceptedAt == null;
 
+    final isAdvanced = appState.isAdvancedMode;
+
     final subTabs = [
       _SubTabMeta('p-identity', strings.tIdent, FontAwesomeIcons.idCard),
       _SubTabMeta('p-gallery', strings.tGal, FontAwesomeIcons.images),
@@ -122,7 +124,8 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
         isEnabled: false,
         badgeText: strings.commonComingSoon,
       ),
-      _SubTabMeta('p-sessions', strings.tSess, Icons.devices_rounded),
+      if (isAdvanced)
+        _SubTabMeta('p-sessions', strings.tSess, Icons.devices_rounded),
       _SubTabMeta('p-settings', strings.tSet, FontAwesomeIcons.sliders),
       _SubTabMeta('p-about', strings.tAbout, Icons.info_outline_rounded),
     ];
@@ -148,7 +151,9 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
         activeContent = const PersonaSubTab();
         break;
       case 'p-sessions':
-        activeContent = const SessionsSubTab();
+        activeContent = isAdvanced
+            ? const SessionsSubTab()
+            : const IdentitySubTab();
         break;
       case 'p-settings':
         activeContent = const SettingsSubTab();

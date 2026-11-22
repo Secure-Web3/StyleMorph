@@ -10,6 +10,7 @@ import 'package:stylemorph/features/auth/presentation/email_verification_provide
 import 'package:stylemorph/features/auth/presentation/email_verification_screen.dart';
 import 'package:stylemorph/features/profile/data/identity_validator.dart';
 import 'package:stylemorph/features/profile/data/iso_location_data.dart';
+import 'package:stylemorph/features/profile/data/user_preferences.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/identity_sub_tab.dart';
 
 void main() {
@@ -22,12 +23,15 @@ void main() {
     Locale locale = const Locale('fa'),
     AppState? initialState,
   }) {
+    final effectiveState =
+        initialState ??
+        const AppState(preferences: UserPreferences(appMode: 'advanced'));
+
     return ProviderScope(
       overrides: [
-        if (initialState != null)
-          appStateProvider.overrideWith(
-            (ref) => _TestAppStateNotifier(initialState),
-          ),
+        appStateProvider.overrideWith(
+          (ref) => _TestAppStateNotifier(effectiveState),
+        ),
         emailVerifiedOverrideProvider.overrideWith((ref) => true),
         emailVerificationProvider.overrideWith(
           (ref) => EmailVerificationNotifier(ref)

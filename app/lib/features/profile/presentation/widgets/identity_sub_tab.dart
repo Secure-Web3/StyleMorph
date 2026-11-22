@@ -996,6 +996,8 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
 
     final colors = context.colors;
     final strings = context.strings;
+    final appState = ref.watch(appStateProvider);
+    final isAdvanced = appState.isAdvancedMode;
     final verificationState = ref.watch(emailVerificationProvider);
     final isEmailVerified = verificationState.isVerified;
 
@@ -1072,27 +1074,29 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                     });
                   },
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                AppTextField(
-                  label: strings.idNick,
-                  placeholder: strings.idNickPlaceholder,
-                  controller: _nickController,
-                  errorText: _nickError,
-                  keyboardType: TextInputType.text,
-                  maxLength: 30,
-                  autofillHints: const [AutofillHints.username],
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp(r"[\p{L}\p{M}0-9@_\.\-]", unicode: true),
-                    ),
-                  ],
-                  onChanged: (val) {
-                    _onFieldChanged('nick', val);
-                    setState(() {
-                      _validateNick(val, strings);
-                    });
-                  },
-                ),
+                if (isAdvanced) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  AppTextField(
+                    label: strings.idNick,
+                    placeholder: strings.idNickPlaceholder,
+                    controller: _nickController,
+                    errorText: _nickError,
+                    keyboardType: TextInputType.text,
+                    maxLength: 30,
+                    autofillHints: const [AutofillHints.username],
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        RegExp(r"[\p{L}\p{M}0-9@_\.\-]", unicode: true),
+                      ),
+                    ],
+                    onChanged: (val) {
+                      _onFieldChanged('nick', val);
+                      setState(() {
+                        _validateNick(val, strings);
+                      });
+                    },
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.sm),
                 _buildDobRow(colors, strings),
               ] else ...[
@@ -1149,35 +1153,38 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 // Row 2: Handle / Nickname & Date of Birth (+ Live Age Pill)
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: AppTextField(
-                        label: strings.idNick,
-                        placeholder: strings.idNickPlaceholder,
-                        controller: _nickController,
-                        errorText: _nickError,
-                        keyboardType: TextInputType.text,
-                        maxLength: 30,
-                        autofillHints: const [AutofillHints.username],
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                            RegExp(r"[\p{L}\p{M}0-9@_\.\-]", unicode: true),
-                          ),
-                        ],
-                        onChanged: (val) {
-                          _onFieldChanged('nick', val);
-                          setState(() {
-                            _validateNick(val, strings);
-                          });
-                        },
+                if (isAdvanced)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: AppTextField(
+                          label: strings.idNick,
+                          placeholder: strings.idNickPlaceholder,
+                          controller: _nickController,
+                          errorText: _nickError,
+                          keyboardType: TextInputType.text,
+                          maxLength: 30,
+                          autofillHints: const [AutofillHints.username],
+                          inputFormatters: [
+                            FilteringTextInputFormatter.allow(
+                              RegExp(r"[\p{L}\p{M}0-9@_\.\-]", unicode: true),
+                            ),
+                          ],
+                          onChanged: (val) {
+                            _onFieldChanged('nick', val);
+                            setState(() {
+                              _validateNick(val, strings);
+                            });
+                          },
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(child: _buildDobRow(colors, strings)),
-                  ],
-                ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(child: _buildDobRow(colors, strings)),
+                    ],
+                  )
+                else
+                  _buildDobRow(colors, strings),
               ],
               const SizedBox(height: AppSpacing.md),
 
@@ -1203,15 +1210,17 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                   suffix: const Icon(Icons.arrow_drop_down, size: 20),
                   onTap: _pickCountry,
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                AppTextField(
-                  label: strings.idProvince,
-                  placeholder: strings.idProvincePlaceholder,
-                  controller: _provinceController,
-                  readOnly: true,
-                  suffix: const Icon(Icons.arrow_drop_down, size: 20),
-                  onTap: _pickProvince,
-                ),
+                if (isAdvanced) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  AppTextField(
+                    label: strings.idProvince,
+                    placeholder: strings.idProvincePlaceholder,
+                    controller: _provinceController,
+                    readOnly: true,
+                    suffix: const Icon(Icons.arrow_drop_down, size: 20),
+                    onTap: _pickProvince,
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.sm),
                 AppTextField(
                   label: strings.idCity,
@@ -1248,17 +1257,19 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                         onTap: _pickCountry,
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: AppTextField(
-                        label: strings.idProvince,
-                        placeholder: strings.idProvincePlaceholder,
-                        controller: _provinceController,
-                        readOnly: true,
-                        suffix: const Icon(Icons.arrow_drop_down, size: 20),
-                        onTap: _pickProvince,
+                    if (isAdvanced) ...[
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: AppTextField(
+                          label: strings.idProvince,
+                          placeholder: strings.idProvincePlaceholder,
+                          controller: _provinceController,
+                          readOnly: true,
+                          suffix: const Icon(Icons.arrow_drop_down, size: 20),
+                          onTap: _pickProvince,
+                        ),
                       ),
-                    ),
+                    ],
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: AppTextField(
@@ -1279,24 +1290,26 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
               // 3. COUNTRY-DEPENDENT & CONTACT INFO: NID, Mobile, Email, Address, Zip
               // ════════════════════════════════════════════════════════════════
               if (isCompact) ...[
-                AppTextField(
-                  label: strings.idNationalId,
-                  placeholder: strings.idNationalIdPlaceholder,
-                  controller: _nidController,
-                  errorText: _nidError,
-                  keyboardType: _getNidKeyboardType(),
-                  maxLength: _getNidMaxLength(),
-                  inputFormatters: _getNidFormatters(),
-                  onChanged: (val) {
-                    _onFieldChanged('nid', val);
-                    setState(() {
-                      _validateNid(val, strings);
-                    });
-                  },
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                _buildMobileField(colors, strings),
-                const SizedBox(height: AppSpacing.sm),
+                if (isAdvanced) ...[
+                  AppTextField(
+                    label: strings.idNationalId,
+                    placeholder: strings.idNationalIdPlaceholder,
+                    controller: _nidController,
+                    errorText: _nidError,
+                    keyboardType: _getNidKeyboardType(),
+                    maxLength: _getNidMaxLength(),
+                    inputFormatters: _getNidFormatters(),
+                    onChanged: (val) {
+                      _onFieldChanged('nid', val);
+                      setState(() {
+                        _validateNid(val, strings);
+                      });
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  _buildMobileField(colors, strings),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
                 _buildEmailField(
                   colors,
                   strings,
@@ -1305,59 +1318,63 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                   user,
                   verificationState,
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                AppTextField(
-                  label: strings.idAddress,
-                  placeholder: strings.idAddressPlaceholder,
-                  controller: _addressController,
-                  maxLines: 2,
-                  autofillHints: const [AutofillHints.fullStreetAddress],
-                  onChanged: (val) => _onFieldChanged('address', val),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                AppTextField(
-                  label: strings.idZip,
-                  placeholder: strings.idZipPlaceholder,
-                  controller: _zipController,
-                  errorText: _zipError,
-                  keyboardType: _getZipKeyboardType(),
-                  maxLength: _getZipMaxLength(),
-                  inputFormatters: _getZipFormatters(),
-                  autofillHints: const [AutofillHints.postalCode],
-                  onChanged: (val) {
-                    _onFieldChanged('zip', val);
-                    setState(() {
-                      _validateZip(val, strings);
-                    });
-                  },
-                ),
+                if (isAdvanced) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  AppTextField(
+                    label: strings.idAddress,
+                    placeholder: strings.idAddressPlaceholder,
+                    controller: _addressController,
+                    maxLines: 2,
+                    autofillHints: const [AutofillHints.fullStreetAddress],
+                    onChanged: (val) => _onFieldChanged('address', val),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  AppTextField(
+                    label: strings.idZip,
+                    placeholder: strings.idZipPlaceholder,
+                    controller: _zipController,
+                    errorText: _zipError,
+                    keyboardType: _getZipKeyboardType(),
+                    maxLength: _getZipMaxLength(),
+                    inputFormatters: _getZipFormatters(),
+                    autofillHints: const [AutofillHints.postalCode],
+                    onChanged: (val) {
+                      _onFieldChanged('zip', val);
+                      setState(() {
+                        _validateZip(val, strings);
+                      });
+                    },
+                  ),
+                ],
               ] else ...[
-                // Row 1: National ID & Mobile
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: AppTextField(
-                        label: strings.idNationalId,
-                        placeholder: strings.idNationalIdPlaceholder,
-                        controller: _nidController,
-                        errorText: _nidError,
-                        keyboardType: _getNidKeyboardType(),
-                        maxLength: _getNidMaxLength(),
-                        inputFormatters: _getNidFormatters(),
-                        onChanged: (val) {
-                          _onFieldChanged('nid', val);
-                          setState(() {
-                            _validateNid(val, strings);
-                          });
-                        },
+                if (isAdvanced) ...[
+                  // Row 1: National ID & Mobile
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: AppTextField(
+                          label: strings.idNationalId,
+                          placeholder: strings.idNationalIdPlaceholder,
+                          controller: _nidController,
+                          errorText: _nidError,
+                          keyboardType: _getNidKeyboardType(),
+                          maxLength: _getNidMaxLength(),
+                          inputFormatters: _getNidFormatters(),
+                          onChanged: (val) {
+                            _onFieldChanged('nid', val);
+                            setState(() {
+                              _validateNid(val, strings);
+                            });
+                          },
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(child: _buildMobileField(colors, strings)),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.sm),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(child: _buildMobileField(colors, strings)),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
                 // Row 2: Email (Full Width)
                 _buildEmailField(
                   colors,
@@ -1367,51 +1384,56 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                   user,
                   verificationState,
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                // Row 3: Address & Postal / ZIP Code
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 2,
-                      child: AppTextField(
-                        label: strings.idAddress,
-                        placeholder: strings.idAddressPlaceholder,
-                        controller: _addressController,
-                        maxLines: 2,
-                        autofillHints: const [AutofillHints.fullStreetAddress],
-                        onChanged: (val) => _onFieldChanged('address', val),
+                if (isAdvanced) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  // Row 3: Address & Postal / ZIP Code
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: AppTextField(
+                          label: strings.idAddress,
+                          placeholder: strings.idAddressPlaceholder,
+                          controller: _addressController,
+                          maxLines: 2,
+                          autofillHints: const [
+                            AutofillHints.fullStreetAddress,
+                          ],
+                          onChanged: (val) => _onFieldChanged('address', val),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      flex: 1,
-                      child: AppTextField(
-                        label: strings.idZip,
-                        placeholder: strings.idZipPlaceholder,
-                        controller: _zipController,
-                        errorText: _zipError,
-                        keyboardType: _getZipKeyboardType(),
-                        maxLength: _getZipMaxLength(),
-                        inputFormatters: _getZipFormatters(),
-                        autofillHints: const [AutofillHints.postalCode],
-                        onChanged: (val) {
-                          _onFieldChanged('zip', val);
-                          setState(() {
-                            _validateZip(val, strings);
-                          });
-                        },
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        flex: 1,
+                        child: AppTextField(
+                          label: strings.idZip,
+                          placeholder: strings.idZipPlaceholder,
+                          controller: _zipController,
+                          errorText: _zipError,
+                          keyboardType: _getZipKeyboardType(),
+                          maxLength: _getZipMaxLength(),
+                          inputFormatters: _getZipFormatters(),
+                          autofillHints: const [AutofillHints.postalCode],
+                          onChanged: (val) {
+                            _onFieldChanged('zip', val);
+                            setState(() {
+                              _validateZip(val, strings);
+                            });
+                          },
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ],
-              const SizedBox(height: AppSpacing.lg),
-
-              // ════════════════════════════════════════════════════════════════
-              // 4. KYC VERIFICATION MODULE
-              // ════════════════════════════════════════════════════════════════
-              const KycVerificationSection(),
+              if (isAdvanced) ...[
+                const SizedBox(height: AppSpacing.lg),
+                // ════════════════════════════════════════════════════════════════
+                // 4. KYC VERIFICATION MODULE
+                // ════════════════════════════════════════════════════════════════
+                const KycVerificationSection(),
+              ],
             ],
           ),
         );
