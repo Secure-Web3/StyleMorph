@@ -4,9 +4,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../features/auth/data/firebase_auth_repository.dart';
 import '../../features/profile/data/kyc_model.dart';
+import '../../features/profile/data/profile_firestore_mapper.dart';
 import '../../features/profile/data/user_preferences.dart';
+import '../../features/profile/domain/legal_consent_audit.dart';
+import '../../features/profile/domain/profile_progress_calculator.dart';
+import '../../features/profile/domain/profile_snapshot.dart';
+import '../../features/shell/domain/app_tab.dart';
+import '../../features/shell/domain/notification_item.dart';
 import '../localization/locale_provider.dart';
 import '../services/biometric_service.dart';
 import '../services/loyalty_service.dart';
@@ -15,9 +20,12 @@ import '../services/session_service.dart';
 import '../services/web_unload_guard.dart';
 import '../theme/app_colors.dart';
 import '../theme/theme_provider.dart';
-import '../../features/shell/domain/app_tab.dart';
-import '../../features/shell/domain/notification_item.dart';
 
+export '../../features/profile/data/profile_firestore_mapper.dart';
+export '../../features/profile/domain/companion_settings.dart';
+export '../../features/profile/domain/legal_consent_audit.dart';
+export '../../features/profile/domain/profile_progress_calculator.dart';
+export '../../features/profile/domain/profile_snapshot.dart';
 export '../../features/shell/domain/app_tab.dart';
 export '../../features/shell/domain/notification_item.dart';
 
@@ -32,143 +40,6 @@ class SupportMessage {
     required this.isUser,
     this.timestamp,
   });
-}
-
-@immutable
-class CompanionSettings {
-  final String characterId;
-  final String customName;
-  final String tone;
-  final double critiqueStrictness; // 0.0 to 1.0
-  final bool voiceEnabled;
-  final bool subtitleEnabled;
-  final String voiceType;
-  final double speechSpeed;
-  final String responseLength;
-  final String activeScope;
-  final bool saveHistory;
-  final bool dailyTipEnabled;
-
-  const CompanionSettings({
-    this.characterId = 'ramin',
-    this.customName = '',
-    this.tone = 'صمیمی و دوستانه',
-    this.critiqueStrictness = 0.5,
-    this.voiceEnabled = true,
-    this.subtitleEnabled = true,
-    this.voiceType = 'پیش‌فرض شخصیت',
-    this.speechSpeed = 1.0,
-    this.responseLength = 'متوسط',
-    this.activeScope = 'فقط تندرستی و استایلیست',
-    this.saveHistory = true,
-    this.dailyTipEnabled = false,
-  });
-
-  CompanionSettings copyWith({
-    String? characterId,
-    String? customName,
-    String? tone,
-    double? critiqueStrictness,
-    bool? voiceEnabled,
-    bool? subtitleEnabled,
-    String? voiceType,
-    double? speechSpeed,
-    String? responseLength,
-    String? activeScope,
-    bool? saveHistory,
-    bool? dailyTipEnabled,
-  }) {
-    return CompanionSettings(
-      characterId: characterId ?? this.characterId,
-      customName: customName ?? this.customName,
-      tone: tone ?? this.tone,
-      critiqueStrictness: critiqueStrictness ?? this.critiqueStrictness,
-      voiceEnabled: voiceEnabled ?? this.voiceEnabled,
-      subtitleEnabled: subtitleEnabled ?? this.subtitleEnabled,
-      voiceType: voiceType ?? this.voiceType,
-      speechSpeed: speechSpeed ?? this.speechSpeed,
-      responseLength: responseLength ?? this.responseLength,
-      activeScope: activeScope ?? this.activeScope,
-      saveHistory: saveHistory ?? this.saveHistory,
-      dailyTipEnabled: dailyTipEnabled ?? this.dailyTipEnabled,
-    );
-  }
-}
-
-@immutable
-class ProfileSnapshot {
-  final Map<String, String> identityValues;
-  final Map<String, String> aiDnaValues;
-  final Map<String, String> aiDnaSources;
-  final UserPreferences preferences;
-  final CompanionSettings companionSettings;
-  final String personaMode;
-
-  const ProfileSnapshot({
-    required this.identityValues,
-    required this.aiDnaValues,
-    required this.aiDnaSources,
-    required this.preferences,
-    required this.companionSettings,
-    required this.personaMode,
-  });
-}
-
-// ── Electronic User Agreement & Terms Consent Audit Trail ───────────────────
-
-@immutable
-class LegalConsentAudit {
-  final DateTime acceptedAt;
-  final String contractVersion;
-  final String signerUid;
-  final String signerName;
-  final String signerEmail;
-  final String? ipAddress;
-  final String? ipLocation;
-  final String? deviceInfo;
-
-  const LegalConsentAudit({
-    required this.acceptedAt,
-    required this.contractVersion,
-    required this.signerUid,
-    required this.signerName,
-    required this.signerEmail,
-    this.ipAddress,
-    this.ipLocation,
-    this.deviceInfo,
-  });
-
-  Map<String, dynamic> toMap() => {
-    'acceptedAt': acceptedAt.toIso8601String(),
-    'contractVersion': contractVersion,
-    'signerUid': signerUid,
-    'signerName': signerName,
-    'signerEmail': signerEmail,
-    if (ipAddress != null) 'ipAddress': ipAddress,
-    if (ipLocation != null) 'ipLocation': ipLocation,
-    if (deviceInfo != null) 'deviceInfo': deviceInfo,
-  };
-
-  factory LegalConsentAudit.fromMap(Map<String, dynamic> map) {
-    DateTime dt = DateTime.now();
-    if (map['acceptedAt'] != null) {
-      if (map['acceptedAt'] is Timestamp) {
-        dt = (map['acceptedAt'] as Timestamp).toDate();
-      } else if (map['acceptedAt'] is String) {
-        dt = DateTime.tryParse(map['acceptedAt'] as String) ?? dt;
-      }
-    }
-    return LegalConsentAudit(
-      acceptedAt: dt,
-      contractVersion: map['contractVersion']?.toString() ?? '1.0',
-      signerUid: map['signerUid']?.toString() ?? '',
-      signerName: map['signerName']?.toString() ?? '',
-      signerEmail: map['signerEmail']?.toString() ?? '',
-      ipAddress: map['ipAddress']?.toString(),
-      ipLocation: map['ipLocation']?.toString(),
-      deviceInfo: map['deviceInfo']?.toString(),
-    );
-  }
 }
 
 @immutable
@@ -406,85 +277,12 @@ class AppStateNotifier extends StateNotifier<AppState> {
     required Map<String, String> aiDna,
     String personaMode = 'full_body',
     Map<String, String> mediaSlots = const {},
-  }) {
-    // 1. Identity Component (25% Weight = 0.25 total)
-    // 9 distinct items: email, first, last, nick, mobile, nid, dob, country/city, address/zip
-    int identityFilled = 0;
-    if ((identity['email'] ?? '').trim().isNotEmpty) identityFilled++;
-    if ((identity['firstName'] ?? '').trim().isNotEmpty) identityFilled++;
-    if ((identity['lastName'] ?? '').trim().isNotEmpty) identityFilled++;
-    if ((identity['nick'] ?? '').trim().isNotEmpty) identityFilled++;
-    if ((identity['mobile'] ?? '').trim().isNotEmpty) identityFilled++;
-    if ((identity['nid'] ?? '').trim().isNotEmpty) identityFilled++;
-    if ((identity['dob'] ?? '').trim().isNotEmpty) identityFilled++;
-    if ((identity['country'] ?? '').trim().isNotEmpty ||
-        (identity['city'] ?? '').trim().isNotEmpty) {
-      identityFilled++;
-    }
-    if ((identity['address'] ?? '').trim().isNotEmpty ||
-        (identity['zip'] ?? '').trim().isNotEmpty) {
-      identityFilled++;
-    }
-    final identityScore = (identityFilled / 9.0) * 0.25;
-
-    // 2. Anatomy Component (40% Weight = 0.40 total)
-    // 3 basic fields + 9 tailoring/SMPL specs = 12 items total
-    int anatomyFilled = 0;
-    if ((aiDna['gender'] ?? '').trim().isNotEmpty) anatomyFilled++;
-    if ((aiDna['height'] ?? '').trim().isNotEmpty) anatomyFilled++;
-    if ((aiDna['weight'] ?? '').trim().isNotEmpty) anatomyFilled++;
-
-    const tailoringKeys = [
-      'shoulder',
-      'chest',
-      'waist',
-      'belly',
-      'hips',
-      'skinTone',
-      'bodyShape',
-      'faceShape',
-      'hair',
-    ];
-    for (final k in tailoringKeys) {
-      if ((aiDna[k] ?? '').trim().isNotEmpty ||
-          (k == 'belly' && (aiDna['abdomen'] ?? '').trim().isNotEmpty) ||
-          (k == 'bodyShape' &&
-              (aiDna['bodySilhouette'] ?? '').trim().isNotEmpty) ||
-          (k == 'hair' &&
-              ((aiDna['hairColor'] ?? '').trim().isNotEmpty ||
-                  (aiDna['hairTexture'] ?? '').trim().isNotEmpty))) {
-        anatomyFilled++;
-      }
-    }
-    final anatomyScore = (anatomyFilled / 12.0) * 0.40;
-
-    // 3. Media Component (35% Weight = 0.35 total)
-    double mediaScore = 0.0;
-    if (personaMode == 'privacy_avatar') {
-      int filled = 0;
-      if ((mediaSlots['front_face'] ?? '').trim().isNotEmpty) filled++;
-      if ((mediaSlots['side_face'] ?? '').trim().isNotEmpty) filled++;
-      mediaScore = (filled / 2.0) * 0.35;
-    } else {
-      int reqFilled = 0;
-      if ((mediaSlots['front_face'] ?? '').trim().isNotEmpty) reqFilled++;
-      if ((mediaSlots['side_face'] ?? '').trim().isNotEmpty) reqFilled++;
-      if ((mediaSlots['body_front'] ?? '').trim().isNotEmpty) reqFilled++;
-      if ((mediaSlots['body_side'] ?? '').trim().isNotEmpty) reqFilled++;
-      final reqScore = (reqFilled / 4.0) * 0.25;
-
-      int optFilled = 0;
-      if ((mediaSlots['body_back'] ?? '').trim().isNotEmpty) optFilled++;
-      if ((mediaSlots['hand_skin'] ?? '').trim().isNotEmpty) optFilled++;
-      if ((mediaSlots['scan_360'] ?? '').trim().isNotEmpty) optFilled++;
-      final optScore = (optFilled / 3.0) * 0.10;
-
-      mediaScore = reqScore + optScore;
-    }
-
-    final totalScore = identityScore + anatomyScore + mediaScore;
-    return totalScore.clamp(0.0, 1.0);
-  }
+  }) => ProfileProgressCalculator.calculate(
+    identity: identity,
+    aiDna: aiDna,
+    personaMode: personaMode,
+    mediaSlots: mediaSlots,
+  );
 
   void switchTab(AppTab tab) {
     state = state.copyWith(currentTab: tab);
@@ -523,10 +321,10 @@ class AppStateNotifier extends StateNotifier<AppState> {
   /// Captures a frozen snapshot of the currently saved profile & preferences state.
   void captureSavedSnapshot() {
     state = state.copyWith(
-      savedSnapshot: ProfileSnapshot(
-        identityValues: Map.unmodifiable(state.identityValues),
-        aiDnaValues: Map.unmodifiable(state.aiDnaValues),
-        aiDnaSources: Map.unmodifiable(state.aiDnaSources),
+      savedSnapshot: ProfileSnapshot.capture(
+        identityValues: state.identityValues,
+        aiDnaValues: state.aiDnaValues,
+        aiDnaSources: state.aiDnaSources,
         preferences: state.preferences,
         companionSettings: state.companionSettings,
         personaMode: state.personaMode,
@@ -591,396 +389,110 @@ class AppStateNotifier extends StateNotifier<AppState> {
           .doc(user.uid)
           .get();
 
-      final data = doc.data();
-      final Map<String, String> identity = {};
-      identity['email'] = user.email ?? '';
+      final parsed = ProfileFirestoreMapper.parseDocument(
+        data: doc.data(),
+        user: user,
+        fallbackCompanion: state.companionSettings,
+        fallbackPlan: state.currentPlan,
+      );
 
-      if (data != null) {
-        if (data['identity'] is Map) {
-          final idMap = Map<String, dynamic>.from(data['identity'] as Map);
-          idMap.forEach((k, v) {
-            if (v != null && v.toString().isNotEmpty) {
-              identity[k] = v.toString();
-            }
-          });
-        }
-        if (!identity.containsKey('email') || identity['email']!.isEmpty) {
-          identity['email'] = user.email ?? (data['email']?.toString() ?? '');
-        }
+      List<ReferralEntry> referralEntries = [];
+      try {
+        final snap = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .collection('referrals')
+            .orderBy('createdAt', descending: true)
+            .get();
+        referralEntries = snap.docs.map(ReferralEntry.fromFirestore).toList();
+      } catch (_) {}
 
-        final Map<String, String> aiDna = {};
-        if (data['aiDna'] is Map) {
-          final aiMap = Map<String, dynamic>.from(data['aiDna'] as Map);
-          aiMap.forEach((k, v) {
-            if (v != null && v.toString().isNotEmpty) {
-              aiDna[k] = v.toString();
-            }
-          });
-        }
-
-        CompanionSettings companion = state.companionSettings;
-        if (data['companion'] is Map) {
-          final cMap = Map<String, dynamic>.from(data['companion'] as Map);
-          companion = CompanionSettings(
-            characterId:
-                cMap['characterId']?.toString() ?? companion.characterId,
-            customName: cMap['customName']?.toString() ?? companion.customName,
-            tone: cMap['tone']?.toString() ?? companion.tone,
-            critiqueStrictness:
-                (cMap['critiqueStrictness'] as num?)?.toDouble() ??
-                companion.critiqueStrictness,
-            voiceEnabled:
-                cMap['voiceEnabled'] as bool? ?? companion.voiceEnabled,
-            subtitleEnabled:
-                cMap['subtitleEnabled'] as bool? ?? companion.subtitleEnabled,
-            voiceType: cMap['voiceType']?.toString() ?? companion.voiceType,
-            speechSpeed:
-                (cMap['speechSpeed'] as num?)?.toDouble() ??
-                companion.speechSpeed,
-            responseLength:
-                cMap['responseLength']?.toString() ?? companion.responseLength,
-            activeScope:
-                cMap['activeScope']?.toString() ?? companion.activeScope,
-            saveHistory: cMap['saveHistory'] as bool? ?? companion.saveHistory,
-            dailyTipEnabled:
-                cMap['dailyTipEnabled'] as bool? ?? companion.dailyTipEnabled,
-          );
-        }
-
-        final coins =
-            (data['walletBalance'] as num?)?.toInt() ??
-            (data['coins'] as num?)?.toInt() ??
-            (data['coinBalance'] as num?)?.toInt() ??
-            0;
-        final currentPlan = data['plan']?.toString() ?? state.currentPlan;
-
-        final isOAuth = user.providerData.any(
-          (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
+      // Apply loaded preferences locally across the app
+      try {
+        final localPrefs = await SharedPreferences.getInstance();
+        await localPrefs.setString(
+          ThemeNotifier.keyThemePalette,
+          parsed.preferences.fashionThemePalette,
         );
+        await localPrefs.setString(
+          ThemeNotifier.keyThemeMode,
+          parsed.preferences.brightnessMode,
+        );
+        await localPrefs.setString(
+          LocaleNotifier.keyAppLanguage,
+          parsed.preferences.appLanguage,
+        );
+      } catch (_) {}
 
-        String first = identity['firstName']?.trim() ?? '';
-        String last = identity['lastName']?.trim() ?? '';
-
-        if (first.isEmpty &&
-            data['firstName'] != null &&
-            data['firstName'].toString().trim().isNotEmpty) {
-          first = data['firstName'].toString().trim();
-          identity['firstName'] = first;
-        }
-        if (last.isEmpty &&
-            data['lastName'] != null &&
-            data['lastName'].toString().trim().isNotEmpty) {
-          last = data['lastName'].toString().trim();
-          identity['lastName'] = last;
-        }
-
-        if (first.isEmpty &&
-            last.isEmpty &&
-            (user.displayName?.trim().isNotEmpty ?? false)) {
-          final (extractedFirst, extractedLast) =
-              FirebaseAuthRepository.splitDisplayName(user.displayName);
-          if (extractedFirst.isNotEmpty) {
-            first = extractedFirst;
-            identity['firstName'] = first;
-          }
-          if (extractedLast.isNotEmpty) {
-            last = extractedLast;
-            identity['lastName'] = last;
+      if (_ref != null) {
+        for (final p in AppPalette.values) {
+          if (p.name == parsed.preferences.fashionThemePalette) {
+            _ref.read(themeProvider.notifier).setPalette(p);
+            break;
           }
         }
-
-        final String photoUrl =
-            (data['photoURL'] != null &&
-                data['photoURL'].toString().trim().isNotEmpty)
-            ? data['photoURL'].toString().trim()
-            : (user.photoURL?.trim() ?? '');
-
-        final bool isEmailVerified =
-            isOAuth || user.emailVerified || (data['emailVerified'] == true);
-
-        final fullName = '$first $last'.trim();
-        final nick =
-            identity['nick']?.trim() ?? data['handle']?.toString() ?? '';
-
-        final personaMode = data['personaMode']?.toString() ?? 'full_body';
-        final Map<String, String> mediaSlots = {};
-        if (data['mediaSlots'] is Map) {
-          final mMap = Map<String, dynamic>.from(data['mediaSlots'] as Map);
-          mMap.forEach((k, v) {
-            if (v != null && v.toString().isNotEmpty) {
-              mediaSlots[k] = v.toString();
-            }
-          });
+        for (final m in ThemeMode.values) {
+          if (m.name == parsed.preferences.brightnessMode) {
+            _ref.read(themeProvider.notifier).setThemeMode(m);
+            break;
+          }
         }
+        _ref
+            .read(localeProvider.notifier)
+            .setLanguage(parsed.preferences.appLanguage);
+        _ref
+            .read(biometricServiceProvider)
+            .setBiometricLockEnabled(parsed.preferences.biometricLock);
+      }
 
-        final progress = calculateProfileProgress(
-          identity: identity,
-          aiDna: aiDna,
-          personaMode: personaMode,
-          mediaSlots: mediaSlots,
-        );
+      if (parsed.backfillData.isNotEmpty) {
+        FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .set(parsed.backfillData, SetOptions(merge: true))
+            .catchError((e) {
+              debugPrint('[loadProfileFromFirestore] backfill error: $e');
+            });
+      }
 
-        KycData kyc = const KycData();
-        if (data['kyc'] is Map) {
-          kyc = KycData.fromMap(Map<String, dynamic>.from(data['kyc'] as Map));
-        }
+      state = state.copyWith(
+        photoUrl: parsed.photoUrl,
+        identityValues: parsed.identity,
+        aiDnaValues: parsed.aiDna,
+        companionSettings: parsed.companion,
+        coins: parsed.coins,
+        currentPlan: parsed.currentPlan,
+        profileProgress: parsed.profileProgress,
+        stylePoints: parsed.stylePoints,
+        loyaltyRank: parsed.loyaltyRank,
+        aiUsageCount: parsed.aiUsageCount,
+        kycData: parsed.kyc,
+        personaMode: parsed.personaMode,
+        mediaSlots: parsed.mediaSlots,
+        preferences: parsed.preferences,
+        showFloatingSupport: parsed.preferences.showFloatingSupport,
+        showHeaderCoins: parsed.preferences.showHeaderCoins,
+        referralCode: parsed.referralCode,
+        referralCount: parsed.referralCount,
+        networkTier: parsed.networkTier,
+        referrals: referralEntries,
+        userName: parsed.userName,
+        userHandle: parsed.userHandle,
+        hasUnsavedProfileChanges: false,
+        termsAcceptedAt: parsed.termsAcceptedAt,
+        termsVersion: parsed.termsVersion,
+        legalConsent: parsed.legalConsent,
+      );
 
-        final referralCode = data['referralCode']?.toString() ?? '';
-        final referralCount = (data['referralCount'] as num?)?.toInt() ?? 0;
-        final networkTier =
-            data['networkTier']?.toString() ??
-            ReferralService.calculateTier(referralCount);
-
-        DateTime? termsAcceptedAt;
-        if (data['termsAcceptedAt'] != null) {
-          if (data['termsAcceptedAt'] is Timestamp) {
-            termsAcceptedAt = (data['termsAcceptedAt'] as Timestamp).toDate();
-          } else if (data['termsAcceptedAt'] is String) {
-            termsAcceptedAt = DateTime.tryParse(
-              data['termsAcceptedAt'] as String,
+      if (parsed.referralCode.isEmpty) {
+        Future.microtask(() async {
+          try {
+            final newCode = await ReferralService().ensureUserReferralCode(
+              user.uid,
             );
-          }
-        }
-        final String? termsVersion = data['termsVersion']?.toString();
-
-        LegalConsentAudit? legalConsent;
-        if (data['legalConsent'] is Map) {
-          legalConsent = LegalConsentAudit.fromMap(
-            Map<String, dynamic>.from(data['legalConsent'] as Map),
-          );
-        } else if (termsAcceptedAt != null) {
-          legalConsent = LegalConsentAudit(
-            acceptedAt: termsAcceptedAt,
-            contractVersion: termsVersion ?? '1.0',
-            signerUid: user.uid,
-            signerName: fullName.isNotEmpty
-                ? fullName
-                : (user.displayName ?? (user.email?.split('@').first ?? '')),
-            signerEmail: user.email ?? (data['email']?.toString() ?? ''),
-            ipAddress: null,
-            ipLocation: null,
-            deviceInfo: null,
-          );
-        }
-
-        List<ReferralEntry> referralEntries = [];
-        try {
-          final snap = await FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
-              .collection('referrals')
-              .orderBy('createdAt', descending: true)
-              .get();
-          referralEntries = snap.docs.map(ReferralEntry.fromFirestore).toList();
-        } catch (_) {}
-
-        UserPreferences preferences = const UserPreferences();
-        if (data['preferences'] is Map) {
-          preferences = UserPreferences.fromMap(
-            Map<String, dynamic>.from(data['preferences'] as Map),
-          );
-        } else if (data['theme'] is Map) {
-          final tMap = Map<String, dynamic>.from(data['theme'] as Map);
-          preferences = UserPreferences(
-            fashionThemePalette: tMap['palette']?.toString() ?? 'editorial',
-            brightnessMode: tMap['mode']?.toString() ?? 'light',
-          );
-        }
-
-        // Apply loaded preferences locally across the app
-        try {
-          final localPrefs = await SharedPreferences.getInstance();
-          await localPrefs.setString(
-            ThemeNotifier.keyThemePalette,
-            preferences.fashionThemePalette,
-          );
-          await localPrefs.setString(
-            ThemeNotifier.keyThemeMode,
-            preferences.brightnessMode,
-          );
-          await localPrefs.setString(
-            LocaleNotifier.keyAppLanguage,
-            preferences.appLanguage,
-          );
-        } catch (_) {}
-
-        if (_ref != null) {
-          for (final p in AppPalette.values) {
-            if (p.name == preferences.fashionThemePalette) {
-              _ref.read(themeProvider.notifier).setPalette(p);
-              break;
-            }
-          }
-          for (final m in ThemeMode.values) {
-            if (m.name == preferences.brightnessMode) {
-              _ref.read(themeProvider.notifier).setThemeMode(m);
-              break;
-            }
-          }
-          _ref
-              .read(localeProvider.notifier)
-              .setLanguage(preferences.appLanguage);
-          _ref
-              .read(biometricServiceProvider)
-              .setBiometricLockEnabled(preferences.biometricLock);
-        }
-
-        final int aiUsageCount = (data['aiUsageCount'] as num?)?.toInt() ?? 0;
-        final int calculatedPoints = LoyaltyService.calculateStylePoints(
-          profileProgress: progress,
-          isEmailVerified: isEmailVerified,
-          referralCount: referralCount,
-          aiUsageCount: aiUsageCount,
-          coinActivity: coins,
-        );
-        final int stylePoints =
-            (data['stylePoints'] as num?)?.toInt() ?? calculatedPoints;
-        final int finalPoints =
-            (stylePoints == 0 ||
-                (isEmailVerified && stylePoints < calculatedPoints))
-            ? calculatedPoints
-            : stylePoints;
-        final String loyaltyRank = LoyaltyService.getRank(
-          finalPoints,
-        ).nameCapitalized;
-
-        final Map<String, dynamic> backfill = {};
-        if (isOAuth && data['emailVerified'] != true) {
-          backfill['emailVerified'] = true;
-        }
-        if (photoUrl.isNotEmpty &&
-            (data['photoURL'] == null ||
-                data['photoURL'].toString().trim().isEmpty)) {
-          backfill['photoURL'] = photoUrl;
-        }
-        if (first.isNotEmpty &&
-            (data['firstName'] == null ||
-                data['firstName'].toString().trim().isEmpty)) {
-          backfill['firstName'] = first;
-        }
-        if (last.isNotEmpty &&
-            (data['lastName'] == null ||
-                data['lastName'].toString().trim().isEmpty)) {
-          backfill['lastName'] = last;
-        }
-        if (identity.isNotEmpty) {
-          final currentId = data['identity'] is Map
-              ? Map<String, dynamic>.from(data['identity'] as Map)
-              : <String, dynamic>{};
-          bool idChanged = false;
-          if (first.isNotEmpty &&
-              (currentId['firstName'] == null ||
-                  currentId['firstName'].toString().trim().isEmpty)) {
-            currentId['firstName'] = first;
-            idChanged = true;
-          }
-          if (last.isNotEmpty &&
-              (currentId['lastName'] == null ||
-                  currentId['lastName'].toString().trim().isEmpty)) {
-            currentId['lastName'] = last;
-            idChanged = true;
-          }
-          if (idChanged) {
-            backfill['identity'] = currentId;
-          }
-        }
-        if (finalPoints != (data['stylePoints'] as num?)?.toInt()) {
-          backfill['stylePoints'] = finalPoints;
-          backfill['loyaltyRank'] = loyaltyRank;
-        }
-
-        if (backfill.isNotEmpty) {
-          FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
-              .set(backfill, SetOptions(merge: true))
-              .catchError((e) {
-                debugPrint('[loadProfileFromFirestore] backfill error: $e');
-              });
-        }
-
-        state = state.copyWith(
-          photoUrl: photoUrl,
-          identityValues: identity,
-          aiDnaValues: aiDna,
-          companionSettings: companion,
-          coins: coins,
-          currentPlan: currentPlan,
-          profileProgress: progress,
-          stylePoints: finalPoints,
-          loyaltyRank: loyaltyRank,
-          aiUsageCount: aiUsageCount,
-          kycData: kyc,
-          personaMode: personaMode,
-          mediaSlots: mediaSlots,
-          preferences: preferences,
-          showFloatingSupport: preferences.showFloatingSupport,
-          showHeaderCoins: preferences.showHeaderCoins,
-          referralCode: referralCode,
-          referralCount: referralCount,
-          networkTier: networkTier,
-          referrals: referralEntries,
-          userName: fullName.isNotEmpty
-              ? fullName
-              : (user.displayName ?? (user.email?.split('@').first ?? '')),
-          userHandle: nick.isNotEmpty ? nick : '',
-          hasUnsavedProfileChanges: false,
-          termsAcceptedAt: termsAcceptedAt,
-          termsVersion: termsVersion,
-          legalConsent: legalConsent,
-        );
-
-        if (referralCode.isEmpty) {
-          Future.microtask(() async {
-            try {
-              final newCode = await ReferralService().ensureUserReferralCode(
-                user.uid,
-              );
-              state = state.copyWith(referralCode: newCode);
-            } catch (_) {}
-          });
-        }
-      } else {
-        final isOAuth = user.providerData.any(
-          (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
-        );
-        final isEmailVerified = isOAuth || user.emailVerified;
-        final (extractedFirst, extractedLast) =
-            FirebaseAuthRepository.splitDisplayName(user.displayName);
-        if (extractedFirst.isNotEmpty) identity['firstName'] = extractedFirst;
-        if (extractedLast.isNotEmpty) identity['lastName'] = extractedLast;
-
-        final photoUrl = user.photoURL?.trim() ?? '';
-
-        final progress = calculateProfileProgress(
-          identity: identity,
-          aiDna: const {},
-          personaMode: 'full_body',
-          mediaSlots: const {},
-        );
-        final points = LoyaltyService.calculateStylePoints(
-          profileProgress: progress,
-          isEmailVerified: isEmailVerified,
-          referralCount: 0,
-          aiUsageCount: 0,
-          coinActivity: 0,
-        );
-        final rank = LoyaltyService.getRank(points).nameCapitalized;
-        state = state.copyWith(
-          photoUrl: photoUrl,
-          identityValues: identity,
-          aiDnaValues: const {},
-          coins: 0,
-          profileProgress: progress,
-          stylePoints: points,
-          loyaltyRank: rank,
-          aiUsageCount: 0,
-          personaMode: 'full_body',
-          mediaSlots: const {},
-          userName: user.displayName ?? (user.email?.split('@').first ?? ''),
-          userHandle: '',
-          hasUnsavedProfileChanges: false,
-        );
+            state = state.copyWith(referralCode: newCode);
+          } catch (_) {}
+        });
       }
     } catch (e) {
       debugPrint('[loadProfileFromFirestore] Error: $e');
@@ -1016,11 +528,6 @@ class AppStateNotifier extends StateNotifier<AppState> {
         mediaSlots: state.mediaSlots,
       );
 
-      final first = state.identityValues['firstName']?.trim() ?? '';
-      final last = state.identityValues['lastName']?.trim() ?? '';
-      final fullName = '$first $last'.trim();
-      final nick = state.identityValues['nick']?.trim() ?? state.userHandle;
-
       final isOAuth = user.providerData.any(
         (p) => p.providerId == 'google.com' || p.providerId == 'apple.com',
       );
@@ -1034,38 +541,6 @@ class AppStateNotifier extends StateNotifier<AppState> {
         coinActivity: state.coins,
       );
       final rank = LoyaltyService.getRank(points).nameCapitalized;
-
-      final dataToSave = <String, dynamic>{
-        'email': user.email ?? (state.identityValues['email'] ?? ''),
-        'displayName': fullName.isNotEmpty
-            ? fullName
-            : (user.displayName ?? ''),
-        'firstName': first,
-        'lastName': last,
-        'handle': nick,
-        'identity': state.identityValues,
-        'aiDna': state.aiDnaValues,
-        'personaMode': state.personaMode,
-        'mediaSlots': state.mediaSlots,
-        'companion': {
-          'characterId': state.companionSettings.characterId,
-          'customName': state.companionSettings.customName,
-          'tone': state.companionSettings.tone,
-          'critiqueStrictness': state.companionSettings.critiqueStrictness,
-          'voiceEnabled': state.companionSettings.voiceEnabled,
-          'subtitleEnabled': state.companionSettings.subtitleEnabled,
-          'voiceType': state.companionSettings.voiceType,
-          'speechSpeed': state.companionSettings.speechSpeed,
-          'responseLength': state.companionSettings.responseLength,
-          'activeScope': state.companionSettings.activeScope,
-          'saveHistory': state.companionSettings.saveHistory,
-          'dailyTipEnabled': state.companionSettings.dailyTipEnabled,
-        },
-        'profileProgress': progress,
-        'stylePoints': points,
-        'loyaltyRank': rank,
-        'updatedAt': FieldValue.serverTimestamp(),
-      };
 
       String currentPalette = state.preferences.fashionThemePalette;
       String currentMode = state.preferences.brightnessMode;
@@ -1088,13 +563,31 @@ class AppStateNotifier extends StateNotifier<AppState> {
         showHeaderCoins: state.showHeaderCoins,
       );
 
-      dataToSave['preferences'] = updatedPreferences.toMap();
-      dataToSave['theme'] = {'palette': currentPalette, 'mode': currentMode};
+      final dataToSave = ProfileFirestoreMapper.toFirestorePayload(
+        user: user,
+        identityValues: state.identityValues,
+        aiDnaValues: state.aiDnaValues,
+        personaMode: state.personaMode,
+        mediaSlots: state.mediaSlots,
+        companionSettings: state.companionSettings,
+        userPreferences: updatedPreferences,
+        currentThemePalette: currentPalette,
+        currentThemeMode: currentMode,
+        profileProgress: progress,
+        stylePoints: points,
+        loyaltyRank: rank,
+        fallbackHandle: state.userHandle,
+      );
 
       await FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
           .set(dataToSave, SetOptions(merge: true));
+
+      final first = state.identityValues['firstName']?.trim() ?? '';
+      final last = state.identityValues['lastName']?.trim() ?? '';
+      final fullName = '$first $last'.trim();
+      final nick = state.identityValues['nick']?.trim() ?? state.userHandle;
 
       state = state.copyWith(
         isSavingProfile: false,
