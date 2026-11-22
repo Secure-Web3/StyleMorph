@@ -17,8 +17,8 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/app_section_header.dart';
-import '../../data/kyc_model.dart';
-import '../../data/kyc_service.dart';
+import '../../domain/kyc_model.dart';
+import '../profile_providers.dart';
 import 'kyc_image_preview_dialog.dart';
 
 class KycVerificationSection extends ConsumerStatefulWidget {

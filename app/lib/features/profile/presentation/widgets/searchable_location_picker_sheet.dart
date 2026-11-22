@@ -8,7 +8,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_text_field.dart';
-import '../../data/iso_location_data.dart';
+import '../../domain/iso_location_data.dart';
 
 class SearchableLocationPickerSheet {
   /// Opens a searchable country picker bottom sheet

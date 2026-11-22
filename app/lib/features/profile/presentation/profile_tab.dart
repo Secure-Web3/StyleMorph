@@ -18,7 +18,7 @@ import 'widgets/sessions_sub_tab.dart';
 import 'widgets/settings_sub_tab.dart';
 import 'widgets/unsaved_changes_dialog.dart';
 import 'widgets/wallet_sub_tab.dart';
-import '../data/identity_validator.dart';
+import '../domain/identity_validator.dart';
 
 class ProfileTab extends ConsumerStatefulWidget {
   const ProfileTab({super.key});

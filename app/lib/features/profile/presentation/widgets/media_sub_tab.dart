@@ -11,7 +11,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
-import '../../data/media_service.dart';
+import '../profile_providers.dart';
 import 'camera_alignment_guide_dialog.dart';
 import 'kyc_image_preview_dialog.dart';
 

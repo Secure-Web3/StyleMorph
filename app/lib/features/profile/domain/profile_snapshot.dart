@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
-import '../data/user_preferences.dart';
 import 'companion_settings.dart';
+import 'user_preferences.dart';
 
 export 'companion_settings.dart';
 
