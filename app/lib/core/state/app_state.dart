@@ -15,8 +15,11 @@ import '../services/session_service.dart';
 import '../services/web_unload_guard.dart';
 import '../theme/app_colors.dart';
 import '../theme/theme_provider.dart';
+import '../../features/shell/domain/app_tab.dart';
+import '../../features/shell/domain/notification_item.dart';
 
-enum AppTab { shop, wardrobe, stylist, atelier, wellness, profile }
+export '../../features/shell/domain/app_tab.dart';
+export '../../features/shell/domain/notification_item.dart';
 
 @immutable
 class SupportMessage {
@@ -29,43 +32,6 @@ class SupportMessage {
     required this.isUser,
     this.timestamp,
   });
-}
-
-@immutable
-class AppNotification {
-  final String id;
-  final String category; // 'ai', 'shop', 'finance'
-  final String emoji;
-  final String title;
-  final String body;
-  final String timestampLabel;
-  final String
-  targetRoute; // 'atelier_creations', 'shop', 'profile_wallet', 'stylist'
-  final bool isRead;
-
-  const AppNotification({
-    required this.id,
-    required this.category,
-    required this.emoji,
-    required this.title,
-    required this.body,
-    required this.timestampLabel,
-    required this.targetRoute,
-    this.isRead = false,
-  });
-
-  AppNotification copyWith({bool? isRead}) {
-    return AppNotification(
-      id: id,
-      category: category,
-      emoji: emoji,
-      title: title,
-      body: body,
-      timestampLabel: timestampLabel,
-      targetRoute: targetRoute,
-      isRead: isRead ?? this.isRead,
-    );
-  }
 }
 
 @immutable

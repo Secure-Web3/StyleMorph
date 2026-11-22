@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_chip.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../atelier/presentation/atelier_provider.dart';
+import '../shell_state_provider.dart';
 
 class NotificationSheet extends ConsumerStatefulWidget {
   const NotificationSheet({super.key});
@@ -30,23 +31,24 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
   ];
 
   void _handleNotificationTap(AppNotification notif) {
+    final shellNotifier = ref.read(shellStateProvider.notifier);
     final appNotifier = ref.read(appStateProvider.notifier);
-    appNotifier.markNotificationRead(notif.id);
+    shellNotifier.markNotificationRead(notif.id);
     Navigator.of(context).pop();
 
     switch (notif.targetRoute) {
       case 'atelier_creations':
         ref.read(atelierProvider.notifier).switchTab('creations');
-        appNotifier.switchTab(AppTab.atelier);
+        shellNotifier.switchTab(AppTab.atelier);
         break;
       case 'shop':
-        appNotifier.switchTab(AppTab.shop);
+        shellNotifier.switchTab(AppTab.shop);
         break;
       case 'profile_wallet':
         appNotifier.switchProfileTab('p-wallet');
         break;
       case 'stylist':
-        appNotifier.switchTab(AppTab.stylist);
+        shellNotifier.switchTab(AppTab.stylist);
         break;
     }
   }
@@ -55,12 +57,12 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
-    final appState = ref.watch(appStateProvider);
-    final unreadCount = appState.unreadNotificationsCount;
+    final shellState = ref.watch(shellStateProvider);
+    final unreadCount = shellState.unreadNotificationsCount;
 
     final filtered = _selectedCategory == 'all'
-        ? appState.notifications
-        : appState.notifications
+        ? shellState.notifications
+        : shellState.notifications
               .where((n) => n.category == _selectedCategory)
               .toList();
 
@@ -81,7 +83,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
         InkWell(
           onTap: unreadCount > 0
               ? () => ref
-                    .read(appStateProvider.notifier)
+                    .read(shellStateProvider.notifier)
                     .markAllNotificationsRead()
               : null,
           borderRadius: AppRadius.rMd,
