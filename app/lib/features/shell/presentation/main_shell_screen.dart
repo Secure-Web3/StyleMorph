@@ -39,10 +39,12 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   }
 
   Future<void> _handleTabSwitch(AppTab targetTab) async {
-    final appState = ref.read(appStateProvider);
-    if (targetTab == appState.currentTab) return;
+    final (currentTab, hasUnsavedChanges) = ref.read(
+      appStateProvider.select((s) => (s.currentTab, s.hasUnsavedChanges)),
+    );
+    if (targetTab == currentTab) return;
 
-    if (appState.hasUnsavedChanges) {
+    if (hasUnsavedChanges) {
       final action = await UnsavedChangesDialog.show(context);
       if (!mounted) return;
 
@@ -91,11 +93,8 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     final hasUnsavedChanges = ref.watch(
       appStateProvider.select((s) => s.hasUnsavedChanges),
     );
-    final showFloatingSupport = ref.watch(
-      appStateProvider.select((s) => s.showFloatingSupport),
-    );
-    final isSupportOpen = ref.watch(
-      appStateProvider.select((s) => s.isSupportOpen),
+    final showSupport = ref.watch(
+      appStateProvider.select((s) => s.showFloatingSupport || s.isSupportOpen),
     );
 
     // Outer background: slightly darker than surface for desktop web frame effect.
@@ -160,7 +159,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                         return Stack(
                           children: [
                             Positioned.fill(child: _buildBody(currentTab)),
-                            if (showFloatingSupport || isSupportOpen)
+                            if (showSupport)
                               Positioned.fill(
                                 child: SupportWidget(
                                   bodySize: bodyConstraints.biggest,

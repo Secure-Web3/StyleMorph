@@ -56,9 +56,14 @@ class _SupportWidgetState extends ConsumerState<SupportWidget> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
-    final appState = ref.watch(appStateProvider);
+    final showFloatingSupport = ref.watch(
+      appStateProvider.select((s) => s.showFloatingSupport),
+    );
+    final isSupportOpen = ref.watch(
+      appStateProvider.select((s) => s.isSupportOpen),
+    );
 
-    if (!appState.showFloatingSupport && !appState.isSupportOpen) {
+    if (!showFloatingSupport && !isSupportOpen) {
       return const SizedBox.shrink();
     }
 
@@ -123,17 +128,23 @@ class _SupportWidgetState extends ConsumerState<SupportWidget> {
       clipBehavior: Clip.none,
       children: [
         // ── Smart Bounded Support Chat Popup Window ────────────────────────
-        if (appState.isSupportOpen)
+        if (isSupportOpen)
           Positioned(
             left: popupLeft,
             top: popupTop,
             width: popupWidth,
             height: popupHeight,
-            child: _buildChatPopup(colors, strings, appState),
+            child: _SupportChatPopup(
+              colors: colors,
+              strings: strings,
+              scrollController: _scrollController,
+              textController: _textController,
+              onSendMessage: _sendMessage,
+            ),
           ),
 
         // ── Draggable & Magnetic Edge-Snapping Floating Button ─────────────
-        if (appState.showFloatingSupport)
+        if (showFloatingSupport)
           AnimatedPositioned(
             duration: _isDragging
                 ? Duration.zero
@@ -217,12 +228,31 @@ class _SupportWidgetState extends ConsumerState<SupportWidget> {
       ],
     );
   }
+}
 
-  Widget _buildChatPopup(
-    AppColors colors,
-    AppStrings strings,
-    AppState appState,
-  ) {
+// ── Support Chat Popup Window ───────────────────────────────────────────────
+
+class _SupportChatPopup extends ConsumerWidget {
+  final AppColors colors;
+  final AppStrings strings;
+  final ScrollController scrollController;
+  final TextEditingController textController;
+  final VoidCallback onSendMessage;
+
+  const _SupportChatPopup({
+    required this.colors,
+    required this.strings,
+    required this.scrollController,
+    required this.textController,
+    required this.onSendMessage,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final supportMessages = ref.watch(
+      appStateProvider.select((s) => s.supportMessages),
+    );
+
     return Container(
       decoration: BoxDecoration(
         color: colors.sf,
@@ -294,7 +324,7 @@ class _SupportWidgetState extends ConsumerState<SupportWidget> {
 
           // Chat Messages
           Expanded(
-            child: appState.supportMessages.isEmpty
+            child: supportMessages.isEmpty
                 ? Center(
                     child: Text(
                       strings.supT,
@@ -306,11 +336,11 @@ class _SupportWidgetState extends ConsumerState<SupportWidget> {
                     ),
                   )
                 : ListView.builder(
-                    controller: _scrollController,
+                    controller: scrollController,
                     padding: const EdgeInsets.all(AppSpacing.md),
-                    itemCount: appState.supportMessages.length,
+                    itemCount: supportMessages.length,
                     itemBuilder: (ctx, index) {
-                      final msg = appState.supportMessages[index];
+                      final msg = supportMessages[index];
                       return Align(
                         alignment: msg.isUser
                             ? AlignmentDirectional.centerEnd
@@ -354,8 +384,8 @@ class _SupportWidgetState extends ConsumerState<SupportWidget> {
               children: [
                 Expanded(
                   child: TextField(
-                    controller: _textController,
-                    onSubmitted: (_) => _sendMessage(),
+                    controller: textController,
+                    onSubmitted: (_) => onSendMessage(),
                     style: TextStyle(
                       fontFamily: 'Vazirmatn',
                       fontSize: 12,
@@ -392,7 +422,7 @@ class _SupportWidgetState extends ConsumerState<SupportWidget> {
                 ),
                 const SizedBox(width: AppSpacing.xs),
                 InkWell(
-                  onTap: _sendMessage,
+                  onTap: onSendMessage,
                   borderRadius: AppRadius.rLg,
                   child: Container(
                     width: 36,

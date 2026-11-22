@@ -24,7 +24,6 @@ class AppDrawer extends ConsumerWidget {
     final strings = context.strings;
     final themeState = ref.watch(themeProvider);
     final currentLang = ref.watch(localeProvider);
-    final appState = ref.watch(appStateProvider);
 
     // Drawer width: min(288, 84% of screen width).
     final drawerWidth = (MediaQuery.of(context).size.width * 0.84).clamp(
@@ -82,16 +81,21 @@ class AppDrawer extends ConsumerWidget {
                   _DrawerItem(
                     icon: FontAwesomeIcons.solidUser,
                     title: strings.nProf,
-                    trailing: Text(
-                      strings.formatPercent(
-                        (appState.profileProgress * 100).round(),
-                      ),
-                      style: TextStyle(
-                        fontFamily: 'Vazirmatn',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: colors.mu,
-                      ),
+                    trailing: Consumer(
+                      builder: (context, ref, _) {
+                        final progress = ref.watch(
+                          appStateProvider.select((s) => s.profileProgress),
+                        );
+                        return Text(
+                          strings.formatPercent((progress * 100).round()),
+                          style: TextStyle(
+                            fontFamily: 'Vazirmatn',
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: colors.mu,
+                          ),
+                        );
+                      },
                     ),
                     onTap: () {
                       Navigator.of(context).pop();
@@ -194,131 +198,7 @@ class AppDrawer extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // ── Quick-Access Mode Switcher Pill (Simple / Advanced) ──
-                  Container(
-                    margin: const EdgeInsetsDirectional.only(
-                      bottom: AppSpacing.sm,
-                    ),
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      color: colors.bg,
-                      borderRadius: AppRadius.rFull,
-                      border: Border.all(color: colors.bd),
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              ref
-                                  .read(appStateProvider.notifier)
-                                  .setAppMode(
-                                    'simple',
-                                    persistImmediately: true,
-                                  );
-                            },
-                            borderRadius: BorderRadius.circular(AppRadius.full),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 160),
-                              padding: const EdgeInsets.symmetric(vertical: 5),
-                              decoration: BoxDecoration(
-                                color: appState.isSimpleMode
-                                    ? colors.pr
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(
-                                  AppRadius.full,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.bolt_rounded,
-                                    size: 13,
-                                    color: appState.isSimpleMode
-                                        ? colors.prt
-                                        : colors.mu,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      strings.appModeSimple,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontFamily: AppTypography.fontFamily,
-                                        fontSize: 10,
-                                        fontWeight: appState.isSimpleMode
-                                            ? FontWeight.w700
-                                            : FontWeight.w500,
-                                        color: appState.isSimpleMode
-                                            ? colors.prt
-                                            : colors.mu,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: InkWell(
-                            onTap: () {
-                              ref
-                                  .read(appStateProvider.notifier)
-                                  .setAppMode(
-                                    'advanced',
-                                    persistImmediately: true,
-                                  );
-                            },
-                            borderRadius: BorderRadius.circular(AppRadius.full),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 160),
-                              padding: const EdgeInsets.symmetric(vertical: 5),
-                              decoration: BoxDecoration(
-                                color: appState.isAdvancedMode
-                                    ? colors.pr
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(
-                                  AppRadius.full,
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.tune_rounded,
-                                    size: 13,
-                                    color: appState.isAdvancedMode
-                                        ? colors.prt
-                                        : colors.mu,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(
-                                      strings.appModeAdvanced,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontFamily: AppTypography.fontFamily,
-                                        fontSize: 10,
-                                        fontWeight: appState.isAdvancedMode
-                                            ? FontWeight.w700
-                                            : FontWeight.w500,
-                                        color: appState.isAdvancedMode
-                                            ? colors.prt
-                                            : colors.mu,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  const _DrawerModeSwitcher(),
 
                   // Row: palette dots + 3-mode brightness toggle + language
                   Row(
@@ -511,6 +391,123 @@ class AppDrawer extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ── Quick-Access Mode Switcher Pill ──────────────────────────────────────────
+
+class _DrawerModeSwitcher extends ConsumerWidget {
+  const _DrawerModeSwitcher();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final strings = context.strings;
+    final (isSimpleMode, isAdvancedMode) = ref.watch(
+      appStateProvider.select((s) => (s.isSimpleMode, s.isAdvancedMode)),
+    );
+
+    return Container(
+      margin: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
+      padding: const EdgeInsets.all(3),
+      decoration: BoxDecoration(
+        color: colors.bg,
+        borderRadius: AppRadius.rFull,
+        border: Border.all(color: colors.bd),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                ref
+                    .read(appStateProvider.notifier)
+                    .setAppMode('simple', persistImmediately: true);
+              },
+              borderRadius: BorderRadius.circular(AppRadius.full),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 160),
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                decoration: BoxDecoration(
+                  color: isSimpleMode ? colors.pr : Colors.transparent,
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.bolt_rounded,
+                      size: 13,
+                      color: isSimpleMode ? colors.prt : colors.mu,
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        strings.appModeSimple,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 10,
+                          fontWeight: isSimpleMode
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          color: isSimpleMode ? colors.prt : colors.mu,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                ref
+                    .read(appStateProvider.notifier)
+                    .setAppMode('advanced', persistImmediately: true);
+              },
+              borderRadius: BorderRadius.circular(AppRadius.full),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 160),
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                decoration: BoxDecoration(
+                  color: isAdvancedMode ? colors.pr : Colors.transparent,
+                  borderRadius: BorderRadius.circular(AppRadius.full),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.tune_rounded,
+                      size: 13,
+                      color: isAdvancedMode ? colors.prt : colors.mu,
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        strings.appModeAdvanced,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 10,
+                          fontWeight: isAdvancedMode
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          color: isAdvancedMode ? colors.prt : colors.mu,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -130,17 +130,21 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
-    final appState = ref.watch(appStateProvider);
-    final activeTabId = appState.currentProfileTab;
+    final activeTabId = ref.watch(
+      appStateProvider.select((s) => s.currentProfileTab),
+    );
+    final isTermsUnsigned = ref.watch(
+      appStateProvider.select((s) => s.termsAcceptedAt == null),
+    );
+    final isAdvanced = ref.watch(
+      appStateProvider.select((s) => s.isAdvancedMode),
+    );
     final isEditableTab = _editableTabs.contains(activeTabId);
 
     final sessionsAsync = ref.watch(allSessionsProvider);
     final activeSessionsCount = sessionsAsync.valueOrNull
         ?.where((s) => !s.isBlocked && s.isActive)
         .length;
-    final isTermsUnsigned = appState.termsAcceptedAt == null;
-
-    final isAdvanced = appState.isAdvancedMode;
 
     final subTabs = [
       _SubTabMeta('p-identity', strings.tIdent, FontAwesomeIcons.idCard),
@@ -274,10 +278,11 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                         _StickySaveBar(
                           colors: colors,
                           strings: strings,
-                          hasChanges: appState.hasUnsavedChanges,
-                          isSaving: appState.isSavingProfile,
                           onSave: () async {
-                            if (!_isIdentityValid(appState.identityValues)) {
+                            final currentValues = ref
+                                .read(appStateProvider)
+                                .identityValues;
+                            if (!_isIdentityValid(currentValues)) {
                               AppToast.showWarning(
                                 context,
                                 strings.idErrValidationSummary,
@@ -496,23 +501,23 @@ class _SidebarTabButton extends StatelessWidget {
   }
 }
 
-class _StickySaveBar extends StatelessWidget {
+class _StickySaveBar extends ConsumerWidget {
   final AppColors colors;
   final AppStrings strings;
-  final bool hasChanges;
-  final bool isSaving;
   final VoidCallback onSave;
 
   const _StickySaveBar({
     required this.colors,
     required this.strings,
-    required this.hasChanges,
-    required this.isSaving,
     required this.onSave,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final (hasChanges, isSaving) = ref.watch(
+      appStateProvider.select((s) => (s.hasUnsavedChanges, s.isSavingProfile)),
+    );
+
     return Container(
       padding: const EdgeInsetsDirectional.fromSTEB(
         AppSpacing.md,
