@@ -316,7 +316,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
             ),
 
             // ── 3. Universal Footer (Pinned at bottom) ───────────────
-            const AuthFooter(isTransparent: false),
+            const AuthFooter(isTransparent: false, showLegalLinks: true),
           ],
         ),
       ),

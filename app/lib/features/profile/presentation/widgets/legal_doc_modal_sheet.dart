@@ -25,6 +25,7 @@ class LegalDocModalSheet extends StatefulWidget {
   final String? title;
   final FaIconData? icon;
   final int initialTab;
+  final bool previewOnly;
   final List<LegalDocSection>? customSections;
 
   const LegalDocModalSheet({
@@ -32,6 +33,7 @@ class LegalDocModalSheet extends StatefulWidget {
     this.title,
     this.icon,
     this.initialTab = 0,
+    this.previewOnly = false,
     this.customSections,
   });
 
@@ -40,6 +42,7 @@ class LegalDocModalSheet extends StatefulWidget {
     String? title,
     FaIconData? icon,
     int initialTab = 0,
+    bool previewOnly = false,
     List<LegalDocSection>? sections,
   }) {
     return AppModal.showSheet(
@@ -48,33 +51,37 @@ class LegalDocModalSheet extends StatefulWidget {
         title: title,
         icon: icon,
         initialTab: initialTab,
+        previewOnly: previewOnly,
         customSections: sections,
       ),
     );
   }
 
-  static void showTerms(BuildContext context) {
+  static void showTerms(BuildContext context, {bool previewOnly = false}) {
     show(
       context,
       initialTab: 0,
+      previewOnly: previewOnly,
       title: context.strings.aboutTermsTitle,
       icon: FontAwesomeIcons.fileContract,
     );
   }
 
-  static void showPrivacy(BuildContext context) {
+  static void showPrivacy(BuildContext context, {bool previewOnly = false}) {
     show(
       context,
       initialTab: 1,
+      previewOnly: previewOnly,
       title: context.strings.aboutPrivacyTitle,
       icon: FontAwesomeIcons.shieldHalved,
     );
   }
 
-  static void showLegalInfo(BuildContext context) {
+  static void showLegalInfo(BuildContext context, {bool previewOnly = false}) {
     show(
       context,
       initialTab: 2,
+      previewOnly: previewOnly,
       title: context.strings.legalTabLegalInfo,
       icon: FontAwesomeIcons.buildingColumns,
     );
@@ -758,6 +765,7 @@ class _LegalDocModalSheetState extends State<LegalDocModalSheet> {
 class FullContractModalSheet extends StatefulWidget {
   final Future<void> Function()? onSign;
   final bool isReadOnlyAudit;
+  final bool previewOnly;
   final LegalConsentAudit? audit;
   final int initialTab;
 
@@ -765,6 +773,7 @@ class FullContractModalSheet extends StatefulWidget {
     super.key,
     this.onSign,
     this.isReadOnlyAudit = false,
+    this.previewOnly = false,
     this.audit,
     this.initialTab = 0,
   });
@@ -773,6 +782,7 @@ class FullContractModalSheet extends StatefulWidget {
     BuildContext context, {
     Future<void> Function()? onSign,
     bool isReadOnlyAudit = false,
+    bool previewOnly = false,
     LegalConsentAudit? audit,
     int initialTab = 0,
   }) {
@@ -781,6 +791,7 @@ class FullContractModalSheet extends StatefulWidget {
       child: FullContractModalSheet(
         onSign: onSign,
         isReadOnlyAudit: isReadOnlyAudit,
+        previewOnly: previewOnly,
         audit: audit,
         initialTab: initialTab,
       ),
@@ -913,7 +924,7 @@ class _FullContractModalSheetState extends State<FullContractModalSheet> {
                     vertical: AppSpacing.xs,
                   ),
                   children: [
-                    if (widget.isReadOnlyAudit) ...[
+                    if (!widget.previewOnly && widget.isReadOnlyAudit) ...[
                       _buildAuditReceiptCard(context, colors, strings),
                       const SizedBox(height: AppSpacing.md),
                     ],
@@ -945,9 +956,9 @@ class _FullContractModalSheetState extends State<FullContractModalSheet> {
                 ),
               ),
 
-              // Pinned Bottom Controls (Close Button if audit, else Checkbox & Sign)
+              // Pinned Bottom Controls (Close Button if previewOnly or audit, else Checkbox & Sign)
               Divider(color: colors.bd, height: 1.0),
-              if (widget.isReadOnlyAudit)
+              if (widget.previewOnly || widget.isReadOnlyAudit)
                 Padding(
                   padding: const EdgeInsetsDirectional.all(AppSpacing.md),
                   child: AppButton(
