@@ -1161,6 +1161,15 @@ class AppStrings {
   String get aboutAuditIpLoc => get('aboutAuditIpLoc');
   String get aboutAuditDevice => get('aboutAuditDevice');
   String get aboutAuditNotRecorded => get('aboutAuditNotRecorded');
+  String get aboutAuditDocHash => get('aboutAuditDocHash');
+  String get aboutAuditHashLegacy => get('aboutAuditHashLegacy');
+  String get legalTabTerms => get('legalTabTerms');
+  String get legalTabPrivacy => get('legalTabPrivacy');
+  String get legalTabLegalInfo => get('legalTabLegalInfo');
+  String get legalSummaryTitle => get('legalSummaryTitle');
+  String get legalExpandAll => get('legalExpandAll');
+  String get legalCollapseAll => get('legalCollapseAll');
+  String get legalDisputeResolutionTitle => get('legalDisputeResolutionTitle');
   String get aboutContactSectionTitle => get('aboutContactSectionTitle');
   String get aboutSocialMediaLabel => get('aboutSocialMediaLabel');
   String get aboutSocialMediaSubtitle => get('aboutSocialMediaSubtitle');

@@ -491,8 +491,12 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
         rawDate,
         strings.localeCode,
       );
+      final rawVer = appState.termsVersion ?? 'v2.0';
+      final cleanNum = rawVer.startsWith('v') || rawVer.startsWith('V')
+          ? rawVer.substring(1)
+          : rawVer;
       final versionStr = DigitFormatter.localizeDigits(
-        appState.termsVersion ?? '1.0',
+        cleanNum,
         strings.localeCode,
       );
 
@@ -671,7 +675,7 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
     final signed = await FullContractModalSheet.show(
       context,
       onSign: () async {
-        await ref.read(appStateProvider.notifier).acceptTerms(version: '1.0');
+        await ref.read(appStateProvider.notifier).acceptTerms(version: 'v2.0');
       },
     );
 

@@ -12,6 +12,7 @@ class LegalConsentAudit {
   final String? ipAddress;
   final String? ipLocation;
   final String? deviceInfo;
+  final String? documentHash;
 
   const LegalConsentAudit({
     required this.acceptedAt,
@@ -22,6 +23,7 @@ class LegalConsentAudit {
     this.ipAddress,
     this.ipLocation,
     this.deviceInfo,
+    this.documentHash,
   });
 
   Map<String, dynamic> toMap() => {
@@ -33,6 +35,7 @@ class LegalConsentAudit {
     if (ipAddress != null) 'ipAddress': ipAddress,
     if (ipLocation != null) 'ipLocation': ipLocation,
     if (deviceInfo != null) 'deviceInfo': deviceInfo,
+    if (documentHash != null) 'documentHash': documentHash,
   };
 
   factory LegalConsentAudit.fromMap(Map<String, dynamic> map) {
@@ -53,6 +56,7 @@ class LegalConsentAudit {
       ipAddress: map['ipAddress']?.toString(),
       ipLocation: map['ipLocation']?.toString(),
       deviceInfo: map['deviceInfo']?.toString(),
+      documentHash: map['documentHash']?.toString(),
     );
   }
 
@@ -68,7 +72,8 @@ class LegalConsentAudit {
           signerEmail == other.signerEmail &&
           ipAddress == other.ipAddress &&
           ipLocation == other.ipLocation &&
-          deviceInfo == other.deviceInfo;
+          deviceInfo == other.deviceInfo &&
+          documentHash == other.documentHash;
 
   @override
   int get hashCode => Object.hash(
@@ -80,5 +85,6 @@ class LegalConsentAudit {
     ipAddress,
     ipLocation,
     deviceInfo,
+    documentHash,
   );
 }

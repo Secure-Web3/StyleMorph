@@ -6,6 +6,7 @@ import '../../features/profile/domain/kyc_model.dart';
 import '../../features/profile/data/profile_sync_service.dart';
 import '../../features/profile/domain/user_preferences.dart';
 import '../../features/profile/domain/legal_consent_audit.dart';
+import '../../features/profile/domain/legal_document_v2.dart';
 import '../../features/profile/domain/profile_progress_calculator.dart';
 import '../../features/profile/domain/profile_snapshot.dart';
 import '../../features/shell/domain/app_tab.dart';
@@ -18,6 +19,7 @@ export '../../features/profile/data/profile_firestore_mapper.dart';
 export '../../features/profile/data/profile_sync_service.dart';
 export '../../features/profile/domain/companion_settings.dart';
 export '../../features/profile/domain/legal_consent_audit.dart';
+export '../../features/profile/domain/legal_document_v2.dart';
 export '../../features/profile/domain/profile_progress_calculator.dart';
 export '../../features/profile/domain/profile_snapshot.dart';
 export '../../features/shell/domain/app_tab.dart';
@@ -812,9 +814,10 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   /// Electronically signs and records agreement to Terms of Service & Privacy Policy.
-  Future<void> acceptTerms({String version = '1.0'}) async {
+  Future<void> acceptTerms({String version = 'v2.0'}) async {
     final audit = await _profileSyncService.recordLegalConsent(
       version: version,
+      documentHash: LegalDocumentV2.sha256Hash,
       loadedUid: state.loadedUid,
       currentName: state.userName,
       currentEmail: state.identityValues['email'],

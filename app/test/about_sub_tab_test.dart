@@ -25,10 +25,18 @@ class _TestAppStateNotifier extends AppStateNotifier {
   }
 
   @override
-  Future<void> acceptTerms({String version = '1.0'}) async {
+  Future<void> acceptTerms({String version = 'v2.0'}) async {
     state = state.copyWith(
       termsAcceptedAt: DateTime(2026, 11, 22),
       termsVersion: version,
+      legalConsent: LegalConsentAudit(
+        acceptedAt: DateTime(2026, 11, 22),
+        contractVersion: version,
+        signerUid: 'test_uid_123',
+        signerName: 'Test User',
+        signerEmail: 'test@stylemorph.app',
+        documentHash: LegalDocumentV2.sha256Hash,
+      ),
     );
   }
 }
@@ -145,7 +153,7 @@ void main() {
               isLoggedIn: true,
               currentProfileTab: 'p-settings',
               termsAcceptedAt: DateTime(2026, 11, 20),
-              termsVersion: '1.0',
+              termsVersion: 'v2.0',
             ),
           ),
         );
@@ -315,7 +323,7 @@ void main() {
         expect(find.byType(FullContractModalSheet), findsOneWidget);
         expect(
           find.text(
-            'I have read and agree to the StyleMorph Terms of Service and Privacy Policy.',
+            'I am at least 18 years old. I have read and accept the StyleMorph Terms of Service and Privacy Policy (Version 2.0).',
           ),
           findsOneWidget,
         );
@@ -344,8 +352,8 @@ void main() {
         // Modal closes and verified green badge is shown
         expect(find.byType(FullContractModalSheet), findsNothing);
         expect(find.byKey(const Key('agreement_signed_badge')), findsOneWidget);
-        expect(find.text('Electronically Signed & Accepted'), findsOneWidget);
-        expect(find.textContaining('(v1.0)'), findsOneWidget);
+        expect(find.text('Accepted'), findsOneWidget);
+        expect(find.textContaining('(v2.0)'), findsOneWidget);
       },
     );
 
@@ -397,7 +405,7 @@ void main() {
             currentTab: AppTab.profile,
             currentProfileTab: 'p-about',
             termsAcceptedAt: DateTime(2026, 11, 20),
-            termsVersion: '1.0',
+            termsVersion: 'v2.0',
           ),
           child: const SingleChildScrollView(child: AboutSubTab()),
         ),
@@ -406,9 +414,9 @@ void main() {
 
       expect(find.byKey(const Key('agreement_card')), findsOneWidget);
       expect(find.byKey(const Key('agreement_signed_badge')), findsOneWidget);
-      expect(find.text('Electronically Signed & Accepted'), findsOneWidget);
+      expect(find.text('Accepted'), findsOneWidget);
       expect(
-        find.textContaining('Signed on: 2026/11/20 (v1.0)'),
+        find.textContaining('Signed on: 2026/11/20 (v2.0)'),
         findsOneWidget,
       );
       expect(find.byKey(const Key('agreement_sign_button')), findsNothing);
@@ -437,21 +445,43 @@ void main() {
         await tester.tap(termsTile);
         await tester.pumpAndSettle();
 
-        // Bottom sheet should be visible with store-compliant Terms content
+        // Bottom sheet should be visible with Layer 1 Summary & Layer 2 Tabs
         expect(find.byType(LegalDocModalSheet), findsOneWidget);
+        final summaryHeader = find.text('Key Points at a Glance');
+        expect(summaryHeader, findsOneWidget);
+        expect(find.text('Terms'), findsOneWidget);
+        expect(find.text('Privacy'), findsOneWidget);
+        expect(find.text('Legal Info'), findsOneWidget);
+
+        // Collapse summary card so accordions move into prime center view
+        await tester.tap(summaryHeader);
+        await tester.pumpAndSettle();
+
+        // Verify Section 1: Scope & Electronic Acceptance is visible and expands
+        final scopeSection = find.text('Scope & Electronic Acceptance');
+        expect(scopeSection, findsOneWidget);
+
+        // Tap the section to expand accordion
+        await tester.tap(scopeSection);
+        await tester.pumpAndSettle();
+
         expect(
-          find.textContaining('By accessing or using StyleMorph'),
+          find.textContaining('binding contract with StyleMorph'),
           findsOneWidget,
         );
-        expect(find.textContaining('13 years old'), findsOneWidget);
-        // Scroll terms list to reveal Anti-Deepfake policy section
-        final antiDeepfakeFinder = find.textContaining('Anti-Deepfake');
-        await tester.scrollUntilVisible(
-          antiDeepfakeFinder,
-          100,
-          scrollable: find.byType(Scrollable).last,
+
+        // Test Expand All toggle
+        final expandAllBtn = find.text('Expand All');
+        expect(expandAllBtn, findsOneWidget);
+        await tester.tap(expandAllBtn);
+        await tester.pumpAndSettle();
+
+        expect(
+          find.textContaining(
+            'strictly intended for adult individuals who are at least 18 years of age',
+          ),
+          findsWidgets,
         );
-        expect(antiDeepfakeFinder, findsOneWidget);
 
         // Close modal
         final closeBtn = find.text('Close');
@@ -460,7 +490,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.byType(LegalDocModalSheet), findsNothing);
 
-        // Now test Privacy Policy modal
+        // Now test Privacy Policy modal (opens on Tab 1 Privacy)
         final privacyTile = find.text(
           'Privacy Policy & AI Image Data Protection',
         );
@@ -469,16 +499,30 @@ void main() {
         await tester.pumpAndSettle();
 
         expect(find.byType(LegalDocModalSheet), findsOneWidget);
+        final privacySummaryHeader = find.text('Key Points at a Glance');
+        expect(privacySummaryHeader, findsOneWidget);
+
+        // Collapse summary card so privacy accordions move into prime center view
+        await tester.tap(privacySummaryHeader);
+        await tester.pumpAndSettle();
+
+        final dataControllerTile = find.text('Data Controller Identity');
+        expect(dataControllerTile, findsOneWidget);
+
+        // Tap to expand Privacy Section 1
+        await tester.tap(dataControllerTile);
+        await tester.pumpAndSettle();
+
         expect(
-          find.textContaining(
-            'Google Cloud Platform and Firebase infrastructure in Frankfurt',
-          ),
+          find.textContaining('GDPR and German Federal Data Protection Act'),
           findsOneWidget,
         );
-
-        await tester.drag(find.byType(ListView).last, const Offset(0, -250));
         await tester.pumpAndSettle();
-        expect(find.textContaining('Zero-Sale Guarantee'), findsOneWidget);
+
+        expect(
+          find.textContaining('GDPR and German Federal Data Protection Act'),
+          findsOneWidget,
+        );
 
         // Close privacy modal
         await tester.tap(find.text('Close'));
@@ -627,6 +671,83 @@ void main() {
         await tester.enterText(searchField, 'nonexistent_pkg_123');
         await tester.pumpAndSettle();
         expect(find.text('No packages match your search'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'renders Audit Receipt with SHA-256 hash when signed card is tapped',
+      (tester) async {
+        await tester.pumpWidget(
+          createTestWidget(
+            initialState: AppState(
+              isLoggedIn: true,
+              currentTab: AppTab.profile,
+              currentProfileTab: 'p-about',
+              termsAcceptedAt: DateTime(2026, 11, 20),
+              termsVersion: 'v2.0',
+              legalConsent: LegalConsentAudit(
+                acceptedAt: DateTime(2026, 11, 20, 14, 30),
+                contractVersion: 'v2.0',
+                signerUid: 'uid_test_999',
+                signerName: 'Jane Doe',
+                signerEmail: 'jane@example.com',
+                documentHash: LegalDocumentV2.sha256Hash,
+                ipAddress: '192.168.1.1',
+                ipLocation: 'Frankfurt, Germany',
+                deviceInfo: 'Chrome on macOS',
+              ),
+            ),
+            child: const SingleChildScrollView(child: AboutSubTab()),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Tap signed card to open Audit Receipt
+        final signedCard = find.byKey(
+          const Key('agreement_signed_clickable_card'),
+        );
+        expect(signedCard, findsOneWidget);
+        await tester.scrollUntilVisible(signedCard, 100);
+        await tester.tap(signedCard);
+        await tester.pumpAndSettle();
+
+        expect(
+          find.byKey(const Key('contract_audit_receipt_card')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: find.byKey(const Key('contract_audit_receipt_card')),
+            matching: find.text('Accepted'),
+          ),
+          findsOneWidget,
+        );
+        expect(find.text(LegalDocumentV2.sha256Hash), findsOneWidget);
+        expect(find.text('Jane Doe'), findsOneWidget);
+        expect(find.text('jane@example.com'), findsOneWidget);
+
+        // Close audit receipt
+        await tester.tap(find.byKey(const Key('contract_audit_close_button')));
+        await tester.pumpAndSettle();
+        expect(
+          find.byKey(const Key('contract_audit_receipt_card')),
+          findsNothing,
+        );
+      },
+    );
+
+    test(
+      'LegalDocumentV2 canonical SHA-256 hash is deterministic and valid 64 hex chars',
+      () {
+        expect(LegalDocumentV2.version, equals('v2.0'));
+        expect(LegalDocumentV2.sha256Hash.length, equals(64));
+        expect(
+          RegExp(r'^[a-f0-9]{64}$').hasMatch(LegalDocumentV2.sha256Hash),
+          isTrue,
+        );
+        expect(LegalDocumentV2.englishTermsClauses.length, equals(22));
+        expect(LegalDocumentV2.englishPrivacyClauses.length, equals(22));
+        expect(LegalDocumentV2.englishKeyPoints.length, equals(7));
       },
     );
   });

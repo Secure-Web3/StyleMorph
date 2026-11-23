@@ -219,6 +219,7 @@ class ProfileSyncService {
   /// Records legal agreement terms in Firestore and returns the created audit record.
   Future<LegalConsentAudit> recordLegalConsent({
     required String version,
+    String? documentHash,
     String? loadedUid,
     String? currentName,
     String? currentEmail,
@@ -265,6 +266,7 @@ class ProfileSyncService {
       ipAddress: ip,
       ipLocation: location,
       deviceInfo: deviceInfo,
+      documentHash: documentHash,
     );
 
     try {
