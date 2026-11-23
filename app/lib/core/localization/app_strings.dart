@@ -744,6 +744,17 @@ class AppStrings {
       get('wardSentStylistToast').replaceAll('{name}', name);
   String wardDeleteConfirm(String name) =>
       get('wardDeleteConfirmMsg').replaceAll('{name}', name);
+  String get wardPhotoRequired => get('wardPhotoRequired');
+  String get wardPhotoRequiredInline => get('wardPhotoRequiredInline');
+  String get wardItemNameRequired => get('wardItemNameRequired');
+  String get wardSaving => get('wardSaving');
+  String get wardLoadMore => get('wardLoadMore');
+  String get wardPickFromGallery => get('wardPickFromGallery');
+  String get wardTakePhoto => get('wardTakePhoto');
+  String get wardChangePhoto => get('wardChangePhoto');
+  String get wardRemovePhoto => get('wardRemovePhoto');
+  String get wardUploadError => get('wardUploadError');
+  String get wardPayloadTooLarge => get('wardPayloadTooLarge');
 
   // Shop
   String get shopSub => get('shopSub');

@@ -5,6 +5,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_media_image.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../domain/wardrobe_item.dart';
@@ -48,6 +49,12 @@ class WardrobeItemDetailSheet extends StatelessWidget {
       default:
         return Icons.checkroom_rounded;
     }
+  }
+
+  Widget _buildPlaceholder(Color itemColor) {
+    return Center(
+      child: Icon(_categoryIcon(item.category), size: 56, color: itemColor),
+    );
   }
 
   @override
@@ -176,15 +183,22 @@ class WardrobeItemDetailSheet extends StatelessWidget {
         children: [
           // Big preview tile
           AppCard(
-            height: 130,
+            height: 180,
             backgroundColor: itemColor.withValues(alpha: 0.18),
-            child: Center(
-              child: Icon(
-                _categoryIcon(item.category),
-                size: 56,
-                color: itemColor,
-              ),
-            ),
+            clipBehavior: Clip.antiAlias,
+            padding: EdgeInsetsDirectional.zero,
+            child: (item.originalUrl.isNotEmpty || item.thumbUrl.isNotEmpty)
+                ? AppMediaImage(
+                    item.originalUrl.isNotEmpty
+                        ? item.originalUrl
+                        : item.thumbUrl,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: 180,
+                    errorBuilder: (context, error, stackTrace) =>
+                        _buildPlaceholder(itemColor),
+                  )
+                : _buildPlaceholder(itemColor),
           ),
           const SizedBox(height: AppSpacing.md),
 

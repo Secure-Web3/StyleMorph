@@ -41,8 +41,8 @@ void main() {
   group('Phase 2: Wardrobe Tests', () {
     test(
       'WardrobeRepository starts empty with zero fake items and manages state',
-      () {
-        final repo = WardrobeRepository();
+      () async {
+        final repo = InMemoryWardrobeRepository();
         expect(repo.getItems().length, 0);
 
         const newItem = WardrobeItem(
@@ -60,28 +60,28 @@ void main() {
           isArchived: false,
         );
 
-        repo.addItem(newItem);
+        await repo.addItem(newItem);
         expect(repo.getItems().length, 1);
 
-        repo.toggleFavorite('test_1');
+        await repo.toggleFavorite('test_1', true);
         expect(
           repo.getItems().firstWhere((e) => e.id == 'test_1').isFavorite,
           true,
         );
 
-        repo.toggleArchive('test_1');
+        await repo.toggleArchive('test_1', true);
         expect(
           repo.getItems().firstWhere((e) => e.id == 'test_1').isArchived,
           true,
         );
 
-        repo.deleteItem('test_1');
+        await repo.deleteItem('test_1');
         expect(repo.getItems().length, 0);
       },
     );
 
     test('WardrobeNotifier filtering and search works reactive', () {
-      final repo = WardrobeRepository([
+      final repo = InMemoryWardrobeRepository([
         const WardrobeItem(
           id: 'item_1',
           name: 'پیراهن سفید',
@@ -203,7 +203,7 @@ void main() {
         await tester.binding.setSurfaceSize(const Size(430, 932));
         addTearDown(() => tester.binding.setSurfaceSize(null));
 
-        final repo = WardrobeRepository([
+        final repo = InMemoryWardrobeRepository([
           const WardrobeItem(
             id: 'item_1',
             name: 'پیراهن آبی کلاسیک',
@@ -258,7 +258,7 @@ void main() {
         await tester.binding.setSurfaceSize(const Size(430, 932));
         addTearDown(() => tester.binding.setSurfaceSize(null));
 
-        final repo = WardrobeRepository([
+        final repo = InMemoryWardrobeRepository([
           const WardrobeItem(
             id: 'item_1',
             name: 'پیراهن آبی',

@@ -4,6 +4,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_media_image.dart';
 import '../../domain/wardrobe_item.dart';
 
 class WardrobeItemCard extends StatelessWidget {
@@ -51,6 +52,15 @@ class WardrobeItemCard extends StatelessWidget {
     }
   }
 
+  Widget _buildPlaceholder(Color itemColor) {
+    return Container(
+      color: itemColor.withValues(alpha: 0.18),
+      child: Center(
+        child: Icon(_categoryIcon(item.category), size: 34, color: itemColor),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final strings = context.strings;
@@ -68,16 +78,15 @@ class WardrobeItemCard extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                Container(
-                  color: itemColor.withValues(alpha: 0.18),
-                  child: Center(
-                    child: Icon(
-                      _categoryIcon(item.category),
-                      size: 34,
-                      color: itemColor,
-                    ),
-                  ),
-                ),
+                if (item.thumbUrl.isNotEmpty)
+                  AppMediaImage(
+                    item.thumbUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        _buildPlaceholder(itemColor),
+                  )
+                else
+                  _buildPlaceholder(itemColor),
                 // Actions (top-end): Favorite Star + Quick Archive
                 PositionedDirectional(
                   top: 6,

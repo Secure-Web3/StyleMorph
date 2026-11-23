@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/localization/app_strings.dart';
@@ -76,6 +77,7 @@ class WardrobeTab extends ConsumerWidget {
                 categories: _categories,
                 selected: ws.filter.category,
                 colors: colors,
+                itemCount: ws.countByCategory,
                 onSelect: notifier.setCategory,
               ),
               // Divider
@@ -104,6 +106,10 @@ class WardrobeTab extends ConsumerWidget {
                       child: _WardrobeGrid(
                         items: ws.filteredItems,
                         colors: colors,
+                        isLoading: ws.isLoading,
+                        isLoadingMore: ws.isLoadingMore,
+                        hasMore: ws.hasMore,
+                        onLoadMore: notifier.loadMore,
                         onTap: (item) => _showDetailSheet(context, ref, item),
                         onFav: notifier.toggleFavorite,
                         onArchive: notifier.toggleArchive,
@@ -128,6 +134,34 @@ class WardrobeTab extends ConsumerWidget {
       context: context,
       child: AddItemBottomSheet(
         onAdd: (item) => ref.read(wardrobeProvider.notifier).addItem(item),
+        onAddWithImage:
+            ({
+              required Uint8List imageBytes,
+              required String mimeType,
+              required String title,
+              required String category,
+              required String subCategory,
+              required String colorName,
+              required String colorHex,
+              required String season,
+              required String occasion,
+              required String material,
+              required String size,
+            }) => ref
+                .read(wardrobeProvider.notifier)
+                .addItemWithImage(
+                  imageBytes: imageBytes,
+                  mimeType: mimeType,
+                  title: title,
+                  category: category,
+                  subCategory: subCategory,
+                  colorName: colorName,
+                  colorHex: colorHex,
+                  season: season,
+                  occasion: occasion,
+                  material: material,
+                  size: size,
+                ),
       ),
     );
   }
@@ -239,12 +273,14 @@ class _CategorySidebar extends StatelessWidget {
     required this.categories,
     required this.selected,
     required this.colors,
+    required this.itemCount,
     required this.onSelect,
   });
 
   final List<(String, String, IconData)> categories;
   final String selected;
   final AppColors colors;
+  final int Function(String) itemCount;
   final void Function(String) onSelect;
 
   @override
@@ -258,6 +294,7 @@ class _CategorySidebar extends StatelessWidget {
         itemBuilder: (_, i) {
           final (code, label, icon) = categories[i];
           final isActive = selected == code;
+          final count = itemCount(code);
           return InkWell(
             onTap: () => onSelect(code),
             child: AnimatedContainer(
@@ -279,8 +316,68 @@ class _CategorySidebar extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(icon, size: 18, color: isActive ? colors.pr : colors.mu),
-                  const SizedBox(height: 4),
+                  Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
+                    children: [
+                      Icon(
+                        icon,
+                        size: 18,
+                        color: isActive ? colors.pr : colors.mu,
+                      ),
+                      PositionedDirectional(
+                        top: -5,
+                        end: -10,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 3,
+                            vertical: 1,
+                          ),
+                          constraints: const BoxConstraints(
+                            minWidth: 14,
+                            minHeight: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isActive
+                                ? colors.pr
+                                : (count > 0
+                                      ? colors.sf
+                                      : colors.sf.withValues(alpha: 0.5)),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: isActive
+                                  ? colors.pr
+                                  : (count > 0
+                                        ? colors.bd
+                                        : colors.bd.withValues(alpha: 0.6)),
+                              width: 0.8,
+                            ),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            DigitFormatter.localizeDigits(
+                              count,
+                              strings.localeCode,
+                            ),
+                            style: TextStyle(
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: 8.5,
+                              fontWeight: isActive
+                                  ? FontWeight.w700
+                                  : FontWeight.w500,
+                              color: isActive
+                                  ? colors.prt
+                                  : (count > 0
+                                        ? colors.tx
+                                        : colors.mu.withValues(alpha: 0.7)),
+                              height: 1.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
                   Text(
                     strings.tr(label),
                     style: TextStyle(
@@ -466,6 +563,10 @@ class _WardrobeGrid extends StatelessWidget {
   const _WardrobeGrid({
     required this.items,
     required this.colors,
+    this.isLoading = false,
+    this.isLoadingMore = false,
+    this.hasMore = false,
+    this.onLoadMore,
     required this.onTap,
     required this.onFav,
     required this.onArchive,
@@ -477,6 +578,10 @@ class _WardrobeGrid extends StatelessWidget {
 
   final List<WardrobeItem> items;
   final AppColors colors;
+  final bool isLoading;
+  final bool isLoadingMore;
+  final bool hasMore;
+  final VoidCallback? onLoadMore;
   final void Function(WardrobeItem) onTap;
   final void Function(String) onFav;
   final void Function(String) onArchive;
@@ -488,6 +593,16 @@ class _WardrobeGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final strings = context.strings;
+
+    if (isLoading && items.isEmpty) {
+      return Center(
+        child: SizedBox(
+          width: 28,
+          height: 28,
+          child: CircularProgressIndicator(strokeWidth: 2.5, color: colors.pr),
+        ),
+      );
+    }
 
     if (items.isEmpty) {
       if (showArchived) {
@@ -582,28 +697,75 @@ class _WardrobeGrid extends StatelessWidget {
       );
     }
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(AppSpacing.sm),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: 0.82,
-      ),
-      itemCount: showArchived ? items.length : items.length + 1,
-      itemBuilder: (_, i) {
-        if (!showArchived && i == items.length) {
-          return _AddDashedCard(colors: colors, onTap: onAdd);
+    final gridCount = showArchived ? items.length : items.length + 1;
+
+    return NotificationListener<ScrollNotification>(
+      onNotification: (scrollInfo) {
+        if (hasMore &&
+            !isLoadingMore &&
+            onLoadMore != null &&
+            scrollInfo.metrics.extentAfter < 200) {
+          onLoadMore!();
         }
-        final item = items[i];
-        return WardrobeItemCard(
-          item: item,
-          colors: colors,
-          onTap: () => onTap(item),
-          onFav: () => onFav(item.id),
-          onArchive: () => onArchive(item.id),
-        );
+        return false;
       },
+      child: CustomScrollView(
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            sliver: SliverGrid(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: 0.82,
+              ),
+              delegate: SliverChildBuilderDelegate((_, i) {
+                if (!showArchived && i == items.length) {
+                  return _AddDashedCard(colors: colors, onTap: onAdd);
+                }
+                final item = items[i];
+                return WardrobeItemCard(
+                  item: item,
+                  colors: colors,
+                  onTap: () => onTap(item),
+                  onFav: () => onFav(item.id),
+                  onArchive: () => onArchive(item.id),
+                );
+              }, childCount: gridCount),
+            ),
+          ),
+          if (hasMore)
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.sm,
+                ),
+                child: Center(
+                  child: AppButton(
+                    variant: AppButtonVariant.outline,
+                    size: AppButtonSize.sm,
+                    icon: isLoadingMore
+                        ? SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: colors.tx,
+                            ),
+                          )
+                        : const Icon(Icons.expand_more_rounded, size: 16),
+                    text: isLoadingMore
+                        ? strings.wardSaving
+                        : strings.wardLoadMore,
+                    onPressed: isLoadingMore ? null : onLoadMore,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
