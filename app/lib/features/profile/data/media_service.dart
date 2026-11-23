@@ -4,86 +4,85 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../core/services/storage/firebase_cloud_media_storage.dart';
+import '../../../core/services/storage/firestore_inline_media_storage.dart';
+import '../../../core/services/storage/media_storage_provider.dart';
+import '../../../core/services/storage/media_storage_service.dart';
+
 final mediaServiceProvider = Provider<MediaService>((ref) {
-  return MediaService();
+  final mediaStorage = ref.watch(mediaStorageServiceProvider);
+  return MediaService(mediaStorage: mediaStorage);
 });
 
 class MediaService {
-  final FirebaseFirestore _firestore;
-  final FirebaseStorage? _storage;
+  final FirebaseFirestore? _firestore;
+  final MediaStorageService _mediaStorage;
 
-  MediaService({FirebaseFirestore? firestore, FirebaseStorage? storage})
-    : _firestore =
-          firestore ??
-          (Firebase.apps.isNotEmpty
-              ? FirebaseFirestore.instance
-              : null as dynamic),
-      _storage =
-          storage ??
-          (Firebase.apps.isNotEmpty ? FirebaseStorage.instance : null);
+  MediaService({
+    FirebaseFirestore? firestore,
+    MediaStorageService? mediaStorage,
+    FirebaseStorage? storage,
+  }) : _firestore =
+           firestore ??
+           (Firebase.apps.isNotEmpty ? FirebaseFirestore.instance : null),
+       _mediaStorage =
+           mediaStorage ??
+           (storage != null
+               ? FirebaseCloudMediaStorage(storage: storage)
+               : const FirestoreInlineMediaStorage());
 
-  /// Uploads media file to Firebase Storage under `users/{uid}/media/{slotKey}_{timestamp}.{ext}`
-  /// and persists download URL in Firestore document `users/{uid}` under `mediaSlots.{slotKey}`.
+  /// Uploads media file under `users/{uid}/media/{slotKey}_{timestamp}.{ext}`
+  /// and persists URL or Data URL in Firestore document `users/{uid}` under `mediaSlots.{slotKey}`.
   Future<String> uploadMediaSlot({
     required String uid,
     required String slotKey,
     required XFile file,
     bool isVideo = false,
   }) async {
-    if (Firebase.apps.isEmpty || _storage == null) {
-      // Mock fallback when Firebase is not initialized
-      final mockUrl =
-          'https://firebasestorage.googleapis.com/v0/b/mock/o/users%2F$uid%2Fmedia%2F${file.name}';
-      return mockUrl;
-    }
-
     final ext = file.name.contains('.')
         ? file.name.split('.').last
-        : (isVideo ? 'mp4' : 'webp');
+        : (isVideo ? 'mp4' : 'jpg');
     final filename = '${DateTime.now().millisecondsSinceEpoch}_$slotKey.$ext';
-    final ref = _storage
-        .ref()
-        .child('users')
-        .child(uid)
-        .child('media')
-        .child(filename);
+    final path = 'users/$uid/media/$filename';
 
     final bytes = await file.readAsBytes();
-    final metadata = SettableMetadata(
-      contentType: isVideo ? 'video/mp4' : 'image/jpeg',
-      customMetadata: {'uid': uid, 'slotKey': slotKey},
+    final mimeType = isVideo ? 'video/mp4' : 'image/jpeg';
+
+    final downloadUrl = await _mediaStorage.uploadImage(
+      path: path,
+      bytes: bytes,
+      mimeType: mimeType,
     );
 
-    await ref.putData(bytes, metadata);
-    final downloadUrl = await ref.getDownloadURL();
-
     // Persist in Firestore
-    final userDoc = _firestore.collection('users').doc(uid);
-    await userDoc.set({
-      'mediaSlots': {slotKey: downloadUrl},
-      'updatedAt': FieldValue.serverTimestamp(),
-    }, SetOptions(merge: true));
-
-    // Also track in subcollection `users/{uid}/media/{slotKey}` for audit & versioning
-    try {
-      await userDoc.collection('media').doc(slotKey).set({
-        'slotKey': slotKey,
-        'url': downloadUrl,
-        'isVideo': isVideo,
+    if (Firebase.apps.isNotEmpty && _firestore != null) {
+      final userDoc = _firestore.collection('users').doc(uid);
+      await userDoc.set({
+        'mediaSlots': {slotKey: downloadUrl},
         'updatedAt': FieldValue.serverTimestamp(),
-      });
-    } catch (_) {}
+      }, SetOptions(merge: true));
+
+      // Also track in subcollection `users/{uid}/media/{slotKey}` for audit & versioning
+      try {
+        await userDoc.collection('media').doc(slotKey).set({
+          'slotKey': slotKey,
+          'url': downloadUrl,
+          'isVideo': isVideo,
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      } catch (_) {}
+    }
 
     return downloadUrl;
   }
 
-  /// Deletes reference media from Firebase Storage and Firestore.
+  /// Deletes reference media from storage and Firestore.
   Future<void> deleteMediaSlot({
     required String uid,
     required String slotKey,
     String? mediaUrl,
   }) async {
-    if (Firebase.apps.isNotEmpty) {
+    if (Firebase.apps.isNotEmpty && _firestore != null) {
       final userDoc = _firestore.collection('users').doc(uid);
       await userDoc.update({
         'mediaSlots.$slotKey': FieldValue.delete(),
@@ -93,12 +92,12 @@ class MediaService {
       try {
         await userDoc.collection('media').doc(slotKey).delete();
       } catch (_) {}
+    }
 
-      if (_storage != null && mediaUrl != null && mediaUrl.isNotEmpty) {
-        try {
-          await _storage.refFromURL(mediaUrl).delete();
-        } catch (_) {}
-      }
+    if (mediaUrl != null && mediaUrl.isNotEmpty) {
+      try {
+        await _mediaStorage.deleteMedia(mediaUrl);
+      } catch (_) {}
     }
   }
 
@@ -107,7 +106,7 @@ class MediaService {
     required String uid,
     required String mode,
   }) async {
-    if (Firebase.apps.isNotEmpty) {
+    if (Firebase.apps.isNotEmpty && _firestore != null) {
       final userDoc = _firestore.collection('users').doc(uid);
       await userDoc.set({
         'personaMode': mode,

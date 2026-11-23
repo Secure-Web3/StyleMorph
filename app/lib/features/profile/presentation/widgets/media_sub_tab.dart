@@ -10,6 +10,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_media_image.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../profile_providers.dart';
 import 'camera_alignment_guide_dialog.dart';
@@ -130,9 +131,9 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
       } else {
         picked = await _picker.pickImage(
           source: source,
-          imageQuality: 90,
-          maxWidth: 2048,
-          maxHeight: 2048,
+          imageQuality: 65,
+          maxWidth: 720,
+          maxHeight: 720,
         );
       }
 
@@ -785,7 +786,7 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                               else if (isUploaded && !slot.isVideo)
                                 ClipRRect(
                                   borderRadius: AppRadius.rMd,
-                                  child: Image.network(
+                                  child: AppMediaImage(
                                     mediaUrl,
                                     fit: BoxFit.cover,
                                     width: double.infinity,

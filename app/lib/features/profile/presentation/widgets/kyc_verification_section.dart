@@ -16,6 +16,7 @@ import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_feedback.dart';
+import '../../../../core/widgets/app_media_image.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../domain/kyc_model.dart';
 import '../profile_providers.dart';
@@ -100,9 +101,9 @@ class _KycVerificationSectionState
     try {
       final picked = await _picker.pickImage(
         source: source,
-        imageQuality: 85,
-        maxWidth: 1920,
-        maxHeight: 1080,
+        maxWidth: 720,
+        maxHeight: 720,
+        imageQuality: 65,
       );
       if (picked != null) {
         setState(() {
@@ -585,7 +586,7 @@ class _KycVerificationSectionState
           fit: StackFit.expand,
           children: [
             if (imageUrl != null && imageUrl.isNotEmpty)
-              Image.network(
+              AppMediaImage(
                 imageUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) => Center(
@@ -778,7 +779,7 @@ class _KycVerificationSectionState
               else
                 Image.file(File(file.path), fit: BoxFit.cover)
             else if (existingUrl != null && existingUrl.isNotEmpty)
-              Image.network(
+              AppMediaImage(
                 existingUrl,
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) => Center(

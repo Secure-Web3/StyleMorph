@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/app_media_image.dart';
 
 class KycImagePreviewDialog extends StatelessWidget {
   final String? imageUrl;
@@ -113,7 +114,7 @@ class KycImagePreviewDialog extends StatelessWidget {
     }
 
     if (imageUrl != null && imageUrl!.isNotEmpty) {
-      return Image.network(
+      return AppMediaImage(
         imageUrl!,
         fit: BoxFit.contain,
         loadingBuilder: (ctx, child, progress) {

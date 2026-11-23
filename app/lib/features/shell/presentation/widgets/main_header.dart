@@ -9,6 +9,7 @@ import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/app_media_image.dart';
 import '../../../auth/presentation/email_verification_provider.dart';
 import '../../../profile/presentation/widgets/loyalty_rank_modal.dart';
 import 'notification_sheet.dart';
@@ -169,7 +170,7 @@ class _HeaderAvatar extends ConsumerWidget {
                 ? user.photoURL!
                 : photoUrl;
             if (effectivePhoto.isNotEmpty) {
-              return Image.network(
+              return AppMediaImage(
                 effectivePhoto,
                 fit: BoxFit.cover,
                 errorBuilder: (_, _, _) => _buildInitialsWidget(

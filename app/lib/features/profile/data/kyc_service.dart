@@ -3,53 +3,51 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+
+import '../../../core/services/storage/firebase_cloud_media_storage.dart';
+import '../../../core/services/storage/firestore_inline_media_storage.dart';
+import '../../../core/services/storage/media_storage_provider.dart';
+import '../../../core/services/storage/media_storage_service.dart';
 import 'kyc_model.dart';
 
 final kycServiceProvider = Provider<KycService>((ref) {
-  return KycService();
+  final mediaStorage = ref.watch(mediaStorageServiceProvider);
+  return KycService(mediaStorage: mediaStorage);
 });
 
 class KycService {
-  final FirebaseFirestore _firestore;
-  final FirebaseStorage? _storage;
+  final FirebaseFirestore? _firestore;
+  final MediaStorageService _mediaStorage;
 
-  KycService({FirebaseFirestore? firestore, FirebaseStorage? storage})
-    : _firestore =
-          firestore ??
-          (Firebase.apps.isNotEmpty
-              ? FirebaseFirestore.instance
-              : null as dynamic),
-      _storage =
-          storage ??
-          (Firebase.apps.isNotEmpty ? FirebaseStorage.instance : null);
+  KycService({
+    FirebaseFirestore? firestore,
+    MediaStorageService? mediaStorage,
+    FirebaseStorage? storage,
+  }) : _firestore =
+           firestore ??
+           (Firebase.apps.isNotEmpty ? FirebaseFirestore.instance : null),
+       _mediaStorage =
+           mediaStorage ??
+           (storage != null
+               ? FirebaseCloudMediaStorage(storage: storage)
+               : const FirestoreInlineMediaStorage());
 
-  /// Uploads KYC document photo to Firebase Storage under `users/{uid}/kyc/{filename}`.
+  /// Uploads KYC document photo under `users/{uid}/kyc/{filename}`.
   Future<String> uploadKycImage({
     required String uid,
     required XFile file,
     required String tag,
   }) async {
-    if (Firebase.apps.isEmpty || _storage == null) {
-      return 'https://firebasestorage.googleapis.com/v0/b/mock/o/users%2F$uid%2Fkyc%2F${file.name}';
-    }
-
     final ext = file.name.contains('.') ? file.name.split('.').last : 'jpg';
     final filename = '${DateTime.now().millisecondsSinceEpoch}_$tag.$ext';
-    final ref = _storage
-        .ref()
-        .child('users')
-        .child(uid)
-        .child('kyc')
-        .child(filename);
+    final path = 'users/$uid/kyc/$filename';
 
     final bytes = await file.readAsBytes();
-    final metadata = SettableMetadata(
-      contentType: 'image/jpeg',
-      customMetadata: {'uid': uid, 'tag': tag},
+    return await _mediaStorage.uploadImage(
+      path: path,
+      bytes: bytes,
+      mimeType: 'image/jpeg',
     );
-
-    await ref.putData(bytes, metadata);
-    return await ref.getDownloadURL();
   }
 
   /// Submits KYC document for review, storing metadata in Firestore root & subcollection.
@@ -68,7 +66,7 @@ class KycService {
       updatedAt: DateTime.now(),
     );
 
-    if (Firebase.apps.isNotEmpty) {
+    if (Firebase.apps.isNotEmpty && _firestore != null) {
       final userDoc = _firestore.collection('users').doc(uid);
       await userDoc.set({
         'kyc': kycData.toMap(),
@@ -87,7 +85,7 @@ class KycService {
     String? frontUrl,
     String? backUrl,
   }) async {
-    if (Firebase.apps.isNotEmpty) {
+    if (Firebase.apps.isNotEmpty && _firestore != null) {
       final userDoc = _firestore.collection('users').doc(uid);
       await userDoc.update({
         'kyc': FieldValue.delete(),
@@ -97,19 +95,17 @@ class KycService {
       try {
         await userDoc.collection('kyc').doc('main').delete();
       } catch (_) {}
+    }
 
-      if (_storage != null) {
-        if (frontUrl != null && frontUrl.isNotEmpty) {
-          try {
-            await _storage.refFromURL(frontUrl).delete();
-          } catch (_) {}
-        }
-        if (backUrl != null && backUrl.isNotEmpty) {
-          try {
-            await _storage.refFromURL(backUrl).delete();
-          } catch (_) {}
-        }
-      }
+    if (frontUrl != null && frontUrl.isNotEmpty) {
+      try {
+        await _mediaStorage.deleteMedia(frontUrl);
+      } catch (_) {}
+    }
+    if (backUrl != null && backUrl.isNotEmpty) {
+      try {
+        await _mediaStorage.deleteMedia(backUrl);
+      } catch (_) {}
     }
   }
 }
