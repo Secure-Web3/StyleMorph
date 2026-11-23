@@ -87,9 +87,11 @@ class AppDrawer extends ConsumerWidget {
                           appStateProvider.select((s) => s.profileProgress),
                         );
                         return Text(
-                          strings.formatPercent((progress * 100).round()),
+                          context.strings.formatPercent(
+                            (progress * 100).round(),
+                          ),
                           style: TextStyle(
-                            fontFamily: 'Vazirmatn',
+                            fontFamily: AppTypography.fontFamily,
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: colors.mu,

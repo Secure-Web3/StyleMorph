@@ -67,12 +67,22 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
         : 'https://stylemorph-preview.web.app/?ref=...';
 
     final referrals = appState.referrals;
+    final invitedCount = referrals.isNotEmpty
+        ? referrals.length
+        : appState.referralCount;
+    final networkTier = referrals.isNotEmpty
+        ? ReferralService.calculateTier(referrals.length)
+        : appState.networkTier;
+    final earnedCoins = referrals.isNotEmpty
+        ? referrals.fold<int>(0, (sum, r) => sum + r.rewardEarned)
+        : (invitedCount * 100);
 
     return Padding(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          // ── Top (Fixed) ──────────────────────────────────────────────
           AppSectionHeader(
             faIcon: FontAwesomeIcons.gift,
             title: strings.refHeader,
@@ -87,7 +97,7 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
                 child: _buildStatCard(
                   label: strings.refInvited,
                   value: strings.countWithUnit(
-                    appState.referralCount,
+                    invitedCount,
                     strings.refMembersUnit,
                   ),
                   colors: colors,
@@ -98,8 +108,7 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
               Expanded(
                 child: _buildStatCard(
                   label: strings.refBonus,
-                  value:
-                      '${strings.formatNumber(appState.referralCount * 100)} ${strings.coin}',
+                  value: '${strings.formatNumber(earnedCoins)} ${strings.coin}',
                   colors: colors,
                 ),
               ),
@@ -108,7 +117,7 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
               Expanded(
                 child: _buildStatCard(
                   label: strings.refTier,
-                  value: strings.getTierLabel(appState.networkTier),
+                  value: strings.getTierLabel(networkTier),
                   valueColor: colors.wn,
                   colors: colors,
                 ),
@@ -130,7 +139,7 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
                 child: Text(
                   strings.refTapToShare,
                   style: TextStyle(
-                    fontFamily: 'Vazirmatn',
+                    fontFamily: AppTypography.fontFamily,
                     fontSize: 10,
                     color: colors.mu,
                   ),
@@ -190,7 +199,7 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
           Text(
             strings.refJoinedTitle,
             style: TextStyle(
-              fontFamily: 'Vazirmatn',
+              fontFamily: AppTypography.fontFamily,
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: colors.tx,
@@ -198,67 +207,68 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
           ),
           const SizedBox(height: AppSpacing.xs),
 
-          // Fixed-Height Container (~240px) with independent inner scrolling only
-          Container(
-            height: 240,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: colors.sf,
-              borderRadius: AppRadius.rMd,
-              border: Border.all(color: colors.bd),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: referrals.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          FaIcon(
-                            FontAwesomeIcons.userGroup,
-                            size: 24,
-                            color: colors.mu,
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            strings.refEmptyFriends,
-                            style: TextStyle(
-                              fontFamily: 'Vazirmatn',
-                              fontSize: 12,
+          // ── Middle (Expanded — Fills ALL Remaining Vertical Space) ─────
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: colors.sf,
+                borderRadius: AppRadius.rMd,
+                border: Border.all(color: colors.bd),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: referrals.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(AppSpacing.md),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            FaIcon(
+                              FontAwesomeIcons.userGroup,
+                              size: 24,
                               color: colors.mu,
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              strings.refEmptyFriends,
+                              style: TextStyle(
+                                fontFamily: AppTypography.fontFamily,
+                                fontSize: 12,
+                                color: colors.mu,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                : Scrollbar(
-                    controller: _scrollController,
-                    thumbVisibility: true,
-                    child: ListView.separated(
+                    )
+                  : Scrollbar(
                       controller: _scrollController,
-                      physics: const ClampingScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: AppSpacing.xs,
+                      thumbVisibility: true,
+                      child: ListView.separated(
+                        controller: _scrollController,
+                        physics: const ClampingScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.xs,
+                        ),
+                        itemCount: referrals.length,
+                        separatorBuilder: (_, _) => Divider(
+                          height: 1,
+                          color: colors.bd.withValues(alpha: 0.5),
+                        ),
+                        itemBuilder: (context, index) {
+                          final item = referrals[index];
+                          return _buildFriendItem(item, colors, strings);
+                        },
                       ),
-                      itemCount: referrals.length,
-                      separatorBuilder: (_, _) => Divider(
-                        height: 1,
-                        color: colors.bd.withValues(alpha: 0.5),
-                      ),
-                      itemBuilder: (context, index) {
-                        final item = referrals[index];
-                        return _buildFriendItem(item, colors, strings);
-                      },
                     ),
-                  ),
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // Bonus Rule Info Card
+          // ── Bottom (Pinned to Bottom Edge) ─────────────────────────────
           AppCard(
             backgroundColor: colors.wnb.withValues(alpha: 0.5),
             padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -313,7 +323,7 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
                 child: Text(
                   name,
                   style: TextStyle(
-                    fontFamily: 'Vazirmatn',
+                    fontFamily: AppTypography.fontFamily,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: colors.tx,
@@ -361,7 +371,7 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
           Text(
             label,
             style: TextStyle(
-              fontFamily: 'Vazirmatn',
+              fontFamily: AppTypography.fontFamily,
               fontSize: 9,
               color: colors.mu,
             ),
@@ -371,7 +381,7 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
           Text(
             value,
             style: TextStyle(
-              fontFamily: 'Vazirmatn',
+              fontFamily: AppTypography.fontFamily,
               fontSize: 12,
               fontWeight: FontWeight.w700,
               color: valueColor ?? colors.tx,

@@ -249,6 +249,63 @@ void main() {
         );
       },
     );
+
+    testWidgets(
+      'AppDrawer shows Latin formatted profile completion percentage in English and Turkish',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(430, 932));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        final container = _createTestContainer();
+        addTearDown(container.dispose);
+
+        // Switch to English
+        container.read(localeProvider.notifier).setLanguage('en');
+
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+              locale: const Locale('en'),
+              supportedLocales: AppLanguage.supportedLanguages
+                  .map((l) => l.locale)
+                  .toList(),
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              home: const Scaffold(body: MainShellScreen()),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Tap Avatar to open drawer
+        final avatarInkWell = find
+            .descendant(
+              of: find.byType(MainHeader),
+              matching: find.byType(InkWell),
+            )
+            .first;
+        await tester.tap(avatarInkWell);
+        await tester.pumpAndSettle();
+
+        expect(find.byType(Drawer), findsOneWidget);
+        // English profile completion percentage is 40% (not ۴۰٪)
+        expect(
+          find.descendant(of: find.byType(Drawer), matching: find.text('40%')),
+          findsOneWidget,
+        );
+        expect(
+          find.descendant(
+            of: find.byType(Drawer),
+            matching: find.textContaining(RegExp(r'[۰-۹]')),
+          ),
+          findsNothing,
+        );
+      },
+    );
   });
 
   group('Step 2: 3-State Theme Mode (Light / Dark / System)', () {

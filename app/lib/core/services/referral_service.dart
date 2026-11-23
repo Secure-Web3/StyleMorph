@@ -19,7 +19,7 @@ class ReferralEntry {
     required this.inviteeUid,
     required this.displayName,
     required this.email,
-    this.rewardEarned = 100,
+    this.rewardEarned = 0,
     this.createdAt,
   });
 
@@ -37,7 +37,7 @@ class ReferralEntry {
       inviteeUid: data['inviteeUid']?.toString() ?? doc.id,
       displayName: data['displayName']?.toString() ?? '',
       email: data['email']?.toString() ?? '',
-      rewardEarned: (data['rewardEarned'] as num?)?.toInt() ?? 100,
+      rewardEarned: (data['rewardEarned'] as num?)?.toInt() ?? 0,
       createdAt: dt,
     );
   }
@@ -225,7 +225,7 @@ class ReferralService {
             ? displayName
             : newEmail.split('@').first,
         'email': newEmail,
-        'rewardEarned': 100,
+        'rewardEarned': 0,
         'createdAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
 

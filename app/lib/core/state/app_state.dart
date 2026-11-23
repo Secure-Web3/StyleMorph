@@ -471,8 +471,14 @@ class AppStateNotifier extends StateNotifier<AppState> {
           showFloatingSupport: parsed.preferences.showFloatingSupport,
           showHeaderCoins: parsed.preferences.showHeaderCoins,
           referralCode: parsed.referralCode,
-          referralCount: parsed.referralCount,
-          networkTier: parsed.networkTier,
+          referralCount: result.referrals.isNotEmpty
+              ? result.referrals.length
+              : parsed.referralCount,
+          networkTier: result.referrals.isNotEmpty
+              ? ReferralService.calculateTier(result.referrals.length)
+              : (parsed.networkTier.isNotEmpty
+                    ? parsed.networkTier
+                    : ReferralService.calculateTier(parsed.referralCount)),
           referrals: result.referrals,
           userName: parsed.userName,
           userHandle: parsed.userHandle,
@@ -760,10 +766,14 @@ class AppStateNotifier extends StateNotifier<AppState> {
     String? networkTier,
     List<ReferralEntry>? referrals,
   }) {
+    final list = referrals ?? state.referrals;
+    final derivedCount = referralCount ?? list.length;
+    final derivedTier =
+        networkTier ?? ReferralService.calculateTier(derivedCount);
     state = state.copyWith(
       referralCode: referralCode,
-      referralCount: referralCount,
-      networkTier: networkTier,
+      referralCount: derivedCount,
+      networkTier: derivedTier,
       referrals: referrals,
     );
   }

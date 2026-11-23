@@ -162,6 +162,25 @@ void main() {
       expect(iconRect.overlaps(badgeRect), isFalse);
     });
 
+    testWidgets('Renders standard icon and Turkish session count numeral "2"', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(800, 1200));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      await tester.pumpWidget(
+        buildTestableWidget(
+          locale: const Locale('tr'),
+          child: const ProfileTab(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.devices_rounded), findsOneWidget);
+      expect(find.text('2'), findsOneWidget);
+      expect(find.text('۲'), findsNothing);
+    });
+
     testWidgets('Does not render badge when active sessions count is zero', (
       tester,
     ) async {

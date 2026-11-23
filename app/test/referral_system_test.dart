@@ -58,7 +58,7 @@ void main() {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
-        home: Scaffold(body: SingleChildScrollView(child: child)),
+        home: Scaffold(body: child),
       ),
     );
   }
@@ -257,7 +257,7 @@ void main() {
         expect(find.byType(AppBadge), findsNWidgets(2));
         expect(find.text('+ ۱۰۰ سکه'), findsNWidgets(2));
 
-        // Verify fixed-height 240px container wrapping ListView
+        // Verify dynamic expanded container wrapping ListView (filling vertical space)
         final listViewFinder = find.byType(ListView);
         expect(listViewFinder, findsOneWidget);
         final listContainer = find.ancestor(
@@ -265,6 +265,109 @@ void main() {
           matching: find.byType(Container),
         );
         expect(listContainer, findsWidgets);
+        final expandedAncestor = find.ancestor(
+          of: listViewFinder,
+          matching: find.byType(Expanded),
+        );
+        expect(expandedAncestor, findsWidgets);
+      },
+    );
+
+    testWidgets(
+      'Derives invited count and network tier directly from live referrals list',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(800, 1200));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        final mockList = List.generate(
+          6,
+          (i) => ReferralEntry(
+            id: 'ref_$i',
+            inviteeUid: 'uid_$i',
+            displayName: 'User $i',
+            email: 'user$i@example.com',
+            rewardEarned: 100,
+          ),
+        );
+
+        final state = AppState(
+          referralCode: '8K7W3M9P',
+          referralCount: 0,
+          networkTier: 'Starter',
+          referrals: mockList,
+        );
+
+        await tester.pumpWidget(
+          buildTestableWidget(
+            locale: const Locale('en'),
+            initialState: state,
+            child: const ReferralSubTab(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // 6 referrals -> Silver tier dynamically derived
+        expect(find.text('6 friends'), findsOneWidget);
+        expect(find.text('600 Coins'), findsOneWidget);
+        expect(find.text('Silver'), findsOneWidget);
+        expect(find.text('+ 100 Coins'), findsNWidgets(6));
+      },
+    );
+
+    testWidgets(
+      'Strictly uses Latin digits and no Persian digits in English and Turkish modes',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(800, 1200));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        final state = const AppState(
+          referralCode: '8K7W3M9P',
+          referralCount: 0,
+          networkTier: 'Starter',
+          referrals: [
+            ReferralEntry(
+              id: 'ref1',
+              inviteeUid: 'u1',
+              displayName: 'Sara',
+              email: 'sara@example.com',
+              rewardEarned: 100,
+            ),
+          ],
+        );
+
+        // Test English Mode
+        await tester.pumpWidget(
+          buildTestableWidget(
+            locale: const Locale('en'),
+            initialState: state,
+            child: const ReferralSubTab(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('1 friends'), findsOneWidget);
+        expect(find.text('100 Coins'), findsOneWidget);
+        expect(find.text('+ 100 Coins'), findsOneWidget);
+
+        // Verify zero Persian digits anywhere
+        expect(find.textContaining(RegExp(r'[۰-۹]')), findsNothing);
+
+        // Test Turkish Mode
+        await tester.pumpWidget(
+          buildTestableWidget(
+            locale: const Locale('tr'),
+            initialState: state,
+            child: const ReferralSubTab(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.text('1 kişi'), findsOneWidget);
+        expect(find.text('100 Jeton'), findsOneWidget);
+        expect(find.text('+ 100 Jeton'), findsOneWidget);
+
+        // Verify zero Persian digits anywhere
+        expect(find.textContaining(RegExp(r'[۰-۹]')), findsNothing);
       },
     );
   });
