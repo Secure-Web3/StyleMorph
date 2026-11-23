@@ -10,6 +10,22 @@ class AppBottomNav extends ConsumerWidget {
   final ValueChanged<AppTab>? onTabSelected;
   const AppBottomNav({super.key, this.onTabSelected});
 
+  /// Central set of temporarily disabled tab indices.
+  /// Index 0: Wardrobe (Active)
+  /// Index 1: Wellness (Disabled)
+  /// Index 2: Stylist (Disabled)
+  /// Index 3: Atelier (Disabled)
+  /// Index 4: Shop (Disabled)
+  static const Set<int> disabledTabIndices = {1, 2, 3, 4};
+
+  /// Set of temporarily disabled [AppTab] targets.
+  static const Set<AppTab> disabledTabs = {
+    AppTab.wellness,
+    AppTab.stylist,
+    AppTab.atelier,
+    AppTab.shop,
+  };
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
@@ -54,56 +70,74 @@ class AppBottomNav extends ConsumerWidget {
         child: SizedBox(
           height: 56,
           child: Row(
-            children: items.map((item) {
-              final isActive = currentTab == item.tab;
-              final itemColor = isActive ? colors.pr : colors.mu;
+            children: items.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              final isDisabled =
+                  disabledTabIndices.contains(index) ||
+                  disabledTabs.contains(item.tab);
+              final isActive = !isDisabled && currentTab == item.tab;
+              final itemColor = isActive
+                  ? colors.pr
+                  : (isDisabled
+                        ? colors.mu.withValues(alpha: 0.38)
+                        : colors.mu);
 
               return Expanded(
-                child: InkWell(
-                  onTap: () {
-                    if (onTabSelected != null) {
-                      onTabSelected!(item.tab);
-                    } else {
-                      ref.read(appStateProvider.notifier).switchTab(item.tab);
-                    }
-                  },
-                  splashColor: colors.pr.withValues(alpha: 0.1),
-                  highlightColor: Colors.transparent,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 180),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.xs,
-                      horizontal: 2,
-                    ),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        // Active indicator: 2px solid primary at top of nav item.
-                        top: BorderSide(
-                          color: isActive ? colors.pr : Colors.transparent,
-                          width: 2,
+                child: Opacity(
+                  opacity: isDisabled ? 0.38 : 1.0,
+                  child: InkWell(
+                    onTap: isDisabled
+                        ? null
+                        : () {
+                            if (onTabSelected != null) {
+                              onTabSelected!(item.tab);
+                            } else {
+                              ref
+                                  .read(appStateProvider.notifier)
+                                  .switchTab(item.tab);
+                            }
+                          },
+                    splashColor: isDisabled
+                        ? Colors.transparent
+                        : colors.pr.withValues(alpha: 0.1),
+                    highlightColor: Colors.transparent,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 180),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.xs,
+                        horizontal: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border(
+                          // Active indicator: 2px solid primary at top of nav item.
+                          top: BorderSide(
+                            color: isActive ? colors.pr : Colors.transparent,
+                            width: 2,
+                          ),
                         ),
                       ),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        FaIcon(item.icon, size: 16, color: itemColor),
-                        const SizedBox(height: 3),
-                        Text(
-                          item.label,
-                          style: TextStyle(
-                            fontFamily: 'Vazirmatn',
-                            fontSize: 10,
-                            fontWeight: isActive
-                                ? FontWeight.w700
-                                : FontWeight.w400,
-                            color: itemColor,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          FaIcon(item.icon, size: 16, color: itemColor),
+                          const SizedBox(height: 3),
+                          Text(
+                            item.label,
+                            style: TextStyle(
+                              fontFamily: 'Vazirmatn',
+                              fontSize: 10,
+                              fontWeight: isActive
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
+                              color: itemColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),

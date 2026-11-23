@@ -158,6 +158,62 @@ void main() {
     });
 
     testWidgets(
+      'Temporarily disabled tabs (Wellness, Stylist, Atelier, Shop) ignore tap events while Wardrobe works',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(430, 932));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        final container = _createTestContainer();
+        addTearDown(container.dispose);
+
+        await tester.pumpWidget(_wrapShell(container: container));
+        await tester.pumpAndSettle();
+
+        final nav = find.byType(AppBottomNav);
+
+        // Initial tab is Profile
+        expect(container.read(appStateProvider).currentTab, AppTab.profile);
+
+        // Tapping disabled tab 'تندرستی' (Wellness) does NOT change tab
+        await tester.tap(
+          find.descendant(of: nav, matching: find.text('تندرستی')),
+          warnIfMissed: false,
+        );
+        await tester.pumpAndSettle();
+        expect(container.read(appStateProvider).currentTab, AppTab.profile);
+
+        // Tapping disabled tab 'استایلیست' (Stylist) does NOT change tab
+        await tester.tap(
+          find.descendant(of: nav, matching: find.text('استایلیست')),
+          warnIfMissed: false,
+        );
+        await tester.pumpAndSettle();
+        expect(container.read(appStateProvider).currentTab, AppTab.profile);
+
+        // Tapping disabled tab 'آتلیه' (Atelier) does NOT change tab
+        await tester.tap(
+          find.descendant(of: nav, matching: find.text('آتلیه')),
+          warnIfMissed: false,
+        );
+        await tester.pumpAndSettle();
+        expect(container.read(appStateProvider).currentTab, AppTab.profile);
+
+        // Tapping disabled tab 'فروشگاه' (Shop) does NOT change tab
+        await tester.tap(
+          find.descendant(of: nav, matching: find.text('فروشگاه')),
+          warnIfMissed: false,
+        );
+        await tester.pumpAndSettle();
+        expect(container.read(appStateProvider).currentTab, AppTab.profile);
+
+        // Tapping active tab 'کمد' (Wardrobe) DOES change tab
+        await tester.tap(find.descendant(of: nav, matching: find.text('کمد')));
+        await tester.pumpAndSettle();
+        expect(container.read(appStateProvider).currentTab, AppTab.wardrobe);
+      },
+    );
+
+    testWidgets(
       'MainHeader has no hamburger icon and tapping avatar/name opens Drawer',
       (tester) async {
         await tester.binding.setSurfaceSize(const Size(430, 932));
@@ -719,10 +775,18 @@ void main() {
         expect(find.text('Virtual Wardrobe'), findsOneWidget);
         expect(find.text('کمد مجازی'), findsNothing);
 
-        await tester.tap(find.descendant(of: nav, matching: find.text('Shop')));
+        // Disabled tabs such as Shop are translated to English in Nav but cannot be switched into
+        expect(
+          find.descendant(of: nav, matching: find.text('Shop')),
+          findsOneWidget,
+        );
+        await tester.tap(
+          find.descendant(of: nav, matching: find.text('Shop')),
+          warnIfMissed: false,
+        );
         await tester.pumpAndSettle();
-        expect(find.text('Fashion & Style Shop'), findsOneWidget);
-        expect(find.text('فروشگاه مد و استایل'), findsNothing);
+        expect(container.read(appStateProvider).currentTab, AppTab.wardrobe);
+        expect(find.text('Virtual Wardrobe'), findsOneWidget);
       },
     );
 

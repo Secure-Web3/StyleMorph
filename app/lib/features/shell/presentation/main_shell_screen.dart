@@ -39,6 +39,9 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   }
 
   Future<void> _handleTabSwitch(AppTab targetTab) async {
+    // Guard against navigation to temporarily disabled tabs
+    if (AppBottomNav.disabledTabs.contains(targetTab)) return;
+
     final (currentTab, hasUnsavedChanges) = ref.read(
       appStateProvider.select((s) => (s.currentTab, s.hasUnsavedChanges)),
     );
