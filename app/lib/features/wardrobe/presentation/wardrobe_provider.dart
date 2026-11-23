@@ -44,6 +44,14 @@ class WardrobeFilter {
       selectedIds: selectedIds ?? this.selectedIds,
     );
   }
+
+  int get activeFilterCount {
+    int count = 0;
+    if (colorFilter.isNotEmpty) count++;
+    if (seasonFilter.isNotEmpty) count++;
+    if (occasionFilter.isNotEmpty) count++;
+    return count;
+  }
 }
 
 class WardrobeState {
@@ -159,6 +167,20 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
         seasonFilter: '',
         occasionFilter: '',
         searchQuery: '',
+      ),
+    );
+  }
+
+  void applyAdvancedFilters({
+    required String color,
+    required String season,
+    required String occasion,
+  }) {
+    state = state.copyWith(
+      filter: state.filter.copyWith(
+        colorFilter: color,
+        seasonFilter: season,
+        occasionFilter: occasion,
       ),
     );
   }

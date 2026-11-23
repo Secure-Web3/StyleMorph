@@ -14,6 +14,7 @@ class WardrobeItemCard extends StatelessWidget {
     required this.onTap,
     required this.onFav,
     this.onTryOn,
+    this.onArchive,
   });
 
   final WardrobeItem item;
@@ -21,6 +22,7 @@ class WardrobeItemCard extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onFav;
   final VoidCallback? onTryOn;
+  final VoidCallback? onArchive;
 
   Color _parseColor(String hex) {
     try {
@@ -76,29 +78,62 @@ class WardrobeItemCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                // Favorite Star Button (top-end)
+                // Actions (top-end): Favorite Star + Quick Archive
                 PositionedDirectional(
                   top: 6,
                   end: 6,
-                  child: GestureDetector(
-                    onTap: onFav,
-                    child: Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: colors.sf.withValues(alpha: 0.9),
-                        shape: BoxShape.circle,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Favorite Star Button
+                      GestureDetector(
+                        onTap: onFav,
+                        child: Container(
+                          width: 28,
+                          height: 28,
+                          decoration: BoxDecoration(
+                            color: colors.sf.withValues(alpha: 0.9),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            item.isFavorite
+                                ? Icons.star_rounded
+                                : Icons.star_border_rounded,
+                            size: 16,
+                            color: item.isFavorite
+                                ? const Color(0xFFD99A06)
+                                : colors.mu,
+                          ),
+                        ),
                       ),
-                      child: Icon(
-                        item.isFavorite
-                            ? Icons.star_rounded
-                            : Icons.star_border_rounded,
-                        size: 16,
-                        color: item.isFavorite
-                            ? const Color(0xFFD99A06)
-                            : colors.mu,
-                      ),
-                    ),
+                      if (onArchive != null) ...[
+                        const SizedBox(height: 4),
+                        // Quick Archive / Unarchive Button
+                        Tooltip(
+                          message: item.isArchived
+                              ? strings.wardUnarchive
+                              : strings.wardArchiveAction,
+                          child: GestureDetector(
+                            onTap: onArchive,
+                            child: Container(
+                              width: 28,
+                              height: 28,
+                              decoration: BoxDecoration(
+                                color: colors.sf.withValues(alpha: 0.9),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                item.isArchived
+                                    ? Icons.unarchive_outlined
+                                    : Icons.inventory_2_outlined,
+                                size: 15,
+                                color: item.isArchived ? colors.pr : colors.mu,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
                 ),
                 // Season / Occasion badge (top-start)

@@ -712,6 +712,10 @@ class AppStrings {
   String get wardArchive => get('wardArchive');
   String get wardArchiveEmpty => get('wardArchiveEmpty');
   String get wardNotFound => get('wardNotFound');
+  String get wardEmptyState => get('wardEmptyState');
+  String get wardAddFirstItem => get('wardAddFirstItem');
+  String get wardApplyFilters => get('wardApplyFilters');
+  String get wardFilterSheetTitle => get('wardFilterSheetTitle');
   String get wardAddItem => get('wardAddItem');
   String get wardAddSheetTitle => get('wardAddSheetTitle');
   String get wardImgLoaded => get('wardImgLoaded');

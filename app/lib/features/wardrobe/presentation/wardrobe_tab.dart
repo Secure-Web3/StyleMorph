@@ -5,6 +5,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
+import '../../../core/utils/digit_formatter.dart';
 import '../../../core/widgets/app_badge.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_icon_button.dart';
@@ -13,9 +14,9 @@ import '../../../core/widgets/app_section_header.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../domain/wardrobe_item.dart';
 import 'wardrobe_provider.dart';
-import 'widgets/wardrobe_item_card.dart';
-import 'widgets/wardrobe_filter_panel.dart';
 import 'widgets/add_item_bottom_sheet.dart';
+import 'widgets/wardrobe_filter_panel.dart';
+import 'widgets/wardrobe_item_card.dart';
 import 'widgets/wardrobe_item_detail_sheet.dart';
 
 class WardrobeTab extends ConsumerWidget {
@@ -33,10 +34,28 @@ class WardrobeTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
+    final strings = context.strings;
     final ws = ref.watch(wardrobeProvider);
     final notifier = ref.read(wardrobeProvider.notifier);
     final totalActive = ws.countByCategory('all');
     const totalCapacity = 30;
+
+    final String activeCategoryTitle;
+    final int activeCategoryCount;
+    if (ws.filter.showArchived) {
+      activeCategoryTitle = strings.wardArchive;
+      activeCategoryCount = ws.items.where((e) => e.isArchived).length;
+    } else {
+      final catTuple = _categories.firstWhere(
+        (c) => c.$1 == ws.filter.category,
+        orElse: () => _categories.first,
+      );
+      activeCategoryTitle = strings.tr(catTuple.$2);
+      activeCategoryCount = ws.countByCategory(ws.filter.category);
+    }
+
+    final hasActiveFilters =
+        ws.filter.searchQuery.isNotEmpty || ws.filter.activeFilterCount > 0;
 
     return Column(
       children: [
@@ -56,7 +75,6 @@ class WardrobeTab extends ConsumerWidget {
               _CategorySidebar(
                 categories: _categories,
                 selected: ws.filter.category,
-                wardrobeState: ws,
                 colors: colors,
                 onSelect: notifier.setCategory,
               ),
@@ -66,39 +84,33 @@ class WardrobeTab extends ConsumerWidget {
               Expanded(
                 child: Column(
                   children: [
-                    // Search + action buttons
+                    // Search + filter trigger + archive toggle
                     _SearchBar(
                       colors: colors,
-                      filterOpen: ws.filterPanelOpen,
+                      activeFilterCount: ws.filter.activeFilterCount,
                       showArchived: ws.filter.showArchived,
                       onSearch: notifier.setSearch,
-                      onToggleFilter: notifier.toggleFilterPanel,
+                      onOpenFilter: () => _showFilterSheet(context, ref),
                       onToggleArchive: notifier.toggleArchiveView,
                     ),
-                    // Collapsible filter panel
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeInOut,
-                      child: ws.filterPanelOpen
-                          ? WardrobeFilterPanel(
-                              filter: ws.filter,
-                              onColor: notifier.setColorFilter,
-                              onSeason: notifier.setSeasonFilter,
-                              onOccasion: notifier.setOccasionFilter,
-                              onClear: notifier.clearFilters,
-                              colors: colors,
-                            )
-                          : const SizedBox.shrink(),
+                    // Active category header + count badge
+                    _CategoryHeader(
+                      title: activeCategoryTitle,
+                      count: activeCategoryCount,
+                      colors: colors,
                     ),
-                    // Grid
+                    // Garment Grid or Empty States
                     Expanded(
                       child: _WardrobeGrid(
                         items: ws.filteredItems,
                         colors: colors,
                         onTap: (item) => _showDetailSheet(context, ref, item),
                         onFav: notifier.toggleFavorite,
+                        onArchive: notifier.toggleArchive,
                         onAdd: () => _showAddSheet(context, ref),
+                        onClearFilters: notifier.clearFilters,
                         showArchived: ws.filter.showArchived,
+                        hasActiveFilters: hasActiveFilters,
                       ),
                     ),
                   ],
@@ -116,6 +128,26 @@ class WardrobeTab extends ConsumerWidget {
       context: context,
       child: AddItemBottomSheet(
         onAdd: (item) => ref.read(wardrobeProvider.notifier).addItem(item),
+      ),
+    );
+  }
+
+  void _showFilterSheet(BuildContext context, WidgetRef ref) {
+    final ws = ref.read(wardrobeProvider);
+    final notifier = ref.read(wardrobeProvider.notifier);
+    AppModal.showSheet(
+      context: context,
+      child: WardrobeFilterSheet(
+        initialFilter: ws.filter,
+        colors: context.colors,
+        onApply: (color, season, occasion) {
+          notifier.applyAdvancedFilters(
+            color: color,
+            season: season,
+            occasion: occasion,
+          );
+        },
+        onClear: notifier.clearFilters,
       ),
     );
   }
@@ -206,14 +238,12 @@ class _CategorySidebar extends StatelessWidget {
   const _CategorySidebar({
     required this.categories,
     required this.selected,
-    required this.wardrobeState,
     required this.colors,
     required this.onSelect,
   });
 
   final List<(String, String, IconData)> categories;
   final String selected;
-  final WardrobeState wardrobeState;
   final AppColors colors;
   final void Function(String) onSelect;
 
@@ -223,29 +253,31 @@ class _CategorySidebar extends StatelessWidget {
     return SizedBox(
       width: 72,
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
         itemCount: categories.length,
         itemBuilder: (_, i) {
           final (code, label, icon) = categories[i];
           final isActive = selected == code;
-          final count = wardrobeState.countByCategory(code);
-          return GestureDetector(
+          return InkWell(
             onTap: () => onSelect(code),
             child: AnimatedContainer(
-              duration: const Duration(milliseconds: 180),
-              margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              duration: const Duration(milliseconds: 160),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
               decoration: BoxDecoration(
                 color: isActive
-                    ? colors.pr.withValues(alpha: 0.1)
+                    ? colors.pr.withValues(alpha: 0.08)
                     : Colors.transparent,
-                borderRadius: BorderRadius.circular(10),
-                border: isActive
-                    ? Border.all(color: colors.pr, width: 1.5)
-                    : null,
+                border: BorderDirectional(
+                  start: BorderSide(
+                    color: isActive ? colors.pr : Colors.transparent,
+                    width: 3,
+                  ),
+                ),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(icon, size: 18, color: isActive ? colors.pr : colors.mu),
                   const SizedBox(height: 4),
@@ -253,34 +285,15 @@ class _CategorySidebar extends StatelessWidget {
                     strings.tr(label),
                     style: TextStyle(
                       fontFamily: 'Vazirmatn',
-                      fontSize: 9,
-                      fontWeight: isActive
-                          ? FontWeight.w700
-                          : FontWeight.normal,
+                      fontSize: 10,
+                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                       color: isActive ? colors.pr : colors.mu,
+                      height: 1.15,
                     ),
                     textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 2),
-                  if (count > 0)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 5,
-                        vertical: 1,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isActive ? colors.pr : colors.bd,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        strings.formatNumber(count),
-                        style: TextStyle(
-                          fontFamily: 'Vazirmatn',
-                          fontSize: 9,
-                          color: isActive ? colors.prt : colors.mu,
-                        ),
-                      ),
-                    ),
                 ],
               ),
             ),
@@ -292,21 +305,74 @@ class _CategorySidebar extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
+class _CategoryHeader extends StatelessWidget {
+  const _CategoryHeader({
+    required this.title,
+    required this.count,
+    required this.colors,
+  });
+
+  final String title;
+  final int count;
+  final AppColors colors;
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = context.strings;
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.md,
+        AppSpacing.sm,
+        AppSpacing.md,
+        AppSpacing.xs,
+      ),
+      child: Row(
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontFamily: AppTypography.fontFamily,
+              fontSize: 14,
+              fontWeight: FontWeight.w700,
+              color: colors.tx,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          AppBadge(
+            variant: AppBadgeVariant.standard,
+            size: AppBadgeSize.sm,
+            child: Text(
+              DigitFormatter.localizeDigits(count, strings.localeCode),
+              style: TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+                color: colors.pr,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────
 class _SearchBar extends StatefulWidget {
   const _SearchBar({
     required this.colors,
-    required this.filterOpen,
+    required this.activeFilterCount,
     required this.showArchived,
     required this.onSearch,
-    required this.onToggleFilter,
+    required this.onOpenFilter,
     required this.onToggleArchive,
   });
 
   final AppColors colors;
-  final bool filterOpen;
+  final int activeFilterCount;
   final bool showArchived;
   final void Function(String) onSearch;
-  final VoidCallback onToggleFilter;
+  final VoidCallback onOpenFilter;
   final VoidCallback onToggleArchive;
 
   @override
@@ -339,10 +405,48 @@ class _SearchBarState extends State<_SearchBar> {
             ),
           ),
           const SizedBox(width: AppSpacing.xs),
-          AppIconButton(
-            icon: Icons.tune_rounded,
-            isActive: widget.filterOpen,
-            onTap: widget.onToggleFilter,
+          Stack(
+            clipBehavior: Clip.none,
+            children: [
+              AppIconButton(
+                icon: Icons.tune_rounded,
+                isActive: widget.activeFilterCount > 0,
+                onTap: widget.onOpenFilter,
+              ),
+              if (widget.activeFilterCount > 0)
+                PositionedDirectional(
+                  top: -2,
+                  end: -2,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 1,
+                    ),
+                    decoration: BoxDecoration(
+                      color: c.pr,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 15,
+                      minHeight: 14,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      DigitFormatter.localizeDigits(
+                        widget.activeFilterCount,
+                        strings.localeCode,
+                      ),
+                      style: TextStyle(
+                        fontFamily: AppTypography.fontFamily,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w700,
+                        color: c.prt,
+                        height: 1.1,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(width: AppSpacing.xs),
           AppIconButton(
@@ -364,36 +468,116 @@ class _WardrobeGrid extends StatelessWidget {
     required this.colors,
     required this.onTap,
     required this.onFav,
+    required this.onArchive,
     required this.onAdd,
+    required this.onClearFilters,
     required this.showArchived,
+    required this.hasActiveFilters,
   });
 
   final List<WardrobeItem> items;
   final AppColors colors;
   final void Function(WardrobeItem) onTap;
   final void Function(String) onFav;
+  final void Function(String) onArchive;
   final VoidCallback onAdd;
+  final VoidCallback onClearFilters;
   final bool showArchived;
+  final bool hasActiveFilters;
 
   @override
   Widget build(BuildContext context) {
     final strings = context.strings;
+
     if (items.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.checkroom_outlined, size: 48, color: colors.mu),
-            const SizedBox(height: AppSpacing.md),
-            Text(
-              showArchived ? strings.wardArchiveEmpty : strings.wardNotFound,
-              style: TextStyle(
-                fontFamily: 'Vazirmatn',
-                fontSize: 14,
-                color: colors.mu,
-              ),
+      if (showArchived) {
+        // Archived View Empty State: No items in archive, NO add button
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.inventory_2_outlined, size: 48, color: colors.mu),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  strings.wardArchiveEmpty,
+                  style: TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: colors.mu,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
             ),
-          ],
+          ),
+        );
+      }
+
+      if (hasActiveFilters) {
+        // Filtered No-Results State: items exist in wardrobe but current filters/search have 0 matches
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.search_off_rounded, size: 48, color: colors.mu),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  strings.wardNotFound,
+                  style: TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: colors.mu,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                AppButton(
+                  variant: AppButtonVariant.outline,
+                  size: AppButtonSize.sm,
+                  text: strings.clearFilters,
+                  onPressed: onClearFilters,
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      // Active Wardrobe Empty State: 0 items in category/view, prompt to add first item
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.xl),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.checkroom_outlined, size: 48, color: colors.mu),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                strings.wardEmptyState,
+                style: TextStyle(
+                  fontFamily: AppTypography.fontFamily,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: colors.mu,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.md),
+              AppButton(
+                variant: AppButtonVariant.primary,
+                size: AppButtonSize.sm,
+                icon: const Icon(Icons.add_rounded, size: 16),
+                text: strings.wardAddFirstItem,
+                onPressed: onAdd,
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -406,9 +590,9 @@ class _WardrobeGrid extends StatelessWidget {
         mainAxisSpacing: 8,
         childAspectRatio: 0.82,
       ),
-      itemCount: items.length + 1,
+      itemCount: showArchived ? items.length : items.length + 1,
       itemBuilder: (_, i) {
-        if (i == items.length) {
+        if (!showArchived && i == items.length) {
           return _AddDashedCard(colors: colors, onTap: onAdd);
         }
         final item = items[i];
@@ -417,12 +601,14 @@ class _WardrobeGrid extends StatelessWidget {
           colors: colors,
           onTap: () => onTap(item),
           onFav: () => onFav(item.id),
+          onArchive: () => onArchive(item.id),
         );
       },
     );
   }
 }
 
+// ─────────────────────────────────────────────
 class _AddDashedCard extends StatelessWidget {
   const _AddDashedCard({required this.colors, required this.onTap});
 
@@ -469,6 +655,7 @@ class _AddDashedCard extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────
 class _DashedBorderPainter extends CustomPainter {
   const _DashedBorderPainter({required this.color});
   final Color color;

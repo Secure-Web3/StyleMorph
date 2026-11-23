@@ -3,27 +3,33 @@ import '../../../../core/localization/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
-import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_chip.dart';
+import '../../../../core/widgets/app_modal.dart';
 import '../wardrobe_provider.dart';
 
-class WardrobeFilterPanel extends StatelessWidget {
-  const WardrobeFilterPanel({
+class WardrobeFilterSheet extends StatefulWidget {
+  const WardrobeFilterSheet({
     super.key,
-    required this.filter,
-    required this.onColor,
-    required this.onSeason,
-    required this.onOccasion,
-    required this.onClear,
+    required this.initialFilter,
     required this.colors,
+    required this.onApply,
+    required this.onClear,
   });
 
-  final WardrobeFilter filter;
-  final void Function(String hex) onColor;
-  final void Function(String season) onSeason;
-  final void Function(String occasion) onOccasion;
-  final VoidCallback onClear;
+  final WardrobeFilter initialFilter;
   final AppColors colors;
+  final void Function(String color, String season, String occasion) onApply;
+  final VoidCallback onClear;
+
+  @override
+  State<WardrobeFilterSheet> createState() => _WardrobeFilterSheetState();
+}
+
+class _WardrobeFilterSheetState extends State<WardrobeFilterSheet> {
+  late String _color;
+  late String _season;
+  late String _occasion;
 
   static const _swatches = [
     ('سیاه', '#222222', Color(0xFF222222)),
@@ -44,108 +50,170 @@ class WardrobeFilterPanel extends StatelessWidget {
   static const _occasions = ['روزمره', 'رسمی', 'ورزشی', 'مجلسی'];
 
   @override
+  void initState() {
+    super.initState();
+    _color = widget.initialFilter.colorFilter;
+    _season = widget.initialFilter.seasonFilter;
+    _occasion = widget.initialFilter.occasionFilter;
+  }
+
+  void _handleClear() {
+    setState(() {
+      _color = '';
+      _season = '';
+      _occasion = '';
+    });
+    widget.onClear();
+    Navigator.of(context).pop();
+  }
+
+  void _handleApply() {
+    widget.onApply(_color, _season, _occasion);
+    Navigator.of(context).pop();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final strings = context.strings;
-    return AppCard(
-      margin: const EdgeInsetsDirectional.symmetric(
-        horizontal: AppSpacing.sm,
-        vertical: AppSpacing.xs,
-      ),
-      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    final c = widget.colors;
+
+    return AppBottomSheetShell(
+      title: strings.wardFilterSheetTitle,
+      bottomBar: Row(
         children: [
-          // Colors
-          Text(
-            strings.wardFilterColor,
-            style: AppTypography.inputLabel(color: colors.tx),
+          Expanded(
+            child: AppButton(
+              variant: AppButtonVariant.ghost,
+              size: AppButtonSize.md,
+              text: strings.clearFilters,
+              onPressed: _handleClear,
+            ),
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: _swatches.map((sw) {
-              final isSel = filter.colorFilter == sw.$2;
-              return GestureDetector(
-                onTap: () => onColor(sw.$2),
-                child: Container(
-                  width: 24,
-                  height: 24,
-                  decoration: BoxDecoration(
-                    color: sw.$3,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSel ? colors.pr : colors.bd,
-                      width: isSel ? 2 : 1,
-                    ),
-                  ),
-                  child: isSel
-                      ? Icon(
-                          Icons.check,
-                          size: 13,
-                          color: sw.$2 == '#f4f4f2'
-                              ? Colors.black
-                              : Colors.white,
-                        )
-                      : null,
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          // Season
-          Text(
-            strings.wardSeason,
-            style: AppTypography.inputLabel(color: colors.tx),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: _seasons.map((s) {
-              return AppChip(
-                label: strings.tr(s),
-                isSelected: filter.seasonFilter == s,
-                onTap: () => onSeason(s),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          // Occasion
-          Text(
-            strings.wardOccasion,
-            style: AppTypography.inputLabel(color: colors.tx),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: _occasions.map((o) {
-              return AppChip(
-                label: strings.tr(o),
-                isSelected: filter.occasionFilter == o,
-                onTap: () => onOccasion(o),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: GestureDetector(
-              onTap: onClear,
-              child: Text(
-                strings.clearFilters,
-                style: TextStyle(
-                  fontFamily: AppTypography.fontFamily,
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                  color: colors.pr,
-                  decoration: TextDecoration.underline,
-                ),
-              ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: AppButton(
+              variant: AppButtonVariant.primary,
+              size: AppButtonSize.md,
+              text: strings.wardApplyFilters,
+              onPressed: _handleApply,
             ),
           ),
         ],
+      ),
+      child: Padding(
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Row 1: Colors (compact single-line horizontally scrollable dots)
+            Text(
+              strings.wardFilterColor,
+              style: AppTypography.inputLabel(color: c.tx),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: _swatches.map((sw) {
+                  final isSel = _color == sw.$2;
+                  return Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 8),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _color = isSel ? '' : sw.$2;
+                        });
+                      },
+                      child: Container(
+                        width: 26,
+                        height: 26,
+                        decoration: BoxDecoration(
+                          color: sw.$3,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isSel ? c.pr : c.bd,
+                            width: isSel ? 2.5 : 1,
+                          ),
+                          boxShadow: isSel
+                              ? [
+                                  BoxShadow(
+                                    color: c.pr.withValues(alpha: 0.35),
+                                    blurRadius: 4,
+                                    spreadRadius: 1,
+                                  ),
+                                ]
+                              : null,
+                        ),
+                        child: isSel
+                            ? Icon(
+                                Icons.check_rounded,
+                                size: 14,
+                                color: sw.$2 == '#f4f4f2'
+                                    ? Colors.black
+                                    : Colors.white,
+                              )
+                            : null,
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Row 2: Season (compact row of AppChip pills)
+            Text(
+              strings.wardSeason,
+              style: AppTypography.inputLabel(color: c.tx),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: _seasons.map((s) {
+                final isSel = _season == s;
+                return AppChip(
+                  label: strings.tr(s),
+                  isSelected: isSel,
+                  onTap: () {
+                    setState(() {
+                      _season = isSel ? '' : s;
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: AppSpacing.md),
+
+            // Row 3: Occasion (compact row of AppChip pills)
+            Text(
+              strings.wardOccasion,
+              style: AppTypography.inputLabel(color: c.tx),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: _occasions.map((o) {
+                final isSel = _occasion == o;
+                return AppChip(
+                  label: strings.tr(o),
+                  isSelected: isSel,
+                  onTap: () {
+                    setState(() {
+                      _occasion = isSel ? '' : o;
+                    });
+                  },
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+          ],
+        ),
       ),
     );
   }
