@@ -10,6 +10,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_media_image.dart';
+import '../../../../core/widgets/gender_3d_avatar.dart';
 import '../../../auth/presentation/email_verification_provider.dart';
 import '../../../profile/presentation/widgets/loyalty_rank_modal.dart';
 import 'notification_sheet.dart';
@@ -92,16 +93,9 @@ class _HeaderAvatar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
-    final strings = context.strings;
-    final (loyaltyRank, photoUrl, userName, firstName, lastName) = ref.watch(
+    final (loyaltyRank, effectiveAvatarUrl, gender) = ref.watch(
       appStateProvider.select(
-        (s) => (
-          s.loyaltyRank,
-          s.photoUrl,
-          s.userName,
-          s.identityValues['firstName'] ?? '',
-          s.identityValues['lastName'] ?? '',
-        ),
+        (s) => (s.loyaltyRank, s.effectiveAvatarUrl, s.gender),
       ),
     );
 
@@ -116,24 +110,18 @@ class _HeaderAvatar extends ConsumerWidget {
       borderRadius: BorderRadius.circular(24),
       child: _buildAvatar(
         colors,
-        strings,
         loyaltyRank: loyaltyRank,
-        photoUrl: photoUrl,
-        userName: userName,
-        firstName: firstName,
-        lastName: lastName,
+        effectiveAvatarUrl: effectiveAvatarUrl,
+        gender: gender,
       ),
     );
   }
 
   Widget _buildAvatar(
-    AppColors colors,
-    AppStrings strings, {
+    AppColors colors, {
     required String loyaltyRank,
-    required String photoUrl,
-    required String userName,
-    required String firstName,
-    required String lastName,
+    required String? effectiveAvatarUrl,
+    required String? gender,
   }) {
     const double avatarSize = 42.0;
     final rank = LoyaltyRankExtension.fromString(loyaltyRank);
@@ -159,96 +147,29 @@ class _HeaderAvatar extends ConsumerWidget {
         decoration: BoxDecoration(shape: BoxShape.circle, color: colors.sf),
         child: Builder(
           builder: (context) {
-            User? user;
-            try {
-              if (Firebase.apps.isNotEmpty) {
-                user = FirebaseAuth.instance.currentUser;
-              }
-            } catch (_) {}
-            final effectivePhoto =
-                (user?.photoURL != null && user!.photoURL!.isNotEmpty)
-                ? user.photoURL!
-                : photoUrl;
-            if (effectivePhoto.isNotEmpty) {
+            String? resolvedUrl = effectiveAvatarUrl?.trim();
+            if (resolvedUrl == null || resolvedUrl.isEmpty) {
+              try {
+                if (Firebase.apps.isNotEmpty) {
+                  final authPhoto = FirebaseAuth.instance.currentUser?.photoURL
+                      ?.trim();
+                  if (authPhoto != null && authPhoto.isNotEmpty) {
+                    resolvedUrl = authPhoto;
+                  }
+                }
+              } catch (_) {}
+            }
+
+            if (resolvedUrl != null && resolvedUrl.isNotEmpty) {
               return AppMediaImage(
-                effectivePhoto,
+                resolvedUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => _buildInitialsWidget(
-                  colors,
-                  strings,
-                  userName: userName,
-                  firstName: firstName,
-                  lastName: lastName,
-                ),
+                errorBuilder: (_, _, _) => Gender3dAvatar(gender: gender),
               );
             }
-            return _buildInitialsWidget(
-              colors,
-              strings,
-              userName: userName,
-              firstName: firstName,
-              lastName: lastName,
-            );
+
+            return Gender3dAvatar(gender: gender);
           },
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInitialsWidget(
-    AppColors colors,
-    AppStrings strings, {
-    required String userName,
-    required String firstName,
-    required String lastName,
-  }) {
-    String initials = 'SM';
-    final first = firstName.trim();
-    final last = lastName.trim();
-    final resolvedName = userName.isNotEmpty ? strings.tr(userName) : '';
-
-    if (resolvedName.isNotEmpty) {
-      final parts = resolvedName.trim().split(RegExp(r'\s+'));
-      if (parts.length >= 2) {
-        initials = '${parts[0].characters.first}${parts[1].characters.first}'
-            .toUpperCase();
-      } else {
-        initials = parts[0].characters.take(2).toString().toUpperCase();
-      }
-    } else if (first.isNotEmpty && last.isNotEmpty) {
-      final localizedFirst = strings.tr(first);
-      final localizedLast = strings.tr(last);
-      initials =
-          '${localizedFirst.characters.first}${localizedLast.characters.first}'
-              .toUpperCase();
-    } else if (first.isNotEmpty) {
-      initials = strings.tr(first).characters.take(2).toString().toUpperCase();
-    } else {
-      String email = '';
-      try {
-        if (Firebase.apps.isNotEmpty) {
-          email = FirebaseAuth.instance.currentUser?.email ?? '';
-        }
-      } catch (_) {}
-      if (email.isNotEmpty) {
-        initials = email
-            .split('@')
-            .first
-            .characters
-            .take(2)
-            .toString()
-            .toUpperCase();
-      }
-    }
-
-    return Center(
-      child: Text(
-        initials,
-        style: TextStyle(
-          fontFamily: 'Vazirmatn',
-          fontSize: 12,
-          fontWeight: FontWeight.w700,
-          color: colors.tx,
         ),
       ),
     );

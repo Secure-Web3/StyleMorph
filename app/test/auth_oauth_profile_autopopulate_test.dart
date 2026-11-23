@@ -7,6 +7,7 @@ import 'package:stylemorph/core/services/loyalty_service.dart';
 import 'package:stylemorph/core/state/app_state.dart';
 import 'package:stylemorph/core/theme/app_colors.dart';
 import 'package:stylemorph/core/theme/app_theme.dart';
+import 'package:stylemorph/core/widgets/gender_3d_avatar.dart';
 import 'package:stylemorph/features/auth/data/firebase_auth_repository.dart';
 import 'package:stylemorph/features/profile/data/user_preferences.dart';
 import 'package:stylemorph/features/shell/presentation/widgets/main_header.dart';
@@ -291,46 +292,46 @@ void main() {
       expect(find.byType(Image), findsOneWidget);
     });
 
-    testWidgets('renders fallback initials widget when photoUrl is empty', (
-      tester,
-    ) async {
-      final initialState = AppState(
-        isLoggedIn: true,
-        userName: 'Sophia Laurent',
-        photoUrl: '',
-        stylePoints: 130,
-        loyaltyRank: 'Bronze',
-        preferences: const UserPreferences(
-          fashionThemePalette: 'editorial',
-          brightnessMode: 'light',
-          appLanguage: 'en',
-        ),
-      );
-
-      final notifier = _TestAppStateNotifier(initialState);
-
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [appStateProvider.overrideWith((ref) => notifier)],
-          child: MaterialApp(
-            theme: testTheme,
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [Locale('en'), Locale('fa')],
-            locale: const Locale('en'),
-            home: const Scaffold(body: MainHeader()),
+    testWidgets(
+      'renders fallback Gender3dAvatar widget when photoUrl is empty',
+      (tester) async {
+        final initialState = AppState(
+          isLoggedIn: true,
+          userName: 'Sophia Laurent',
+          photoUrl: '',
+          stylePoints: 130,
+          loyaltyRank: 'Bronze',
+          preferences: const UserPreferences(
+            fashionThemePalette: 'editorial',
+            brightnessMode: 'light',
+            appLanguage: 'en',
           ),
-        ),
-      );
+        );
 
-      await tester.pumpAndSettle();
+        final notifier = _TestAppStateNotifier(initialState);
 
-      expect(find.byType(MainHeader), findsOneWidget);
-      // Initials 'S' or 'SL' should appear
-      expect(find.text('SL'), findsOneWidget);
-    });
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [appStateProvider.overrideWith((ref) => notifier)],
+            child: MaterialApp(
+              theme: testTheme,
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [Locale('en'), Locale('fa')],
+              locale: const Locale('en'),
+              home: const Scaffold(body: MainHeader()),
+            ),
+          ),
+        );
+
+        await tester.pumpAndSettle();
+
+        expect(find.byType(MainHeader), findsOneWidget);
+        expect(find.byType(Gender3dAvatar), findsOneWidget);
+      },
+    );
   });
 }
