@@ -4,9 +4,9 @@ import '../theme/app_colors.dart';
 
 /// Gender-aware 3D character avatar widget with fallback silhouette.
 ///
-/// Priority 3 in avatar hierarchy:
-/// - 'male' -> [maleAsset]
-/// - 'female' -> [femaleAsset]
+/// Priority fallback in avatar hierarchy:
+/// - Male variants ('male', 'مردانه', 'مرد', etc.) -> [maleAsset]
+/// - Female variants ('female', 'زنانه', 'زن', etc.) -> [femaleAsset]
 /// - Unselected / null / empty / 'non_binary' -> Subtle editorial silhouette icon
 class Gender3dAvatar extends StatelessWidget {
   static const String maleAsset = 'assets/images/avatars/avatar_male_3d.jpg';
@@ -26,11 +26,58 @@ class Gender3dAvatar extends StatelessWidget {
     this.alignment = Alignment.topCenter,
   });
 
+  /// Returns true if [raw] corresponds to a male gender designation across supported locales.
+  static bool isMale(String? raw) {
+    if (raw == null) return false;
+    final val = raw.trim().toLowerCase();
+    const maleVariants = {
+      'male',
+      'm',
+      'man',
+      'men',
+      'boy',
+      'مرد',
+      'مردانه',
+      'آقا',
+      'اقا',
+      'پسر',
+      'ذكر',
+      'رجل',
+      'erkek',
+      'adam',
+    };
+    return maleVariants.contains(val);
+  }
+
+  /// Returns true if [raw] corresponds to a female gender designation across supported locales.
+  static bool isFemale(String? raw) {
+    if (raw == null) return false;
+    final val = raw.trim().toLowerCase();
+    const femaleVariants = {
+      'female',
+      'f',
+      'woman',
+      'women',
+      'girl',
+      'w',
+      'زن',
+      'زنانه',
+      'خانم',
+      'بانو',
+      'دختر',
+      'أنثى',
+      'انثى',
+      'امرأة',
+      'امراة',
+      'kadin',
+      'kadın',
+    };
+    return femaleVariants.contains(val);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final normalized = gender?.trim().toLowerCase();
-
-    if (normalized == 'male') {
+    if (isMale(gender)) {
       return Image.asset(
         maleAsset,
         width: size,
@@ -41,7 +88,7 @@ class Gender3dAvatar extends StatelessWidget {
       );
     }
 
-    if (normalized == 'female') {
+    if (isFemale(gender)) {
       return Image.asset(
         femaleAsset,
         width: size,

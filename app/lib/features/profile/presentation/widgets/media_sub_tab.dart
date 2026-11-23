@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_media_image.dart';
 import '../../../../core/widgets/app_section_header.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../profile_providers.dart';
 import 'camera_alignment_guide_dialog.dart';
 import 'kyc_image_preview_dialog.dart';
@@ -119,7 +120,6 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
     final uid = FirebaseAuth.instance.currentUser?.uid ?? 'guest_user';
     final mediaService = ref.read(mediaServiceProvider);
     final strings = context.strings;
-    final colors = context.colors;
 
     try {
       XFile? picked;
@@ -156,28 +156,12 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
           .read(appStateProvider.notifier)
           .updateMediaSlot(slot.key, downloadUrl);
 
-      if (mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${slot.title} - ${strings.galUploaded}',
-              style: const TextStyle(fontFamily: 'Vazirmatn'),
-            ),
-            duration: const Duration(seconds: 2),
-          ),
-        );
+      if (context.mounted) {
+        AppToast.showSuccess(context, '${slot.title} - ${strings.galUploaded}');
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(this.context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Upload error: $e',
-              style: const TextStyle(fontFamily: 'Vazirmatn'),
-            ),
-            backgroundColor: colors.orColor,
-          ),
-        );
+      if (context.mounted) {
+        AppToast.showError(context, 'Upload error: $e');
       }
     } finally {
       if (mounted) {
@@ -257,13 +241,8 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
         );
         ref.read(appStateProvider.notifier).deleteMediaSlot(slot.key);
       } catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(this.context).showSnackBar(
-            SnackBar(
-              content: Text('Delete error: $e'),
-              backgroundColor: colors.orColor,
-            ),
-          );
+        if (context.mounted) {
+          AppToast.showError(context, 'Delete error: $e');
         }
       }
     }
@@ -739,16 +718,9 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                             : () {
                                 if (isUploaded) {
                                   if (slot.isVideo) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          strings.galPlayToast,
-                                          style: const TextStyle(
-                                            fontFamily: 'Vazirmatn',
-                                          ),
-                                        ),
-                                        duration: const Duration(seconds: 2),
-                                      ),
+                                    AppToast.showInfo(
+                                      context,
+                                      strings.galPlayToast,
                                     );
                                   } else {
                                     KycImagePreviewDialog.show(

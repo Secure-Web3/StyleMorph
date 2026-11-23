@@ -13,6 +13,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
+import '../../../../core/widgets/app_toast.dart';
 import 'share_actions.dart' as share_actions;
 
 class ReferralSubTab extends ConsumerStatefulWidget {
@@ -42,15 +43,7 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
     if (!shared) {
       Clipboard.setData(ClipboardData(text: link));
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            strings.refCopiedToast,
-            style: const TextStyle(fontFamily: 'Vazirmatn'),
-          ),
-          duration: const Duration(seconds: 2),
-        ),
-      );
+      AppToast.showSuccess(context, strings.refCopiedToast);
     }
   }
 

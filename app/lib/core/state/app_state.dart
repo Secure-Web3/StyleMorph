@@ -147,18 +147,13 @@ class AppState {
   bool get isSimpleMode => preferences.isSimpleMode;
   bool get isAdvancedMode => preferences.isAdvancedMode;
 
-  /// Effective avatar image URL following 3-level fallback priority:
-  /// 1. Media slot `front_face` (if non-null and non-empty).
-  /// 2. `photoUrl` (e.g., Google account photo, if non-null and non-empty).
-  /// 3. Returns null (which triggers Gender-Aware 3D Avatar fallback).
+  /// Effective avatar image URL following priority hierarchy:
+  /// 1. Media slot `front_face` (when non-null and non-empty).
+  /// 2. Returns null (triggering Gender-Aware 3D Avatar fallback).
   String? get effectiveAvatarUrl {
     final frontFace = mediaSlots['front_face']?.trim();
     if (frontFace != null && frontFace.isNotEmpty) {
       return frontFace;
-    }
-    final photo = photoUrl.trim();
-    if (photo.isNotEmpty) {
-      return photo;
     }
     return null;
   }

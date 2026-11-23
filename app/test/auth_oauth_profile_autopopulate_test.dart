@@ -249,14 +249,18 @@ void main() {
     });
   });
 
-  group('MainHeader Avatar with AppState.photoUrl fallback', () {
-    testWidgets('renders avatar image when photoUrl is present in AppState', (
+  group('MainHeader Avatar with Media front_face and 3D Avatar Fallback', () {
+    testWidgets('renders front_face image when mediaSlots has front_face', (
       tester,
     ) async {
       final initialState = AppState(
         isLoggedIn: true,
         userName: 'Sophia Laurent',
         photoUrl: 'https://example.com/profile-pic.jpg',
+        mediaSlots: const {
+          'front_face':
+              'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+        },
         stylePoints: 130,
         loyaltyRank: 'Bronze',
         preferences: const UserPreferences(
@@ -287,18 +291,19 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      // MainHeader should render without crash and find Image widget
+      // MainHeader renders AppMediaImage when front_face is present
       expect(find.byType(MainHeader), findsOneWidget);
       expect(find.byType(Image), findsOneWidget);
+      expect(find.byType(Gender3dAvatar), findsNothing);
     });
 
     testWidgets(
-      'renders fallback Gender3dAvatar widget when photoUrl is empty',
+      'renders Gender3dAvatar when front_face is empty even if photoUrl is present',
       (tester) async {
         final initialState = AppState(
           isLoggedIn: true,
           userName: 'Sophia Laurent',
-          photoUrl: '',
+          photoUrl: 'https://lh3.googleusercontent.com/default_monogram.jpg',
           stylePoints: 130,
           loyaltyRank: 'Bronze',
           preferences: const UserPreferences(

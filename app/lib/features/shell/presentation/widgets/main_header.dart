@@ -147,19 +147,7 @@ class _HeaderAvatar extends ConsumerWidget {
         decoration: BoxDecoration(shape: BoxShape.circle, color: colors.sf),
         child: Builder(
           builder: (context) {
-            String? resolvedUrl = effectiveAvatarUrl?.trim();
-            if (resolvedUrl == null || resolvedUrl.isEmpty) {
-              try {
-                if (Firebase.apps.isNotEmpty) {
-                  final authPhoto = FirebaseAuth.instance.currentUser?.photoURL
-                      ?.trim();
-                  if (authPhoto != null && authPhoto.isNotEmpty) {
-                    resolvedUrl = authPhoto;
-                  }
-                }
-              } catch (_) {}
-            }
-
+            final resolvedUrl = effectiveAvatarUrl?.trim();
             if (resolvedUrl != null && resolvedUrl.isNotEmpty) {
               return AppMediaImage(
                 resolvedUrl,
