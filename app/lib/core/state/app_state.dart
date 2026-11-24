@@ -1,7 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../localization/locale_provider.dart';
+import '../theme/theme_provider.dart';
 import '../../features/profile/domain/kyc_model.dart';
 import '../../features/profile/data/profile_sync_service.dart';
 import '../../features/profile/domain/user_preferences.dart';
@@ -440,8 +444,19 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   /// Loads real user profile from Firestore `users/{uid}`.
-  Future<void> loadProfileFromFirestore() async {
+  /// If already loaded for the current [uid] and [force] is false, skips redundant reads.
+  Future<void> loadProfileFromFirestore({bool force = false}) async {
     try {
+      final currentUid = Firebase.apps.isNotEmpty
+          ? FirebaseAuth.instance.currentUser?.uid
+          : null;
+
+      if (!force &&
+          state.isProfileLoaded &&
+          (currentUid == null || state.loadedUid == currentUid)) {
+        return;
+      }
+
       if (Firebase.apps.isEmpty || FirebaseAuth.instance.currentUser == null) {
         state = state.copyWith(isProfileLoaded: true, clearLoadedUid: true);
         return;
@@ -671,28 +686,118 @@ class AppStateNotifier extends StateNotifier<AppState> {
     WebUnloadGuard.update(true);
   }
 
-  void setFashionThemePalette(String palette) {
+  /// Optimistically updates preferences, persists immediately to Firestore `users/{uid}` and SharedPreferences,
+  /// syncs the saved baseline snapshot, and keeps [hasUnsavedChanges] clean without modifying loyalty points.
+  Future<void> updatePreferencesImmediately(
+    UserPreferences updatedPreferences,
+  ) async {
+    final hadUnsaved = state.hasUnsavedProfileChanges;
+
+    final updatedSnapshot = state.savedSnapshot != null
+        ? ProfileSnapshot.capture(
+            identityValues: state.savedSnapshot!.identityValues,
+            aiDnaValues: state.savedSnapshot!.aiDnaValues,
+            aiDnaSources: state.savedSnapshot!.aiDnaSources,
+            preferences: updatedPreferences,
+            companionSettings: state.savedSnapshot!.companionSettings,
+            personaMode: state.savedSnapshot!.personaMode,
+          )
+        : null;
+
     state = state.copyWith(
-      preferences: state.preferences.copyWith(fashionThemePalette: palette),
-      hasUnsavedProfileChanges: true,
+      preferences: updatedPreferences,
+      savedSnapshot: updatedSnapshot,
+      hasUnsavedProfileChanges: hadUnsaved,
+      showFloatingSupport: updatedPreferences.showFloatingSupport,
+      showHeaderCoins: updatedPreferences.showHeaderCoins,
     );
-    WebUnloadGuard.update(true);
+
+    if (!hadUnsaved) {
+      captureSavedSnapshot();
+    }
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+        ThemeNotifier.keyThemePalette,
+        updatedPreferences.fashionThemePalette,
+      );
+      await prefs.setString(
+        ThemeNotifier.keyThemeMode,
+        updatedPreferences.brightnessMode,
+      );
+      await prefs.setString(
+        LocaleNotifier.keyAppLanguage,
+        updatedPreferences.appLanguage,
+      );
+      await prefs.setString('user_app_mode', updatedPreferences.appMode);
+    } catch (e) {
+      debugPrint('[updatePreferencesImmediately] SharedPreferences error: $e');
+    }
+
+    try {
+      if (Firebase.apps.isNotEmpty &&
+          FirebaseAuth.instance.currentUser != null) {
+        final uid = FirebaseAuth.instance.currentUser!.uid;
+        await FirebaseFirestore.instance.collection('users').doc(uid).set({
+          'preferences': updatedPreferences.toMap(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
+      }
+    } catch (e) {
+      debugPrint('[updatePreferencesImmediately] Firestore error: $e');
+    }
   }
 
-  void setBrightnessMode(String mode) {
-    state = state.copyWith(
-      preferences: state.preferences.copyWith(brightnessMode: mode),
-      hasUnsavedProfileChanges: true,
-    );
-    WebUnloadGuard.update(true);
+  Future<void> setFashionThemePalette(
+    String palette, {
+    bool persistImmediately = false,
+  }) async {
+    if (persistImmediately) {
+      await updatePreferencesImmediately(
+        state.preferences.copyWith(fashionThemePalette: palette),
+      );
+    } else {
+      state = state.copyWith(
+        preferences: state.preferences.copyWith(fashionThemePalette: palette),
+        hasUnsavedProfileChanges: true,
+      );
+      WebUnloadGuard.update(true);
+    }
   }
 
-  void setAppLanguage(String code) {
-    state = state.copyWith(
-      preferences: state.preferences.copyWith(appLanguage: code),
-      hasUnsavedProfileChanges: true,
-    );
-    WebUnloadGuard.update(true);
+  Future<void> setBrightnessMode(
+    String mode, {
+    bool persistImmediately = false,
+  }) async {
+    if (persistImmediately) {
+      await updatePreferencesImmediately(
+        state.preferences.copyWith(brightnessMode: mode),
+      );
+    } else {
+      state = state.copyWith(
+        preferences: state.preferences.copyWith(brightnessMode: mode),
+        hasUnsavedProfileChanges: true,
+      );
+      WebUnloadGuard.update(true);
+    }
+  }
+
+  Future<void> setAppLanguage(
+    String code, {
+    bool persistImmediately = false,
+  }) async {
+    if (persistImmediately) {
+      await updatePreferencesImmediately(
+        state.preferences.copyWith(appLanguage: code),
+      );
+    } else {
+      state = state.copyWith(
+        preferences: state.preferences.copyWith(appLanguage: code),
+        hasUnsavedProfileChanges: true,
+      );
+      WebUnloadGuard.update(true);
+    }
   }
 
   void setAutoDataBackup(String frequency) {
@@ -715,17 +820,15 @@ class AppStateNotifier extends StateNotifier<AppState> {
     String mode, {
     bool persistImmediately = false,
   }) async {
-    final hadUnsaved = state.hasUnsavedProfileChanges;
-    state = state.copyWith(
-      preferences: state.preferences.copyWith(appMode: mode),
-      hasUnsavedProfileChanges: !persistImmediately && hadUnsaved,
-    );
     if (persistImmediately) {
-      await saveProfileToFirestore();
-      if (!hadUnsaved) {
-        captureSavedSnapshot();
-      }
+      await updatePreferencesImmediately(
+        state.preferences.copyWith(appMode: mode),
+      );
     } else {
+      state = state.copyWith(
+        preferences: state.preferences.copyWith(appMode: mode),
+        hasUnsavedProfileChanges: true,
+      );
       WebUnloadGuard.update(true);
     }
   }

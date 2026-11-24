@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -123,7 +125,14 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
       ref.read(sessionServiceProvider).upsertSession().catchError((e) {
         debugPrint('[ProfileTab] upsertSession error: $e');
       });
-      ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+      final appState = ref.read(appStateProvider);
+      final currentUid = Firebase.apps.isNotEmpty
+          ? FirebaseAuth.instance.currentUser?.uid
+          : null;
+      if (!appState.isProfileLoaded ||
+          (currentUid != null && appState.loadedUid != currentUid)) {
+        ref.read(appStateProvider.notifier).loadProfileFromFirestore();
+      }
     });
   }
 

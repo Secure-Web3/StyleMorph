@@ -210,45 +210,85 @@ class AppDrawer extends ConsumerWidget {
                         palette: AppPalette.white,
                         color: const Color(0xFFFFFFFF),
                         isSelected: themeState.palette == AppPalette.white,
-                        onTap: () => ref
-                            .read(themeProvider.notifier)
-                            .setPalette(AppPalette.white),
+                        onTap: () {
+                          ref
+                              .read(themeProvider.notifier)
+                              .setPalette(AppPalette.white);
+                          ref
+                              .read(appStateProvider.notifier)
+                              .setFashionThemePalette(
+                                AppPalette.white.name,
+                                persistImmediately: true,
+                              );
+                        },
                       ),
                       const SizedBox(width: 5),
                       _PaletteDot(
                         palette: AppPalette.beige,
                         color: const Color(0xFFD9C3A5),
                         isSelected: themeState.palette == AppPalette.beige,
-                        onTap: () => ref
-                            .read(themeProvider.notifier)
-                            .setPalette(AppPalette.beige),
+                        onTap: () {
+                          ref
+                              .read(themeProvider.notifier)
+                              .setPalette(AppPalette.beige);
+                          ref
+                              .read(appStateProvider.notifier)
+                              .setFashionThemePalette(
+                                AppPalette.beige.name,
+                                persistImmediately: true,
+                              );
+                        },
                       ),
                       const SizedBox(width: 5),
                       _PaletteDot(
                         palette: AppPalette.slate,
                         color: const Color(0xFF4A5056),
                         isSelected: themeState.palette == AppPalette.slate,
-                        onTap: () => ref
-                            .read(themeProvider.notifier)
-                            .setPalette(AppPalette.slate),
+                        onTap: () {
+                          ref
+                              .read(themeProvider.notifier)
+                              .setPalette(AppPalette.slate);
+                          ref
+                              .read(appStateProvider.notifier)
+                              .setFashionThemePalette(
+                                AppPalette.slate.name,
+                                persistImmediately: true,
+                              );
+                        },
                       ),
                       const SizedBox(width: 5),
                       _PaletteDot(
                         palette: AppPalette.obsidian,
                         color: const Color(0xFF111111),
                         isSelected: themeState.palette == AppPalette.obsidian,
-                        onTap: () => ref
-                            .read(themeProvider.notifier)
-                            .setPalette(AppPalette.obsidian),
+                        onTap: () {
+                          ref
+                              .read(themeProvider.notifier)
+                              .setPalette(AppPalette.obsidian);
+                          ref
+                              .read(appStateProvider.notifier)
+                              .setFashionThemePalette(
+                                AppPalette.obsidian.name,
+                                persistImmediately: true,
+                              );
+                        },
                       ),
                       const SizedBox(width: 5),
                       _PaletteDot(
                         palette: AppPalette.editorial,
                         color: const Color(0xFF8C6D46),
                         isSelected: themeState.palette == AppPalette.editorial,
-                        onTap: () => ref
-                            .read(themeProvider.notifier)
-                            .setPalette(AppPalette.editorial),
+                        onTap: () {
+                          ref
+                              .read(themeProvider.notifier)
+                              .setPalette(AppPalette.editorial);
+                          ref
+                              .read(appStateProvider.notifier)
+                              .setFashionThemePalette(
+                                AppPalette.editorial.name,
+                                persistImmediately: true,
+                              );
+                        },
                       ),
                       const Spacer(),
                       // 3-state brightness cycle: Light -> Dark -> System Auto
@@ -259,8 +299,17 @@ class AppDrawer extends ConsumerWidget {
                             ? strings.drawerThemeDarkTip
                             : strings.drawerThemeSystemTip,
                         child: InkWell(
-                          onTap: () =>
-                              ref.read(themeProvider.notifier).cycleThemeMode(),
+                          onTap: () {
+                            final nextMode = ref
+                                .read(themeProvider.notifier)
+                                .cycleThemeMode();
+                            ref
+                                .read(appStateProvider.notifier)
+                                .setBrightnessMode(
+                                  nextMode.name,
+                                  persistImmediately: true,
+                                );
+                          },
                           borderRadius: AppRadius.rFull,
                           child: Container(
                             width: 28,
@@ -337,6 +386,12 @@ class AppDrawer extends ConsumerWidget {
                                   ref
                                       .read(localeProvider.notifier)
                                       .setLanguage(code);
+                                  ref
+                                      .read(appStateProvider.notifier)
+                                      .setAppLanguage(
+                                        code,
+                                        persistImmediately: true,
+                                      );
                                 }
                               },
                             ),

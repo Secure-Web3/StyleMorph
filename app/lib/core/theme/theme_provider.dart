@@ -194,6 +194,10 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
       await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'preferences': {
+          'fashionThemePalette': state.palette.name,
+          'brightnessMode': state.mode.name,
+        },
         'theme': {'palette': state.palette.name, 'mode': state.mode.name},
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
@@ -214,11 +218,13 @@ class ThemeNotifier extends StateNotifier<ThemeState> {
     setPalette(values[nextIndex]);
   }
 
-  /// Cycles through Light -> Dark -> System Auto -> Light.
-  void cycleThemeMode() {
+  /// Cycles through Light -> Dark -> System Auto -> Light and returns the newly active [ThemeMode].
+  ThemeMode cycleThemeMode() {
     const order = [ThemeMode.light, ThemeMode.dark, ThemeMode.system];
     final nextIndex = (order.indexOf(state.mode) + 1) % order.length;
-    setThemeMode(order[nextIndex]);
+    final nextMode = order[nextIndex];
+    setThemeMode(nextMode);
+    return nextMode;
   }
 
   void toggleDark() {

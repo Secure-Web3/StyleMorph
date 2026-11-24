@@ -17,7 +17,7 @@ class _TestAppStateNotifier extends AppStateNotifier {
   }
 
   @override
-  Future<void> loadProfileFromFirestore() async {}
+  Future<void> loadProfileFromFirestore({bool force = false}) async {}
 
   @override
   Future<bool> saveProfileToFirestore() async {
