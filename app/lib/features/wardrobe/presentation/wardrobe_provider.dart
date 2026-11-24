@@ -310,6 +310,80 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
     await _repo.updateItem(item);
   }
 
+  Future<WardrobeItem> updateItemWithImage({
+    required String id,
+    Uint8List? newImageBytes,
+    String? mimeType,
+    required String title,
+    required String category,
+    String subCategory = 'عمومی',
+    String colorName = 'نامشخص',
+    String colorHex = '#888888',
+    String season = 'همه',
+    String occasion = 'روزمره',
+    String material = 'پارچه',
+    String size = 'M',
+  }) async {
+    final idx = state.items.indexWhere((e) => e.id == id);
+    final existing = idx != -1 ? state.items[idx] : null;
+
+    String thumbUrl = existing?.thumbUrl ?? '';
+    String originalUrl = existing?.originalUrl ?? '';
+    String imageHash = existing?.imageHash ?? '';
+
+    if (newImageBytes != null) {
+      imageHash = sha256.convert(newImageBytes).toString();
+      final uid = _userId ?? 'guest';
+      final storagePath = 'users/$uid/wardrobe/$id.jpg';
+      if (_storageService != null) {
+        final uploaded = await _storageService.uploadImage(
+          path: storagePath,
+          bytes: newImageBytes,
+          mimeType: mimeType ?? 'image/jpeg',
+        );
+        thumbUrl = uploaded;
+        originalUrl = uploaded;
+      }
+    }
+
+    final now = DateTime.now();
+    final updated = (existing != null)
+        ? existing.copyWith(
+            title: title,
+            category: category,
+            subCategory: subCategory,
+            colorName: colorName,
+            colorHex: colorHex,
+            season: season,
+            occasion: occasion,
+            material: material,
+            size: size,
+            thumbUrl: thumbUrl,
+            originalUrl: originalUrl,
+            imageHash: imageHash,
+            updatedAt: now,
+          )
+        : WardrobeItem(
+            id: id,
+            title: title,
+            category: category,
+            subCategory: subCategory,
+            colorName: colorName,
+            colorHex: colorHex,
+            season: season,
+            occasion: occasion,
+            material: material,
+            size: size,
+            thumbUrl: thumbUrl,
+            originalUrl: originalUrl,
+            imageHash: imageHash,
+            updatedAt: now,
+          );
+
+    await updateItem(updated);
+    return updated;
+  }
+
   Future<void> deleteItem(String id) async {
     final target = state.items.cast<WardrobeItem?>().firstWhere(
       (e) => e?.id == id,

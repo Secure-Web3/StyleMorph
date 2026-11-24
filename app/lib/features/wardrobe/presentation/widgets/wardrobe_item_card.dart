@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_radius.dart';
-import '../../../../core/widgets/app_badge.dart';
+import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_media_image.dart';
 import '../../domain/wardrobe_item.dart';
@@ -73,126 +72,27 @@ class WardrobeItemCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Image / Tile Area
+          // Image / Tile Area: 100% unobstructed photo
           Expanded(
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                if (item.thumbUrl.isNotEmpty)
-                  AppMediaImage(
+            child: (item.thumbUrl.isNotEmpty)
+                ? AppMediaImage(
                     item.thumbUrl,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) =>
                         _buildPlaceholder(itemColor),
                   )
-                else
-                  _buildPlaceholder(itemColor),
-                // Actions (top-end): Favorite Star + Quick Archive
-                PositionedDirectional(
-                  top: 6,
-                  end: 6,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Favorite Star Button
-                      GestureDetector(
-                        onTap: onFav,
-                        child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: colors.sf.withValues(alpha: 0.9),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            item.isFavorite
-                                ? Icons.star_rounded
-                                : Icons.star_border_rounded,
-                            size: 16,
-                            color: item.isFavorite
-                                ? const Color(0xFFD99A06)
-                                : colors.mu,
-                          ),
-                        ),
-                      ),
-                      if (onArchive != null) ...[
-                        const SizedBox(height: 4),
-                        // Quick Archive / Unarchive Button
-                        Tooltip(
-                          message: item.isArchived
-                              ? strings.wardUnarchive
-                              : strings.wardArchiveAction,
-                          child: GestureDetector(
-                            onTap: onArchive,
-                            child: Container(
-                              width: 28,
-                              height: 28,
-                              decoration: BoxDecoration(
-                                color: colors.sf.withValues(alpha: 0.9),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                item.isArchived
-                                    ? Icons.unarchive_outlined
-                                    : Icons.inventory_2_outlined,
-                                size: 15,
-                                color: item.isArchived ? colors.pr : colors.mu,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                // Season / Occasion badge (top-start)
-                if (item.season != 'همه')
-                  PositionedDirectional(
-                    top: 6,
-                    start: 6,
-                    child: AppBadge(
-                      size: AppBadgeSize.sm,
-                      borderRadius: AppRadius.rSm,
-                      padding: const EdgeInsetsDirectional.symmetric(
-                        horizontal: 6,
-                        vertical: 2,
-                      ),
-                      child: Text(
-                        strings.tr(item.season),
-                        style: const TextStyle(fontSize: 9),
-                      ),
-                    ),
-                  ),
-                // Quick Try-on button (bottom-end)
-                PositionedDirectional(
-                  bottom: 6,
-                  end: 6,
-                  child: GestureDetector(
-                    onTap: onTryOn ?? onTap,
-                    child: Container(
-                      width: 26,
-                      height: 26,
-                      decoration: BoxDecoration(
-                        color: colors.sf.withValues(alpha: 0.9),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: colors.bd, width: 0.5),
-                      ),
-                      child: Icon(
-                        Icons.auto_awesome_rounded,
-                        size: 13,
-                        color: colors.pr,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+                : _buildPlaceholder(itemColor),
           ),
-          // Info Area
+          // Info Area: Title and 3 compact action buttons
           Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              AppSpacing.sm,
+              6,
+              AppSpacing.sm,
+              6,
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
@@ -206,28 +106,78 @@ class WardrobeItemCard extends StatelessWidget {
                     color: colors.tx,
                   ),
                 ),
-                const SizedBox(height: 3),
+                const SizedBox(height: 6),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      width: 9,
-                      height: 9,
-                      decoration: BoxDecoration(
-                        color: itemColor,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: colors.bd, width: 0.5),
+                    // Favorite Star Button
+                    Tooltip(
+                      message: strings.mFav,
+                      child: GestureDetector(
+                        onTap: onFav,
+                        child: Container(
+                          width: 26,
+                          height: 26,
+                          decoration: BoxDecoration(
+                            color: colors.sf,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: colors.bd, width: 0.5),
+                          ),
+                          child: Icon(
+                            item.isFavorite
+                                ? Icons.star_rounded
+                                : Icons.star_border_rounded,
+                            size: 15,
+                            color: item.isFavorite
+                                ? const Color(0xFFD99A06)
+                                : colors.mu,
+                          ),
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        '${strings.tr(item.colorName)} · ${strings.tr(item.subCategory)}',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontFamily: 'Vazirmatn',
-                          fontSize: 10,
-                          color: colors.mu,
+                    // Archive / Unarchive Button
+                    Tooltip(
+                      message: item.isArchived
+                          ? strings.wardUnarchive
+                          : strings.wardArchiveAction,
+                      child: GestureDetector(
+                        onTap: onArchive,
+                        child: Container(
+                          width: 26,
+                          height: 26,
+                          decoration: BoxDecoration(
+                            color: colors.sf,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: colors.bd, width: 0.5),
+                          ),
+                          child: Icon(
+                            item.isArchived
+                                ? Icons.unarchive_outlined
+                                : Icons.inventory_2_outlined,
+                            size: 14,
+                            color: item.isArchived ? colors.pr : colors.mu,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // AI Style Button
+                    Tooltip(
+                      message: strings.wardStyleInStylist,
+                      child: GestureDetector(
+                        onTap: onTryOn ?? onTap,
+                        child: Container(
+                          width: 26,
+                          height: 26,
+                          decoration: BoxDecoration(
+                            color: colors.sf,
+                            shape: BoxShape.circle,
+                            border: Border.all(color: colors.bd, width: 0.5),
+                          ),
+                          child: Icon(
+                            Icons.auto_awesome_rounded,
+                            size: 13,
+                            color: colors.pr,
+                          ),
                         ),
                       ),
                     ),

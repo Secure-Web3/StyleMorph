@@ -755,6 +755,10 @@ class AppStrings {
   String get wardRemovePhoto => get('wardRemovePhoto');
   String get wardUploadError => get('wardUploadError');
   String get wardPayloadTooLarge => get('wardPayloadTooLarge');
+  String get wardEditItem => get('wardEditItem');
+  String get wardEditSheetTitle => get('wardEditSheetTitle');
+  String get wardSaveChanges => get('wardSaveChanges');
+  String get wardItemUpdated => get('wardItemUpdated');
 
   // Shop
   String get shopSub => get('shopSub');

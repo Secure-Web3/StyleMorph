@@ -1,4 +1,6 @@
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -9,21 +11,32 @@ import '../../../../core/widgets/app_media_image.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../domain/wardrobe_item.dart';
+import '../wardrobe_provider.dart';
+import 'add_item_bottom_sheet.dart';
 
-class WardrobeItemDetailSheet extends StatelessWidget {
+class WardrobeItemDetailSheet extends ConsumerStatefulWidget {
   const WardrobeItemDetailSheet({
     super.key,
     required this.item,
     required this.onFav,
     required this.onArchive,
     required this.onDelete,
+    this.onEdit,
   });
 
   final WardrobeItem item;
   final VoidCallback onFav;
   final VoidCallback onArchive;
   final VoidCallback onDelete;
+  final VoidCallback? onEdit;
 
+  @override
+  ConsumerState<WardrobeItemDetailSheet> createState() =>
+      _WardrobeItemDetailSheetState();
+}
+
+class _WardrobeItemDetailSheetState
+    extends ConsumerState<WardrobeItemDetailSheet> {
   Color _parseColor(String hex) {
     try {
       final clean = hex.replaceFirst('#', '');
@@ -51,9 +64,122 @@ class WardrobeItemDetailSheet extends StatelessWidget {
     }
   }
 
-  Widget _buildPlaceholder(Color itemColor) {
+  String _categoryLabel(String cat, AppStrings strings) {
+    switch (cat) {
+      case 'cl':
+        return strings.wardCatCl;
+      case 'sh':
+        return strings.wardCatSh;
+      case 'bg':
+        return strings.wardCatBg;
+      case 'jw':
+        return strings.wardCatJw;
+      case 'ac':
+        return strings.wardCatAc;
+      default:
+        return strings.wardCategory;
+    }
+  }
+
+  Widget _buildPlaceholder(Color itemColor, String category) {
     return Center(
-      child: Icon(_categoryIcon(item.category), size: 56, color: itemColor),
+      child: Icon(_categoryIcon(category), size: 56, color: itemColor),
+    );
+  }
+
+  void _openEditSheet(BuildContext context, WardrobeItem currentItem) {
+    if (widget.onEdit != null) {
+      widget.onEdit!();
+      return;
+    }
+    AppModal.showSheet(
+      context: context,
+      child: AddItemBottomSheet(
+        itemToEdit: currentItem,
+        onEdit: (updated) =>
+            ref.read(wardrobeProvider.notifier).updateItem(updated),
+        onEditWithImage:
+            ({
+              required String id,
+              Uint8List? newImageBytes,
+              String? mimeType,
+              required String title,
+              required String category,
+              required String subCategory,
+              required String colorName,
+              required String colorHex,
+              required String season,
+              required String occasion,
+              required String material,
+              required String size,
+            }) => ref
+                .read(wardrobeProvider.notifier)
+                .updateItemWithImage(
+                  id: id,
+                  newImageBytes: newImageBytes,
+                  mimeType: mimeType,
+                  title: title,
+                  category: category,
+                  subCategory: subCategory,
+                  colorName: colorName,
+                  colorHex: colorHex,
+                  season: season,
+                  occasion: occasion,
+                  material: material,
+                  size: size,
+                ),
+      ),
+    );
+  }
+
+  void _showDeleteDialog(
+    BuildContext context,
+    AppStrings strings,
+    AppColors colors,
+    String localizedName,
+  ) {
+    AppModal.showAppDialog(
+      context: context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            strings.wardDeleteTitle,
+            style: AppTypography.sectionTitle(color: colors.tx),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            strings.wardDeleteConfirm(localizedName),
+            style: AppTypography.bodySmall(color: colors.mu),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  variant: AppButtonVariant.outline,
+                  size: AppButtonSize.sm,
+                  text: strings.wardCancel,
+                  onPressed: () => Navigator.pop(context),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: AppButton(
+                  variant: AppButtonVariant.destructive,
+                  size: AppButtonSize.sm,
+                  text: strings.wardDelete,
+                  onPressed: () {
+                    Navigator.pop(context);
+                    widget.onDelete();
+                  },
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -61,6 +187,11 @@ class WardrobeItemDetailSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
+    final ws = ref.watch(wardrobeProvider);
+    final item = ws.items.cast<WardrobeItem?>().firstWhere(
+      (e) => e?.id == widget.item.id,
+      orElse: () => widget.item,
+    )!;
     final itemColor = _parseColor(item.colorHex);
     final localizedName = strings.tr(item.name);
 
@@ -68,12 +199,17 @@ class WardrobeItemDetailSheet extends StatelessWidget {
       title: localizedName,
       headerActions: [
         IconButton(
+          icon: Icon(Icons.edit_outlined, size: 20, color: colors.mu),
+          tooltip: strings.wardEditItem,
+          onPressed: () => _openEditSheet(context, item),
+        ),
+        IconButton(
           icon: Icon(
             item.isFavorite ? Icons.star_rounded : Icons.star_border_rounded,
             size: 20,
             color: item.isFavorite ? const Color(0xFFD99A06) : colors.mu,
           ),
-          onPressed: onFav,
+          onPressed: widget.onFav,
         ),
       ],
       bottomBar: Column(
@@ -99,6 +235,16 @@ class WardrobeItemDetailSheet extends StatelessWidget {
                 child: AppButton(
                   variant: AppButtonVariant.outline,
                   size: AppButtonSize.sm,
+                  icon: Icon(Icons.edit_outlined, size: 15, color: colors.tx),
+                  text: strings.wardEditItem,
+                  onPressed: () => _openEditSheet(context, item),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: AppButton(
+                  variant: AppButtonVariant.outline,
+                  size: AppButtonSize.sm,
                   icon: Icon(
                     item.isArchived
                         ? Icons.unarchive_outlined
@@ -110,7 +256,7 @@ class WardrobeItemDetailSheet extends StatelessWidget {
                       ? strings.wardUnarchive
                       : strings.wardArchiveAction,
                   onPressed: () {
-                    onArchive();
+                    widget.onArchive();
                     Navigator.pop(context);
                   },
                 ),
@@ -125,52 +271,13 @@ class WardrobeItemDetailSheet extends StatelessWidget {
                     size: 15,
                     color: colors.orColor,
                   ),
-                  text: strings.wardDeleteFromWardrobe,
-                  onPressed: () {
-                    AppModal.showAppDialog(
-                      context: context,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            strings.wardDeleteTitle,
-                            style: AppTypography.sectionTitle(color: colors.tx),
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            strings.wardDeleteConfirm(localizedName),
-                            style: AppTypography.bodySmall(color: colors.mu),
-                          ),
-                          const SizedBox(height: AppSpacing.lg),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: AppButton(
-                                  variant: AppButtonVariant.outline,
-                                  size: AppButtonSize.sm,
-                                  text: strings.wardCancel,
-                                  onPressed: () => Navigator.pop(context),
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              Expanded(
-                                child: AppButton(
-                                  variant: AppButtonVariant.destructive,
-                                  size: AppButtonSize.sm,
-                                  text: strings.wardDelete,
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                    onDelete();
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                  text: strings.wardDelete,
+                  onPressed: () => _showDeleteDialog(
+                    context,
+                    strings,
+                    colors,
+                    localizedName,
+                  ),
                 ),
               ),
             ],
@@ -181,9 +288,9 @@ class WardrobeItemDetailSheet extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Big preview tile
+          // Big preview tile: 260px height for prominent presentation
           AppCard(
-            height: 180,
+            height: 260,
             backgroundColor: itemColor.withValues(alpha: 0.18),
             clipBehavior: Clip.antiAlias,
             padding: EdgeInsetsDirectional.zero,
@@ -194,15 +301,15 @@ class WardrobeItemDetailSheet extends StatelessWidget {
                         : item.thumbUrl,
                     fit: BoxFit.cover,
                     width: double.infinity,
-                    height: 180,
+                    height: 260,
                     errorBuilder: (context, error, stackTrace) =>
-                        _buildPlaceholder(itemColor),
+                        _buildPlaceholder(itemColor, item.category),
                   )
-                : _buildPlaceholder(itemColor),
+                : _buildPlaceholder(itemColor, item.category),
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // Specs list
+          // Specs list: displays category label instead of raw subCategory
           AppCard(
             variant: AppCardVariant.subtle,
             padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -210,7 +317,7 @@ class WardrobeItemDetailSheet extends StatelessWidget {
               children: [
                 _SpecRow(
                   label: strings.wardCategory,
-                  value: strings.tr(item.subCategory),
+                  value: _categoryLabel(item.category, strings),
                   colors: colors,
                 ),
                 _SpecRow(

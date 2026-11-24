@@ -7,11 +7,9 @@ import '../../../core/theme/app_radius.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/utils/digit_formatter.dart';
-import '../../../core/widgets/app_badge.dart';
 import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_icon_button.dart';
 import '../../../core/widgets/app_modal.dart';
-import '../../../core/widgets/app_section_header.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../domain/wardrobe_item.dart';
 import 'wardrobe_provider.dart';
@@ -35,25 +33,10 @@ class WardrobeTab extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
-    final strings = context.strings;
     final ws = ref.watch(wardrobeProvider);
     final notifier = ref.read(wardrobeProvider.notifier);
     final totalActive = ws.countByCategory('all');
     const totalCapacity = 30;
-
-    final String activeCategoryTitle;
-    final int activeCategoryCount;
-    if (ws.filter.showArchived) {
-      activeCategoryTitle = strings.wardArchive;
-      activeCategoryCount = ws.items.where((e) => e.isArchived).length;
-    } else {
-      final catTuple = _categories.firstWhere(
-        (c) => c.$1 == ws.filter.category,
-        orElse: () => _categories.first,
-      );
-      activeCategoryTitle = strings.tr(catTuple.$2);
-      activeCategoryCount = ws.countByCategory(ws.filter.category);
-    }
 
     final hasActiveFilters =
         ws.filter.searchQuery.isNotEmpty || ws.filter.activeFilterCount > 0;
@@ -94,12 +77,6 @@ class WardrobeTab extends ConsumerWidget {
                       onSearch: notifier.setSearch,
                       onOpenFilter: () => _showFilterSheet(context, ref),
                       onToggleArchive: notifier.toggleArchiveView,
-                    ),
-                    // Active category header + count badge
-                    _CategoryHeader(
-                      title: activeCategoryTitle,
-                      count: activeCategoryCount,
-                      colors: colors,
                     ),
                     // Garment Grid or Empty States
                     Expanded(
@@ -226,40 +203,71 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final strings = context.strings;
     final pct = (totalActive / totalCapacity).clamp(0.0, 1.0);
-    return AppModuleHeader(
-      icon: Icons.checkroom_rounded,
-      title: strings.wardrobeTitle,
-      trailing: AppButton(
-        size: AppButtonSize.sm,
-        icon: Icon(Icons.add_rounded, size: 15, color: colors.prt),
-        text: strings.uploadItem,
-        onPressed: onAdd,
+    return Container(
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.lg,
+        AppSpacing.sm,
+        AppSpacing.lg,
+        AppSpacing.sm,
       ),
-      bottom: Row(
+      decoration: BoxDecoration(
+        color: colors.sf,
+        border: Border(bottom: BorderSide(color: colors.bd, width: 1.0)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          AppBadge(
-            variant: AppBadgeVariant.info,
-            size: AppBadgeSize.sm,
-            child: Text(
-              strings.countWithUnit(totalActive, strings.wardItemUnit),
-            ),
-          ),
-          const SizedBox(width: AppSpacing.sm),
           Expanded(
-            child: ClipRRect(
-              borderRadius: AppRadius.rFull,
-              child: LinearProgressIndicator(
-                value: pct,
-                minHeight: 5,
-                backgroundColor: colors.bd,
-                valueColor: AlwaysStoppedAnimation<Color>(colors.inColor),
-              ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.checkroom_rounded, size: 18, color: colors.pr),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        strings.wardrobeTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.moduleTitle(color: colors.tx),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Row(
+                  children: [
+                    Text(
+                      strings.capacityRatioText(totalActive, totalCapacity),
+                      style: AppTypography.caption(color: colors.mu),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: AppRadius.rFull,
+                        child: LinearProgressIndicator(
+                          value: pct,
+                          minHeight: 5,
+                          backgroundColor: colors.bd,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            colors.inColor,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
-          Text(
-            strings.capacityRatioText(totalActive, totalCapacity),
-            style: AppTypography.caption(color: colors.mu),
+          const SizedBox(width: AppSpacing.md),
+          AppButton(
+            size: AppButtonSize.sm,
+            icon: Icon(Icons.add_rounded, size: 15, color: colors.prt),
+            text: strings.uploadItem,
+            onPressed: onAdd,
           ),
         ],
       ),
@@ -396,59 +404,6 @@ class _CategorySidebar extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-class _CategoryHeader extends StatelessWidget {
-  const _CategoryHeader({
-    required this.title,
-    required this.count,
-    required this.colors,
-  });
-
-  final String title;
-  final int count;
-  final AppColors colors;
-
-  @override
-  Widget build(BuildContext context) {
-    final strings = context.strings;
-    return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(
-        AppSpacing.md,
-        AppSpacing.sm,
-        AppSpacing.md,
-        AppSpacing.xs,
-      ),
-      child: Row(
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontFamily: AppTypography.fontFamily,
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: colors.tx,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.xs),
-          AppBadge(
-            variant: AppBadgeVariant.standard,
-            size: AppBadgeSize.sm,
-            child: Text(
-              DigitFormatter.localizeDigits(count, strings.localeCode),
-              style: TextStyle(
-                fontFamily: AppTypography.fontFamily,
-                fontSize: 11,
-                fontWeight: FontWeight.w700,
-                color: colors.pr,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }

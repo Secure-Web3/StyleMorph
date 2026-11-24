@@ -11,6 +11,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_chip.dart';
 import '../../../../core/widgets/app_dropdown.dart';
+import '../../../../core/widgets/app_media_image.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_toast.dart';
@@ -19,12 +20,16 @@ import '../../domain/wardrobe_item.dart';
 class AddItemBottomSheet extends StatefulWidget {
   const AddItemBottomSheet({
     super.key,
+    this.itemToEdit,
     this.onAdd,
     this.onAddWithImage,
+    this.onEdit,
+    this.onEditWithImage,
     this.initialImageBytes,
     this.initialMimeType,
   });
 
+  final WardrobeItem? itemToEdit;
   final void Function(WardrobeItem)? onAdd;
   final Future<void> Function({
     required Uint8List imageBytes,
@@ -40,6 +45,24 @@ class AddItemBottomSheet extends StatefulWidget {
     required String size,
   })?
   onAddWithImage;
+
+  final void Function(WardrobeItem)? onEdit;
+  final Future<void> Function({
+    required String id,
+    Uint8List? newImageBytes,
+    String? mimeType,
+    required String title,
+    required String category,
+    required String subCategory,
+    required String colorName,
+    required String colorHex,
+    required String season,
+    required String occasion,
+    required String material,
+    required String size,
+  })?
+  onEditWithImage;
+
   final Uint8List? initialImageBytes;
   final String? initialMimeType;
 
@@ -91,9 +114,32 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
   static const _seasons = ['همه', 'بهار', 'تابستان', 'پاییز', 'زمستان'];
   static const _occasions = ['روزمره', 'رسمی', 'ورزشی', 'مجلسی'];
 
+  bool get isEditMode => widget.itemToEdit != null;
+
+  String get _existingImageUrl {
+    final edit = widget.itemToEdit;
+    if (edit == null) return '';
+    return edit.originalUrl.isNotEmpty ? edit.originalUrl : edit.thumbUrl;
+  }
+
+  bool get _hasPhoto =>
+      _imageBytes != null || (isEditMode && _existingImageUrl.isNotEmpty);
+
   @override
   void initState() {
     super.initState();
+    final edit = widget.itemToEdit;
+    if (edit != null) {
+      _nameCtrl.text = edit.title;
+      _subCtrl.text = edit.subCategory;
+      _matCtrl.text = edit.material;
+      _sizeCtrl.text = edit.size;
+      _selectedCat = edit.category;
+      _selectedSeason = edit.season;
+      _selectedOccasion = edit.occasion;
+      _selectedColorName = edit.colorName;
+      _selectedColorHex = edit.colorHex;
+    }
     if (widget.initialImageBytes != null) {
       _imageBytes = widget.initialImageBytes;
       _imageMimeType = widget.initialMimeType ?? 'image/jpeg';
@@ -189,7 +235,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
     final name = _nameCtrl.text.trim();
     bool hasError = false;
 
-    if (_imageBytes == null) {
+    if (!_hasPhoto) {
       setState(() => _photoError = true);
       AppToast.showError(context, context.strings.wardPhotoRequired);
       hasError = true;
@@ -206,6 +252,53 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
     setState(() => _isSaving = true);
 
     try {
+      if (isEditMode) {
+        final edit = widget.itemToEdit!;
+        if (widget.onEditWithImage != null) {
+          await widget.onEditWithImage!(
+            id: edit.id,
+            newImageBytes: _imageBytes,
+            mimeType: _imageMimeType,
+            title: name,
+            category: _selectedCat,
+            subCategory: _subCtrl.text.trim().isEmpty
+                ? edit.subCategory
+                : _subCtrl.text.trim(),
+            colorName: _selectedColorName,
+            colorHex: _selectedColorHex,
+            season: _selectedSeason,
+            occasion: _selectedOccasion,
+            material: _matCtrl.text.trim().isEmpty
+                ? 'پارچه'
+                : _matCtrl.text.trim(),
+            size: _sizeCtrl.text.trim().isEmpty ? 'M' : _sizeCtrl.text.trim(),
+          );
+        } else if (widget.onEdit != null) {
+          final updatedItem = edit.copyWith(
+            title: name,
+            category: _selectedCat,
+            subCategory: _subCtrl.text.trim().isEmpty
+                ? edit.subCategory
+                : _subCtrl.text.trim(),
+            colorName: _selectedColorName,
+            colorHex: _selectedColorHex,
+            season: _selectedSeason,
+            occasion: _selectedOccasion,
+            material: _matCtrl.text.trim().isEmpty
+                ? 'پارچه'
+                : _matCtrl.text.trim(),
+            size: _sizeCtrl.text.trim().isEmpty ? 'M' : _sizeCtrl.text.trim(),
+            updatedAt: DateTime.now(),
+          );
+          widget.onEdit!(updatedItem);
+        }
+        if (mounted) {
+          AppToast.showSuccess(context, context.strings.wardItemUpdated);
+          Navigator.of(context).pop();
+        }
+        return;
+      }
+
       if (widget.onAddWithImage != null) {
         await widget.onAddWithImage!(
           imageBytes: _imageBytes!,
@@ -269,7 +362,9 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
     final strings = context.strings;
 
     return AppBottomSheetShell(
-      title: strings.wardAddSheetTitle,
+      title: isEditMode
+          ? strings.wardEditSheetTitle
+          : strings.wardAddSheetTitle,
       bottomBar: AppButton(
         isFullWidth: true,
         icon: _isSaving
@@ -282,7 +377,11 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                 ),
               )
             : null,
-        text: _isSaving ? strings.wardSaving : strings.wardSaveInWardrobe,
+        text: _isSaving
+            ? strings.wardSaving
+            : (isEditMode
+                  ? strings.wardSaveChanges
+                  : strings.wardSaveInWardrobe),
         onPressed: _isSaving ? null : _submit,
       ),
       child: Column(
@@ -300,8 +399,8 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                 border: Border.all(
                   color: _photoError
                       ? colors.orColor
-                      : (_imageBytes != null ? colors.ok : colors.bd),
-                  width: _photoError || _imageBytes != null ? 1.8 : 1.0,
+                      : (_hasPhoto ? colors.ok : colors.bd),
+                  width: _photoError || _hasPhoto ? 1.8 : 1.0,
                 ),
               ),
               clipBehavior: Clip.antiAlias,
@@ -327,7 +426,9 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                             onTap: () {
                               setState(() {
                                 _imageBytes = null;
-                                _photoError = true;
+                                if (!isEditMode || _existingImageUrl.isEmpty) {
+                                  _photoError = true;
+                                }
                               });
                             },
                             child: Container(
@@ -341,6 +442,56 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                                 size: 16,
                                 color: colors.tx,
                               ),
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          bottom: 6,
+                          left: 6,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: colors.sf.withValues(alpha: 0.85),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.edit_outlined,
+                                  size: 13,
+                                  color: colors.pr,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  strings.wardChangePhoto,
+                                  style: TextStyle(
+                                    fontFamily: AppTypography.fontFamily,
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: colors.pr,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                  : (isEditMode && _existingImageUrl.isNotEmpty)
+                  ? Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        AppMediaImage(
+                          _existingImageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => Center(
+                            child: Icon(
+                              Icons.broken_image_outlined,
+                              color: colors.mu,
                             ),
                           ),
                         ),
