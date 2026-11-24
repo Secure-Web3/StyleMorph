@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 class WardrobeItem {
   final String id;
   final String title;
-  final String category; // 'cl','sh','bg','jw','ac'
+  final String
+  category; // 'tops','bottoms','outfit','outerwear','underwear','activewear','footwear','bags','jewelry','accessories' or legacy 'cl','sh','bg','jw','ac'
   final String subCategory;
   final String colorName;
   final String colorHex;
@@ -18,6 +19,10 @@ class WardrobeItem {
   final String thumbUrl;
   final String originalUrl;
   final String imageHash; // 64-character SHA-256
+  final String
+  aiGarmentZone; // e.g. 'upper_body','lower_body','full_body','outerwear','footwear','bag','accessory'
+  final List<String>
+  imageUrls; // Up to 3 frames/angles: primary + optional 2 angles
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
@@ -38,12 +43,69 @@ class WardrobeItem {
     this.thumbUrl = '',
     this.originalUrl = '',
     this.imageHash = '',
+    String? aiGarmentZone,
+    List<String>? imageUrls,
     this.createdAt,
     this.updatedAt,
-  }) : title = title ?? name ?? '';
+  }) : title = title ?? name ?? '',
+       aiGarmentZone = aiGarmentZone ?? '',
+       imageUrls = imageUrls ?? const [];
 
   /// Backward-compatible alias for [title].
   String get name => title;
+
+  /// Helper to automatically map categories to AI Virtual Try-On zones.
+  static String deriveGarmentZone(String cat) {
+    switch (cat.toLowerCase()) {
+      case 'tops':
+      case 'top':
+      case 'cl':
+        return 'upper_body';
+      case 'bottoms':
+      case 'bottom':
+        return 'lower_body';
+      case 'outfit':
+      case 'full_outfit':
+      case 'dress':
+        return 'full_body';
+      case 'outerwear':
+        return 'outerwear';
+      case 'underwear':
+      case 'loungewear':
+        return 'underwear';
+      case 'activewear':
+        return 'activewear';
+      case 'footwear':
+      case 'sh':
+      case 'shoes':
+        return 'footwear';
+      case 'bags':
+      case 'bg':
+      case 'bag':
+        return 'bag';
+      case 'jewelry':
+      case 'jw':
+        return 'jewelry';
+      case 'accessories':
+      case 'ac':
+      case 'accessory':
+        return 'accessory';
+      default:
+        return 'upper_body';
+    }
+  }
+
+  /// Canonical zone for AI pipelines and styling engines.
+  String get canonicalGarmentZone =>
+      aiGarmentZone.isNotEmpty ? aiGarmentZone : deriveGarmentZone(category);
+
+  /// Safe list of images for multi-angle carousel display.
+  List<String> get effectiveImageUrls {
+    if (imageUrls.isNotEmpty) return imageUrls;
+    if (originalUrl.isNotEmpty) return [originalUrl];
+    if (thumbUrl.isNotEmpty) return [thumbUrl];
+    return const [];
+  }
 
   WardrobeItem copyWith({
     String? id,
@@ -62,6 +124,8 @@ class WardrobeItem {
     String? thumbUrl,
     String? originalUrl,
     String? imageHash,
+    String? aiGarmentZone,
+    List<String>? imageUrls,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -81,6 +145,8 @@ class WardrobeItem {
       thumbUrl: thumbUrl ?? this.thumbUrl,
       originalUrl: originalUrl ?? this.originalUrl,
       imageHash: imageHash ?? this.imageHash,
+      aiGarmentZone: aiGarmentZone ?? this.aiGarmentZone,
+      imageUrls: imageUrls ?? this.imageUrls,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -102,6 +168,8 @@ class WardrobeItem {
       'thumbUrl': thumbUrl,
       'originalUrl': originalUrl,
       'imageHash': imageHash,
+      'aiGarmentZone': canonicalGarmentZone,
+      'imageUrls': effectiveImageUrls,
       if (createdAt != null)
         'createdAt': Timestamp.fromDate(createdAt!)
       else
@@ -129,10 +197,24 @@ class WardrobeItem {
     }
 
     final itemTitle = (data['title'] ?? data['name'] ?? '') as String;
+    final itemCategory = (data['category'] ?? 'tops') as String;
+    final zone = (data['aiGarmentZone'] ?? '') as String;
+    final rawImages = data['imageUrls'];
+    final List<String> images = rawImages is List
+        ? rawImages.cast<String>().toList()
+        : [];
+    final thumb = (data['thumbUrl'] ?? '') as String;
+    final orig = (data['originalUrl'] ?? '') as String;
+    final effectiveImages = images.isNotEmpty
+        ? images
+        : (orig.isNotEmpty
+              ? [orig]
+              : (thumb.isNotEmpty ? [thumb] : <String>[]));
+
     return WardrobeItem(
       id: id,
       title: itemTitle,
-      category: (data['category'] ?? 'cl') as String,
+      category: itemCategory,
       subCategory: (data['subCategory'] ?? 'عمومی') as String,
       colorName: (data['colorName'] ?? 'نامشخص') as String,
       colorHex: (data['colorHex'] ?? '#888888') as String,
@@ -142,9 +224,11 @@ class WardrobeItem {
       size: (data['size'] ?? 'M') as String,
       isFavorite: (data['isFavorite'] ?? false) as bool,
       isArchived: (data['isArchived'] ?? false) as bool,
-      thumbUrl: (data['thumbUrl'] ?? '') as String,
-      originalUrl: (data['originalUrl'] ?? '') as String,
+      thumbUrl: thumb,
+      originalUrl: orig,
       imageHash: (data['imageHash'] ?? '') as String,
+      aiGarmentZone: zone.isNotEmpty ? zone : deriveGarmentZone(itemCategory),
+      imageUrls: effectiveImages,
       createdAt: parseDate(data['createdAt']),
       updatedAt: parseDate(data['updatedAt']),
     );

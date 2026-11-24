@@ -22,17 +22,23 @@ class WardrobeTab extends ConsumerWidget {
   const WardrobeTab({super.key});
 
   static const _categories = [
-    ('all', 'همه', Icons.grid_view_rounded),
-    ('cl', 'لباس', Icons.checkroom_outlined),
-    ('sh', 'کفش', Icons.snowshoeing_outlined),
-    ('bg', 'کیف', Icons.shopping_bag_outlined),
-    ('jw', 'زیورآلات', Icons.diamond_outlined),
-    ('ac', 'اکسسوری', Icons.watch_outlined),
+    ('all', Icons.grid_view_rounded),
+    ('tops', Icons.checkroom_outlined),
+    ('bottoms', Icons.view_agenda_outlined),
+    ('outfit', Icons.woman_2_outlined),
+    ('outerwear', Icons.wb_cloudy_outlined),
+    ('underwear', Icons.bedtime_outlined),
+    ('activewear', Icons.fitness_center_rounded),
+    ('footwear', Icons.snowshoeing_outlined),
+    ('bags', Icons.shopping_bag_outlined),
+    ('jewelry', Icons.diamond_outlined),
+    ('accessories', Icons.watch_outlined),
   ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
+    final strings = context.strings;
     final ws = ref.watch(wardrobeProvider);
     final notifier = ref.read(wardrobeProvider.notifier);
     final totalActive = ws.countByCategory('all');
@@ -78,6 +84,60 @@ class WardrobeTab extends ConsumerWidget {
                       onOpenFilter: () => _showFilterSheet(context, ref),
                       onToggleArchive: notifier.toggleArchiveView,
                     ),
+                    // Blue Capsule Info Box when active category has helper hint
+                    if (ws.filter.category != 'all' &&
+                        strings
+                            .wardrobeCategoryHint(ws.filter.category)
+                            .isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                          AppSpacing.sm,
+                          0,
+                          AppSpacing.sm,
+                          AppSpacing.xs,
+                        ),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsetsDirectional.symmetric(
+                            horizontal: AppSpacing.sm,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.inb,
+                            borderRadius: BorderRadius.circular(AppRadius.md),
+                            border: Border.all(
+                              color: colors.inColor.withValues(alpha: 0.35),
+                              width: 1,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline_rounded,
+                                size: 14,
+                                color: colors.inColor,
+                              ),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  strings.wardrobeCategoryHint(
+                                    ws.filter.category,
+                                  ),
+                                  style: TextStyle(
+                                    fontFamily: AppTypography.fontFamily,
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w500,
+                                    color: colors.inColor,
+                                    height: 1.3,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     // Garment Grid or Empty States
                     Expanded(
                       child: _WardrobeGrid(
@@ -111,6 +171,34 @@ class WardrobeTab extends ConsumerWidget {
       context: context,
       child: AddItemBottomSheet(
         onAdd: (item) => ref.read(wardrobeProvider.notifier).addItem(item),
+        onAddWithImages:
+            ({
+              required images,
+              mimeTypes,
+              required title,
+              required category,
+              required subCategory,
+              required colorName,
+              required colorHex,
+              required season,
+              required occasion,
+              required material,
+              required size,
+            }) => ref
+                .read(wardrobeProvider.notifier)
+                .addItemWithImages(
+                  images: images,
+                  mimeTypes: mimeTypes,
+                  title: title,
+                  category: category,
+                  subCategory: subCategory,
+                  colorName: colorName,
+                  colorHex: colorHex,
+                  season: season,
+                  occasion: occasion,
+                  material: material,
+                  size: size,
+                ),
         onAddWithImage:
             ({
               required Uint8List imageBytes,
@@ -151,13 +239,26 @@ class WardrobeTab extends ConsumerWidget {
       child: WardrobeFilterSheet(
         initialFilter: ws.filter,
         colors: context.colors,
-        onApply: (color, season, occasion) {
-          notifier.applyAdvancedFilters(
-            color: color,
-            season: season,
-            occasion: occasion,
-          );
-        },
+        onApply:
+            (
+              color,
+              season,
+              occasion, {
+              multiSelectMode = false,
+              selectedColors = const {},
+              selectedSeasons = const {},
+              selectedOccasions = const {},
+            }) {
+              notifier.applyAdvancedFilters(
+                color: color,
+                season: season,
+                occasion: occasion,
+                multiSelectMode: multiSelectMode,
+                selectedColors: selectedColors,
+                selectedSeasons: selectedSeasons,
+                selectedOccasions: selectedOccasions,
+              );
+            },
         onClear: notifier.clearFilters,
       ),
     );
@@ -285,7 +386,7 @@ class _CategorySidebar extends StatelessWidget {
     required this.onSelect,
   });
 
-  final List<(String, String, IconData)> categories;
+  final List<(String, IconData)> categories;
   final String selected;
   final AppColors colors;
   final int Function(String) itemCount;
@@ -300,7 +401,7 @@ class _CategorySidebar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
         itemCount: categories.length,
         itemBuilder: (_, i) {
-          final (code, label, icon) = categories[i];
+          final (code, icon) = categories[i];
           final isActive = selected == code;
           final count = itemCount(code);
           return InkWell(
@@ -387,10 +488,10 @@ class _CategorySidebar extends StatelessWidget {
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    strings.tr(label),
+                    strings.wardrobeCategoryName(code),
                     style: TextStyle(
-                      fontFamily: 'Vazirmatn',
-                      fontSize: 10,
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 9.5,
                       fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                       color: isActive ? colors.pr : colors.mu,
                       height: 1.15,

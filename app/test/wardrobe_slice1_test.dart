@@ -280,8 +280,8 @@ void main() {
         // Shoes, Bags, Jewelry, Accessories are 0 ('۰')
         final zeroCountBadges = find.text('۰');
         expect(zeroCountBadges, findsWidgets);
-        // There are 4 categories with 0 items: shoes, bags, jewelry, accessories
-        expect(zeroCountBadges, findsNWidgets(4));
+        // In Batch B, there are 9 categories with 0 items: bottoms, outfit, outerwear, underwear, activewear, footwear, bags, jewelry, accessories
+        expect(zeroCountBadges, findsNWidgets(9));
 
         // There are 2 categories/views with 1 item: All ('۱') and Clothing ('۱')
         final oneCountBadges = find.text('۱');

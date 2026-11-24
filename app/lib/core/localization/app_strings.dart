@@ -707,6 +707,122 @@ class AppStrings {
   String get wardCatBg => get('wardCatBg');
   String get wardCatJw => get('wardCatJw');
   String get wardCatAc => get('wardCatAc');
+  String get wardCatAll => get('wardCatAll');
+  String get wardCatTops => get('wardCatTops');
+  String get wardCatBottoms => get('wardCatBottoms');
+  String get wardCatOutfit => get('wardCatOutfit');
+  String get wardCatOuterwear => get('wardCatOuterwear');
+  String get wardCatUnderwear => get('wardCatUnderwear');
+  String get wardCatActivewear => get('wardCatActivewear');
+  String get wardCatFootwear => get('wardCatFootwear');
+  String get wardCatBags => get('wardCatBags');
+  String get wardCatJewelry => get('wardCatJewelry');
+  String get wardCatAccessories => get('wardCatAccessories');
+  String get wardCatHintTops => get('wardCatHintTops');
+  String get wardCatHintBottoms => get('wardCatHintBottoms');
+  String get wardCatHintOutfit => get('wardCatHintOutfit');
+  String get wardCatHintOuterwear => get('wardCatHintOuterwear');
+  String get wardCatHintUnderwear => get('wardCatHintUnderwear');
+  String get wardCatHintActivewear => get('wardCatHintActivewear');
+  String get wardCatHintFootwear => get('wardCatHintFootwear');
+  String get wardCatHintBags => get('wardCatHintBags');
+  String get wardCatHintJewelry => get('wardCatHintJewelry');
+  String get wardCatHintAccessories => get('wardCatHintAccessories');
+  String get wardMultiSelectFilter => get('wardMultiSelectFilter');
+  String get wardPrimaryPhoto => get('wardPrimaryPhoto');
+  String get wardAngle2Photo => get('wardAngle2Photo');
+  String get wardAngle3Photo => get('wardAngle3Photo');
+  String get wardAddAngle => get('wardAddAngle');
+  String wardMultiAngleCount(int count) =>
+      get('wardMultiAngleCount').replaceAll('{count}', formatNumber(count));
+
+  String wardrobeCategoryName(String code) {
+    switch (code.toLowerCase()) {
+      case 'all':
+        return wardCatAll;
+      case 'tops':
+      case 'top':
+        return wardCatTops;
+      case 'bottoms':
+      case 'bottom':
+        return wardCatBottoms;
+      case 'outfit':
+      case 'full_outfit':
+      case 'dress':
+        return wardCatOutfit;
+      case 'outerwear':
+        return wardCatOuterwear;
+      case 'underwear':
+      case 'loungewear':
+        return wardCatUnderwear;
+      case 'activewear':
+        return wardCatActivewear;
+      case 'footwear':
+      case 'shoes':
+        return wardCatFootwear;
+      case 'bags':
+      case 'bag':
+        return wardCatBags;
+      case 'jewelry':
+        return wardCatJewelry;
+      case 'accessories':
+      case 'accessory':
+        return wardCatAccessories;
+      case 'cl':
+        return wardCatCl;
+      case 'sh':
+        return wardCatSh;
+      case 'bg':
+        return wardCatBg;
+      case 'jw':
+        return wardCatJw;
+      case 'ac':
+        return wardCatAc;
+      default:
+        return tr(code);
+    }
+  }
+
+  String wardrobeCategoryHint(String code) {
+    switch (code.toLowerCase()) {
+      case 'tops':
+      case 'cl':
+      case 'top':
+        return wardCatHintTops;
+      case 'bottoms':
+      case 'bottom':
+        return wardCatHintBottoms;
+      case 'outfit':
+      case 'full_outfit':
+      case 'dress':
+        return wardCatHintOutfit;
+      case 'outerwear':
+        return wardCatHintOuterwear;
+      case 'underwear':
+      case 'loungewear':
+        return wardCatHintUnderwear;
+      case 'activewear':
+        return wardCatHintActivewear;
+      case 'footwear':
+      case 'sh':
+      case 'shoes':
+        return wardCatHintFootwear;
+      case 'bags':
+      case 'bg':
+      case 'bag':
+        return wardCatHintBags;
+      case 'jewelry':
+      case 'jw':
+        return wardCatHintJewelry;
+      case 'accessories':
+      case 'ac':
+      case 'accessory':
+        return wardCatHintAccessories;
+      default:
+        return '';
+    }
+  }
+
   String get wardItemUnit => get('wardItemUnit');
   String get wardCapacityWord => get('wardCapacityWord');
   String get wardArchive => get('wardArchive');

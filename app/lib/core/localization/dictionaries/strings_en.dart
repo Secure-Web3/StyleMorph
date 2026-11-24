@@ -524,6 +524,40 @@ final Map<String, String> stringsEn = {
   'wardCatBg': 'Bags',
   'wardCatJw': 'Jewelry',
   'wardCatAc': 'Accessories',
+  'wardCatAll': 'All',
+  'wardCatTops': 'Tops',
+  'wardCatBottoms': 'Bottoms',
+  'wardCatOutfit': 'Full Outfit',
+  'wardCatOuterwear': 'Outerwear',
+  'wardCatUnderwear': 'Underwear & Loungewear',
+  'wardCatActivewear': 'Activewear',
+  'wardCatFootwear': 'Footwear',
+  'wardCatBags': 'Bags',
+  'wardCatJewelry': 'Jewelry',
+  'wardCatAccessories': 'Accessories',
+  'wardCatHintTops':
+      'T-shirt, Shirt/Blouse, Sweater, Hoodie, Sweatshirt, Crop Top, Tank Top',
+  'wardCatHintBottoms': 'Jeans, Trousers, Shorts, Skirt, Leggings, Sweatpants',
+  'wardCatHintOutfit': 'Dress, Manteau, Suit, Jumpsuit, Romper, Evening Gown',
+  'wardCatHintOuterwear':
+      'Jacket, Coat, Trench/Raincoat, Puffer, Cardigan, Vest',
+  'wardCatHintUnderwear':
+      'Bra, Briefs/Boxers, Sleepwear, Lounge Set, Base Layer',
+  'wardCatHintActivewear':
+      'Sports Top, Gym Leggings, Athletic Hoodie, Tracksuit',
+  'wardCatHintFootwear':
+      'Sneakers, Loafers, Dress Shoes, Heels, Sandals, Slippers, Boots, Athletic Shoes',
+  'wardCatHintBags':
+      'Handbag, Everyday/Laptop Backpack, Crossbody, Briefcase, Clutch, Luggage',
+  'wardCatHintJewelry': 'Necklace, Earrings, Bracelet & Bangle, Ring, Watch',
+  'wardCatHintAccessories':
+      'Scarf & Shawl, Belt, Hat & Headband, Eyewear, Gloves & Socks, Other',
+  'wardMultiSelectFilter': 'Multi-Select',
+  'wardPrimaryPhoto': 'Primary Photo (Required)',
+  'wardAngle2Photo': 'Angle 2 (Optional)',
+  'wardAngle3Photo': 'Angle 3 (Optional)',
+  'wardAddAngle': 'Add Angle',
+  'wardMultiAngleCount': '{count} photos',
   'wardItemUnit': 'items',
   'wardCapacityWord': 'capacity',
   'wardArchive': 'Archive',

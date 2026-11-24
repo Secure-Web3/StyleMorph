@@ -37,6 +37,8 @@ class WardrobeItemDetailSheet extends ConsumerStatefulWidget {
 
 class _WardrobeItemDetailSheetState
     extends ConsumerState<WardrobeItemDetailSheet> {
+  int _activePhotoIndex = 0;
+
   Color _parseColor(String hex) {
     try {
       final clean = hex.replaceFirst('#', '');
@@ -49,14 +51,29 @@ class _WardrobeItemDetailSheetState
 
   IconData _categoryIcon(String cat) {
     switch (cat) {
+      case 'tops':
       case 'cl':
         return Icons.checkroom_rounded;
+      case 'bottoms':
+        return Icons.view_agenda_outlined;
+      case 'outfit':
+        return Icons.woman_2_outlined;
+      case 'outerwear':
+        return Icons.wb_cloudy_outlined;
+      case 'underwear':
+        return Icons.bedtime_outlined;
+      case 'activewear':
+        return Icons.fitness_center_rounded;
+      case 'footwear':
       case 'sh':
         return Icons.snowshoeing_rounded;
+      case 'bags':
       case 'bg':
         return Icons.shopping_bag_outlined;
+      case 'jewelry':
       case 'jw':
         return Icons.diamond_outlined;
+      case 'accessories':
       case 'ac':
         return Icons.watch_outlined;
       default:
@@ -65,25 +82,93 @@ class _WardrobeItemDetailSheetState
   }
 
   String _categoryLabel(String cat, AppStrings strings) {
-    switch (cat) {
-      case 'cl':
-        return strings.wardCatCl;
-      case 'sh':
-        return strings.wardCatSh;
-      case 'bg':
-        return strings.wardCatBg;
-      case 'jw':
-        return strings.wardCatJw;
-      case 'ac':
-        return strings.wardCatAc;
-      default:
-        return strings.wardCategory;
-    }
+    return strings.wardrobeCategoryName(cat);
   }
 
   Widget _buildPlaceholder(Color itemColor, String category) {
     return Center(
       child: Icon(_categoryIcon(category), size: 56, color: itemColor),
+    );
+  }
+
+  Widget _buildImagePreview(WardrobeItem item, Color itemColor) {
+    final urls = item.effectiveImageUrls;
+    if (urls.length > 1) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(14),
+        child: SizedBox(
+          height: 260,
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              PageView.builder(
+                itemCount: urls.length,
+                onPageChanged: (idx) => setState(() => _activePhotoIndex = idx),
+                itemBuilder: (context, i) {
+                  final url = urls[i];
+                  return AppMediaImage(
+                    url,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: 260,
+                    errorBuilder: (context, error, stackTrace) =>
+                        _buildPlaceholder(itemColor, item.category),
+                  );
+                },
+              ),
+              Positioned(
+                bottom: 10,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.50),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: List.generate(urls.length, (i) {
+                      final isCurrent = i == _activePhotoIndex;
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 3),
+                        width: isCurrent ? 14 : 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: isCurrent
+                              ? Colors.white
+                              : Colors.white.withValues(alpha: 0.5),
+                          borderRadius: BorderRadius.circular(3),
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final singleUrl = item.originalUrl.isNotEmpty
+        ? item.originalUrl
+        : item.thumbUrl;
+    return AppCard(
+      height: 260,
+      backgroundColor: itemColor.withValues(alpha: 0.18),
+      clipBehavior: Clip.antiAlias,
+      padding: EdgeInsetsDirectional.zero,
+      child: singleUrl.isNotEmpty
+          ? AppMediaImage(
+              singleUrl,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 260,
+              errorBuilder: (context, error, stackTrace) =>
+                  _buildPlaceholder(itemColor, item.category),
+            )
+          : _buildPlaceholder(itemColor, item.category),
     );
   }
 
@@ -193,10 +278,12 @@ class _WardrobeItemDetailSheetState
       orElse: () => widget.item,
     )!;
     final itemColor = _parseColor(item.colorHex);
-    final localizedName = strings.tr(item.name);
+    final itemName = item.title.isNotEmpty
+        ? item.title
+        : strings.wardrobeCategoryName(item.category);
 
     return AppBottomSheetShell(
-      title: localizedName,
+      title: itemName,
       headerActions: [
         IconButton(
           icon: Icon(Icons.edit_outlined, size: 20, color: colors.mu),
@@ -224,7 +311,7 @@ class _WardrobeItemDetailSheetState
               Navigator.pop(context);
               AppToast.showSuccess(
                 context,
-                strings.wardSentToStylist(localizedName),
+                strings.wardSentToStylist(itemName),
               );
             },
           ),
@@ -272,12 +359,8 @@ class _WardrobeItemDetailSheetState
                     color: colors.orColor,
                   ),
                   text: strings.wardDelete,
-                  onPressed: () => _showDeleteDialog(
-                    context,
-                    strings,
-                    colors,
-                    localizedName,
-                  ),
+                  onPressed: () =>
+                      _showDeleteDialog(context, strings, colors, itemName),
                 ),
               ),
             ],
@@ -288,25 +371,8 @@ class _WardrobeItemDetailSheetState
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Big preview tile: 260px height for prominent presentation
-          AppCard(
-            height: 260,
-            backgroundColor: itemColor.withValues(alpha: 0.18),
-            clipBehavior: Clip.antiAlias,
-            padding: EdgeInsetsDirectional.zero,
-            child: (item.originalUrl.isNotEmpty || item.thumbUrl.isNotEmpty)
-                ? AppMediaImage(
-                    item.originalUrl.isNotEmpty
-                        ? item.originalUrl
-                        : item.thumbUrl,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: 260,
-                    errorBuilder: (context, error, stackTrace) =>
-                        _buildPlaceholder(itemColor, item.category),
-                  )
-                : _buildPlaceholder(itemColor, item.category),
-          ),
+          // Preview tile / Multi-angle PageView slider
+          _buildImagePreview(item, itemColor),
           const SizedBox(height: AppSpacing.md),
 
           // Specs list: displays category label instead of raw subCategory

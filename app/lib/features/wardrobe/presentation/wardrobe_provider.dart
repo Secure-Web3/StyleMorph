@@ -11,13 +11,17 @@ import '../data/wardrobe_repository.dart';
 import '../domain/wardrobe_item.dart';
 
 class WardrobeFilter {
-  final String category; // 'all','cl','sh','bg','jw','ac'
+  final String
+  category; // 'all','tops','bottoms','outfit','outerwear','underwear','activewear','footwear','bags','jewelry','accessories'
   final String searchQuery;
   final String colorFilter; // '' = all, else hex
   final String seasonFilter; // '' = all, else season name
   final String occasionFilter; // '' = all, else occasion name
   final bool showArchived;
   final bool multiSelectMode;
+  final Set<String> selectedColors;
+  final Set<String> selectedSeasons;
+  final Set<String> selectedOccasions;
   final Set<String> selectedIds;
 
   const WardrobeFilter({
@@ -28,6 +32,9 @@ class WardrobeFilter {
     this.occasionFilter = '',
     this.showArchived = false,
     this.multiSelectMode = false,
+    this.selectedColors = const {},
+    this.selectedSeasons = const {},
+    this.selectedOccasions = const {},
     this.selectedIds = const {},
   });
 
@@ -39,6 +46,9 @@ class WardrobeFilter {
     String? occasionFilter,
     bool? showArchived,
     bool? multiSelectMode,
+    Set<String>? selectedColors,
+    Set<String>? selectedSeasons,
+    Set<String>? selectedOccasions,
     Set<String>? selectedIds,
   }) {
     return WardrobeFilter(
@@ -49,11 +59,19 @@ class WardrobeFilter {
       occasionFilter: occasionFilter ?? this.occasionFilter,
       showArchived: showArchived ?? this.showArchived,
       multiSelectMode: multiSelectMode ?? this.multiSelectMode,
+      selectedColors: selectedColors ?? this.selectedColors,
+      selectedSeasons: selectedSeasons ?? this.selectedSeasons,
+      selectedOccasions: selectedOccasions ?? this.selectedOccasions,
       selectedIds: selectedIds ?? this.selectedIds,
     );
   }
 
   int get activeFilterCount {
+    if (multiSelectMode) {
+      return selectedColors.length +
+          selectedSeasons.length +
+          selectedOccasions.length;
+    }
     int count = 0;
     if (colorFilter.isNotEmpty) count++;
     if (seasonFilter.isNotEmpty) count++;
@@ -107,33 +125,94 @@ class WardrobeState {
     );
   }
 
+  /// Backward-compatible category matching helper across legacy and modern 10 categories.
+  static bool matchesCategory(String itemCategory, String selectedCategory) {
+    if (selectedCategory == 'all') return true;
+    final itemCat = itemCategory.toLowerCase();
+    final selCat = selectedCategory.toLowerCase();
+    if (itemCat == selCat) return true;
+
+    // Legacy and alias category mapping
+    if (selCat == 'tops' && (itemCat == 'cl' || itemCat == 'top')) return true;
+    if (selCat == 'bottoms' && (itemCat == 'bottom')) return true;
+    if (selCat == 'outfit' &&
+        (itemCat == 'full_outfit' || itemCat == 'dress')) {
+      return true;
+    }
+    if (selCat == 'footwear' && (itemCat == 'sh' || itemCat == 'shoes')) {
+      return true;
+    }
+    if (selCat == 'bags' && (itemCat == 'bg' || itemCat == 'bag')) return true;
+    if (selCat == 'jewelry' && (itemCat == 'jw' || itemCat == 'jewel')) {
+      return true;
+    }
+    if (selCat == 'accessories' &&
+        (itemCat == 'ac' || itemCat == 'accessory')) {
+      return true;
+    }
+
+    // Inverse mapping for legacy selected filter
+    if (selCat == 'cl' && (itemCat == 'tops' || itemCat == 'top')) return true;
+    if (selCat == 'sh' && (itemCat == 'footwear' || itemCat == 'shoes')) {
+      return true;
+    }
+    if (selCat == 'bg' && (itemCat == 'bags' || itemCat == 'bag')) return true;
+    if (selCat == 'jw' && (itemCat == 'jewelry' || itemCat == 'jewel')) {
+      return true;
+    }
+    if (selCat == 'ac' &&
+        (itemCat == 'accessories' || itemCat == 'accessory')) {
+      return true;
+    }
+
+    return false;
+  }
+
   List<WardrobeItem> get filteredItems {
     return items.where((item) {
       if (!filter.showArchived && item.isArchived) return false;
       if (filter.showArchived && !item.isArchived) return false;
-      if (filter.category != 'all' && item.category != filter.category) {
+      if (filter.category != 'all' &&
+          !matchesCategory(item.category, filter.category)) {
         return false;
       }
       if (filter.searchQuery.isNotEmpty) {
         final q = filter.searchQuery.toLowerCase();
         if (!item.name.toLowerCase().contains(q) &&
+            !item.title.toLowerCase().contains(q) &&
             !item.colorName.toLowerCase().contains(q) &&
             !item.subCategory.toLowerCase().contains(q)) {
           return false;
         }
       }
-      if (filter.colorFilter.isNotEmpty &&
-          item.colorHex != filter.colorFilter) {
-        return false;
-      }
-      if (filter.seasonFilter.isNotEmpty &&
-          item.season != 'همه' &&
-          item.season != filter.seasonFilter) {
-        return false;
-      }
-      if (filter.occasionFilter.isNotEmpty &&
-          item.occasion != filter.occasionFilter) {
-        return false;
+      if (filter.multiSelectMode) {
+        // Multi-Select: OR within attribute group, AND across attribute groups
+        if (filter.selectedColors.isNotEmpty &&
+            !filter.selectedColors.contains(item.colorHex)) {
+          return false;
+        }
+        if (filter.selectedSeasons.isNotEmpty &&
+            !filter.selectedSeasons.contains(item.season)) {
+          return false;
+        }
+        if (filter.selectedOccasions.isNotEmpty &&
+            !filter.selectedOccasions.contains(item.occasion)) {
+          return false;
+        }
+      } else {
+        if (filter.colorFilter.isNotEmpty &&
+            item.colorHex != filter.colorFilter) {
+          return false;
+        }
+        if (filter.seasonFilter.isNotEmpty &&
+            item.season != 'همه' &&
+            item.season != filter.seasonFilter) {
+          return false;
+        }
+        if (filter.occasionFilter.isNotEmpty &&
+            item.occasion != filter.occasionFilter) {
+          return false;
+        }
       }
       return true;
     }).toList();
@@ -141,7 +220,9 @@ class WardrobeState {
 
   int countByCategory(String cat) {
     if (cat == 'all') return items.where((e) => !e.isArchived).length;
-    return items.where((e) => e.category == cat && !e.isArchived).length;
+    return items
+        .where((e) => !e.isArchived && matchesCategory(e.category, cat))
+        .length;
   }
 }
 
@@ -233,6 +314,46 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
     state = state.copyWith(filterPanelOpen: !state.filterPanelOpen);
   }
 
+  void setMultiSelectMode(bool enabled) {
+    state = state.copyWith(
+      filter: state.filter.copyWith(multiSelectMode: enabled),
+    );
+  }
+
+  void toggleMultiSelectColor(String hex) {
+    final next = Set<String>.from(state.filter.selectedColors);
+    if (next.contains(hex)) {
+      next.remove(hex);
+    } else {
+      next.add(hex);
+    }
+    state = state.copyWith(filter: state.filter.copyWith(selectedColors: next));
+  }
+
+  void toggleMultiSelectSeason(String season) {
+    final next = Set<String>.from(state.filter.selectedSeasons);
+    if (next.contains(season)) {
+      next.remove(season);
+    } else {
+      next.add(season);
+    }
+    state = state.copyWith(
+      filter: state.filter.copyWith(selectedSeasons: next),
+    );
+  }
+
+  void toggleMultiSelectOccasion(String occasion) {
+    final next = Set<String>.from(state.filter.selectedOccasions);
+    if (next.contains(occasion)) {
+      next.remove(occasion);
+    } else {
+      next.add(occasion);
+    }
+    state = state.copyWith(
+      filter: state.filter.copyWith(selectedOccasions: next),
+    );
+  }
+
   void clearFilters() {
     state = state.copyWith(
       filter: state.filter.copyWith(
@@ -240,20 +361,31 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
         seasonFilter: '',
         occasionFilter: '',
         searchQuery: '',
+        selectedColors: const {},
+        selectedSeasons: const {},
+        selectedOccasions: const {},
       ),
     );
   }
 
   void applyAdvancedFilters({
-    required String color,
-    required String season,
-    required String occasion,
+    bool multiSelectMode = false,
+    String color = '',
+    String season = '',
+    String occasion = '',
+    Set<String> selectedColors = const {},
+    Set<String> selectedSeasons = const {},
+    Set<String> selectedOccasions = const {},
   }) {
     state = state.copyWith(
       filter: state.filter.copyWith(
+        multiSelectMode: multiSelectMode,
         colorFilter: color,
         seasonFilter: season,
         occasionFilter: occasion,
+        selectedColors: selectedColors,
+        selectedSeasons: selectedSeasons,
+        selectedOccasions: selectedOccasions,
       ),
     );
   }
@@ -310,10 +442,11 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
     await _repo.updateItem(item);
   }
 
-  Future<WardrobeItem> updateItemWithImage({
+  Future<WardrobeItem> updateItemWithImages({
     required String id,
-    Uint8List? newImageBytes,
-    String? mimeType,
+    List<Uint8List>? newImages,
+    List<String>? newMimeTypes,
+    List<String>? existingUrlsToKeep,
     required String title,
     required String category,
     String subCategory = 'عمومی',
@@ -327,26 +460,45 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
     final idx = state.items.indexWhere((e) => e.id == id);
     final existing = idx != -1 ? state.items[idx] : null;
 
-    String thumbUrl = existing?.thumbUrl ?? '';
-    String originalUrl = existing?.originalUrl ?? '';
+    final List<String> finalUrls = [...?existingUrlsToKeep];
+
     String imageHash = existing?.imageHash ?? '';
 
-    if (newImageBytes != null) {
-      imageHash = sha256.convert(newImageBytes).toString();
+    if (newImages != null && newImages.isNotEmpty) {
       final uid = _userId ?? 'guest';
-      final storagePath = 'users/$uid/wardrobe/$id.jpg';
-      if (_storageService != null) {
-        final uploaded = await _storageService.uploadImage(
-          path: storagePath,
-          bytes: newImageBytes,
-          mimeType: mimeType ?? 'image/jpeg',
-        );
-        thumbUrl = uploaded;
-        originalUrl = uploaded;
+      for (int i = 0; i < newImages.length; i++) {
+        final bytes = newImages[i];
+        final hash = sha256.convert(bytes).toString();
+        if (finalUrls.isEmpty) imageHash = hash;
+        final mime = (newMimeTypes != null && i < newMimeTypes.length)
+            ? newMimeTypes[i]
+            : 'image/jpeg';
+        final storagePath =
+            'users/$uid/wardrobe/${id}_${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
+        if (_storageService != null) {
+          final uploaded = await _storageService.uploadImage(
+            path: storagePath,
+            bytes: bytes,
+            mimeType: mime,
+          );
+          finalUrls.add(uploaded);
+        }
       }
     }
 
+    if (finalUrls.isEmpty && existing != null) {
+      if (existing.imageUrls.isNotEmpty) {
+        finalUrls.addAll(existing.imageUrls);
+      } else if (existing.thumbUrl.isNotEmpty) {
+        finalUrls.add(existing.thumbUrl);
+      }
+    }
+
+    final primaryUrl = finalUrls.isNotEmpty
+        ? finalUrls.first
+        : (existing?.thumbUrl ?? '');
     final now = DateTime.now();
+    final zone = WardrobeItem.deriveGarmentZone(category);
     final updated = (existing != null)
         ? existing.copyWith(
             title: title,
@@ -358,9 +510,11 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
             occasion: occasion,
             material: material,
             size: size,
-            thumbUrl: thumbUrl,
-            originalUrl: originalUrl,
+            thumbUrl: primaryUrl,
+            originalUrl: primaryUrl,
             imageHash: imageHash,
+            aiGarmentZone: zone,
+            imageUrls: finalUrls,
             updatedAt: now,
           )
         : WardrobeItem(
@@ -374,14 +528,52 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
             occasion: occasion,
             material: material,
             size: size,
-            thumbUrl: thumbUrl,
-            originalUrl: originalUrl,
+            thumbUrl: primaryUrl,
+            originalUrl: primaryUrl,
             imageHash: imageHash,
+            aiGarmentZone: zone,
+            imageUrls: finalUrls,
             updatedAt: now,
           );
 
     await updateItem(updated);
     return updated;
+  }
+
+  Future<WardrobeItem> updateItemWithImage({
+    required String id,
+    Uint8List? newImageBytes,
+    String? mimeType,
+    List<Uint8List>? extraNewImages,
+    List<String>? extraMimeTypes,
+    List<String>? existingUrlsToKeep,
+    required String title,
+    required String category,
+    String subCategory = 'عمومی',
+    String colorName = 'نامشخص',
+    String colorHex = '#888888',
+    String season = 'همه',
+    String occasion = 'روزمره',
+    String material = 'پارچه',
+    String size = 'M',
+  }) async {
+    final allNew = [?newImageBytes, ...?extraNewImages];
+    final allMimes = [?mimeType, ...?extraMimeTypes];
+    return updateItemWithImages(
+      id: id,
+      newImages: allNew.isNotEmpty ? allNew : null,
+      newMimeTypes: allMimes.isNotEmpty ? allMimes : null,
+      existingUrlsToKeep: existingUrlsToKeep,
+      title: title,
+      category: category,
+      subCategory: subCategory,
+      colorName: colorName,
+      colorHex: colorHex,
+      season: season,
+      occasion: occasion,
+      material: material,
+      size: size,
+    );
   }
 
   Future<void> deleteItem(String id) async {
@@ -410,9 +602,9 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
     state = state.copyWith(items: [item, ...state.items]);
   }
 
-  Future<WardrobeItem> addItemWithImage({
-    required Uint8List imageBytes,
-    required String mimeType,
+  Future<WardrobeItem> addItemWithImages({
+    required List<Uint8List> images,
+    List<String>? mimeTypes,
     required String title,
     required String category,
     String subCategory = 'عمومی',
@@ -423,25 +615,33 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
     String material = 'پارچه',
     String size = 'M',
   }) async {
-    // 1. Compute real 64-character SHA-256 digest of imageBytes
-    final hashDigest = sha256.convert(imageBytes).toString();
-
-    // 2. Upload image via mediaStorageService
     final uid = _userId ?? 'guest';
     final itemId = 'wardrobe_${DateTime.now().millisecondsSinceEpoch}';
-    final storagePath = 'users/$uid/wardrobe/$itemId.jpg';
+    final List<String> uploadedUrls = [];
+    String firstHash = '';
 
-    String uploadedUrl = '';
-    if (_storageService != null) {
-      uploadedUrl = await _storageService.uploadImage(
-        path: storagePath,
-        bytes: imageBytes,
-        mimeType: mimeType,
-      );
+    for (int i = 0; i < images.length; i++) {
+      final bytes = images[i];
+      final hash = sha256.convert(bytes).toString();
+      if (i == 0) firstHash = hash;
+      final mime = (mimeTypes != null && i < mimeTypes.length)
+          ? mimeTypes[i]
+          : 'image/jpeg';
+      final storagePath = 'users/$uid/wardrobe/${itemId}_$i.jpg';
+      String uploaded = '';
+      if (_storageService != null) {
+        uploaded = await _storageService.uploadImage(
+          path: storagePath,
+          bytes: bytes,
+          mimeType: mime,
+        );
+      }
+      uploadedUrls.add(uploaded);
     }
 
-    // 3. Save complete WardrobeItem to repository
+    final primaryUrl = uploadedUrls.isNotEmpty ? uploadedUrls.first : '';
     final now = DateTime.now();
+    final zone = WardrobeItem.deriveGarmentZone(category);
     final item = WardrobeItem(
       id: itemId,
       title: title,
@@ -455,9 +655,11 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
       size: size,
       isFavorite: false,
       isArchived: false,
-      thumbUrl: uploadedUrl,
-      originalUrl: uploadedUrl,
-      imageHash: hashDigest,
+      thumbUrl: primaryUrl,
+      originalUrl: primaryUrl,
+      imageHash: firstHash,
+      aiGarmentZone: zone,
+      imageUrls: uploadedUrls,
       createdAt: now,
       updatedAt: now,
     );
@@ -465,6 +667,38 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
     await _repo.addItem(item);
     state = state.copyWith(items: [item, ...state.items]);
     return item;
+  }
+
+  Future<WardrobeItem> addItemWithImage({
+    required Uint8List imageBytes,
+    required String mimeType,
+    required String title,
+    required String category,
+    String subCategory = 'عمومی',
+    String colorName = 'نامشخص',
+    String colorHex = '#888888',
+    String season = 'همه',
+    String occasion = 'روزمره',
+    String material = 'پارچه',
+    String size = 'M',
+    List<Uint8List>? extraImages,
+    List<String>? extraMimeTypes,
+  }) async {
+    final allImages = [imageBytes, ...?extraImages];
+    final allMimes = [mimeType, ...?extraMimeTypes];
+    return addItemWithImages(
+      images: allImages,
+      mimeTypes: allMimes,
+      title: title,
+      category: category,
+      subCategory: subCategory,
+      colorName: colorName,
+      colorHex: colorHex,
+      season: season,
+      occasion: occasion,
+      material: material,
+      size: size,
+    );
   }
 }
 
