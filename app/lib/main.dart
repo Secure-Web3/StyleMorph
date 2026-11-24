@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
@@ -14,8 +15,10 @@ import 'core/services/referral_service.dart';
 import 'core/services/screenshot_protection_service.dart';
 import 'core/services/session_persistence_service.dart';
 import 'core/services/welcome_persistence_service.dart';
+import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
+import 'core/widgets/unified_splash_screen.dart';
 import 'features/auth/presentation/auth_provider.dart';
 import 'core/state/app_state.dart';
 import 'features/auth/presentation/auth_screen.dart';
@@ -82,14 +85,37 @@ class StyleMorphApp extends ConsumerWidget {
       ],
       builder: (context, child) {
         final resolvedDark = themeState.resolveIsDark(context);
-        return ShadTheme(
-          data: AppTheme.buildShadTheme(
-            palette: themeState.palette,
-            isDark: resolvedDark,
-          ),
-          child: Directionality(
-            textDirection: currentLang.textDirection,
-            child: child ?? const SizedBox.shrink(),
+        final activeColors = AppColors.resolve(
+          themeState.palette,
+          resolvedDark,
+        );
+        final overlayStyle = SystemUiOverlayStyle(
+          statusBarColor: activeColors.bg,
+          statusBarIconBrightness: resolvedDark
+              ? Brightness.light
+              : Brightness.dark,
+          statusBarBrightness: resolvedDark
+              ? Brightness.dark
+              : Brightness.light,
+          systemNavigationBarColor: activeColors.bg,
+          systemNavigationBarIconBrightness: resolvedDark
+              ? Brightness.light
+              : Brightness.dark,
+          systemNavigationBarDividerColor: Colors.transparent,
+        );
+        SystemChrome.setSystemUIOverlayStyle(overlayStyle);
+
+        return AnnotatedRegion<SystemUiOverlayStyle>(
+          value: overlayStyle,
+          child: ShadTheme(
+            data: AppTheme.buildShadTheme(
+              palette: themeState.palette,
+              isDark: resolvedDark,
+            ),
+            child: Directionality(
+              textDirection: currentLang.textDirection,
+              child: child ?? const SizedBox.shrink(),
+            ),
           ),
         );
       },
@@ -99,7 +125,7 @@ class StyleMorphApp extends ConsumerWidget {
 }
 
 /// Routes to [MainShellScreen] or [WelcomeScreen] based on Firebase Auth stream.
-/// When a user is authenticated, holds on [_Splash] until Firestore profile
+/// When a user is authenticated, holds on [UnifiedSplashScreen] until Firestore profile
 /// data has been fetched and applied to [AppState] (gate-level pre-fetch).
 class _AuthGate extends ConsumerWidget {
   const _AuthGate();
@@ -112,7 +138,7 @@ class _AuthGate extends ConsumerWidget {
     final hasSeenWelcomeAsync = ref.watch(hasSeenWelcomeProvider);
 
     return authAsync.when(
-      loading: () => const _Splash(),
+      loading: () => const UnifiedSplashScreen(),
       error: (_, s) {
         final hasSeen = hasSeenWelcomeAsync.value ?? false;
         return hasSeen ? const AuthScreen() : const WelcomeScreen();
@@ -123,7 +149,7 @@ class _AuthGate extends ConsumerWidget {
             Future.microtask(() => appNotifier.resetProfileLoaded());
           }
           return hasSeenWelcomeAsync.when(
-            loading: () => const _Splash(),
+            loading: () => const UnifiedSplashScreen(),
             error: (_, _) => const AuthScreen(),
             data: (hasSeen) =>
                 hasSeen ? const AuthScreen() : const WelcomeScreen(),
@@ -150,22 +176,11 @@ class _AuthGate extends ConsumerWidget {
         // 2. Gate-Level Pre-Fetch: Ensure profile is loaded for current authenticated UID
         if (!appState.isProfileLoaded || appState.loadedUid != user.uid) {
           Future.microtask(() => appNotifier.loadProfileFromFirestore());
-          return const _Splash();
+          return const UnifiedSplashScreen();
         }
 
         return const SessionRevocationListener(child: MainShellScreen());
       },
-    );
-  }
-}
-
-class _Splash extends StatelessWidget {
-  const _Splash();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: CircularProgressIndicator.adaptive()),
     );
   }
 }

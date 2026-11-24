@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/localization/locale_provider.dart';
+import '../../../../core/services/prefetch/app_prefetch_service.dart';
 import '../../../../core/services/session_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -35,6 +37,9 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
       ref.read(sessionServiceProvider).upsertSession().catchError((e) {
         debugPrint('[MainShellScreen] upsertSession error: $e');
       });
+      ref
+          .read(appPrefetchServiceProvider)
+          .prefetchOnAuth(ref: ref, context: context);
     });
   }
 
@@ -105,75 +110,90 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
         ? const Color(0xFF050505)
         : const Color(0xFFD4D4D4);
 
-    return Directionality(
-      textDirection: currentLang.textDirection,
-      child: Container(
-        color: outerColor,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 430),
-            child: Container(
-              decoration: BoxDecoration(
-                color: colors.bg,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.25),
-                    blurRadius: 32,
-                    spreadRadius: 4,
-                  ),
-                ],
-              ),
-              // ClipRect ensures the drawer and overlays do not render outside the frame.
-              child: ClipRect(
-                child: PopScope(
-                  canPop: !hasUnsavedChanges,
-                  onPopInvokedWithResult: (didPop, result) async {
-                    if (didPop) return;
-                    if (hasUnsavedChanges) {
-                      final navigator = Navigator.of(context);
-                      final action = await UnsavedChangesDialog.show(context);
-                      if (!mounted) return;
-                      if (action == UnsavedChangesAction.saveAndContinue) {
-                        final success = await ref
-                            .read(appStateProvider.notifier)
-                            .saveProfileToFirestore();
-                        if (success && mounted) {
-                          navigator.maybePop(result);
-                        }
-                      } else if (action ==
-                          UnsavedChangesAction.discardAndLeave) {
-                        ref.read(appStateProvider.notifier).clearDirty();
-                        if (mounted) {
-                          navigator.maybePop(result);
+    final overlayStyle = SystemUiOverlayStyle(
+      statusBarColor: colors.bg,
+      statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
+      statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
+      systemNavigationBarColor: colors.bg,
+      systemNavigationBarIconBrightness: isDark
+          ? Brightness.light
+          : Brightness.dark,
+      systemNavigationBarDividerColor: Colors.transparent,
+    );
+    SystemChrome.setSystemUIOverlayStyle(overlayStyle);
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: overlayStyle,
+      child: Directionality(
+        textDirection: currentLang.textDirection,
+        child: Container(
+          color: outerColor,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 430),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: colors.bg,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.25),
+                      blurRadius: 32,
+                      spreadRadius: 4,
+                    ),
+                  ],
+                ),
+                // ClipRect ensures the drawer and overlays do not render outside the frame.
+                child: ClipRect(
+                  child: PopScope(
+                    canPop: !hasUnsavedChanges,
+                    onPopInvokedWithResult: (didPop, result) async {
+                      if (didPop) return;
+                      if (hasUnsavedChanges) {
+                        final navigator = Navigator.of(context);
+                        final action = await UnsavedChangesDialog.show(context);
+                        if (!mounted) return;
+                        if (action == UnsavedChangesAction.saveAndContinue) {
+                          final success = await ref
+                              .read(appStateProvider.notifier)
+                              .saveProfileToFirestore();
+                          if (success && mounted) {
+                            navigator.maybePop(result);
+                          }
+                        } else if (action ==
+                            UnsavedChangesAction.discardAndLeave) {
+                          ref.read(appStateProvider.notifier).clearDirty();
+                          if (mounted) {
+                            navigator.maybePop(result);
+                          }
                         }
                       }
-                    }
-                  },
-                  child: Scaffold(
-                    key: _scaffoldKey,
-                    backgroundColor: colors.bg,
-                    appBar: MainHeader(
-                      onOpenDrawer: () =>
-                          _scaffoldKey.currentState?.openDrawer(),
-                    ),
-                    drawer: const AppDrawer(),
-                    body: LayoutBuilder(
-                      builder: (context, bodyConstraints) {
-                        return Stack(
-                          children: [
-                            Positioned.fill(child: _buildBody(currentTab)),
-                            if (showSupport)
-                              Positioned.fill(
-                                child: SupportWidget(
-                                  bodySize: bodyConstraints.biggest,
+                    },
+                    child: Scaffold(
+                      key: _scaffoldKey,
+                      backgroundColor: colors.bg,
+                      appBar: MainHeader(
+                        onOpenDrawer: () =>
+                            _scaffoldKey.currentState?.openDrawer(),
+                      ),
+                      drawer: const AppDrawer(),
+                      body: LayoutBuilder(
+                        builder: (context, bodyConstraints) {
+                          return Stack(
+                            children: [
+                              Positioned.fill(child: _buildBody(currentTab)),
+                              if (showSupport)
+                                Positioned.fill(
+                                  child: SupportWidget(
+                                    bodySize: bodyConstraints.biggest,
+                                  ),
                                 ),
-                              ),
-                          ],
-                        );
-                      },
-                    ),
-                    bottomNavigationBar: AppBottomNav(
-                      onTabSelected: _handleTabSwitch,
+                            ],
+                          );
+                        },
+                      ),
+                      bottomNavigationBar: AppBottomNav(
+                        onTabSelected: _handleTabSwitch,
+                      ),
                     ),
                   ),
                 ),
