@@ -81,6 +81,36 @@ void main() {
         expect(storedCode, 'EXISTING8');
       },
     );
+
+    test(
+      'applyReferralOnSignUp returns false when code or uid is empty',
+      () async {
+        final service = ReferralService();
+        final res1 = await service.applyReferralOnSignUp(
+          newUserUid: '',
+          newEmail: 'test@example.com',
+          referralCode: 'XYZ12345',
+        );
+        expect(res1, isFalse);
+
+        final res2 = await service.applyReferralOnSignUp(
+          newUserUid: 'user_123',
+          newEmail: 'test@example.com',
+          referralCode: '   ',
+        );
+        expect(res2, isFalse);
+      },
+    );
+
+    test('applyReferralOnSignUp gracefully handles null firestore', () async {
+      final service = ReferralService();
+      final res = await service.applyReferralOnSignUp(
+        newUserUid: 'user_123',
+        newEmail: 'test@example.com',
+        referralCode: 'XYZ12345',
+      );
+      expect(res, isFalse);
+    });
   });
 
   group('ReferralSubTab Live Stream & Display Widget Tests', () {

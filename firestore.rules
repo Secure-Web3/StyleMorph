@@ -106,7 +106,13 @@ service cloud.firestore {
       // Referral network relationships and rewards
       match /referrals/{referralId} {
         allow read: if isOwner(userId);
-        allow create: if isAuthenticated() && (request.auth.uid == referralId || isOwner(userId));
+        allow create: if isAuthenticated() && (
+          (request.auth.uid == referralId
+            && request.resource.data.inviteeUid == request.auth.uid
+            && (!('rewardEarned' in request.resource.data) || request.resource.data.rewardEarned == 0)
+          )
+          || isOwner(userId)
+        );
         allow update, delete: if false;
       }
     }

@@ -215,18 +215,6 @@ class ReferralService {
         }
       }
 
-      final inviterSnap = await firestore
-          .collection('users')
-          .doc(inviterUid)
-          .get();
-      if (!inviterSnap.exists) {
-        debugPrint(
-          '[ReferralService] Inviter user doc "$inviterUid" does not exist.',
-        );
-        await clearPendingReferralCode();
-        return false;
-      }
-
       final referralRecordRef = firestore
           .collection('users')
           .doc(inviterUid)
