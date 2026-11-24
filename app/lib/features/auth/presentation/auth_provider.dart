@@ -2,11 +2,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/firebase_auth_repository.dart';
+import '../../../core/services/prefetch/app_prefetch_service.dart';
 import '../../../core/services/referral_service.dart';
 import '../../../core/services/session_persistence_service.dart';
 import '../../../core/services/session_service.dart';
 import '../../../core/services/welcome_persistence_service.dart';
 import '../../../core/state/app_state.dart';
+import '../../../core/widgets/app_media_image.dart';
+import '../../wardrobe/presentation/wardrobe_provider.dart';
 import '../domain/auth_repository.dart';
 
 /// Auth UI mode: toggling between Login, Signup, and Forgot Password views.
@@ -29,6 +32,11 @@ final authStateChangesProvider = StreamProvider<User?>((ref) {
 /// Currently authenticated Firebase [User] or null.
 final currentAuthUserProvider = Provider<User?>((ref) {
   return ref.watch(authStateChangesProvider).value;
+});
+
+/// UID of the currently authenticated Firebase User or null.
+final currentUidProvider = Provider<String?>((ref) {
+  return ref.watch(authStateChangesProvider).value?.uid;
 });
 
 /// Helper boolean to check whether a session is actively authenticated.
@@ -224,6 +232,21 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
     state = state.copyWith(clearError: true, clearSuccess: true);
   }
 
+  /// Performs centralized sign-out and wipes image caches, prefetch states,
+  /// user session data, and wardrobe provider instances.
+  Future<void> signOut() async {
+    try {
+      await _repository.signOut();
+    } catch (_) {}
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (_) {}
+    AppMediaImage.clearCache();
+    _ref.read(appPrefetchServiceProvider).reset();
+    _ref.read(appStateProvider.notifier).resetUserSession();
+    _ref.invalidate(wardrobeProvider);
+  }
+
   Future<bool> _isCurrentDeviceBlocked() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return false;
@@ -235,13 +258,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
         deviceId,
       );
       if (isBlocked) {
-        try {
-          await _repository.signOut();
-        } catch (_) {}
-        try {
-          await FirebaseAuth.instance.signOut();
-        } catch (_) {}
-        _ref.read(appStateProvider.notifier).logout();
+        await signOut();
         state = state.copyWith(
           isSubmitting: false,
           errorCode: 'device-blocked',

@@ -780,11 +780,14 @@ class AppStateNotifier extends StateNotifier<AppState> {
     );
   }
 
-  void logout() {
-    state = state.copyWith(
+  /// Completely resets 100% of user-scoped profile and session data to clean defaults,
+  /// preserving only device-level preferences (such as locale and theme).
+  void resetUserSession() {
+    state = AppState(
+      preferences: state.preferences,
       isLoggedIn: false,
-      identityValues: const {},
-      aiDnaValues: const {},
+      currentTab: AppTab.profile,
+      currentProfileTab: 'p-identity',
       coins: 0,
       profileProgress: 0.10,
       stylePoints: 0,
@@ -792,25 +795,48 @@ class AppStateNotifier extends StateNotifier<AppState> {
       aiUsageCount: 0,
       userName: '',
       userHandle: '',
+      photoUrl: '',
+      userLevel: 1,
+      isSupportOpen: false,
+      showFloatingSupport: state.preferences.showFloatingSupport,
+      showHeaderCoins: state.preferences.showHeaderCoins,
+      currentPlan: 'عادی (رایگان)',
+      supportMessages: const [],
+      hasUnsavedProfileChanges: false,
+      isSavingProfile: false,
+      companionSettings: const CompanionSettings(),
+      identityValues: const {},
+      notifications: const [],
+      aiDnaSources: const {},
+      aiDnaValues: const {},
+      kycData: const KycData(),
       personaMode: 'full_body',
       mediaSlots: const {},
       referralCode: '',
       referralCount: 0,
       networkTier: 'Starter',
       referrals: const [],
-      preferences: const UserPreferences(),
-      showFloatingSupport: false,
-      showHeaderCoins: false,
-      hasUnsavedProfileChanges: false,
       isProfileLoaded: false,
-      clearLoadedUid: true,
-      clearTerms: true,
+      loadedUid: null,
+      termsAcceptedAt: null,
+      termsVersion: null,
+      legalConsent: null,
+      savedSnapshot: null,
     );
+  }
+
+  /// Resets user state when switching accounts or signing out.
+  void resetForAccountSwitch() {
+    resetUserSession();
+  }
+
+  void logout() {
+    resetUserSession();
   }
 
   /// Resets profile loaded flag and loaded UID when switching accounts or signing out.
   void resetProfileLoaded() {
-    state = state.copyWith(isProfileLoaded: false, clearLoadedUid: true);
+    resetUserSession();
   }
 
   /// Electronically signs and records agreement to Terms of Service & Privacy Policy.

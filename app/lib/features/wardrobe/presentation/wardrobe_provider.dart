@@ -1,11 +1,11 @@
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/services/storage/media_storage_provider.dart';
 import '../../../core/services/storage/media_storage_service.dart';
+import '../../auth/presentation/auth_provider.dart';
 import '../data/firestore_wardrobe_repository.dart';
 import '../data/wardrobe_repository.dart';
 import '../domain/wardrobe_item.dart';
@@ -247,6 +247,7 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
     state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final page = await _repo.fetchPage(limit: 20);
+      if (!mounted) return;
       state = state.copyWith(
         items: page.items,
         lastCursor: page.lastCursor,
@@ -254,6 +255,7 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
         isLoading: false,
       );
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoading: false, errorMessage: e.toString());
     }
   }
@@ -266,6 +268,7 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
         startAfter: state.lastCursor,
         limit: 20,
       );
+      if (!mounted) return;
       state = state.copyWith(
         items: [...state.items, ...page.items],
         lastCursor: page.lastCursor,
@@ -273,6 +276,7 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
         isLoadingMore: false,
       );
     } catch (e) {
+      if (!mounted) return;
       state = state.copyWith(isLoadingMore: false, errorMessage: e.toString());
     }
   }
@@ -444,6 +448,9 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
 
   Future<WardrobeItem> updateItemWithImages({
     required String id,
+    List<Uint8List?>? slotBytes,
+    List<String?>? slotUrls,
+    List<String?>? slotMimes,
     List<Uint8List>? newImages,
     List<String>? newMimeTypes,
     List<String>? existingUrlsToKeep,
@@ -460,28 +467,63 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
     final idx = state.items.indexWhere((e) => e.id == id);
     final existing = idx != -1 ? state.items[idx] : null;
 
-    final List<String> finalUrls = [...?existingUrlsToKeep];
-
+    final List<String> finalUrls = [];
     String imageHash = existing?.imageHash ?? '';
+    final uid = _userId ?? 'guest';
 
-    if (newImages != null && newImages.isNotEmpty) {
-      final uid = _userId ?? 'guest';
-      for (int i = 0; i < newImages.length; i++) {
-        final bytes = newImages[i];
-        final hash = sha256.convert(bytes).toString();
-        if (finalUrls.isEmpty) imageHash = hash;
-        final mime = (newMimeTypes != null && i < newMimeTypes.length)
-            ? newMimeTypes[i]
+    if (slotBytes != null || slotUrls != null) {
+      const int maxSlots = 3;
+      for (int i = 0; i < maxSlots; i++) {
+        final bytes = (slotBytes != null && i < slotBytes.length)
+            ? slotBytes[i]
+            : null;
+        final existingUrl = (slotUrls != null && i < slotUrls.length)
+            ? slotUrls[i]
+            : null;
+        final mime =
+            (slotMimes != null && i < slotMimes.length && slotMimes[i] != null)
+            ? slotMimes[i]!
             : 'image/jpeg';
-        final storagePath =
-            'users/$uid/wardrobe/${id}_${DateTime.now().millisecondsSinceEpoch}_$i.jpg';
-        if (_storageService != null) {
-          final uploaded = await _storageService.uploadImage(
-            path: storagePath,
-            bytes: bytes,
-            mimeType: mime,
-          );
-          finalUrls.add(uploaded);
+
+        if (bytes != null) {
+          final hash = sha256.convert(bytes).toString();
+          if (i == 0) {
+            imageHash = hash;
+          }
+          final storagePath = 'users/$uid/wardrobe/${id}_angle_$i.jpg';
+          if (_storageService != null) {
+            final uploaded = await _storageService.uploadImage(
+              path: storagePath,
+              bytes: bytes,
+              mimeType: mime,
+            );
+            finalUrls.add(uploaded);
+          }
+        } else if (existingUrl != null && existingUrl.isNotEmpty) {
+          finalUrls.add(existingUrl);
+        }
+      }
+    } else {
+      if (existingUrlsToKeep != null) {
+        finalUrls.addAll(existingUrlsToKeep);
+      }
+      if (newImages != null && newImages.isNotEmpty) {
+        for (int i = 0; i < newImages.length; i++) {
+          final bytes = newImages[i];
+          final hash = sha256.convert(bytes).toString();
+          if (finalUrls.isEmpty) imageHash = hash;
+          final mime = (newMimeTypes != null && i < newMimeTypes.length)
+              ? newMimeTypes[i]
+              : 'image/jpeg';
+          final storagePath = 'users/$uid/wardrobe/${id}_angle_$i.jpg';
+          if (_storageService != null) {
+            final uploaded = await _storageService.uploadImage(
+              path: storagePath,
+              bytes: bytes,
+              mimeType: mime,
+            );
+            finalUrls.add(uploaded);
+          }
         }
       }
     }
@@ -703,28 +745,25 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
 }
 
 final wardrobeRepositoryProvider = Provider<WardrobeRepository>((ref) {
-  try {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
+  final uid = ref.watch(currentUidProvider);
+  if (uid != null && uid.isNotEmpty) {
+    try {
       return FirestoreWardrobeRepository(
         firestore: FirebaseFirestore.instance,
-        userId: user.uid,
+        userId: uid,
       );
+    } catch (_) {
+      // Graceful fallback for widget tests & unauthenticated mode
     }
-  } catch (_) {
-    // Graceful fallback for widget tests & unauthenticated mode
   }
   return InMemoryWardrobeRepository();
 });
 
 final wardrobeProvider = StateNotifierProvider<WardrobeNotifier, WardrobeState>(
   (ref) {
+    final uid = ref.watch(currentUidProvider);
     final repo = ref.watch(wardrobeRepositoryProvider);
     final storageService = ref.watch(mediaStorageServiceProvider);
-    String? uid;
-    try {
-      uid = FirebaseAuth.instance.currentUser?.uid;
-    } catch (_) {}
     return WardrobeNotifier(repo, storageService, uid);
   },
 );

@@ -91,8 +91,7 @@ class AppPrefetchService {
     }
   }
 
-  /// Reset prefetch flag (e.g., on sign out or testing).
-  @visibleForTesting
+  /// Resets prefetch tracking flags and in-flight URLs on sign-out or account switch.
   void reset() {
     _hasPrefetched = false;
     _inFlightUrls.clear();

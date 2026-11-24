@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../../../../core/localization/app_strings.dart';
@@ -16,21 +17,25 @@ import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../domain/wardrobe_item.dart';
+import '../wardrobe_provider.dart';
 
 class AddItemBottomSheet extends StatefulWidget {
   const AddItemBottomSheet({
     super.key,
     this.itemToEdit,
+    this.initialItem,
     this.onAdd,
     this.onAddWithImage,
     this.onAddWithImages,
     this.onEdit,
     this.onEditWithImage,
+    this.onEditWithImages,
     this.initialImageBytes,
     this.initialMimeType,
   });
 
   final WardrobeItem? itemToEdit;
+  final WardrobeItem? initialItem;
   final void Function(WardrobeItem)? onAdd;
   final Future<dynamic> Function({
     required Uint8List imageBytes,
@@ -79,6 +84,23 @@ class AddItemBottomSheet extends StatefulWidget {
   })?
   onEditWithImage;
 
+  final Future<void> Function({
+    required String id,
+    List<Uint8List?>? slotBytes,
+    List<String?>? slotUrls,
+    List<String?>? slotMimes,
+    required String title,
+    required String category,
+    required String subCategory,
+    required String colorName,
+    required String colorHex,
+    required String season,
+    required String occasion,
+    required String material,
+    required String size,
+  })?
+  onEditWithImages;
+
   final Uint8List? initialImageBytes;
   final String? initialMimeType;
 
@@ -104,6 +126,10 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
   String _angle2MimeType = 'image/jpeg';
   Uint8List? _angle3Bytes;
   String _angle3MimeType = 'image/jpeg';
+
+  String _existingImageUrl = '';
+  String _existingAngle2Url = '';
+  String _existingAngle3Url = '';
 
   bool _photoError = false;
   bool _isSaving = false;
@@ -139,13 +165,10 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
   static const _seasons = ['همه', 'بهار', 'تابستان', 'پاییز', 'زمستان'];
   static const _occasions = ['روزمره', 'رسمی', 'ورزشی', 'مجلسی'];
 
-  bool get isEditMode => widget.itemToEdit != null;
+  WardrobeItem? get effectiveEditItem =>
+      widget.itemToEdit ?? widget.initialItem;
 
-  String get _existingImageUrl {
-    final edit = widget.itemToEdit;
-    if (edit == null) return '';
-    return edit.originalUrl.isNotEmpty ? edit.originalUrl : edit.thumbUrl;
-  }
+  bool get isEditMode => effectiveEditItem != null;
 
   bool get _hasPhoto =>
       _imageBytes != null || (isEditMode && _existingImageUrl.isNotEmpty);
@@ -153,7 +176,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
   @override
   void initState() {
     super.initState();
-    final edit = widget.itemToEdit;
+    final edit = effectiveEditItem;
     if (edit != null) {
       _nameCtrl.text = edit.title;
       _subCtrl.text = edit.subCategory;
@@ -164,6 +187,15 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
       _selectedOccasion = edit.occasion;
       _selectedColorName = edit.colorName;
       _selectedColorHex = edit.colorHex;
+
+      final urls = edit.imageUrls.isNotEmpty
+          ? edit.imageUrls
+          : (edit.originalUrl.isNotEmpty
+                ? [edit.originalUrl]
+                : (edit.thumbUrl.isNotEmpty ? [edit.thumbUrl] : <String>[]));
+      if (urls.isNotEmpty) _existingImageUrl = urls[0];
+      if (urls.length > 1) _existingAngle2Url = urls[1];
+      if (urls.length > 2) _existingAngle3Url = urls[2];
     }
     if (widget.initialImageBytes != null) {
       _imageBytes = widget.initialImageBytes;
@@ -291,8 +323,69 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
       }
 
       if (isEditMode) {
-        final edit = widget.itemToEdit!;
-        if (widget.onEditWithImage != null) {
+        final edit = effectiveEditItem!;
+        final slotBytes = [_imageBytes, _angle2Bytes, _angle3Bytes];
+        final slotUrls = [
+          _imageBytes == null ? _existingImageUrl : null,
+          _angle2Bytes == null && _existingAngle2Url.isNotEmpty
+              ? _existingAngle2Url
+              : null,
+          _angle3Bytes == null && _existingAngle3Url.isNotEmpty
+              ? _existingAngle3Url
+              : null,
+        ];
+        final slotMimes = [_imageMimeType, _angle2MimeType, _angle3MimeType];
+
+        ProviderContainer? container;
+        try {
+          container = ProviderScope.containerOf(context, listen: false);
+        } catch (_) {}
+
+        if (widget.onEditWithImages != null) {
+          await widget.onEditWithImages!(
+            id: edit.id,
+            slotBytes: slotBytes,
+            slotUrls: slotUrls,
+            slotMimes: slotMimes,
+            title: name,
+            category: _selectedCat,
+            subCategory: _subCtrl.text.trim().isEmpty
+                ? edit.subCategory
+                : _subCtrl.text.trim(),
+            colorName: _selectedColorName,
+            colorHex: _selectedColorHex,
+            season: _selectedSeason,
+            occasion: _selectedOccasion,
+            material: _matCtrl.text.trim().isEmpty
+                ? 'پارچه'
+                : _matCtrl.text.trim(),
+            size: _sizeCtrl.text.trim().isEmpty ? 'M' : _sizeCtrl.text.trim(),
+          );
+        } else if (container != null) {
+          await container
+              .read(wardrobeProvider.notifier)
+              .updateItemWithImages(
+                id: edit.id,
+                slotBytes: slotBytes,
+                slotUrls: slotUrls,
+                slotMimes: slotMimes,
+                title: name,
+                category: _selectedCat,
+                subCategory: _subCtrl.text.trim().isEmpty
+                    ? edit.subCategory
+                    : _subCtrl.text.trim(),
+                colorName: _selectedColorName,
+                colorHex: _selectedColorHex,
+                season: _selectedSeason,
+                occasion: _selectedOccasion,
+                material: _matCtrl.text.trim().isEmpty
+                    ? 'پارچه'
+                    : _matCtrl.text.trim(),
+                size: _sizeCtrl.text.trim().isEmpty
+                    ? 'M'
+                    : _sizeCtrl.text.trim(),
+              );
+        } else if (widget.onEditWithImage != null) {
           await widget.onEditWithImage!(
             id: edit.id,
             newImageBytes: _imageBytes,
@@ -312,6 +405,16 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
             size: _sizeCtrl.text.trim().isEmpty ? 'M' : _sizeCtrl.text.trim(),
           );
         } else if (widget.onEdit != null) {
+          final preservedUrls = <String>[];
+          if (_imageBytes == null && _existingImageUrl.isNotEmpty) {
+            preservedUrls.add(_existingImageUrl);
+          }
+          if (_angle2Bytes == null && _existingAngle2Url.isNotEmpty) {
+            preservedUrls.add(_existingAngle2Url);
+          }
+          if (_angle3Bytes == null && _existingAngle3Url.isNotEmpty) {
+            preservedUrls.add(_existingAngle3Url);
+          }
           final updatedItem = edit.copyWith(
             title: name,
             category: _selectedCat,
@@ -327,6 +430,9 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                 : _matCtrl.text.trim(),
             size: _sizeCtrl.text.trim().isEmpty ? 'M' : _sizeCtrl.text.trim(),
             aiGarmentZone: WardrobeItem.deriveGarmentZone(_selectedCat),
+            imageUrls: preservedUrls.isNotEmpty
+                ? preservedUrls
+                : edit.imageUrls,
             updatedAt: DateTime.now(),
           );
           widget.onEdit!(updatedItem);
@@ -419,10 +525,11 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
   Widget _buildExtraAngleSlot({
     required int slot,
     required Uint8List? bytes,
+    required String existingUrl,
     required String label,
     required AppColors colors,
   }) {
-    final hasImage = bytes != null;
+    final hasImage = bytes != null || existingUrl.isNotEmpty;
     return Expanded(
       child: GestureDetector(
         onTap: _isSaving ? null : () => _showImageSourcePicker(context, slot),
@@ -441,15 +548,34 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
               ? Stack(
                   fit: StackFit.expand,
                   children: [
-                    Image.memory(bytes, fit: BoxFit.cover),
+                    if (bytes != null)
+                      Image.memory(bytes, fit: BoxFit.cover)
+                    else
+                      AppMediaImage(
+                        existingUrl,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) => Center(
+                          child: Icon(
+                            Icons.broken_image_outlined,
+                            size: 18,
+                            color: colors.mu,
+                          ),
+                        ),
+                      ),
                     Positioned(
                       top: 2,
                       right: 2,
                       child: GestureDetector(
                         onTap: () {
                           setState(() {
-                            if (slot == 1) _angle2Bytes = null;
-                            if (slot == 2) _angle3Bytes = null;
+                            if (slot == 1) {
+                              _angle2Bytes = null;
+                              _existingAngle2Url = '';
+                            }
+                            if (slot == 2) {
+                              _angle3Bytes = null;
+                              _existingAngle3Url = '';
+                            }
                           });
                         },
                         child: Container(
@@ -721,6 +847,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
               _buildExtraAngleSlot(
                 slot: 1,
                 bytes: _angle2Bytes,
+                existingUrl: _existingAngle2Url,
                 label: strings.wardAngle2Photo,
                 colors: colors,
               ),
@@ -728,6 +855,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
               _buildExtraAngleSlot(
                 slot: 2,
                 bytes: _angle3Bytes,
+                existingUrl: _existingAngle3Url,
                 label: strings.wardAngle3Photo,
                 colors: colors,
               ),

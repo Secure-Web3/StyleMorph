@@ -88,10 +88,11 @@ class AppMediaImage extends StatefulWidget {
     }
   }
 
-  /// Clears the in-memory cache (primarily used in testing).
-  @visibleForTesting
+  /// Clears in-memory decoded LRU byte cache and Flutter framework image cache.
   static void clearCache() {
     _decodedBytesCache.clear();
+    PaintingBinding.instance.imageCache.clear();
+    PaintingBinding.instance.imageCache.clearLiveImages();
   }
 
   @override

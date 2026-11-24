@@ -11,6 +11,7 @@ import 'core/localization/app_language.dart';
 import 'core/localization/locale_provider.dart';
 import 'core/services/biometric_service.dart';
 import 'core/services/emulator_config.dart';
+import 'core/services/prefetch/app_prefetch_service.dart';
 import 'core/services/referral_service.dart';
 import 'core/services/screenshot_protection_service.dart';
 import 'core/services/session_persistence_service.dart';
@@ -18,6 +19,7 @@ import 'core/services/welcome_persistence_service.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
+import 'core/widgets/app_media_image.dart';
 import 'core/widgets/unified_splash_screen.dart';
 import 'features/auth/presentation/auth_provider.dart';
 import 'core/state/app_state.dart';
@@ -26,6 +28,7 @@ import 'features/auth/presentation/biometric_lock_screen.dart';
 import 'features/auth/presentation/welcome_screen.dart';
 import 'features/profile/presentation/widgets/sessions_sub_tab.dart';
 import 'features/shell/presentation/main_shell_screen.dart';
+import 'features/wardrobe/presentation/wardrobe_provider.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -146,7 +149,12 @@ class _AuthGate extends ConsumerWidget {
       data: (user) {
         if (user == null) {
           if (appState.isProfileLoaded || appState.loadedUid != null) {
-            Future.microtask(() => appNotifier.resetProfileLoaded());
+            AppMediaImage.clearCache();
+            ref.read(appPrefetchServiceProvider).reset();
+            Future.microtask(() {
+              appNotifier.resetUserSession();
+              ref.invalidate(wardrobeProvider);
+            });
           }
           return hasSeenWelcomeAsync.when(
             loading: () => const UnifiedSplashScreen(),
@@ -175,7 +183,17 @@ class _AuthGate extends ConsumerWidget {
 
         // 2. Gate-Level Pre-Fetch: Ensure profile is loaded for current authenticated UID
         if (!appState.isProfileLoaded || appState.loadedUid != user.uid) {
-          Future.microtask(() => appNotifier.loadProfileFromFirestore());
+          if (appState.loadedUid != null && appState.loadedUid != user.uid) {
+            AppMediaImage.clearCache();
+            ref.read(appPrefetchServiceProvider).reset();
+            Future.microtask(() {
+              appNotifier.resetUserSession();
+              ref.invalidate(wardrobeProvider);
+              appNotifier.loadProfileFromFirestore();
+            });
+          } else {
+            Future.microtask(() => appNotifier.loadProfileFromFirestore());
+          }
           return const UnifiedSplashScreen();
         }
 
