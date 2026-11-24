@@ -164,11 +164,10 @@ class ReferralService {
     return null;
   }
 
-  /// Executes atomic dual-sided reward on registration with a valid referral code:
-  /// - Inviter receives +100 Coins, +1 referral count, and updated Network Tier.
-  /// - New user receives +50 Coins and has `referredBy` recorded.
-  /// - Saves referral record under `users/{inviterUid}/referrals/{newUserUid}`.
-  /// - Prevents self-referral and duplicate redemption.
+  /// Executes atomic dual-sided referral attribution on registration or OAuth sign-in:
+  /// - Saves referral record under `users/{inviterUid}/referrals/{newUserUid}` with rewardEarned: 0.
+  /// - Records `referredBy` and `referredByCode` on `users/{newUserUid}`.
+  /// - Prevents self-referral and duplicate redemption safely and idempotently.
   Future<bool> applyReferralOnSignUp({
     required String newUserUid,
     required String newEmail,
@@ -185,19 +184,35 @@ class ReferralService {
           .collection('referral_codes')
           .doc(cleanCode)
           .get();
-      if (!codeDoc.exists) return false;
+      if (!codeDoc.exists) {
+        debugPrint(
+          '[ReferralService] Referral code "$cleanCode" does not exist in referral_codes.',
+        );
+        await clearPendingReferralCode();
+        return false;
+      }
 
       final inviterUid = codeDoc.data()?['uid']?.toString() ?? '';
       if (inviterUid.isEmpty || inviterUid == newUserUid) {
-        // Prevent self-referral
+        debugPrint(
+          '[ReferralService] Self-referral or invalid inviter ($inviterUid) rejected for $newUserUid.',
+        );
+        await clearPendingReferralCode();
         return false;
       }
 
       final newUserRef = firestore.collection('users').doc(newUserUid);
       final newUserSnap = await newUserRef.get();
-      if (newUserSnap.exists && newUserSnap.data()?['referredBy'] != null) {
-        // Prevent duplicate redemption
-        return false;
+      if (newUserSnap.exists) {
+        final existingReferredBy =
+            newUserSnap.data()?['referredBy']?.toString() ?? '';
+        if (existingReferredBy.isNotEmpty) {
+          debugPrint(
+            '[ReferralService] User $newUserUid already attributed to inviter $existingReferredBy. Skipping duplicate attribution.',
+          );
+          await clearPendingReferralCode();
+          return false;
+        }
       }
 
       final inviterSnap = await firestore
@@ -205,6 +220,10 @@ class ReferralService {
           .doc(inviterUid)
           .get();
       if (!inviterSnap.exists) {
+        debugPrint(
+          '[ReferralService] Inviter user doc "$inviterUid" does not exist.',
+        );
+        await clearPendingReferralCode();
         return false;
       }
 
@@ -217,13 +236,12 @@ class ReferralService {
       final batch = firestore.batch();
 
       // 1. Save referral entry under users/{inviterUid}/referrals/{newUserUid}
-      // Note: Financial rewards and inviter referralCount/networkTier are processed
-      // via Cloud Function in Slice 2 to adhere to Zero-Trust client write rules.
+      // Zero writes to protected financial fields (walletBalance, coins, referralCount, networkTier)
       batch.set(referralRecordRef, {
         'inviteeUid': newUserUid,
         'displayName': (displayName != null && displayName.isNotEmpty)
             ? displayName
-            : newEmail.split('@').first,
+            : (newEmail.isNotEmpty ? newEmail.split('@').first : 'User'),
         'email': newEmail,
         'rewardEarned': 0,
         'createdAt': FieldValue.serverTimestamp(),
@@ -237,6 +255,9 @@ class ReferralService {
 
       await batch.commit();
       await clearPendingReferralCode();
+      debugPrint(
+        '[ReferralService] Successfully attributed referral $cleanCode ($inviterUid -> $newUserUid).',
+      );
       return true;
     } catch (e) {
       debugPrint('[ReferralService] applyReferralOnSignUp error: $e');
@@ -244,7 +265,20 @@ class ReferralService {
     }
   }
 
-  /// Fetches real invited friends list for [uid].
+  /// Public alias for referral attribution (e.g. for OAuth / Email flows).
+  Future<bool> applyReferralCode({
+    required String newUserUid,
+    required String newEmail,
+    String? displayName,
+    required String referralCode,
+  }) => applyReferralOnSignUp(
+    newUserUid: newUserUid,
+    newEmail: newEmail,
+    displayName: displayName,
+    referralCode: referralCode,
+  );
+
+  /// Fetches real invited friends list for [uid] with limit(50).
   Future<List<ReferralEntry>> getReferrals(String uid) async {
     if (uid.isEmpty) return const [];
     final firestore = _firestore;
@@ -256,6 +290,7 @@ class ReferralService {
           .doc(uid)
           .collection('referrals')
           .orderBy('createdAt', descending: true)
+          .limit(50)
           .get();
       return snap.docs.map(ReferralEntry.fromFirestore).toList();
     } catch (e) {
@@ -264,32 +299,69 @@ class ReferralService {
     }
   }
 
-  /// Captures `?ref=CODE` from the URL when opened on Web and persists it in local storage.
+  /// Streams real invited friends list for [uid] with limit(50).
+  Stream<List<ReferralEntry>> referralsStream(String uid) {
+    if (uid.isEmpty) return const Stream.empty();
+    final firestore = _firestore;
+    if (firestore == null) return const Stream.empty();
+
+    try {
+      return firestore
+          .collection('users')
+          .doc(uid)
+          .collection('referrals')
+          .orderBy('createdAt', descending: true)
+          .limit(50)
+          .snapshots()
+          .map((snap) => snap.docs.map(ReferralEntry.fromFirestore).toList());
+    } catch (e) {
+      debugPrint('[ReferralService] referralsStream notice: $e');
+      return const Stream.empty();
+    }
+  }
+
+  /// Captures `?ref=CODE`, `?refCode=CODE`, or `/r/CODE` from the URL and persists it in local storage.
   Future<void> captureReferralFromUri(Uri uri) async {
     try {
-      final refParam = uri.queryParameters['ref'];
-      if (refParam != null && refParam.trim().isNotEmpty) {
-        final clean = refParam.trim().toUpperCase();
+      String? code =
+          uri.queryParameters['ref'] ?? uri.queryParameters['refCode'];
+      if (code == null || code.trim().isEmpty) {
+        final segments = uri.pathSegments;
+        final rIndex = segments.indexWhere(
+          (s) => s.toLowerCase() == 'r' || s.toLowerCase() == 'ref',
+        );
+        if (rIndex != -1 && rIndex + 1 < segments.length) {
+          code = segments[rIndex + 1];
+        }
+      }
+
+      if (code != null && code.trim().isNotEmpty) {
+        final clean = code.trim().toUpperCase();
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString(pendingReferralKey, clean);
+        debugPrint('[ReferralService] Captured pending referral code: $clean');
       }
     } catch (e) {
       debugPrint('[ReferralService] captureReferralFromUri notice: $e');
     }
   }
 
-  /// Reads pending referral code stored in local storage.
+  /// Reads pending referral code stored in local storage, returning normalized uppercase code.
   Future<String?> getPendingReferralCode() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      return prefs.getString(pendingReferralKey);
+      final code = prefs.getString(pendingReferralKey);
+      if (code != null && code.trim().isNotEmpty) {
+        return code.trim().toUpperCase();
+      }
+      return null;
     } catch (e) {
       debugPrint('[ReferralService] getPendingReferralCode notice: $e');
       return null;
     }
   }
 
-  /// Clears pending referral code from local storage once redeemed.
+  /// Clears pending referral code from local storage once redeemed or invalid.
   Future<void> clearPendingReferralCode() async {
     try {
       final prefs = await SharedPreferences.getInstance();

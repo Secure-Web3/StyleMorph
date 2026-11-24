@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +17,12 @@ import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_toast.dart';
 import 'share_actions.dart' as share_actions;
 
+final referralsStreamProvider = StreamProvider.autoDispose
+    .family<List<ReferralEntry>, String>((ref, uid) {
+      if (uid.isEmpty) return const Stream.empty();
+      return ref.watch(referralServiceProvider).referralsStream(uid);
+    });
+
 class ReferralSubTab extends ConsumerStatefulWidget {
   const ReferralSubTab({super.key});
 
@@ -25,6 +32,25 @@ class ReferralSubTab extends ConsumerStatefulWidget {
 
 class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
   final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() async {
+      String uid = '';
+      try {
+        if (Firebase.apps.isNotEmpty) {
+          uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+        }
+      } catch (_) {}
+      if (uid.isNotEmpty) {
+        final fresh = await ref.read(referralServiceProvider).getReferrals(uid);
+        if (mounted && fresh.isNotEmpty) {
+          ref.read(appStateProvider.notifier).setReferralData(referrals: fresh);
+        }
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -54,7 +80,9 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
     final appState = ref.watch(appStateProvider);
     String uid = '';
     try {
-      uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+      if (Firebase.apps.isNotEmpty) {
+        uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+      }
     } catch (_) {
       uid = '';
     }
@@ -66,7 +94,25 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
         ? 'https://stylemorph-preview.web.app/?ref=$refCode'
         : 'https://stylemorph-preview.web.app/?ref=...';
 
-    final referrals = appState.referrals;
+    if (uid.isNotEmpty) {
+      ref.listen<AsyncValue<List<ReferralEntry>>>(
+        referralsStreamProvider(uid),
+        (prev, next) {
+          final list = next.valueOrNull;
+          if (list != null) {
+            ref
+                .read(appStateProvider.notifier)
+                .setReferralData(referrals: list);
+          }
+        },
+      );
+    }
+
+    final liveReferralsAsync = uid.isNotEmpty
+        ? ref.watch(referralsStreamProvider(uid))
+        : null;
+
+    final referrals = liveReferralsAsync?.valueOrNull ?? appState.referrals;
     final invitedCount = referrals.isNotEmpty
         ? referrals.length
         : appState.referralCount;

@@ -340,23 +340,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       );
       final user = credential.user ?? FirebaseAuth.instance.currentUser;
       if (user != null) {
-        if (state.referralCode.isNotEmpty) {
-          try {
-            final applied = await _ref
-                .read(referralServiceProvider)
-                .applyReferralOnSignUp(
-                  newUserUid: user.uid,
-                  newEmail: user.email ?? state.email,
-                  displayName: user.displayName,
-                  referralCode: state.referralCode,
-                );
-            if (applied) {
-              _ref.read(appStateProvider.notifier).addCoins(50);
-            }
-          } catch (e) {
-            debugPrint('[AuthFormNotifier] applyReferralOnSignUp notice: $e');
-          }
-        }
+        await _applyPendingReferralIfEligible(user);
         try {
           await user.sendEmailVerification();
         } catch (e) {
@@ -384,6 +368,38 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
     }
   }
 
+  /// Helper to check and apply any pending or form referral code safely.
+  Future<void> _applyPendingReferralIfEligible(User user) async {
+    try {
+      final referralService = _ref.read(referralServiceProvider);
+      String? code = state.referralCode.trim();
+      if (code.isEmpty) {
+        code = await referralService.getPendingReferralCode();
+      }
+      if (code != null && code.trim().isNotEmpty) {
+        final applied = await referralService.applyReferralCode(
+          newUserUid: user.uid,
+          newEmail: user.email ?? state.email,
+          displayName: user.displayName,
+          referralCode: code,
+        );
+        if (applied) {
+          debugPrint(
+            '[AuthFormNotifier] Successfully applied referral code for user ${user.uid}',
+          );
+        } else {
+          debugPrint(
+            '[AuthFormNotifier] Referral code was not applied for user ${user.uid} (self-referral, duplicate, or invalid code).',
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint(
+        '[AuthFormNotifier] _applyPendingReferralIfEligible notice: $e',
+      );
+    }
+  }
+
   /// Authenticates using Google Sign-In and provisions Firestore record.
   Future<bool> signInWithGoogle() async {
     state = state.copyWith(isSubmitting: true, clearError: true);
@@ -398,6 +414,10 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
           errorCode: 'google-cancelled',
         );
         return false;
+      }
+      final user = credential.user ?? FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await _applyPendingReferralIfEligible(user);
       }
       if (await _isCurrentDeviceBlocked()) return false;
       await _ref.read(sessionServiceProvider).upsertSession();
@@ -432,6 +452,10 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
           errorCode: 'apple-cancelled',
         );
         return false;
+      }
+      final user = credential.user ?? FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await _applyPendingReferralIfEligible(user);
       }
       if (await _isCurrentDeviceBlocked()) return false;
       await _ref.read(sessionServiceProvider).upsertSession();

@@ -34,6 +34,14 @@ import 'firebase_options.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   ScreenshotProtectionService().enableProtection();
+
+  // Capture pending referral code from URL early before screen routing or Firebase init
+  try {
+    await ReferralService().captureReferralFromUri(Uri.base);
+  } catch (e) {
+    debugPrint('[ReferralCapture] Startup notice: $e');
+  }
+
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
@@ -48,7 +56,6 @@ Future<void> main() async {
     );
     await SessionPersistenceService()
         .checkAndClearNonPersistentSessionOnStartup();
-    await ReferralService().captureReferralFromUri(Uri.base);
   } catch (e) {
     debugPrint('[FirebaseInit] Notice: $e');
   }
