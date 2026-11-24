@@ -241,6 +241,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
     try {
       await FirebaseAuth.instance.signOut();
     } catch (_) {}
+    try {
+      await SessionService().clearCurrentSessionId();
+    } catch (_) {}
     AppMediaImage.clearCache();
     _ref.read(appPrefetchServiceProvider).reset();
     _ref.read(appStateProvider.notifier).resetUserSession();

@@ -126,6 +126,24 @@ class SessionInfo {
   }
 }
 
+// ── Snapshot abstraction for testability without sealed class violations ────
+
+abstract class SessionDocSnapshot {
+  bool get exists;
+  Map<String, dynamic>? data();
+}
+
+class FirestoreSessionSnapshot implements SessionDocSnapshot {
+  final DocumentSnapshot<Map<String, dynamic>> _doc;
+  FirestoreSessionSnapshot(this._doc);
+
+  @override
+  bool get exists => _doc.exists;
+
+  @override
+  Map<String, dynamic>? data() => _doc.data();
+}
+
 // ── Service ────────────────────────────────────────────────────────────────
 
 class SessionService {
@@ -208,8 +226,19 @@ class SessionService {
 
   // ── Persistent IDs ────────────────────────────────────────────────────────
 
-  String? _cachedSessionId;
-  String? _cachedDeviceId;
+  static String? _cachedSessionId;
+  static String? _cachedDeviceId;
+
+  /// Clears the cached session ID from memory and local storage so the next
+  /// login generates a fresh session document. Persistent deviceId remains intact.
+  Future<void> clearCurrentSessionId() async {
+    _cachedSessionId = null;
+    try {
+      await SessionLocalStorage.setSessionId('');
+    } catch (e) {
+      debugPrint('[SessionService] clearCurrentSessionId error: $e');
+    }
+  }
 
   Future<String> currentSessionId() async {
     if (_cachedSessionId != null) return _cachedSessionId!;
@@ -484,14 +513,6 @@ class SessionService {
           'userAgent': meta['userAgent'],
         };
 
-        final ipData = await detectIpAndLocation();
-        if (ipData.ip != null) {
-          updateData['ipAddress'] = ipData.ip;
-        }
-        if (ipData.location != null) {
-          updateData['ipLocation'] = ipData.location;
-        }
-
         // Throttle lastActiveAt updates to at most once every 15 minutes
         final shouldUpdateLastActive =
             _lastActivityWriteTime == null ||
@@ -505,7 +526,6 @@ class SessionService {
 
         await docRef.update(updateData);
       } else {
-        final ipData = await detectIpAndLocation();
         final session = SessionInfo(
           sessionId: sessionId,
           deviceId: deviceId,
@@ -520,12 +540,32 @@ class SessionService {
           isActive: !isDeviceBlocked,
           createdAt: DateTime.now(),
           lastActiveAt: DateTime.now(),
-          ipAddress: ipData.ip,
-          ipLocation: ipData.location,
         );
         await docRef.set(session.toMap());
         _lastActivityWriteTime = DateTime.now();
       }
+
+      // Run external IP & geo lookup asynchronously in the background (non-blocking)
+      final uid = user.uid;
+      unawaited(() async {
+        try {
+          final ipData = await detectIpAndLocation();
+          if ((ipData.ip != null || ipData.location != null) &&
+              _auth.currentUser?.uid == uid) {
+            final Map<String, dynamic> ipUpdates = {};
+            if (ipData.ip != null) ipUpdates['ipAddress'] = ipData.ip;
+            if (ipData.location != null) {
+              ipUpdates['ipLocation'] = ipData.location;
+            }
+            await docRef.set(ipUpdates, SetOptions(merge: true));
+            debugPrint(
+              '[SessionService] Background IP/location merged for session: $sessionId',
+            );
+          }
+        } catch (e) {
+          debugPrint('[SessionService] Background IP lookup error: $e');
+        }
+      }());
 
       // Enforce maximum of 5 concurrent active sessions upon login
       await enforceMaxActiveSessions(user.uid, sessionId);
@@ -711,7 +751,7 @@ class SessionService {
 
   // ── Streams ───────────────────────────────────────────────────────────────
 
-  Stream<DocumentSnapshot<Map<String, dynamic>>?> watchCurrentSession(
+  Stream<SessionDocSnapshot?> watchCurrentSession(
     String uid,
     String sessionId,
   ) {
@@ -720,7 +760,8 @@ class SessionService {
         .doc(uid)
         .collection('sessions')
         .doc(sessionId)
-        .snapshots();
+        .snapshots()
+        .map((snap) => FirestoreSessionSnapshot(snap));
   }
 
   Stream<List<SessionInfo>> watchAllSessions(String uid) {

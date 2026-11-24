@@ -30,6 +30,9 @@ import '../../../auth/presentation/auth_provider.dart';
 class SessionRevocationListener extends ConsumerStatefulWidget {
   final Widget child;
 
+  @visibleForTesting
+  static String? testUidOverride;
+
   const SessionRevocationListener({super.key, required this.child});
 
   @override
@@ -43,6 +46,9 @@ class _SessionRevocationListenerState
   bool _listenerActive = false;
   StreamSubscription? _sessionSub;
   StreamSubscription? _blockedSub;
+  bool _hasObservedExistingSession = false;
+  String? _trackedUid;
+  String? _trackedSessionId;
 
   @override
   void initState() {
@@ -67,9 +73,16 @@ class _SessionRevocationListenerState
   }
 
   Future<void> _checkSessionExpiry() async {
-    if (Firebase.apps.isEmpty) return;
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    if (Firebase.apps.isEmpty &&
+        SessionRevocationListener.testUidOverride == null) {
+      return;
+    }
+    final user = Firebase.apps.isNotEmpty
+        ? FirebaseAuth.instance.currentUser
+        : null;
+    if (user == null && SessionRevocationListener.testUidOverride == null) {
+      return;
+    }
     final isExpired = await ref
         .read(sessionServiceProvider)
         .checkSessionExpiryAndSignOutIfExpired();
@@ -85,9 +98,15 @@ class _SessionRevocationListenerState
     // Check 5-day session expiry upon initial attachment
     _checkSessionExpiry();
 
-    if (Firebase.apps.isEmpty) return;
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
+    if (Firebase.apps.isEmpty &&
+        SessionRevocationListener.testUidOverride == null) {
+      return;
+    }
+    final user = Firebase.apps.isNotEmpty
+        ? FirebaseAuth.instance.currentUser
+        : null;
+    final uid = SessionRevocationListener.testUidOverride ?? user?.uid;
+    if (uid == null) return;
 
     final service = ref.read(sessionServiceProvider);
 
@@ -98,27 +117,41 @@ class _SessionRevocationListenerState
       final sessionId = ids[0];
       final deviceId = ids[1];
 
+      if (_trackedUid != uid || _trackedSessionId != sessionId) {
+        _trackedUid = uid;
+        _trackedSessionId = sessionId;
+        _hasObservedExistingSession = false;
+      }
+
       // 1. Watch session document
-      _sessionSub = service.watchCurrentSession(user.uid, sessionId).listen((
-        snap,
-      ) {
+      _sessionSub = service.watchCurrentSession(uid, sessionId).listen((snap) {
         if (!mounted) return;
 
-        final deleted = snap == null || !snap.exists;
-        final isBlocked =
-            !deleted && (snap.data()?['isBlocked'] as bool? ?? false) == true;
-        final inactive =
-            !deleted && (snap.data()?['isActive'] as bool? ?? true) == false;
+        if (snap != null && snap.exists) {
+          _hasObservedExistingSession = true;
+          final isBlocked =
+              (snap.data()?['isBlocked'] as bool? ?? false) == true;
+          final inactive = (snap.data()?['isActive'] as bool? ?? true) == false;
 
-        if (isBlocked) {
-          _performBlockedSignOut();
-        } else if (deleted || inactive) {
-          _performSignOut();
+          if (isBlocked) {
+            _performBlockedSignOut();
+          } else if (inactive) {
+            _performSignOut('session_inactive');
+          }
+        } else {
+          // snap == null || !snap.exists
+          if (_hasObservedExistingSession) {
+            _performSignOut('session_revoked');
+          } else {
+            debugPrint(
+              '[SessionRevocationListener] Session document does not exist yet (waiting for upsertSession). Skipping sign out.',
+            );
+          }
         }
       });
 
       // 2. Watch blocked device document
-      _blockedSub = service.watchDeviceBlocked(user.uid, deviceId).listen((
+      _blockedSub = service.watchDeviceBlocked(uid, deviceId).listen((
         isBlocked,
       ) {
         if (!mounted) return;
@@ -130,14 +163,19 @@ class _SessionRevocationListenerState
   }
 
   Future<void> _performBlockedSignOut() async {
+    debugPrint(
+      '[SessionRevocationListener] Signing out: reason=device_blocked',
+    );
     final notice = context.strings.sessDeviceBlockedNotice;
 
     try {
       await ref.read(authRepositoryProvider).signOut();
     } catch (_) {}
-    try {
-      await FirebaseAuth.instance.signOut();
-    } catch (_) {}
+    if (Firebase.apps.isNotEmpty) {
+      try {
+        await FirebaseAuth.instance.signOut();
+      } catch (_) {}
+    }
     if (mounted) {
       ref.read(appStateProvider.notifier).logout();
       AppToast.showError(context, notice, duration: const Duration(seconds: 4));
@@ -145,14 +183,19 @@ class _SessionRevocationListenerState
   }
 
   Future<void> _performExpiredSignOut() async {
+    debugPrint(
+      '[SessionRevocationListener] Signing out: reason=session_expired',
+    );
     final notice = context.strings.authSessionExpired;
 
     try {
       await ref.read(authRepositoryProvider).signOut();
     } catch (_) {}
-    try {
-      await FirebaseAuth.instance.signOut();
-    } catch (_) {}
+    if (Firebase.apps.isNotEmpty) {
+      try {
+        await FirebaseAuth.instance.signOut();
+      } catch (_) {}
+    }
     if (mounted) {
       ref.read(appStateProvider.notifier).logout();
       AppToast.showWarning(
@@ -163,13 +206,16 @@ class _SessionRevocationListenerState
     }
   }
 
-  Future<void> _performSignOut() async {
+  Future<void> _performSignOut([String reason = 'session_revoked']) async {
+    debugPrint('[SessionRevocationListener] Signing out: reason=$reason');
     try {
       await ref.read(authRepositoryProvider).signOut();
     } catch (_) {}
-    try {
-      await FirebaseAuth.instance.signOut();
-    } catch (_) {}
+    if (Firebase.apps.isNotEmpty) {
+      try {
+        await FirebaseAuth.instance.signOut();
+      } catch (_) {}
+    }
     if (mounted) {
       ref.read(appStateProvider.notifier).logout();
     }
