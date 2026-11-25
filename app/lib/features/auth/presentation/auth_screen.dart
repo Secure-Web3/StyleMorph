@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -286,33 +287,90 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
             // ── 1. Universal Top Header (Pinned at top) ─────────────
             const AuthTopBar(isTransparent: false),
 
-            // ── 2. Scrollable Body ───────────────────────────────────
+            // ── 2. Responsive Body (Zero-scroll in Sign In when keyboard closed) ──
             Expanded(
-              child: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 480),
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      horizontal: AppSpacing.xl,
-                      vertical: AppSpacing.md,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final viewInsetsBottom = MediaQuery.viewInsetsOf(
+                    context,
+                  ).bottom;
+                  final availableHeight = constraints.maxHeight;
+                  final isCompact = availableHeight < 700;
+                  final isUltraCompact = availableHeight < 610;
+                  final useZeroScroll =
+                      formState.mode == AuthMode.login &&
+                      viewInsetsBottom == 0 &&
+                      availableHeight >= 500;
+
+                  final contentWidth = math.min(constraints.maxWidth, 480.0);
+                  final horizontalPad = isUltraCompact
+                      ? AppSpacing.md
+                      : AppSpacing.xl;
+                  final verticalPad = useZeroScroll
+                      ? (isUltraCompact ? AppSpacing.xs : AppSpacing.sm)
+                      : AppSpacing.md;
+                  final headerGap = isUltraCompact
+                      ? AppSpacing.sm
+                      : (isCompact ? AppSpacing.md : AppSpacing.xl);
+
+                  Widget bodyColumn = SizedBox(
+                    width: contentWidth,
+                    child: Padding(
+                      padding: EdgeInsetsDirectional.symmetric(
+                        horizontal: horizontalPad,
+                        vertical: verticalPad,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Branding Header (Logo + App Title)
+                          _BrandingHeader(
+                            colors: colors,
+                            strings: strings,
+                            isCompact: isCompact,
+                            isUltraCompact: isUltraCompact,
+                          ),
+
+                          SizedBox(height: headerGap),
+
+                          // Animated Form Switch
+                          FadeTransition(
+                            opacity: _fadeAnim,
+                            child: _buildForm(
+                              formState,
+                              colors,
+                              strings,
+                              isCompact: isCompact,
+                              isUltraCompact: isUltraCompact,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Branding Header (Logo + App Title)
-                        _BrandingHeader(colors: colors, strings: strings),
+                  );
 
-                        const SizedBox(height: AppSpacing.xl),
-
-                        // Animated Form Switch
-                        FadeTransition(
-                          opacity: _fadeAnim,
-                          child: _buildForm(formState, colors, strings),
+                  if (useZeroScroll) {
+                    return Center(
+                      child: SizedBox(
+                        width: contentWidth,
+                        height: availableHeight,
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.center,
+                          child: bodyColumn,
                         ),
-                      ],
+                      ),
+                    );
+                  }
+
+                  return Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 480),
+                      child: SingleChildScrollView(child: bodyColumn),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ),
 
@@ -324,7 +382,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
     );
   }
 
-  Widget _buildForm(AuthFormState state, AppColors colors, AppStrings strings) {
+  Widget _buildForm(
+    AuthFormState state,
+    AppColors colors,
+    AppStrings strings, {
+    bool isCompact = false,
+    bool isUltraCompact = false,
+  }) {
     switch (state.mode) {
       case AuthMode.login:
         return _LoginForm(
@@ -332,6 +396,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           passwordController: _passwordController,
           isPasswordVisible: state.isPasswordVisible,
           isSubmitting: state.isSubmitting,
+          isCompact: isCompact,
+          isUltraCompact: isUltraCompact,
           rememberMe: state.rememberMe,
           onRememberMeChanged: (val) =>
               ref.read(authFormProvider.notifier).setRememberMe(val),
@@ -431,27 +497,41 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
 class _BrandingHeader extends StatelessWidget {
   final AppColors colors;
   final AppStrings strings;
+  final bool isCompact;
+  final bool isUltraCompact;
 
-  const _BrandingHeader({required this.colors, required this.strings});
+  const _BrandingHeader({
+    required this.colors,
+    required this.strings,
+    this.isCompact = false,
+    this.isUltraCompact = false,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final logoSize = isUltraCompact ? 34.0 : (isCompact ? 42.0 : 52.0);
+    final wordmarkSize = isUltraCompact ? 20.0 : (isCompact ? 22.0 : 24.0);
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const AppLogo(size: 52),
-        const SizedBox(height: AppSpacing.sm),
+        AppLogo(size: logoSize),
+        SizedBox(height: isUltraCompact ? AppSpacing.xxs : AppSpacing.sm),
         BrandWordmark(
-          fontSize: 24,
+          fontSize: wordmarkSize,
           fontWeight: FontWeight.w700,
           letterSpacing: 0.8,
           color: colors.tx,
         ),
         const SizedBox(height: AppSpacing.xxs),
-        Text(
-          strings.sub,
-          style: AppTypography.bodySmall(color: colors.mu),
-          textAlign: TextAlign.center,
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(
+            strings.sub,
+            style: AppTypography.bodySmall(color: colors.mu),
+            textAlign: TextAlign.center,
+            maxLines: 1,
+          ),
         ),
       ],
     );
@@ -574,6 +654,8 @@ class _LoginForm extends StatelessWidget {
   final TextEditingController passwordController;
   final bool isPasswordVisible;
   final bool isSubmitting;
+  final bool isCompact;
+  final bool isUltraCompact;
   final bool isTurnstileVerified;
   final bool useSecurityFallback;
   final ValueChanged<bool>? onVerificationTabChanged;
@@ -599,6 +681,8 @@ class _LoginForm extends StatelessWidget {
     required this.passwordController,
     required this.isPasswordVisible,
     required this.isSubmitting,
+    this.isCompact = false,
+    this.isUltraCompact = false,
     this.isTurnstileVerified = true,
     this.useSecurityFallback = false,
     this.onVerificationTabChanged,
@@ -633,8 +717,25 @@ class _LoginForm extends StatelessWidget {
         ? strings.authLockoutBtn(lockoutSeconds)
         : strings.authLoginBtn;
 
+    final EdgeInsetsDirectional cardPadding = isUltraCompact
+        ? const EdgeInsetsDirectional.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          )
+        : isCompact
+        ? const EdgeInsetsDirectional.symmetric(
+            horizontal: AppSpacing.lg,
+            vertical: AppSpacing.md,
+          )
+        : const EdgeInsetsDirectional.all(AppSpacing.xl);
+    final double sectionGap = isUltraCompact
+        ? AppSpacing.sm
+        : (isCompact ? AppSpacing.md : AppSpacing.xl);
+    final double fieldGap = isUltraCompact ? AppSpacing.xs : AppSpacing.md;
+    final double tightGap = isUltraCompact ? AppSpacing.xxs : AppSpacing.sm;
+
     return AppCard(
-      padding: const EdgeInsetsDirectional.all(AppSpacing.xl),
+      padding: cardPadding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
@@ -643,14 +744,18 @@ class _LoginForm extends StatelessWidget {
           Text(
             strings.authLoginTitle,
             style: AppTypography.titleMedium(color: colors.tx),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: AppSpacing.xxs),
           Text(
             strings.authLoginSubtitle,
             style: AppTypography.bodySmall(color: colors.mu),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
 
-          const SizedBox(height: AppSpacing.xl),
+          SizedBox(height: sectionGap),
 
           // Email Field
           AppTextField(
@@ -662,7 +767,7 @@ class _LoginForm extends StatelessWidget {
             prefix: Icon(Icons.email_outlined, size: 16, color: colors.mu),
           ),
 
-          const SizedBox(height: AppSpacing.md),
+          SizedBox(height: fieldGap),
 
           // Password Field
           AppTextField(
@@ -688,19 +793,19 @@ class _LoginForm extends StatelessWidget {
             ),
           ),
 
-          const SizedBox(height: AppSpacing.sm),
+          SizedBox(height: tightGap),
 
           // Remember Me Checkbox (Luxury Editorial styled)
           AppCheckboxTile(
             label: strings.authRememberMe,
             value: rememberMe,
             onChanged: onRememberMeChanged,
-            padding: const EdgeInsetsDirectional.symmetric(
-              vertical: AppSpacing.xxs,
+            padding: EdgeInsetsDirectional.symmetric(
+              vertical: isUltraCompact ? 0 : AppSpacing.xxs,
             ),
           ),
 
-          const SizedBox(height: AppSpacing.md),
+          SizedBox(height: fieldGap),
 
           // Cloudflare Turnstile anti-bot verification or Smart Fallback (Web only)
           if (kIsWeb) ...[
@@ -711,7 +816,7 @@ class _LoginForm extends StatelessWidget {
                   onTabSelected: onVerificationTabChanged!,
                 ),
               ),
-              const SizedBox(height: AppSpacing.sm),
+              SizedBox(height: tightGap),
             ],
             Center(
               child: useSecurityFallback
@@ -726,7 +831,7 @@ class _LoginForm extends StatelessWidget {
                       onError: onTurnstileError,
                     ),
             ),
-            const SizedBox(height: AppSpacing.md),
+            SizedBox(height: fieldGap),
           ],
 
           // Primary Login Button (With loading spinner and lockout countdown)
@@ -746,12 +851,12 @@ class _LoginForm extends StatelessWidget {
                 : null,
           ),
 
-          const SizedBox(height: AppSpacing.xl),
+          SizedBox(height: sectionGap),
 
           // Social divider
           _LabelDivider(label: strings.authOrWith),
 
-          const SizedBox(height: AppSpacing.md),
+          SizedBox(height: fieldGap),
 
           // Social login buttons
           Row(
@@ -787,23 +892,34 @@ class _LoginForm extends StatelessWidget {
             ],
           ),
 
-          const SizedBox(height: AppSpacing.xl),
+          SizedBox(height: sectionGap),
 
-          // Secondary actions: Sign Up & Forgot Password
-          Wrap(
-            alignment: WrapAlignment.spaceBetween,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            runSpacing: AppSpacing.xs,
+          // Secondary actions: Sign Up & Forgot Password (single-line, zero unintended wrapping)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              AppTextButton(
-                text: strings.authSwitchToSignup,
-                onPressed: isSubmitting ? null : onSwitchToSignup,
-                isPrimary: true,
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: AppTextButton(
+                    text: strings.authSwitchToSignup,
+                    onPressed: isSubmitting ? null : onSwitchToSignup,
+                    isPrimary: true,
+                  ),
+                ),
               ),
-              AppTextButton(
-                text: strings.authForgotPassword,
-                onPressed: isSubmitting ? null : onForgotPassword,
-                isPrimary: false,
+              const SizedBox(width: AppSpacing.sm),
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: AppTextButton(
+                    text: strings.authForgotPassword,
+                    onPressed: isSubmitting ? null : onForgotPassword,
+                    isPrimary: false,
+                  ),
+                ),
               ),
             ],
           ),

@@ -35,6 +35,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     AppTab.shop,
   ];
   static const double _drawerOverscrollThreshold = 24.0;
+  static const double _profileDrawerSwipeThreshold = 32.0;
 
   // Keep the key as a field so it is not recreated on every rebuild.
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -42,6 +43,8 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   bool _isSyncingPageFromState = false;
   double _startEdgeOverscroll = 0.0;
   bool _drawerTriggeredThisDrag = false;
+  double _profileHorizontalDragDelta = 0.0;
+  bool _profileDrawerTriggeredThisDrag = false;
 
   int _moduleIndexFor(AppTab tab) {
     final idx = _moduleTabs.indexOf(tab);
@@ -196,6 +199,39 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     }
   }
 
+  Widget _buildProfileWithDrawerSwipe(BuildContext context) {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onHorizontalDragStart: (_) {
+        _profileHorizontalDragDelta = 0.0;
+        _profileDrawerTriggeredThisDrag = false;
+      },
+      onHorizontalDragUpdate: (details) {
+        if (_profileDrawerTriggeredThisDrag) return;
+        _profileHorizontalDragDelta += details.primaryDelta ?? 0.0;
+        final isRtl = Directionality.of(context) == TextDirection.rtl;
+        final shouldOpen = isRtl
+            ? _profileHorizontalDragDelta <= -_profileDrawerSwipeThreshold
+            : _profileHorizontalDragDelta >= _profileDrawerSwipeThreshold;
+        if (shouldOpen) {
+          _profileDrawerTriggeredThisDrag = true;
+          if (!(_scaffoldKey.currentState?.isDrawerOpen ?? false)) {
+            _scaffoldKey.currentState?.openDrawer();
+          }
+        }
+      },
+      onHorizontalDragEnd: (_) {
+        _profileHorizontalDragDelta = 0.0;
+        _profileDrawerTriggeredThisDrag = false;
+      },
+      onHorizontalDragCancel: () {
+        _profileHorizontalDragDelta = 0.0;
+        _profileDrawerTriggeredThisDrag = false;
+      },
+      child: const ProfileTab(),
+    );
+  }
+
   Widget _buildModulesPageView() {
     return NotificationListener<ScrollNotification>(
       onNotification: _handlePageScrollNotification,
@@ -303,6 +339,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                       key: _scaffoldKey,
                       backgroundColor: colors.bg,
                       drawerEnableOpenDragGesture: isProfile,
+                      drawerEdgeDragWidth: isProfile ? 64.0 : 20.0,
                       appBar: MainHeader(
                         onOpenDrawer: () =>
                             _scaffoldKey.currentState?.openDrawer(),
@@ -314,7 +351,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                             children: [
                               Positioned.fill(
                                 child: isProfile
-                                    ? const ProfileTab()
+                                    ? _buildProfileWithDrawerSwipe(context)
                                     : _buildModulesPageView(),
                               ),
                               if (showSupport)

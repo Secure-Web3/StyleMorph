@@ -38,6 +38,21 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     'p-settings',
   };
 
+  final Map<String, ScrollController> _subTabScrollControllers = {};
+
+  ScrollController _scrollControllerFor(String tabId) {
+    return _subTabScrollControllers.putIfAbsent(tabId, ScrollController.new);
+  }
+
+  @override
+  void dispose() {
+    for (final controller in _subTabScrollControllers.values) {
+      controller.dispose();
+    }
+    _subTabScrollControllers.clear();
+    super.dispose();
+  }
+
   bool _isIdentityValid(Map<String, String> values) {
     final first = values['firstName']?.trim() ?? '';
     if (first.isNotEmpty && !IdentityValidator.isValidName(first)) return false;
@@ -282,6 +297,8 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                         child: activeTabId == 'p-referral'
                             ? activeContent
                             : SingleChildScrollView(
+                                key: ValueKey('profile_scroll_$activeTabId'),
+                                controller: _scrollControllerFor(activeTabId),
                                 physics: const BouncingScrollPhysics(),
                                 child: activeContent,
                               ),
