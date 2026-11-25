@@ -362,8 +362,33 @@ void main() {
         await tester.tap(find.byKey(const Key('open_sheet_btn')));
         await tester.pumpAndSettle();
 
+        // Verify both Mark-as-Read and Delete buttons are visibly rendered side-by-side on unread card
+        final markReadFinder = find.byKey(
+          const ValueKey('notif_mark_read_n_account'),
+        );
+        final deleteFinder = find.byKey(
+          const ValueKey('notif_delete_n_account'),
+        );
+        expect(markReadFinder, findsOneWidget);
+        expect(deleteFinder, findsOneWidget);
+        final markRect = tester.getRect(markReadFinder);
+        final deleteRect = tester.getRect(deleteFinder);
+        expect(markRect.width, greaterThanOrEqualTo(28));
+        expect(markRect.height, greaterThanOrEqualTo(28));
+        expect(markRect.overlaps(deleteRect), isFalse);
+
+        // Read card (n_wellness) should NOT render Mark-as-Read, only Delete
+        expect(
+          find.byKey(const ValueKey('notif_mark_read_n_wellness')),
+          findsNothing,
+        );
+        expect(
+          find.byKey(const ValueKey('notif_delete_n_wellness')),
+          findsOneWidget,
+        );
+
         // Tap single-item Mark-as-Read on n_account
-        await tester.tap(find.byKey(const Key('notif_mark_read_n_account')));
+        await tester.tap(markReadFinder);
         await tester.pumpAndSettle();
 
         // Sheet must remain open

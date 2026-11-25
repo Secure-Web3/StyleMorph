@@ -441,26 +441,33 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                if (!notif.isRead)
+                                if (!notif.isRead) ...[
                                   IconButton(
-                                    key: Key('notif_mark_read_${notif.id}'),
+                                    key: ValueKey(
+                                      'notif_mark_read_${notif.id}',
+                                    ),
                                     tooltip: strings.markAsReadTooltip,
                                     onPressed: () =>
                                         _markSingleAsRead(notif.id, authUid),
                                     icon: Icon(
-                                      Icons.done_rounded,
-                                      size: 16,
+                                      Icons.check_circle_outline_rounded,
+                                      size: 18,
                                       color: colors.pr,
                                     ),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(
-                                      minWidth: 28,
-                                      minHeight: 28,
+                                      minWidth: 32,
+                                      minHeight: 32,
                                     ),
-                                    visualDensity: VisualDensity.compact,
+                                    style: IconButton.styleFrom(
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
                                   ),
+                                  const SizedBox(width: 2),
+                                ],
                                 IconButton(
-                                  key: Key('notif_delete_${notif.id}'),
+                                  key: ValueKey('notif_delete_${notif.id}'),
                                   tooltip: strings.deleteNotificationTooltip,
                                   onPressed: () => _deleteSingleNotification(
                                     notif.id,
@@ -468,15 +475,18 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                                   ),
                                   icon: Icon(
                                     Icons.delete_outline_rounded,
-                                    size: 16,
+                                    size: 18,
                                     color: colors.mu,
                                   ),
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(
-                                    minWidth: 28,
-                                    minHeight: 28,
+                                    minWidth: 32,
+                                    minHeight: 32,
                                   ),
-                                  visualDensity: VisualDensity.compact,
+                                  style: IconButton.styleFrom(
+                                    tapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                  ),
                                 ),
                               ],
                             ),
