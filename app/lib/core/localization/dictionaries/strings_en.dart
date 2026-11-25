@@ -41,6 +41,8 @@ final Map<String, String> stringsEn = {
   'mHist': 'Try-on history',
   'mSaved': 'Saved outfits',
   'mOrders': 'Orders',
+  'drawerSectionActivity': 'My Activity',
+  'drawerSectionAppSupport': 'App & Support',
   'mAbout': 'About us',
   'mHelp': 'Help & support',
   'mSupport': 'Support & Help',

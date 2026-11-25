@@ -10,21 +10,11 @@ class AppBottomNav extends ConsumerWidget {
   final ValueChanged<AppTab>? onTabSelected;
   const AppBottomNav({super.key, this.onTabSelected});
 
-  /// Central set of temporarily disabled tab indices.
-  /// Index 0: Wardrobe (Active)
-  /// Index 1: Wellness (Disabled)
-  /// Index 2: Stylist (Disabled)
-  /// Index 3: Atelier (Disabled)
-  /// Index 4: Shop (Disabled)
-  static const Set<int> disabledTabIndices = {1, 2, 3, 4};
+  /// Central set of temporarily disabled tab indices (all 5 core modules active).
+  static const Set<int> disabledTabIndices = {};
 
-  /// Set of temporarily disabled [AppTab] targets.
-  static const Set<AppTab> disabledTabs = {
-    AppTab.wellness,
-    AppTab.stylist,
-    AppTab.atelier,
-    AppTab.shop,
-  };
+  /// Set of temporarily disabled [AppTab] targets (all 5 core modules active).
+  static const Set<AppTab> disabledTabs = {};
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

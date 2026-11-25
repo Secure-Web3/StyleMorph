@@ -40,6 +40,8 @@ final Map<String, String> stringsAr = {
   'mHist': 'سجل القياس',
   'mSaved': 'الإطلالات المحفوظة',
   'mOrders': 'الطلبات',
+  'drawerSectionActivity': 'نشاطي',
+  'drawerSectionAppSupport': 'التطبيق والدعم',
   'mAbout': 'معلومات عنا',
   'mHelp': 'المساعدة والدعم',
   'mSupport': 'الدعم والمساعدة',

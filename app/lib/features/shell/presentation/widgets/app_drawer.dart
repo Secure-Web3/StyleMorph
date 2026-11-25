@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_language.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/localization/locale_provider.dart';
+import '../../../../core/services/loyalty_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -13,8 +15,11 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_logo.dart';
+import '../../../../core/widgets/app_media_image.dart';
 import '../../../../core/widgets/brand_wordmark.dart';
+import '../../../../core/widgets/gender_3d_avatar.dart';
 import '../../../auth/presentation/auth_provider.dart';
+import '../../../auth/presentation/email_verification_provider.dart';
 
 class AppDrawer extends ConsumerWidget {
   const AppDrawer({super.key});
@@ -26,10 +31,10 @@ class AppDrawer extends ConsumerWidget {
     final themeState = ref.watch(themeProvider);
     final currentLang = ref.watch(localeProvider);
 
-    // Drawer width: min(288, 84% of screen width).
+    // Drawer width: min(296, 84% of screen width).
     final drawerWidth = (MediaQuery.of(context).size.width * 0.84).clamp(
       0.0,
-      288.0,
+      296.0,
     );
 
     return Drawer(
@@ -40,90 +45,54 @@ class AppDrawer extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // ── Header: Logo + App name ──────────────────────────────────
+            // ── Zone 1: Brand Strip + Interactive Profile Identity Card ─────
             Padding(
-              padding: const EdgeInsetsDirectional.only(
-                start: AppSpacing.xl,
-                end: AppSpacing.xl,
-                top: AppSpacing.xl,
-                bottom: AppSpacing.lg,
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.sm,
               ),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const AppLogo(size: 40),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: BrandWordmark(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.6,
-                      color: colors.tx,
-                    ),
+                  Row(
+                    children: [
+                      const AppLogo(size: 38),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: BrandWordmark(
+                          fontSize: 21,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.6,
+                          color: colors.tx,
+                        ),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: AppSpacing.md),
+                  const _DrawerProfileCard(),
                 ],
               ),
             ),
 
             Divider(height: 1, color: colors.bd),
 
-            // ── Menu Items ───────────────────────────────────────────────
+            // ── Zone 2: Focused, Non-Redundant Shortcuts ───────────────────
             Expanded(
               child: ListView(
                 padding: const EdgeInsetsDirectional.symmetric(
-                  horizontal: AppSpacing.sm,
+                  horizontal: AppSpacing.md,
                   vertical: AppSpacing.sm,
                 ),
                 children: [
-                  _DrawerItem(
-                    icon: FontAwesomeIcons.solidUser,
-                    title: strings.nProf,
-                    trailing: Consumer(
-                      builder: (context, ref, _) {
-                        final progress = ref.watch(
-                          appStateProvider.select((s) => s.profileProgress),
-                        );
-                        return Text(
-                          context.strings.formatPercent(
-                            (progress * 100).round(),
-                          ),
-                          style: TextStyle(
-                            fontFamily: AppTypography.fontFamily,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: colors.mu,
-                          ),
-                        );
-                      },
-                    ),
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      ref
-                          .read(appStateProvider.notifier)
-                          .switchProfileTab('p-identity');
-                    },
-                  ),
-                  _DrawerItem(
-                    icon: FontAwesomeIcons.wallet,
-                    title: strings.tWal,
-                    badgeText: strings.commonComingSoon,
-                    enabled: false,
-                  ),
-                  _DrawerItem(
-                    icon: FontAwesomeIcons.gift,
-                    title: strings.tRef,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      ref
-                          .read(appStateProvider.notifier)
-                          .switchProfileTab('p-referral');
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.xs,
-                    ),
-                    child: Divider(height: 1, color: colors.bd),
-                  ),
+                  // Compact Wallet & Plan Card
+                  const _DrawerWalletCard(),
+                  const SizedBox(height: AppSpacing.md),
+
+                  // My Activity Section
+                  _DrawerSectionLabel(label: strings.drawerSectionActivity),
+                  const SizedBox(height: AppSpacing.xxs),
                   _DrawerItem(
                     icon: FontAwesomeIcons.clockRotateLeft,
                     title: strings.mHist,
@@ -142,12 +111,17 @@ class AppDrawer extends ConsumerWidget {
                     badgeText: strings.soon,
                     enabled: false,
                   ),
+
                   Padding(
                     padding: const EdgeInsets.symmetric(
                       vertical: AppSpacing.xs,
                     ),
                     child: Divider(height: 1, color: colors.bd),
                   ),
+
+                  // App & Support Section
+                  _DrawerSectionLabel(label: strings.drawerSectionAppSupport),
+                  const SizedBox(height: AppSpacing.xxs),
                   _DrawerItem(
                     icon: FontAwesomeIcons.sliders,
                     title: strings.tSet,
@@ -156,6 +130,14 @@ class AppDrawer extends ConsumerWidget {
                       ref
                           .read(appStateProvider.notifier)
                           .switchProfileTab('p-settings');
+                    },
+                  ),
+                  _DrawerItem(
+                    icon: FontAwesomeIcons.headset,
+                    title: strings.mSupport,
+                    onTap: () {
+                      Navigator.of(context).pop();
+                      ref.read(appStateProvider.notifier).toggleSupport(true);
                     },
                   ),
                   _DrawerItem(
@@ -168,40 +150,27 @@ class AppDrawer extends ConsumerWidget {
                           .switchProfileTab('p-about');
                     },
                   ),
-                  _DrawerItem(
-                    icon: FontAwesomeIcons.wandMagicSparkles,
-                    title: strings.tComp,
-                    badgeText: strings.commonComingSoon,
-                    enabled: false,
-                  ),
-                  _DrawerItem(
-                    icon: FontAwesomeIcons.headset,
-                    title: strings.mSupport,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      ref.read(appStateProvider.notifier).toggleSupport(true);
-                    },
-                  ),
                 ],
               ),
             ),
 
-            // ── Footer: Palettes / Dark / Language / Sign-out ────────────
+            // ── Zone 3: Quick Control Dock (Bottom) ────────────────────────
             Container(
-              padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AppSpacing.md,
+                AppSpacing.sm,
+                AppSpacing.md,
+                AppSpacing.sm,
+              ),
               decoration: BoxDecoration(
                 border: Border(top: BorderSide(color: colors.bd)),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // ── Quick-Access Mode Switcher Pill (Simple / Advanced) ──
                   const _DrawerModeSwitcher(),
-
-                  // Row: palette dots + 3-mode brightness toggle + language
                   Row(
                     children: [
-                      // 5 palette color dots
                       _PaletteDot(
                         palette: AppPalette.white,
                         color: const Color(0xFFFFFFFF),
@@ -287,7 +256,6 @@ class AppDrawer extends ConsumerWidget {
                         },
                       ),
                       const Spacer(),
-                      // 3-state brightness cycle: Light -> Dark -> System Auto
                       Tooltip(
                         message: themeState.mode == ThemeMode.light
                             ? strings.drawerThemeLightTip
@@ -338,7 +306,6 @@ class AppDrawer extends ConsumerWidget {
                         ),
                       ),
                       const SizedBox(width: 6),
-                      // Language selector
                       Flexible(
                         child: Container(
                           padding: const EdgeInsets.symmetric(
@@ -396,10 +363,7 @@ class AppDrawer extends ConsumerWidget {
                       ),
                     ],
                   ),
-
-                  const SizedBox(height: AppSpacing.md),
-
-                  // Sign-out button
+                  const SizedBox(height: AppSpacing.xs),
                   InkWell(
                     onTap: () async {
                       Navigator.of(context).pop();
@@ -412,25 +376,24 @@ class AppDrawer extends ConsumerWidget {
                       ref.read(appStateProvider.notifier).logout();
                     },
                     borderRadius: AppRadius.rMd,
-                    child: Container(
-                      width: double.infinity,
+                    child: Padding(
                       padding: const EdgeInsetsDirectional.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: AppSpacing.sm,
+                        horizontal: AppSpacing.sm,
+                        vertical: AppSpacing.xs,
                       ),
                       child: Row(
                         children: [
                           FaIcon(
                             FontAwesomeIcons.rightFromBracket,
-                            size: 15,
+                            size: 14,
                             color: colors.orColor,
                           ),
                           const SizedBox(width: AppSpacing.md),
                           Text(
                             strings.mOut,
                             style: TextStyle(
-                              fontFamily: 'Vazirmatn',
-                              fontSize: 14,
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: colors.orColor,
                             ),
@@ -443,6 +406,296 @@ class AppDrawer extends ConsumerWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Zone 1: Interactive Profile Identity Card ─────────────────────────────────
+
+class _DrawerProfileCard extends ConsumerWidget {
+  const _DrawerProfileCard();
+
+  String _localizedRank(AppStrings strings, String rank) {
+    switch (rank.toLowerCase()) {
+      case 'silver':
+        return strings.rankSilver;
+      case 'gold':
+        return strings.rankGold;
+      case 'diamond':
+        return strings.rankDiamond;
+      default:
+        return strings.rankBronze;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final strings = context.strings;
+    final (
+      userName,
+      avatarUrl,
+      gender,
+      isKycVerified,
+      loyaltyRank,
+      stylePoints,
+      progress,
+    ) = ref.watch(
+      appStateProvider.select(
+        (s) => (
+          s.userName,
+          s.effectiveAvatarUrl,
+          s.aiDnaValues['gender'] ?? 'female',
+          s.kycData.isVerified,
+          s.loyaltyRank,
+          s.stylePoints,
+          s.profileProgress,
+        ),
+      ),
+    );
+    final isEmailVerified = ref.watch(
+      emailVerificationProvider.select((s) => s.isVerified),
+    );
+
+    User? user;
+    try {
+      if (Firebase.apps.isNotEmpty) {
+        user = FirebaseAuth.instance.currentUser;
+      }
+    } catch (_) {}
+
+    final isVerified = isKycVerified || isEmailVerified;
+    final displayName = userName.isNotEmpty
+        ? strings.tr(userName)
+        : (user?.displayName ??
+              (user?.email?.split('@').first ?? strings.newUser));
+    final rankLabel = _localizedRank(strings, loyaltyRank);
+    final rankColor = LoyaltyRankExtension.fromString(loyaltyRank).color;
+    final pointsText = strings.formatNumber(stylePoints);
+    final percentText = strings.formatPercent((progress * 100).round());
+
+    return Material(
+      color: colors.bg,
+      borderRadius: AppRadius.rLg,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).pop();
+          ref.read(appStateProvider.notifier).switchProfileTab('p-identity');
+        },
+        borderRadius: AppRadius.rLg,
+        child: Container(
+          padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
+          decoration: BoxDecoration(
+            borderRadius: AppRadius.rLg,
+            border: Border.all(color: colors.bd),
+          ),
+          child: Row(
+            children: [
+              // Avatar with loyalty ring
+              Container(
+                width: 44,
+                height: 44,
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: rankColor, width: 1.8),
+                ),
+                child: ClipOval(
+                  child: avatarUrl != null && avatarUrl.isNotEmpty
+                      ? AppMediaImage(
+                          avatarUrl,
+                          fit: BoxFit.cover,
+                          width: 40,
+                          height: 40,
+                          errorBuilder: (_, _, _) =>
+                              Gender3dAvatar(gender: gender),
+                        )
+                      : Gender3dAvatar(gender: gender),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+
+              // Name, Tier + Points, Progress Bar
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            displayName,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: colors.tx,
+                            ),
+                          ),
+                        ),
+                        if (isVerified) ...[
+                          const SizedBox(width: 4),
+                          FaIcon(
+                            FontAwesomeIcons.circleCheck,
+                            size: 11,
+                            color: isKycVerified ? colors.ok : colors.inColor,
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$rankLabel • $pointsText ${strings.pts}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: AppTypography.fontFamily,
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                        color: colors.mu,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: AppRadius.rFull,
+                            child: LinearProgressIndicator(
+                              value: progress.clamp(0.0, 1.0),
+                              minHeight: 4,
+                              backgroundColor: colors.bd,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                colors.pr,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        Text(
+                          percentText,
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            color: colors.tx,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xxs),
+              Icon(Icons.chevron_right_rounded, size: 18, color: colors.mu),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ── Zone 2: Compact Wallet & Plan Card ────────────────────────────────────────
+
+class _DrawerWalletCard extends ConsumerWidget {
+  const _DrawerWalletCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final strings = context.strings;
+
+    return Material(
+      color: colors.bg,
+      borderRadius: AppRadius.rMd,
+      child: InkWell(
+        onTap: () {
+          Navigator.of(context).pop();
+          ref.read(appStateProvider.notifier).switchProfileTab('p-wallet');
+        },
+        borderRadius: AppRadius.rMd,
+        child: Container(
+          padding: const EdgeInsetsDirectional.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: AppSpacing.sm,
+          ),
+          decoration: BoxDecoration(
+            borderRadius: AppRadius.rMd,
+            border: Border.all(color: colors.bd),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: colors.pr.withValues(alpha: 0.1),
+                  borderRadius: AppRadius.rSm,
+                ),
+                child: Center(
+                  child: FaIcon(
+                    FontAwesomeIcons.wallet,
+                    size: 13,
+                    color: colors.pr,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  strings.tWal,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    color: colors.tx,
+                  ),
+                ),
+              ),
+              AppBadge(
+                size: AppBadgeSize.sm,
+                child: Text(strings.commonComingSoon),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DrawerSectionLabel extends StatelessWidget {
+  final String label;
+
+  const _DrawerSectionLabel({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(
+        start: AppSpacing.xs,
+        top: AppSpacing.xxs,
+        bottom: AppSpacing.xxs,
+      ),
+      child: Text(
+        label,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontFamily: AppTypography.fontFamily,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
+          color: colors.mu,
         ),
       ),
     );
@@ -463,7 +716,7 @@ class _DrawerModeSwitcher extends ConsumerWidget {
     );
 
     return Container(
-      margin: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
+      margin: const EdgeInsetsDirectional.only(bottom: AppSpacing.xs),
       padding: const EdgeInsets.all(3),
       decoration: BoxDecoration(
         color: colors.bg,
@@ -571,7 +824,6 @@ class _DrawerModeSwitcher extends ConsumerWidget {
 class _DrawerItem extends StatelessWidget {
   final FaIconData icon;
   final String title;
-  final Widget? trailing;
   final String? badgeText;
   final VoidCallback? onTap;
   final bool enabled;
@@ -579,7 +831,6 @@ class _DrawerItem extends StatelessWidget {
   const _DrawerItem({
     required this.icon,
     required this.title,
-    this.trailing,
     this.badgeText,
     this.onTap,
     this.enabled = true,
@@ -590,34 +841,35 @@ class _DrawerItem extends StatelessWidget {
     final colors = context.colors;
 
     return Opacity(
-      opacity: enabled ? 1.0 : 0.5,
+      opacity: enabled ? 1.0 : 0.55,
       child: InkWell(
         onTap: enabled ? onTap : null,
         borderRadius: AppRadius.rMd,
         child: Padding(
           padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.md,
+            horizontal: AppSpacing.sm,
+            vertical: AppSpacing.sm,
           ),
           child: Row(
             children: [
               SizedBox(
                 width: 20,
-                child: FaIcon(icon, size: 15, color: colors.mu),
+                child: FaIcon(icon, size: 14, color: colors.mu),
               ),
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: Text(
                   title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontFamily: 'Vazirmatn',
-                    fontSize: 14,
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: colors.tx,
                   ),
                 ),
               ),
-              ?trailing,
               if (badgeText != null)
                 AppBadge(size: AppBadgeSize.sm, child: Text(badgeText!)),
             ],

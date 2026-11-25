@@ -207,6 +207,8 @@ class AppStrings {
   String get mAbout => get('mAbout');
   String get mHelp => get('mHelp');
   String get mSupport => get('mSupport');
+  String get drawerSectionActivity => get('drawerSectionActivity');
+  String get drawerSectionAppSupport => get('drawerSectionAppSupport');
   String get mOut => get('mOut');
   String get pcT => get('pcT');
   String get tIdent => get('tIdent');

@@ -41,6 +41,8 @@ final Map<String, String> stringsFa = {
   'mHist': 'تاریخچه پرو مجازی',
   'mSaved': 'ست‌های ذخیره‌شده',
   'mOrders': 'سفارش‌ها',
+  'drawerSectionActivity': 'فعالیت‌های من',
+  'drawerSectionAppSupport': 'برنامه و پشتیبانی',
   'mAbout': 'درباره ما',
   'mHelp': 'راهنمایی و پشتیبانی',
   'mSupport': 'پشتیبانی و راهنما',

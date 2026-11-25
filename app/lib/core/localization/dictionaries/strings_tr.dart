@@ -41,6 +41,8 @@ final Map<String, String> stringsTr = {
   'mHist': 'Deneme geçmişi',
   'mSaved': 'Kayıtlı kombinler',
   'mOrders': 'Siparişler',
+  'drawerSectionActivity': 'Etkinliklerim',
+  'drawerSectionAppSupport': 'Uygulama ve Destek',
   'mAbout': 'Hakkımızda',
   'mHelp': 'Yardım ve Destek',
   'mSupport': 'Destek ve Yardım',

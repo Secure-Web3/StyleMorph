@@ -158,7 +158,7 @@ void main() {
     });
 
     testWidgets(
-      'Temporarily disabled tabs (Wellness, Stylist, Atelier, Shop) ignore tap events while Wardrobe works',
+      'All 5 bottom-nav tabs (Wardrobe, Wellness, Stylist, Atelier, Shop) are unlocked and switch cleanly',
       (tester) async {
         await tester.binding.setSurfaceSize(const Size(430, 932));
         addTearDown(() => tester.binding.setSurfaceSize(null));
@@ -174,39 +174,35 @@ void main() {
         // Initial tab is Profile
         expect(container.read(appStateProvider).currentTab, AppTab.profile);
 
-        // Tapping disabled tab 'تندرستی' (Wellness) does NOT change tab
+        // Tapping 'تندرستی' (Wellness) switches to Wellness
         await tester.tap(
           find.descendant(of: nav, matching: find.text('تندرستی')),
-          warnIfMissed: false,
         );
         await tester.pumpAndSettle();
-        expect(container.read(appStateProvider).currentTab, AppTab.profile);
+        expect(container.read(appStateProvider).currentTab, AppTab.wellness);
 
-        // Tapping disabled tab 'استایلیست' (Stylist) does NOT change tab
+        // Tapping 'استایلیست' (Stylist) switches to Stylist
         await tester.tap(
           find.descendant(of: nav, matching: find.text('استایلیست')),
-          warnIfMissed: false,
         );
         await tester.pumpAndSettle();
-        expect(container.read(appStateProvider).currentTab, AppTab.profile);
+        expect(container.read(appStateProvider).currentTab, AppTab.stylist);
 
-        // Tapping disabled tab 'آتلیه' (Atelier) does NOT change tab
+        // Tapping 'آتلیه' (Atelier) switches to Atelier
         await tester.tap(
           find.descendant(of: nav, matching: find.text('آتلیه')),
-          warnIfMissed: false,
         );
         await tester.pumpAndSettle();
-        expect(container.read(appStateProvider).currentTab, AppTab.profile);
+        expect(container.read(appStateProvider).currentTab, AppTab.atelier);
 
-        // Tapping disabled tab 'فروشگاه' (Shop) does NOT change tab
+        // Tapping 'فروشگاه' (Shop) switches to Shop
         await tester.tap(
           find.descendant(of: nav, matching: find.text('فروشگاه')),
-          warnIfMissed: false,
         );
         await tester.pumpAndSettle();
-        expect(container.read(appStateProvider).currentTab, AppTab.profile);
+        expect(container.read(appStateProvider).currentTab, AppTab.shop);
 
-        // Tapping active tab 'کمد' (Wardrobe) DOES change tab
+        // Tapping 'کمد' (Wardrobe) switches to Wardrobe
         await tester.tap(find.descendant(of: nav, matching: find.text('کمد')));
         await tester.pumpAndSettle();
         expect(container.read(appStateProvider).currentTab, AppTab.wardrobe);
@@ -273,12 +269,12 @@ void main() {
         await tester.tap(avatarInkWell);
         await tester.pumpAndSettle();
 
-        // Drawer is now open with navigation items
+        // Drawer is now open with Profile Identity Card (no redundant Referral item)
         expect(find.byType(Drawer), findsOneWidget);
         expect(
           find.descendant(
             of: find.byType(Drawer),
-            matching: find.text('پروفایل'),
+            matching: find.text('سارا احمدی'),
           ),
           findsOneWidget,
         );
@@ -287,21 +283,21 @@ void main() {
             of: find.byType(Drawer),
             matching: find.text('رفرال'),
           ),
-          findsOneWidget,
+          findsNothing,
         );
 
-        // Tap Rewards in Drawer -> switches to Profile referral sub-tab
+        // Tap Profile Identity Card in Drawer -> switches to Profile identity sub-tab
         await tester.tap(
           find.descendant(
             of: find.byType(Drawer),
-            matching: find.text('رفرال'),
+            matching: find.text('سارا احمدی'),
           ),
         );
         await tester.pumpAndSettle();
         expect(container.read(appStateProvider).currentTab, AppTab.profile);
         expect(
           container.read(appStateProvider).currentProfileTab,
-          'p-referral',
+          'p-identity',
         );
       },
     );
@@ -775,18 +771,14 @@ void main() {
         expect(find.text('Virtual Wardrobe'), findsOneWidget);
         expect(find.text('کمد مجازی'), findsNothing);
 
-        // Disabled tabs such as Shop are translated to English in Nav but cannot be switched into
+        // Unlocked Shop tab is translated to English in Nav and switches cleanly
         expect(
           find.descendant(of: nav, matching: find.text('Shop')),
           findsOneWidget,
         );
-        await tester.tap(
-          find.descendant(of: nav, matching: find.text('Shop')),
-          warnIfMissed: false,
-        );
+        await tester.tap(find.descendant(of: nav, matching: find.text('Shop')));
         await tester.pumpAndSettle();
-        expect(container.read(appStateProvider).currentTab, AppTab.wardrobe);
-        expect(find.text('Virtual Wardrobe'), findsOneWidget);
+        expect(container.read(appStateProvider).currentTab, AppTab.shop);
       },
     );
 

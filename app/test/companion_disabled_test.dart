@@ -163,67 +163,50 @@ void main() {
       },
     );
 
-    testWidgets(
-      'AppDrawer displays Companion item with Coming Soon badge and disabled state',
-      (tester) async {
-        await tester.binding.setSurfaceSize(const Size(800, 1200));
-        addTearDown(() => tester.binding.setSurfaceSize(null));
+    testWidgets('AppDrawer no longer displays redundant Companion item', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(800, 1200));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
 
-        final state = const AppState(
-          currentTab: AppTab.profile,
-          currentProfileTab: 'p-identity',
-        );
-        final scaffoldKey = GlobalKey<ScaffoldState>();
+      final state = const AppState(
+        currentTab: AppTab.profile,
+        currentProfileTab: 'p-identity',
+      );
+      final scaffoldKey = GlobalKey<ScaffoldState>();
 
-        await tester.pumpWidget(
-          ProviderScope(
-            overrides: [
-              appStateProvider.overrideWith(
-                (ref) => _TestAppStateNotifier(state),
-              ),
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            appStateProvider.overrideWith(
+              (ref) => _TestAppStateNotifier(state),
+            ),
+          ],
+          child: MaterialApp(
+            theme: testTheme,
+            locale: const Locale('fa'),
+            supportedLocales: const [Locale('fa'), Locale('en')],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
             ],
-            child: MaterialApp(
-              theme: testTheme,
-              locale: const Locale('fa'),
-              supportedLocales: const [Locale('fa'), Locale('en')],
-              localizationsDelegates: const [
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
-                GlobalCupertinoLocalizations.delegate,
-              ],
-              home: Scaffold(
-                key: scaffoldKey,
-                drawer: const AppDrawer(),
-                body: const SizedBox(),
-              ),
+            home: Scaffold(
+              key: scaffoldKey,
+              drawer: const AppDrawer(),
+              body: const SizedBox(),
             ),
           ),
-        );
-        await tester.pumpAndSettle();
+        ),
+      );
+      await tester.pumpAndSettle();
 
-        // Open the drawer
-        scaffoldKey.currentState!.openDrawer();
-        await tester.pumpAndSettle();
+      // Open the drawer
+      scaffoldKey.currentState!.openDrawer();
+      await tester.pumpAndSettle();
 
-        // Verify Companion item title and "به زودی" badge are visible in Drawer
-        final companionTextFinder = find.text('شخصیت همراه');
-        expect(companionTextFinder, findsOneWidget);
-
-        final comingSoonFinder = find.text('به زودی');
-        expect(comingSoonFinder, findsWidgets);
-
-        // Tap on Companion drawer item
-        await tester.tap(companionTextFinder, warnIfMissed: false);
-        await tester.pumpAndSettle();
-
-        // Verify state has not changed to 'p-companion'
-        final element = tester.element(find.byType(AppDrawer));
-        final container = ProviderScope.containerOf(element);
-        expect(
-          container.read(appStateProvider).currentProfileTab,
-          'p-identity',
-        );
-      },
-    );
+      // Companion is no longer duplicated in AppDrawer (lives in Profile sidebar)
+      expect(find.text('شخصیت همراه'), findsNothing);
+    });
   });
 }
