@@ -192,7 +192,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                         text: strings.authGetStarted,
                         onPressed: () {
                           ref.read(hasSeenWelcomeProvider.notifier).markSeen();
-                          Navigator.of(context).pushReplacement(
+                          Navigator.of(context).push(
                             MaterialPageRoute(
                               builder: (_) => const AuthScreen(),
                             ),

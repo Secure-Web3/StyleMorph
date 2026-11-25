@@ -41,7 +41,8 @@ service cloud.firestore {
     }
 
     function hasValidSessionOnSelf() {
-      return !('activeDeviceId' in resource.data)
+      return resource == null
+        || !('activeDeviceId' in resource.data)
         || resource.data.activeDeviceId == null
         || (
           'activeDeviceId' in request.auth.token
