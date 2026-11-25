@@ -147,7 +147,7 @@ void main() {
   );
 
   group('Batch C - UnifiedSplashScreen Rendering', () {
-    testWidgets('Renders dark background and SM branding correctly', (
+    testWidgets('Renders obsidian background and official sm_logo asset', (
       tester,
     ) async {
       await tester.pumpWidget(
@@ -155,11 +155,11 @@ void main() {
       );
       await tester.pump();
 
-      expect(find.text('STYLEMORPH'), findsOneWidget);
-      expect(find.text('HAUTE COUTURE & AI STYLING'), findsOneWidget);
+      expect(find.byType(Image), findsNWidgets(2));
+      expect(find.byType(CircularProgressIndicator), findsNothing);
 
       final scaffold = tester.widget<Scaffold>(find.byType(Scaffold));
-      expect(scaffold.backgroundColor, const Color(0xFF12100E));
+      expect(scaffold.backgroundColor, const Color(0xFF0D0D0F));
     });
   });
 

@@ -33,12 +33,75 @@
   <link rel="manifest" href="manifest.json">
   <style>
     html, body {
-      background-color: #12100E;
+      background-color: #0D0D0F;
       margin: 0;
       padding: 0;
       height: 100%;
       width: 100%;
       overflow: hidden;
+    }
+
+    #sm-pre-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #0D0D0F;
+      transition: opacity 260ms ease-out;
+      pointer-events: none;
+    }
+
+    #sm-pre-splash.sm-hidden {
+      opacity: 0;
+    }
+
+    .sm-splash-logo-wrap {
+      position: relative;
+      width: 180px;
+      height: 180px;
+      overflow: hidden;
+      -webkit-mask-image: radial-gradient(circle, #000 0%, #000 68%, transparent 98%);
+      mask-image: radial-gradient(circle, #000 0%, #000 68%, transparent 98%);
+    }
+
+    .sm-splash-logo-wrap img {
+      display: block;
+      width: 180px;
+      height: 180px;
+      object-fit: contain;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .sm-splash-logo-wrap::after {
+      content: "";
+      position: absolute;
+      inset: -40%;
+      background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0) 32%,
+        rgba(184, 134, 11, 0.25) 42%,
+        rgba(255, 217, 125, 0.55) 48%,
+        rgba(255, 246, 214, 0.70) 50%,
+        rgba(255, 217, 125, 0.55) 52%,
+        rgba(184, 134, 11, 0.25) 58%,
+        rgba(0, 0, 0, 0) 68%
+      );
+      mix-blend-mode: color-dodge;
+      transform: translate3d(-65%, -65%, 0);
+      animation: smGoldSheen 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+      pointer-events: none;
+    }
+
+    @keyframes smGoldSheen {
+      0% {
+        transform: translate3d(-65%, -65%, 0);
+      }
+      72%, 100% {
+        transform: translate3d(65%, 65%, 0);
+      }
     }
   </style>
   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
@@ -111,6 +174,25 @@
   </script>
 </head>
 <body>
+  <div id="sm-pre-splash" aria-hidden="true">
+    <div class="sm-splash-logo-wrap">
+      <img src="icons/splash_logo.png" alt="StyleMorph" width="180" height="180" />
+    </div>
+  </div>
+  <script>
+    (function () {
+      function hidePreSplash() {
+        var el = document.getElementById('sm-pre-splash');
+        if (!el) return;
+        el.classList.add('sm-hidden');
+        setTimeout(function () {
+          if (el && el.parentNode) el.parentNode.removeChild(el);
+        }, 300);
+      }
+      window.addEventListener('flutter-first-frame', hidePreSplash, { once: true });
+      setTimeout(hidePreSplash, 12000);
+    })();
+  </script>
   <!--
     Unregister any active Flutter service workers and purge stale PWA caches
     before loading the app. This prevents users from being stuck on an outdated

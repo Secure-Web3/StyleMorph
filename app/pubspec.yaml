@@ -41,6 +41,7 @@ flutter:
   assets:
     - assets/images/
     - assets/images/avatars/
+    - assets/images/brand/
 
   fonts:
     - family: Vazirmatn
