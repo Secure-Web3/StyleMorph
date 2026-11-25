@@ -26,10 +26,10 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="StyleMorph">
   <meta name="theme-color" content="#0D0D0F">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <link rel="apple-touch-icon" href="icons/sm-icon-192.png?v=3">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" type="image/png" href="sm-favicon.png?v=3"/>
 
   <title>stylemorph</title>
   <link rel="manifest" href="manifest.json">
@@ -61,48 +61,51 @@
 
     .sm-splash-logo-wrap {
       position: relative;
-      width: 180px;
-      height: 180px;
-      overflow: hidden;
-      -webkit-mask-image: radial-gradient(circle, #000 0%, #000 68%, transparent 98%);
-      mask-image: radial-gradient(circle, #000 0%, #000 68%, transparent 98%);
+      width: 168px;
+      height: 168px;
     }
 
     .sm-splash-logo-wrap img {
       display: block;
-      width: 180px;
-      height: 180px;
+      width: 168px;
+      height: 168px;
       object-fit: contain;
+      opacity: 0.92;
       user-select: none;
       -webkit-user-drag: none;
     }
 
-    .sm-splash-logo-wrap::after {
-      content: "";
+    .sm-splash-sheen {
       position: absolute;
-      inset: -40%;
-      background: linear-gradient(
-        135deg,
-        rgba(0, 0, 0, 0) 32%,
-        rgba(184, 134, 11, 0.25) 42%,
-        rgba(255, 217, 125, 0.55) 48%,
-        rgba(255, 246, 214, 0.70) 50%,
-        rgba(255, 217, 125, 0.55) 52%,
-        rgba(184, 134, 11, 0.25) 58%,
-        rgba(0, 0, 0, 0) 68%
-      );
-      mix-blend-mode: color-dodge;
-      transform: translate3d(-65%, -65%, 0);
-      animation: smGoldSheen 2.2s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+      inset: 0;
       pointer-events: none;
+      -webkit-mask-image: url('icons/sm_splash_transparent.png?v=3');
+      mask-image: url('icons/sm_splash_transparent.png?v=3');
+      -webkit-mask-size: contain;
+      mask-size: contain;
+      -webkit-mask-repeat: no-repeat;
+      mask-repeat: no-repeat;
+      -webkit-mask-position: center;
+      mask-position: center;
+      background-image: linear-gradient(
+        125deg,
+        transparent 32%,
+        rgba(212, 175, 55, 0.45) 43%,
+        rgba(255, 244, 200, 0.95) 50%,
+        rgba(212, 175, 55, 0.45) 57%,
+        transparent 68%
+      );
+      background-size: 260% 260%;
+      background-position: 0% 0%;
+      animation: smGoldSheen 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     }
 
     @keyframes smGoldSheen {
       0% {
-        transform: translate3d(-65%, -65%, 0);
+        background-position: 0% 0%;
       }
       72%, 100% {
-        transform: translate3d(65%, 65%, 0);
+        background-position: 100% 100%;
       }
     }
   </style>
@@ -178,7 +181,8 @@
 <body>
   <div id="sm-pre-splash" aria-hidden="true">
     <div class="sm-splash-logo-wrap">
-      <img src="icons/splash_logo.png" alt="StyleMorph" width="180" height="180" />
+      <img src="icons/sm_splash_transparent.png?v=3" alt="StyleMorph" width="168" height="168" />
+      <div class="sm-splash-sheen"></div>
     </div>
   </div>
   <script>

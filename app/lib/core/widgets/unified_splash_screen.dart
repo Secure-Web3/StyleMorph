@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 /// Official matte obsidian background color sampled from `sm_logo.png`.
 const Color kSplashObsidianBackground = Color(0xFF0D0D0F);
 
-/// Unified luxury dark obsidian splash screen featuring the official `sm_logo.png`
-/// centered on `#0D0D0F` with a continuous diagonal metallic gold sheen sweep.
+/// Unified luxury dark obsidian splash screen featuring the transparent
+/// `sm_logo_transparent.png` centered at 168×168 on `#0D0D0F` with a clipped
+/// diagonal metallic gold sheen sweep.
 class UnifiedSplashScreen extends StatefulWidget {
   final bool animate;
 
@@ -16,37 +17,12 @@ class UnifiedSplashScreen extends StatefulWidget {
 
 class _UnifiedSplashScreenState extends State<UnifiedSplashScreen>
     with SingleTickerProviderStateMixin {
-  static const String _logoAsset = 'assets/images/brand/sm_logo.png';
-  static const double _logoSize = 180.0;
+  static const String _logoAsset =
+      'assets/images/brand/sm_logo_transparent.png';
+  static const double _logoSize = 168.0;
 
   late final AnimationController _controller;
   late final Animation<double> _sheenProgress;
-
-  /// Isolates only the gold monogram/star strokes by mapping dark obsidian
-  /// background pixels (`R,G,B <= 42`) to full transparency (`alpha = 0`),
-  /// preventing any square box flash during the diagonal sheen sweep.
-  static const ColorFilter _goldStrokeIsolator = ColorFilter.matrix(<double>[
-    1.35,
-    0.0,
-    0.0,
-    0.0,
-    -45.0,
-    0.0,
-    1.35,
-    0.0,
-    0.0,
-    -45.0,
-    0.0,
-    0.0,
-    1.35,
-    0.0,
-    -45.0,
-    0.9,
-    0.9,
-    0.0,
-    0.0,
-    -80.0,
-  ]);
 
   @override
   void initState() {
@@ -100,16 +76,25 @@ class _UnifiedSplashScreenState extends State<UnifiedSplashScreen>
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Base layer: official sm_logo.png with soft outer edge feathering
-              // so its dark corners blend seamlessly into #0D0D0F.
-              ShaderMask(
-                blendMode: BlendMode.dstIn,
-                shaderCallback: (Rect bounds) {
-                  return const RadialGradient(
-                    colors: [Colors.white, Colors.white, Colors.transparent],
-                    stops: [0.0, 0.68, 0.98],
-                  ).createShader(bounds);
-                },
+              // Ultra-soft radial champagne ambient glow seamlessly fading into #0D0D0F.
+              Container(
+                width: _logoSize,
+                height: _logoSize,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [
+                      const Color(0xFFD4AF37).withValues(alpha: 0.06),
+                      Colors.transparent,
+                    ],
+                    stops: const [0.0, 0.75],
+                  ),
+                ),
+              ),
+
+              // Base layer: true transparent RGBA SM monogram & star.
+              Opacity(
+                opacity: 0.92,
                 child: Image.asset(
                   _logoAsset,
                   width: _logoSize,
@@ -119,47 +104,38 @@ class _UnifiedSplashScreenState extends State<UnifiedSplashScreen>
                 ),
               ),
 
-              // Overlay layer: diagonal metallic champagne-gold sheen sweeping
-              // exclusively across the illuminated gold strokes.
+              // Sheen overlay: clipped strictly to non-transparent logo pixels via
+              // BlendMode.srcIn so the #0D0D0F background is never touched.
               AnimatedBuilder(
                 animation: _sheenProgress,
                 builder: (context, child) {
                   final t = _sheenProgress.value;
-                  // Sweep diagonally from top-left (-1.8) to bottom-right (+1.8).
-                  final centerShift = -1.8 + (3.6 * t);
+                  final shift = -1.6 + (3.2 * t);
                   return ShaderMask(
-                    blendMode: BlendMode.modulate,
+                    blendMode: BlendMode.srcIn,
                     shaderCallback: (Rect bounds) {
                       return LinearGradient(
-                        begin: Alignment(
-                          centerShift - 0.65,
-                          centerShift - 0.65,
-                        ),
-                        end: Alignment(centerShift + 0.65, centerShift + 0.65),
+                        begin: Alignment(shift - 0.65, shift - 0.65),
+                        end: Alignment(shift + 0.65, shift + 0.65),
                         colors: const [
                           Colors.transparent,
-                          Color(0x66B8860B),
-                          Color(0xDDFFD97D),
-                          Color(0xFFFFF6D6),
-                          Color(0xDDFFD97D),
-                          Color(0x66B8860B),
+                          Color(0x66D4AF37),
+                          Color(0xF5FFF6D1),
+                          Color(0x66D4AF37),
                           Colors.transparent,
                         ],
-                        stops: const [0.0, 0.22, 0.40, 0.50, 0.60, 0.78, 1.0],
+                        stops: const [0.0, 0.25, 0.50, 0.75, 1.0],
                       ).createShader(bounds);
                     },
                     child: child,
                   );
                 },
-                child: ColorFiltered(
-                  colorFilter: _goldStrokeIsolator,
-                  child: Image.asset(
-                    _logoAsset,
-                    width: _logoSize,
-                    height: _logoSize,
-                    fit: BoxFit.contain,
-                    gaplessPlayback: true,
-                  ),
+                child: Image.asset(
+                  _logoAsset,
+                  width: _logoSize,
+                  height: _logoSize,
+                  fit: BoxFit.contain,
+                  gaplessPlayback: true,
                 ),
               ),
             ],

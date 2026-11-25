@@ -22,10 +22,13 @@ void main() {
         expect(images.length, 2);
         for (final img in images) {
           final provider = img.image as AssetImage;
-          expect(provider.assetName, 'assets/images/brand/sm_logo.png');
+          expect(
+            provider.assetName,
+            'assets/images/brand/sm_logo_transparent.png',
+          );
           expect(img.gaplessPlayback, isTrue);
-          expect(img.width, 180.0);
-          expect(img.height, 180.0);
+          expect(img.width, 168.0);
+          expect(img.height, 168.0);
         }
 
         final center = tester.getCenter(find.byType(SizedBox).first);
@@ -46,7 +49,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 600));
         await tester.pump(const Duration(milliseconds: 500));
 
-        expect(find.byType(ShaderMask), findsNWidgets(2));
+        expect(find.byType(ShaderMask), findsOneWidget);
         expect(tester.takeException(), isNull);
 
         // Unmount and verify clean disposal with zero pending timers.
