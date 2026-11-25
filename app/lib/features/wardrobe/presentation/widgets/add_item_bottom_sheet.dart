@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
+import '../../../../core/ai/ai_verification_models.dart';
+import '../../../../core/ai/ai_verification_service.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/services/storage/media_storage_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/ai_review_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_chip.dart';
 import '../../../../core/widgets/app_dropdown.dart';
@@ -133,6 +136,8 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
 
   bool _photoError = false;
   bool _isSaving = false;
+  AiVerificationStatus? _aiStatus;
+  List<AiVerificationIssueCode> _aiIssues = const [];
 
   static const _catOptions = [
     'tops',
@@ -223,6 +228,31 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
       );
       if (picked != null) {
         final bytes = await picked.readAsBytes();
+        final mime = picked.mimeType ?? picked.name;
+        final result = await AiVerificationService().verifyWardrobeGarment(
+          bytes: bytes,
+          fileNameOrMime: mime,
+          category: _selectedCat,
+        );
+        if (!mounted) return;
+        if (result.isRejected) {
+          // Abort immediately: never overwrite existing item photo with invalid file.
+          final reason = result.issues.isNotEmpty
+              ? AiReviewBadge.localizeIssue(
+                  context.strings,
+                  result.issues.first,
+                )
+              : null;
+          setState(() {
+            _aiStatus = result.status;
+            _aiIssues = result.issues;
+          });
+          AppToast.showError(
+            context,
+            reason ?? context.strings.aiStatusRejected,
+          );
+          return;
+        }
         setState(() {
           if (slot == 0) {
             _imageBytes = bytes;
@@ -235,6 +265,8 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
             _angle3Bytes = bytes;
             _angle3MimeType = picked.mimeType ?? 'image/jpeg';
           }
+          _aiStatus = result.status;
+          _aiIssues = result.issues;
         });
       }
     } catch (_) {}
@@ -827,6 +859,23 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                     ),
             ),
           ),
+          if (_aiStatus != null ||
+              (isEditMode &&
+                  (effectiveEditItem?.aiVerificationStatus.isNotEmpty ??
+                      false))) ...[
+            const SizedBox(height: AppSpacing.xs),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: AiReviewBadge(
+                status:
+                    _aiStatus ??
+                    AiVerificationStatus.fromWireValue(
+                      effectiveEditItem!.aiVerificationStatus,
+                    ),
+                issues: _aiIssues,
+              ),
+            ),
+          ],
           if (_photoError) ...[
             const SizedBox(height: 4),
             Text(

@@ -21,6 +21,7 @@ class WardrobeItem {
   final String imageHash; // 64-character SHA-256
   final String
   aiGarmentZone; // e.g. 'upper_body','lower_body','full_body','outerwear','footwear','bag','accessory'
+  final String aiVerificationStatus;
   final List<String>
   imageUrls; // Up to 3 frames/angles: primary + optional 2 angles
   final DateTime? createdAt;
@@ -44,6 +45,7 @@ class WardrobeItem {
     this.originalUrl = '',
     this.imageHash = '',
     String? aiGarmentZone,
+    this.aiVerificationStatus = 'pending_ai',
     List<String>? imageUrls,
     this.createdAt,
     this.updatedAt,
@@ -125,6 +127,7 @@ class WardrobeItem {
     String? originalUrl,
     String? imageHash,
     String? aiGarmentZone,
+    String? aiVerificationStatus,
     List<String>? imageUrls,
     DateTime? createdAt,
     DateTime? updatedAt,
@@ -146,6 +149,7 @@ class WardrobeItem {
       originalUrl: originalUrl ?? this.originalUrl,
       imageHash: imageHash ?? this.imageHash,
       aiGarmentZone: aiGarmentZone ?? this.aiGarmentZone,
+      aiVerificationStatus: aiVerificationStatus ?? this.aiVerificationStatus,
       imageUrls: imageUrls ?? this.imageUrls,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -169,6 +173,7 @@ class WardrobeItem {
       'originalUrl': originalUrl,
       'imageHash': imageHash,
       'aiGarmentZone': canonicalGarmentZone,
+      'aiVerificationStatus': aiVerificationStatus,
       'imageUrls': effectiveImageUrls,
       if (createdAt != null)
         'createdAt': Timestamp.fromDate(createdAt!)
@@ -228,6 +233,10 @@ class WardrobeItem {
       originalUrl: orig,
       imageHash: (data['imageHash'] ?? '') as String,
       aiGarmentZone: zone.isNotEmpty ? zone : deriveGarmentZone(itemCategory),
+      aiVerificationStatus:
+          (data['aiVerificationStatus'] as String?)?.isNotEmpty == true
+          ? data['aiVerificationStatus'] as String
+          : 'pending_ai',
       imageUrls: effectiveImages,
       createdAt: parseDate(data['createdAt']),
       updatedAt: parseDate(data['updatedAt']),

@@ -162,6 +162,8 @@ class AiVerificationService {
           'sha256Hash': hash,
           'mimeType': resolvedMime,
           'fileSizeBytes': bytes.length,
+          if (contextHint != null && contextHint.isNotEmpty)
+            'slotContext': contextHint,
           if (!isVideo && bytes.length <= 2 * 1024 * 1024)
             'imageBase64': base64Encode(bytes),
         };
@@ -177,10 +179,24 @@ class AiVerificationService {
         if (response.statusCode == 200) {
           final decoded = jsonDecode(response.body);
           if (decoded is Map<String, dynamic>) {
-            final result = AiVerificationResult.fromJson(
+            final parsed = AiVerificationResult.fromJson(
               decoded,
               fallbackHash: hash,
             );
+            // Never claim green AI Verified when the result is simulated.
+            final result =
+                parsed.isSimulated &&
+                    parsed.status == AiVerificationStatus.approved
+                ? AiVerificationResult(
+                    status: AiVerificationStatus.pendingAi,
+                    confidenceScore: 0.0,
+                    sha256Hash: parsed.sha256Hash,
+                    issues: parsed.issues,
+                    suggestedTags: parsed.suggestedTags,
+                    checkedAt: parsed.checkedAt,
+                    isSimulated: true,
+                  )
+                : parsed;
             _cache[cacheKey] = result;
             return result;
           }
@@ -235,33 +251,13 @@ class AiVerificationService {
     String? contextHint,
   }) {
     final tags = <String>[];
-    double score = 0.93;
-
-    switch (target) {
-      case AiVerificationTarget.kycDocument:
-        score = 0.94;
-        if (contextHint != null && contextHint.isNotEmpty) {
-          tags.add(contextHint);
-        }
-        break;
-      case AiVerificationTarget.profileMedia:
-        score = 0.92;
-        if (contextHint != null && contextHint.isNotEmpty) {
-          tags.add(contextHint);
-        }
-        break;
-      case AiVerificationTarget.wardrobeGarment:
-        score = 0.95;
-        tags.add('garment_verified');
-        if (contextHint != null && contextHint.isNotEmpty) {
-          tags.add(contextHint);
-        }
-        break;
+    if (contextHint != null && contextHint.isNotEmpty) {
+      tags.add(contextHint);
     }
 
     return AiVerificationResult(
-      status: AiVerificationStatus.approved,
-      confidenceScore: score,
+      status: AiVerificationStatus.pendingAi,
+      confidenceScore: 0.0,
       sha256Hash: hash,
       issues: const [],
       suggestedTags: List.unmodifiable(tags),

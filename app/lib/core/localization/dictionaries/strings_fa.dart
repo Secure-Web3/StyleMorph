@@ -1051,6 +1051,7 @@ final Map<String, String> stringsFa = {
   'aboutLinkCopied': 'در کلیپ‌بورد کپی شد',
   'aboutClose': 'بستن',
   'aiStatusReviewing': 'در حال بررسی هوشمند...',
+  'aiStatusPendingAi': 'فرمت تایید شد · در انتظار AI',
   'aiStatusApproved': 'تأییدشده توسط هوش مصنوعی',
   'aiStatusRejected': 'نیازمند اصلاح',
   'aiStatusManualReview': 'در انتظار بررسی',

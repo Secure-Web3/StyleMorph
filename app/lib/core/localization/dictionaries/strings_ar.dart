@@ -1025,6 +1025,7 @@ final Map<String, String> stringsAr = {
   'aboutLinkCopied': 'تم النسخ إلى الحافظة',
   'aboutClose': 'إغلاق',
   'aiStatusReviewing': 'جارٍ الفحص بالذكاء الاصطناعي...',
+  'aiStatusPendingAi': 'الصيغة صالحة · بانتظار AI',
   'aiStatusApproved': 'مُوثّق بالذكاء الاصطناعي',
   'aiStatusRejected': 'يتطلب انتباهاً',
   'aiStatusManualReview': 'قيد المراجعة',

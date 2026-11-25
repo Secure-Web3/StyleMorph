@@ -113,52 +113,69 @@ class _KycVerificationSectionState
       );
       if (picked != null) {
         setState(() {
-          if (isFront) {
-            _frontFile = picked;
-          } else {
-            _backFile = picked;
-          }
           _aiStatus = AiVerificationStatus.reviewing;
           _aiIssues = const [];
         });
 
         final bytes = await picked.readAsBytes();
+        final slotContext =
+            '${_selectedDocType.name}_${isFront ? 'front' : 'back'}';
         final result = await ref
             .read(aiVerificationServiceProvider)
             .verifyKycDocument(
               bytes: bytes,
               fileNameOrMime: picked.mimeType ?? picked.name,
-              docType: _selectedDocType.name,
+              docType: slotContext,
             );
 
         if (!mounted) return;
-        setState(() {
-          _aiStatus = result.status;
-          _aiIssues = result.issues;
-        });
-
-        String uid = 'test_user';
-        String? email;
-        try {
-          if (Firebase.apps.isNotEmpty) {
-            final user = FirebaseAuth.instance.currentUser;
-            uid = user?.uid ?? 'test_user';
-            email = user?.email;
-          }
-        } catch (_) {}
-
         final reason = result.issues.isNotEmpty
             ? AiReviewBadge.localizeIssue(context.strings, result.issues.first)
             : null;
-        ref
-            .read(notificationServiceProvider)
-            .notifyKycStatus(
-              uid: uid,
-              approved: result.isApproved,
-              reason: reason,
-              recipientEmail: email,
-            )
-            .catchError((_) {});
+
+        if (result.isRejected) {
+          // Abort immediately: never clear or overwrite existing valid KYC files.
+          setState(() {
+            _aiStatus = result.status;
+            _aiIssues = result.issues;
+          });
+          AppFeedback.showError(
+            context,
+            reason ?? context.strings.aiStatusRejected,
+          );
+        } else {
+          setState(() {
+            if (isFront) {
+              _frontFile = picked;
+            } else {
+              _backFile = picked;
+            }
+            _aiStatus = result.status;
+            _aiIssues = result.issues;
+          });
+        }
+
+        if (result.isApproved || result.isRejected) {
+          String uid = 'test_user';
+          String? email;
+          try {
+            if (Firebase.apps.isNotEmpty) {
+              final user = FirebaseAuth.instance.currentUser;
+              uid = user?.uid ?? 'test_user';
+              email = user?.email;
+            }
+          } catch (_) {}
+
+          ref
+              .read(notificationServiceProvider)
+              .notifyKycStatus(
+                uid: uid,
+                approved: result.isApproved,
+                reason: reason,
+                recipientEmail: email,
+              )
+              .catchError((_) {});
+        }
       }
     } catch (e) {
       debugPrint('[KycVerificationSection] pickImage error: $e');

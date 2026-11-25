@@ -60,6 +60,11 @@ class AiReviewBadge extends StatelessWidget {
         icon = FontAwesomeIcons.wandMagicSparkles;
         label = strings.aiStatusReviewing;
         break;
+      case AiVerificationStatus.pendingAi:
+        variant = AppBadgeVariant.warning;
+        icon = FontAwesomeIcons.hourglassHalf;
+        label = strings.aiStatusPendingAi;
+        break;
       case AiVerificationStatus.approved:
         variant = AppBadgeVariant.success;
         icon = FontAwesomeIcons.circleCheck;

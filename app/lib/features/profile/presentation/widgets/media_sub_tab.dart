@@ -172,17 +172,20 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
       final reason = aiResult.issues.isNotEmpty
           ? AiReviewBadge.localizeIssue(strings, aiResult.issues.first)
           : null;
-      ref
-          .read(notificationServiceProvider)
-          .notifyMediaReviewStatus(
-            uid: uid,
-            mediaLabel: slot.title,
-            approved: aiResult.isApproved,
-            reason: reason,
-          )
-          .catchError((_) {});
+      if (aiResult.isApproved || aiResult.isRejected) {
+        ref
+            .read(notificationServiceProvider)
+            .notifyMediaReviewStatus(
+              uid: uid,
+              mediaLabel: slot.title,
+              approved: aiResult.isApproved,
+              reason: reason,
+            )
+            .catchError((_) {});
+      }
 
       if (aiResult.isRejected) {
+        // Abort immediately: preserve any existing valid media slot URL intact.
         if (context.mounted) {
           AppToast.showError(context, reason ?? strings.aiStatusRejected);
         }

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/ai/ai_verification_models.dart';
 import '../../../core/ai/ai_verification_service.dart';
 import '../../../core/services/notification_service.dart';
 import '../../../core/services/storage/media_storage_provider.dart';
@@ -766,6 +767,9 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
       originalUrl: primaryUrl,
       imageHash: firstHash,
       aiGarmentZone: zone,
+      aiVerificationStatus: images.isNotEmpty
+          ? AiVerificationStatus.reviewing.wireValue
+          : AiVerificationStatus.pendingAi.wireValue,
       imageUrls: uploadedUrls,
       createdAt: now,
       updatedAt: now,
@@ -785,6 +789,7 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
           : 'image/jpeg';
       unawaited(
         _verifyWardrobeGarmentAsync(
+          itemId: item.id,
           bytes: images.first,
           mimeType: firstMime,
           title: title,
@@ -796,6 +801,7 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
   }
 
   Future<void> _verifyWardrobeGarmentAsync({
+    required String itemId,
     required Uint8List bytes,
     required String mimeType,
     required String title,
@@ -808,6 +814,17 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
         fileNameOrMime: mimeType,
         category: category,
       );
+      final idx = state.items.indexWhere((e) => e.id == itemId);
+      if (idx != -1) {
+        final updated = state.items[idx].copyWith(
+          aiVerificationStatus: result.status.wireValue,
+          updatedAt: DateTime.now(),
+        );
+        final nextItems = [...state.items];
+        nextItems[idx] = updated;
+        state = state.copyWith(items: nextItems);
+        await _repo.updateItem(updated);
+      }
       if (result.isApproved && _notificationService != null) {
         final uid = (_userId != null && _userId.isNotEmpty) ? _userId : 'guest';
         await _notificationService.notifyWardrobeItemApproved(

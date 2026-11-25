@@ -1053,6 +1053,7 @@ final Map<String, String> stringsEn = {
   'aboutLinkCopied': 'Copied to clipboard',
   'aboutClose': 'Close',
   'aiStatusReviewing': 'AI Reviewing...',
+  'aiStatusPendingAi': 'Format OK · Pending AI',
   'aiStatusApproved': 'AI Verified',
   'aiStatusRejected': 'Needs Attention',
   'aiStatusManualReview': 'Pending Review',

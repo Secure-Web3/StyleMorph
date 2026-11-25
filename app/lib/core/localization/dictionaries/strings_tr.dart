@@ -1060,6 +1060,7 @@ final Map<String, String> stringsTr = {
   'aboutLinkCopied': 'Panoya kopyalandı',
   'aboutClose': 'Kapat',
   'aiStatusReviewing': 'Yapay Zeka İnceliyor...',
+  'aiStatusPendingAi': 'Format Uygun · AI Bekliyor',
   'aiStatusApproved': 'YZ Onaylı',
   'aiStatusRejected': 'Düzeltme Gerekli',
   'aiStatusManualReview': 'İnceleme Bekliyor',

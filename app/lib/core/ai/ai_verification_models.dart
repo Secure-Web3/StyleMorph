@@ -11,6 +11,7 @@ enum AiVerificationTarget {
 /// Lifecycle status of an automated AI media verification check.
 enum AiVerificationStatus {
   pending('pending'),
+  pendingAi('pending_ai'),
   reviewing('reviewing'),
   approved('approved'),
   rejected('rejected'),
@@ -23,6 +24,9 @@ enum AiVerificationStatus {
     switch (raw) {
       case 'pending':
         return AiVerificationStatus.pending;
+      case 'pending_ai':
+      case 'pendingAi':
+        return AiVerificationStatus.pendingAi;
       case 'reviewing':
         return AiVerificationStatus.reviewing;
       case 'approved':
@@ -96,7 +100,9 @@ class AiVerificationResult {
     this.isSimulated = false,
   });
 
-  bool get isApproved => status == AiVerificationStatus.approved;
+  bool get isApproved =>
+      status == AiVerificationStatus.approved && !isSimulated;
+  bool get isPendingAi => status == AiVerificationStatus.pendingAi;
   bool get isRejected => status == AiVerificationStatus.rejected;
   bool get needsManualReview =>
       status == AiVerificationStatus.needsManualReview;

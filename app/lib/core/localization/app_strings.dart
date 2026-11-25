@@ -1340,6 +1340,7 @@ class AppStrings {
 
   // Phase 4: AI Quality-Control & Verification
   String get aiStatusReviewing => get('aiStatusReviewing');
+  String get aiStatusPendingAi => get('aiStatusPendingAi');
   String get aiStatusApproved => get('aiStatusApproved');
   String get aiStatusRejected => get('aiStatusRejected');
   String get aiStatusManualReview => get('aiStatusManualReview');

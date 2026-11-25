@@ -46,7 +46,7 @@ void main() {
     );
   }
 
-  group('AiVerificationService — Stage 1 Pre-Flight & Caching', () {
+  group('AiVerificationService — Stage 1 Pre-Flight, Honesty & Caching', () {
     test('rejects oversized image locally with zero network calls', () async {
       var networkCalls = 0;
       final service = AiVerificationService(
@@ -73,6 +73,8 @@ void main() {
 
       expect(networkCalls, 0);
       expect(result.status, AiVerificationStatus.rejected);
+      expect(result.isRejected, isTrue);
+      expect(result.isApproved, isFalse);
       expect(result.issues, contains(AiVerificationIssueCode.fileTooLarge));
       expect(result.isSimulated, isFalse);
     });
@@ -152,13 +154,14 @@ void main() {
         expect(networkCalls, 1);
         expect(first.sha256Hash, second.sha256Hash);
         expect(first.status, AiVerificationStatus.approved);
+        expect(first.isApproved, isTrue);
         expect(second.status, AiVerificationStatus.approved);
         expect(service.cacheSize, 1);
       },
     );
 
     test(
-      'typed flows for kycDocument, profileMedia, and wardrobeGarment return structured results in simulation fallback',
+      'simulated/keyless mode returns honest pendingAi and NEVER approved',
       () async {
         final service = AiVerificationService(forceSimulation: true);
         final bytes = Uint8List.fromList(List<int>.filled(4096, 7));
@@ -166,7 +169,7 @@ void main() {
         final kyc = await service.verifyKycDocument(
           bytes: bytes,
           fileNameOrMime: 'passport.png',
-          docType: 'passport',
+          docType: 'passport_front',
         );
         final mediaPhoto = await service.verifyProfileMedia(
           bytes: bytes,
@@ -185,63 +188,132 @@ void main() {
           category: 'outerwear',
         );
 
-        expect(kyc.isApproved, isTrue);
-        expect(kyc.isSimulated, isTrue);
-        expect(mediaPhoto.isApproved, isTrue);
-        expect(mediaVideo.isApproved, isTrue);
-        expect(wardrobe.isApproved, isTrue);
-        expect(wardrobe.suggestedTags, contains('garment_verified'));
+        for (final res in [kyc, mediaPhoto, mediaVideo, wardrobe]) {
+          expect(res.status, AiVerificationStatus.pendingAi);
+          expect(res.isPendingAi, isTrue);
+          expect(res.isApproved, isFalse);
+          expect(res.isSimulated, isTrue);
+        }
+      },
+    );
+
+    test(
+      'downgrades simulated gateway approved response to pendingAi honestly',
+      () async {
+        final service = AiVerificationService(
+          transportInvoker:
+              ({
+                required String method,
+                required Uri uri,
+                Map<String, String>? headers,
+                String? body,
+                Duration timeout = const Duration(seconds: 3),
+              }) async {
+                return AiHttpResponse(
+                  statusCode: 200,
+                  body: jsonEncode({
+                    'status': 'approved',
+                    'confidenceScore': 0.99,
+                    'issues': <String>[],
+                    'suggestedTags': <String>[],
+                    'isSimulated': true,
+                  }),
+                );
+              },
+        );
+
+        final bytes = Uint8List.fromList(List<int>.filled(2048, 99));
+        final result = await service.verifyProfileMedia(
+          bytes: bytes,
+          fileNameOrMime: 'image/jpeg',
+          slotKey: 'body_front',
+        );
+
+        expect(result.status, AiVerificationStatus.pendingAi);
+        expect(result.isApproved, isFalse);
+        expect(result.isSimulated, isTrue);
       },
     );
   });
 
   group('AiReviewBadge — RTL & LTR Rendering', () {
-    testWidgets('renders all statuses cleanly in Persian RTL', (tester) async {
-      final strings = AppStrings('fa');
+    testWidgets(
+      'renders all statuses cleanly in Persian RTL without AI Verified on pendingAi',
+      (tester) async {
+        final strings = AppStrings('fa');
 
-      for (final status in [
-        AiVerificationStatus.reviewing,
-        AiVerificationStatus.approved,
-        AiVerificationStatus.rejected,
-        AiVerificationStatus.needsManualReview,
-      ]) {
         await tester.pumpWidget(
           buildBadgeHarness(
             locale: const Locale('fa'),
-            child: AiReviewBadge(
-              status: status,
-              issues: status == AiVerificationStatus.rejected
-                  ? const [AiVerificationIssueCode.blurryOrDark]
-                  : const [],
+            child: const AiReviewBadge(status: AiVerificationStatus.pendingAi),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text(strings.aiStatusPendingAi), findsOneWidget);
+        expect(find.text(strings.aiStatusApproved), findsNothing);
+        expect(tester.takeException(), isNull);
+
+        for (final status in [
+          AiVerificationStatus.reviewing,
+          AiVerificationStatus.approved,
+          AiVerificationStatus.rejected,
+          AiVerificationStatus.needsManualReview,
+        ]) {
+          await tester.pumpWidget(
+            buildBadgeHarness(
+              locale: const Locale('fa'),
+              child: AiReviewBadge(
+                status: status,
+                issues: status == AiVerificationStatus.rejected
+                    ? const [AiVerificationIssueCode.blurryOrDark]
+                    : const [],
+              ),
+            ),
+          );
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull);
+        }
+      },
+    );
+
+    testWidgets(
+      'renders pendingAi, approved, and rejected cleanly in English LTR',
+      (tester) async {
+        final strings = AppStrings('en');
+
+        await tester.pumpWidget(
+          buildBadgeHarness(
+            locale: const Locale('en'),
+            child: const AiReviewBadge(status: AiVerificationStatus.pendingAi),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text(strings.aiStatusPendingAi), findsOneWidget);
+        expect(find.text(strings.aiStatusApproved), findsNothing);
+
+        await tester.pumpWidget(
+          buildBadgeHarness(
+            locale: const Locale('en'),
+            child: const AiReviewBadge(status: AiVerificationStatus.approved),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.text(strings.aiStatusApproved), findsOneWidget);
+
+        await tester.pumpWidget(
+          buildBadgeHarness(
+            locale: const Locale('en'),
+            child: const AiReviewBadge(
+              status: AiVerificationStatus.rejected,
+              issues: [AiVerificationIssueCode.fileTooLarge],
             ),
           ),
         );
         await tester.pumpAndSettle();
+        expect(find.text(strings.aiStatusRejected), findsOneWidget);
+        expect(find.text(strings.aiIssueFileTooLarge), findsOneWidget);
         expect(tester.takeException(), isNull);
-      }
-
-      expect(find.text(strings.aiStatusManualReview), findsOneWidget);
-    });
-
-    testWidgets('renders rejected issue hint cleanly in English LTR', (
-      tester,
-    ) async {
-      final strings = AppStrings('en');
-
-      await tester.pumpWidget(
-        buildBadgeHarness(
-          locale: const Locale('en'),
-          child: const AiReviewBadge(
-            status: AiVerificationStatus.rejected,
-            issues: [AiVerificationIssueCode.fileTooLarge],
-          ),
-        ),
-      );
-      await tester.pumpAndSettle();
-
-      expect(find.text(strings.aiStatusRejected), findsOneWidget);
-      expect(find.text(strings.aiIssueFileTooLarge), findsOneWidget);
-      expect(tester.takeException(), isNull);
-    });
+      },
+    );
   });
 }

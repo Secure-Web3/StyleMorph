@@ -6,6 +6,7 @@ export const VerifyMediaRequestSchema = z.object({
   sha256Hash: z.string().regex(/^[a-fA-F0-9]{64}$/),
   mimeType: z.string().min(3).max(80),
   fileSizeBytes: z.number().int().positive(),
+  slotContext: z.string().min(1).max(80).optional(),
   imageBase64: z.string().optional(),
 });
 
@@ -13,6 +14,7 @@ export type VerifyMediaRequest = z.infer<typeof VerifyMediaRequestSchema>;
 
 export type VerifyMediaStatus =
   | "pending"
+  | "pending_ai"
   | "reviewing"
   | "approved"
   | "rejected"
@@ -50,6 +52,57 @@ const ALLOWED_VIDEO_MIMES = new Set(["video/mp4", "video/quicktime"]);
 
 const MAX_CACHE_ENTRIES = 500;
 const verificationCache = new Map<string, VerifyMediaResponse>();
+
+/**
+ * Structured Vision QA system prompts per verification target.
+ * Activated automatically once `USE_MOCK_AI=false` and a Gemini API key is configured.
+ */
+export function buildVisionVerificationPrompt(
+  target: VerifyMediaRequest["target"],
+  slotContext?: string,
+): string {
+  const slot = slotContext ?? "unspecified";
+  switch (target) {
+    case "kyc_document":
+      return [
+        "You are a strict KYC Document Verification Vision Assistant.",
+        `Expected document slot: ${slot}.`,
+        "Verify that the image shows a valid, legible government-issued identity document (or matching KYC selfie) with clear framing and no glare.",
+        "Reject unrelated photos, landscapes, cartoons, or blurry/unreadable documents with issue 'missing_subject' or 'blurry_or_dark'.",
+        "Respond strictly in JSON: { status: 'approved' | 'rejected' | 'needs_manual_review', confidenceScore: number, issues: string[], suggestedTags: string[] }.",
+      ].join(" ");
+    case "profile_media":
+      return [
+        "You are a strict Profile Reference Media QA Assistant for Virtual Try-On.",
+        `Target slot context: ${slot}.`,
+        "Verify that the framing matches the requested slotContext (for example, reject a close-up face-only portrait uploaded to a 'body_front' or 'full_body_front' slot with issue 'missing_subject').",
+        "Check lighting, clarity, and platform safety compliance.",
+        "Respond strictly in JSON: { status: 'approved' | 'rejected' | 'needs_manual_review', confidenceScore: number, issues: string[], suggestedTags: string[] }.",
+      ].join(" ");
+    case "wardrobe_garment":
+      return [
+        "You are a strict Virtual Wardrobe Garment QA Assistant.",
+        `Requested category/slot context: ${slot}.`,
+        "Verify that the image clearly depicts a wearable clothing, footwear, bag, jewelry, or accessory item.",
+        "Reject standalone human portraits/selfies without a clear garment focus or non-garment objects with issue 'missing_subject'.",
+        "Extract concise English suggestedTags for color, garment type, and style.",
+        "Respond strictly in JSON: { status: 'approved' | 'rejected' | 'needs_manual_review', confidenceScore: number, issues: string[], suggestedTags: string[] }.",
+      ].join(" ");
+  }
+}
+
+function resolveGeminiApiKey(): string | null {
+  const pool = process.env["GEMINI_API_KEY_POOL"]?.trim();
+  if (pool) {
+    const firstKey = pool
+      .split(",")
+      .map((k) => k.trim())
+      .find((k) => k.length > 0);
+    if (firstKey) return firstKey;
+  }
+  const single = process.env["GEMINI_API_KEY"]?.trim();
+  return single && single.length > 0 ? single : null;
+}
 
 function isMockAiEnabled(): boolean {
   return (process.env["USE_MOCK_AI"] ?? "true").toLowerCase() !== "false";
@@ -106,42 +159,98 @@ function runPreFlightValidation(req: VerifyMediaRequest): VerifyMediaIssueCode[]
   return issues;
 }
 
-function runMockVisionVerification(
+function buildPendingAiResponse(
   req: VerifyMediaRequest,
 ): Omit<VerifyMediaResponse, "cacheHit"> {
-  const issues = runPreFlightValidation(req);
-  if (issues.length > 0) {
+  return {
+    status: "pending_ai",
+    confidenceScore: 0,
+    sha256Hash: req.sha256Hash,
+    issues: [],
+    suggestedTags: [],
+    checkedAt: new Date().toISOString(),
+    isSimulated: true,
+  };
+}
+
+/**
+ * Live Gemini Vision adapter. Invoked only when `USE_MOCK_AI=false` and a valid
+ * API key is present in `GEMINI_API_KEY_POOL` or `GEMINI_API_KEY`.
+ */
+async function callGeminiVisionVerifier(
+  req: VerifyMediaRequest,
+  apiKey: string,
+): Promise<Omit<VerifyMediaResponse, "cacheHit">> {
+  if (!req.imageBase64) {
     return {
-      status: "rejected",
-      confidenceScore: 0.0,
+      status: "needs_manual_review",
+      confidenceScore: 0,
       sha256Hash: req.sha256Hash,
-      issues,
+      issues: [],
       suggestedTags: [],
       checkedAt: new Date().toISOString(),
-      isSimulated: true,
+      isSimulated: false,
     };
   }
 
-  const scoreByTarget: Record<VerifyMediaRequest["target"], number> = {
-    kyc_document: 0.94,
-    profile_media: 0.92,
-    wardrobe_garment: 0.95,
-  };
+  const prompt = buildVisionVerificationPrompt(req.target, req.slotContext);
+  const model = process.env["GEMINI_VISION_MODEL"] ?? "gemini-2.5-flash";
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
-  const tagsByTarget: Record<VerifyMediaRequest["target"], string[]> = {
-    kyc_document: ["document_legible", "kyc_ready"],
-    profile_media: ["clear_lighting", "subject_centered"],
-    wardrobe_garment: ["garment_verified", "clean_background"],
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      contents: [
+        {
+          parts: [
+            { text: prompt },
+            {
+              inline_data: {
+                mime_type: req.mimeType,
+                data: req.imageBase64,
+              },
+            },
+          ],
+        },
+      ],
+      generationConfig: {
+        responseMimeType: "application/json",
+        temperature: 0.1,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`GEMINI_VISION_HTTP_${response.status}`);
+  }
+
+  const json = (await response.json()) as {
+    candidates?: Array<{
+      content?: { parts?: Array<{ text?: string }> };
+    }>;
+  };
+  const rawText = json.candidates?.[0]?.content?.parts?.[0]?.text ?? "{}";
+  const parsed = JSON.parse(rawText) as {
+    status?: VerifyMediaStatus;
+    confidenceScore?: number;
+    issues?: VerifyMediaIssueCode[];
+    suggestedTags?: string[];
   };
 
   return {
-    status: "approved",
-    confidenceScore: scoreByTarget[req.target],
+    status: parsed.status ?? "needs_manual_review",
+    confidenceScore:
+      typeof parsed.confidenceScore === "number"
+        ? Math.max(0, Math.min(1, parsed.confidenceScore))
+        : 0,
     sha256Hash: req.sha256Hash,
-    issues: [],
-    suggestedTags: tagsByTarget[req.target],
+    issues: Array.isArray(parsed.issues) ? parsed.issues : [],
+    suggestedTags: Array.isArray(parsed.suggestedTags)
+      ? parsed.suggestedTags
+      : [],
     checkedAt: new Date().toISOString(),
-    isSimulated: true,
+    isSimulated: false,
   };
 }
 
@@ -160,25 +269,47 @@ export function registerVerifyMediaRoute(server: FastifyInstance): void {
     }
 
     const input = parsed.data;
-    const cacheKey = `${input.target}:${input.sha256Hash.toLowerCase()}`;
+    const preFlightIssues = runPreFlightValidation(input);
+    if (preFlightIssues.length > 0) {
+      return reply.status(200).send({
+        status: "rejected",
+        confidenceScore: 0,
+        sha256Hash: input.sha256Hash,
+        issues: preFlightIssues,
+        suggestedTags: [],
+        checkedAt: new Date().toISOString(),
+        isSimulated: false,
+        cacheHit: false,
+      } satisfies VerifyMediaResponse);
+    }
+
+    const cacheKey = `${input.target}:${input.slotContext ?? "default"}:${input.sha256Hash.toLowerCase()}`;
     const cached = getCachedVerification(cacheKey);
     if (cached) {
       return reply.status(200).send(cached);
     }
 
-    if (isMockAiEnabled()) {
+    const apiKey = resolveGeminiApiKey();
+    if (isMockAiEnabled() || !apiKey) {
       const result: VerifyMediaResponse = {
-        ...runMockVisionVerification(input),
+        ...buildPendingAiResponse(input),
         cacheHit: false,
       };
       setCachedVerification(cacheKey, result);
       return reply.status(200).send(result);
     }
 
-    // Live Gemini Vision integration hook when USE_MOCK_AI=false
-    return reply.status(501).send({
-      error: "LIVE_GEMINI_VISION_NOT_CONFIGURED",
-      sha256Hash: input.sha256Hash,
-    });
+    try {
+      const live = await callGeminiVisionVerifier(input, apiKey);
+      const result: VerifyMediaResponse = { ...live, cacheHit: false };
+      setCachedVerification(cacheKey, result);
+      return reply.status(200).send(result);
+    } catch {
+      const fallback: VerifyMediaResponse = {
+        ...buildPendingAiResponse(input),
+        cacheHit: false,
+      };
+      return reply.status(200).send(fallback);
+    }
   });
 }

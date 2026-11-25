@@ -1,10 +1,12 @@
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/ai/ai_verification_models.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/ai_review_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_media_image.dart';
@@ -373,6 +375,19 @@ class _WardrobeItemDetailSheetState
         children: [
           // Preview tile / Multi-angle PageView slider
           _buildImagePreview(item, itemColor),
+          const SizedBox(height: AppSpacing.sm),
+
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: AiReviewBadge(
+              status: AiVerificationStatus.fromWireValue(
+                item.aiVerificationStatus.isNotEmpty
+                    ? item.aiVerificationStatus
+                    : 'pending_ai',
+              ),
+              compact: true,
+            ),
+          ),
           const SizedBox(height: AppSpacing.md),
 
           // Specs list: displays category label instead of raw subCategory
