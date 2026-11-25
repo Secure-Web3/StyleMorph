@@ -432,6 +432,7 @@ class _DrawerProfileCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(localeProvider);
     final colors = context.colors;
     final strings = context.strings;
     final (
@@ -495,20 +496,20 @@ class _DrawerProfileCard extends ConsumerWidget {
             children: [
               // Avatar with loyalty ring
               Container(
-                width: 44,
-                height: 44,
-                padding: const EdgeInsets.all(2),
+                width: 56,
+                height: 56,
+                padding: const EdgeInsets.all(2.5),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: rankColor, width: 1.8),
+                  border: Border.all(color: rankColor, width: 2.0),
                 ),
                 child: ClipOval(
                   child: avatarUrl != null && avatarUrl.isNotEmpty
                       ? AppMediaImage(
                           avatarUrl,
                           fit: BoxFit.cover,
-                          width: 40,
-                          height: 40,
+                          width: 51,
+                          height: 51,
                           errorBuilder: (_, _, _) =>
                               Gender3dAvatar(gender: gender),
                         )

@@ -11,6 +11,7 @@ import 'package:stylemorph/core/theme/app_colors.dart';
 import 'package:stylemorph/core/theme/app_theme.dart';
 import 'package:stylemorph/core/widgets/app_logo.dart';
 import 'package:stylemorph/core/widgets/brand_wordmark.dart';
+import 'package:stylemorph/core/widgets/gender_3d_avatar.dart';
 import 'package:stylemorph/features/atelier/presentation/atelier_tab.dart';
 import 'package:stylemorph/features/profile/data/user_preferences.dart';
 import 'package:stylemorph/features/shell/presentation/main_shell_screen.dart';
@@ -203,6 +204,75 @@ void main() {
           expect(find.byType(expectedWidget), findsOneWidget);
           expect(tester.takeException(), isNull);
         }
+      },
+    );
+
+    testWidgets(
+      'AppDrawer renders enlarged 56px avatar and Latin digits (75%) in English locale without Persian numerals',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(360, 667));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        final container = ProviderContainer(
+          overrides: [
+            appStateProvider.overrideWith(
+              (ref) => _TestAppStateNotifier(
+                const AppState(
+                  isLoggedIn: true,
+                  currentTab: AppTab.wardrobe,
+                  userName: 'Sara Ahmadi',
+                  loyaltyRank: 'Silver',
+                  stylePoints: 624,
+                  profileProgress: 0.75,
+                  preferences: UserPreferences(
+                    fashionThemePalette: 'editorial',
+                    brightnessMode: 'light',
+                    appLanguage: 'en',
+                    appMode: 'simple',
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
+        container.read(localeProvider.notifier).setLanguage('en');
+
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+              theme: testTheme,
+              locale: const Locale('en'),
+              supportedLocales: AppLanguage.supportedLanguages
+                  .map((l) => l.locale)
+                  .toList(),
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              home: const Scaffold(body: AppDrawer()),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Verify enlarged 56x56 avatar container
+        final avatarFinder = find.ancestor(
+          of: find.byType(Gender3dAvatar),
+          matching: find.byType(Container),
+        );
+        expect(avatarFinder, findsWidgets);
+        final avatarSize = tester.getSize(avatarFinder.first);
+        expect(avatarSize.width, equals(56.0));
+        expect(avatarSize.height, equals(56.0));
+
+        // Verify Latin digits (75% and 624) and zero Persian numerals (۰-۹)
+        expect(find.text('75%'), findsOneWidget);
+        expect(find.textContaining('624'), findsOneWidget);
+        expect(find.textContaining(RegExp(r'[۰-۹]')), findsNothing);
+        expect(tester.takeException(), isNull);
       },
     );
   });
