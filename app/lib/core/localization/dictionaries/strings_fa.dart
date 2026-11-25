@@ -97,6 +97,7 @@ final Map<String, String> stringsFa = {
   'notifCatAi': 'هوش مصنوعی و آتلیه',
   'notifCatShop': 'تخفیف و فروشگاه',
   'notifCatFinance': 'مالی و سکه',
+  'notifCatAccount': 'حساب و فعالیت',
   'newWord': 'جدید',
   'newUser': 'کاربر جدید',
   'idHeader': 'شناسنامه و اطلاعات هویتی',

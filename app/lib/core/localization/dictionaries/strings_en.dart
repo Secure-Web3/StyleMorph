@@ -97,6 +97,7 @@ final Map<String, String> stringsEn = {
   'notifCatAi': 'AI & Atelier',
   'notifCatShop': 'Deals & Shop',
   'notifCatFinance': 'Wallet & Coins',
+  'notifCatAccount': 'Account & Activity',
   'newWord': 'new',
   'newUser': 'New User',
   'idHeader': 'Identity & Personal Information',

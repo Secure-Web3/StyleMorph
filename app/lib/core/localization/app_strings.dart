@@ -259,6 +259,7 @@ class AppStrings {
   String get notifCatAi => get('notifCatAi');
   String get notifCatShop => get('notifCatShop');
   String get notifCatFinance => get('notifCatFinance');
+  String get notifCatAccount => get('notifCatAccount');
   String get newWord => get('newWord');
   String get newUser => get('newUser');
 

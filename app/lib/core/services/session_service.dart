@@ -9,6 +9,7 @@ import 'ai_http_transport_stub.dart'
     if (dart.library.io) 'ai_http_transport_io.dart'
     as session_http;
 import 'session_storage.dart';
+import 'notification_service.dart';
 
 // ── Model ──────────────────────────────────────────────────────────────────
 
@@ -543,6 +544,16 @@ class SessionService {
         );
         await docRef.set(session.toMap());
         _lastActivityWriteTime = DateTime.now();
+        unawaited(
+          NotificationService(firestore: _customFirestore).createNotification(
+            uid: user.uid,
+            title: 'New Sign-In Detected',
+            body: 'A new session was registered on your account.',
+            category: 'account',
+            targetRoute: 'profile_sessions',
+            emoji: '🔐',
+          ),
+        );
       }
 
       // Run external IP & geo lookup asynchronously in the background (non-blocking)

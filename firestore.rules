@@ -99,6 +99,11 @@ service cloud.firestore {
         allow read, write: if isOwner(userId);
       }
 
+      // Live Notification Center
+      match /notifications/{notificationId} {
+        allow read, create, update, delete: if isOwner(userId);
+      }
+
       // User KYC documents & verification metadata
       match /kyc/{docId} {
         allow read, write: if isOwner(userId) && hasValidSessionForUser(userId);

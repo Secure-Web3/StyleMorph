@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,6 +17,7 @@ import '../../features/profile/domain/profile_snapshot.dart';
 import '../../features/shell/domain/app_tab.dart';
 import '../../features/shell/domain/notification_item.dart';
 import '../services/loyalty_service.dart';
+import '../services/notification_service.dart';
 import '../services/referral_service.dart';
 import '../services/web_unload_guard.dart';
 
@@ -565,6 +567,12 @@ class AppStateNotifier extends StateNotifier<AppState> {
         );
         WebUnloadGuard.update(false);
         captureSavedSnapshot();
+        _emitActivityNotification(
+          title: 'Profile Updated',
+          body: 'Your personal & profile changes were saved.',
+          targetRoute: 'profile_identity',
+          emoji: '👤',
+        );
         return true;
       } else {
         state = state.copyWith(isSavingProfile: false);
@@ -743,6 +751,12 @@ class AppStateNotifier extends StateNotifier<AppState> {
           'preferences': updatedPreferences.toMap(),
           'updatedAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
+        _emitActivityNotification(
+          title: 'Settings Updated',
+          body: 'Your app preferences have been saved.',
+          targetRoute: 'profile_settings',
+          emoji: '⚙️',
+        );
       }
     } catch (e) {
       debugPrint('[updatePreferencesImmediately] Firestore error: $e');
@@ -956,6 +970,32 @@ class AppStateNotifier extends StateNotifier<AppState> {
       termsAcceptedAt: audit.acceptedAt,
       termsVersion: version,
       legalConsent: audit,
+    );
+    _emitActivityNotification(
+      title: 'Agreement Signed',
+      body: 'Your electronic consent has been recorded.',
+      targetRoute: 'profile_about',
+      emoji: '📜',
+    );
+  }
+
+  void _emitActivityNotification({
+    required String title,
+    required String body,
+    required String targetRoute,
+    required String emoji,
+  }) {
+    final uid = currentAuthenticatedUid();
+    if (uid == null) return;
+    unawaited(
+      NotificationService().createNotification(
+        uid: uid,
+        title: title,
+        body: body,
+        category: 'account',
+        targetRoute: targetRoute,
+        emoji: emoji,
+      ),
     );
   }
 

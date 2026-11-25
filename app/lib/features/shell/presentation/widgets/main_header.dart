@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/services/loyalty_service.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -265,11 +266,20 @@ class _HeaderActions extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final strings = context.strings;
-    final (unreadCount, showHeaderCoins, coins) = ref.watch(
+    final (localUnreadCount, showHeaderCoins, coins) = ref.watch(
       appStateProvider.select(
         (s) => (s.unreadNotificationsCount, s.showHeaderCoins, s.coins),
       ),
     );
+    final authUid = currentAuthenticatedUid();
+    final unreadCount = authUid != null
+        ? ref
+              .watch(notificationsStreamProvider(authUid))
+              .maybeWhen(
+                data: NotificationService.countUnread,
+                orElse: () => localUnreadCount,
+              )
+        : localUnreadCount;
 
     return Column(
       mainAxisSize: MainAxisSize.min,

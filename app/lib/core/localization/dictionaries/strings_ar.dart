@@ -96,6 +96,7 @@ final Map<String, String> stringsAr = {
   'notifCatAi': 'الذكاء الاصطناعي والأتيليه',
   'notifCatShop': 'العروض والمتجر',
   'notifCatFinance': 'المحفظة والعملات',
+  'notifCatAccount': 'الحساب والنشاط',
   'newWord': 'جديد',
   'newUser': 'مستخدم جديد',
   'idHeader': 'الهوية والمعلومات الشخصية',

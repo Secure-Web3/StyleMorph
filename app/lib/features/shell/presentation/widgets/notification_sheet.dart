@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -25,15 +26,20 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
 
   List<({String id, String label})> _categories(AppStrings strings) => [
     (id: 'all', label: strings.allText),
+    (id: 'account', label: strings.notifCatAccount),
     (id: 'ai', label: strings.notifCatAi),
     (id: 'shop', label: strings.notifCatShop),
     (id: 'finance', label: strings.notifCatFinance),
   ];
 
-  void _handleNotificationTap(AppNotification notif) {
+  void _handleNotificationTap(AppNotification notif, String? authUid) {
     final shellNotifier = ref.read(shellStateProvider.notifier);
     final appNotifier = ref.read(appStateProvider.notifier);
-    shellNotifier.markNotificationRead(notif.id);
+    if (authUid != null) {
+      ref.read(notificationServiceProvider).markAsRead(authUid, notif.id);
+    } else {
+      shellNotifier.markNotificationRead(notif.id);
+    }
     Navigator.of(context).pop();
 
     switch (notif.targetRoute) {
@@ -46,9 +52,26 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
         break;
       case 'profile_wallet':
         appNotifier.switchProfileTab('p-wallet');
+        shellNotifier.switchTab(AppTab.profile);
         break;
       case 'stylist':
         shellNotifier.switchTab(AppTab.stylist);
+        break;
+      case 'profile_identity':
+        appNotifier.switchProfileTab('p-identity');
+        shellNotifier.switchTab(AppTab.profile);
+        break;
+      case 'profile_settings':
+        appNotifier.switchProfileTab('p-settings');
+        shellNotifier.switchTab(AppTab.profile);
+        break;
+      case 'profile_about':
+        appNotifier.switchProfileTab('p-about');
+        shellNotifier.switchTab(AppTab.profile);
+        break;
+      case 'profile_sessions':
+        appNotifier.switchProfileTab('p-sessions');
+        shellNotifier.switchTab(AppTab.profile);
         break;
     }
   }
@@ -58,13 +81,18 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
     final colors = context.colors;
     final strings = context.strings;
     final shellState = ref.watch(shellStateProvider);
-    final unreadCount = shellState.unreadNotificationsCount;
+    final authUid = currentAuthenticatedUid();
+    final List<AppNotification> allNotifications = authUid != null
+        ? ref
+              .watch(notificationsStreamProvider(authUid))
+              .maybeWhen(data: (items) => items, orElse: () => const [])
+        : shellState.notifications;
+    final unreadCount = NotificationService.countUnread(allNotifications);
 
-    final filtered = _selectedCategory == 'all'
-        ? shellState.notifications
-        : shellState.notifications
-              .where((n) => n.category == _selectedCategory)
-              .toList();
+    final filtered = NotificationService.filterByCategory(
+      allNotifications,
+      _selectedCategory,
+    );
 
     return AppBottomSheetShell(
       title: strings.notificationsTitle,
@@ -82,9 +110,17 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
         ],
         InkWell(
           onTap: unreadCount > 0
-              ? () => ref
-                    .read(shellStateProvider.notifier)
-                    .markAllNotificationsRead()
+              ? () {
+                  if (authUid != null) {
+                    ref
+                        .read(notificationServiceProvider)
+                        .markAllAsRead(authUid);
+                  } else {
+                    ref
+                        .read(shellStateProvider.notifier)
+                        .markAllNotificationsRead();
+                  }
+                }
               : null,
           borderRadius: AppRadius.rMd,
           child: Padding(
@@ -153,7 +189,7 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
                     itemBuilder: (context, index) {
                       final notif = filtered[index];
                       return AppCard(
-                        onTap: () => _handleNotificationTap(notif),
+                        onTap: () => _handleNotificationTap(notif, authUid),
                         variant: AppCardVariant.subtle,
                         backgroundColor: notif.isRead
                             ? colors.bg

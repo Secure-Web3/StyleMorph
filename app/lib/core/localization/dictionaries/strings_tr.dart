@@ -97,6 +97,7 @@ final Map<String, String> stringsTr = {
   'notifCatAi': 'Yapay Zeka & Stüdyo',
   'notifCatShop': 'Fırsatlar & Mağaza',
   'notifCatFinance': 'Cüzdan & Jeton',
+  'notifCatAccount': 'Hesap ve Etkinlik',
   'newWord': 'yeni',
   'newUser': 'Yeni Kullanıcı',
   'idHeader': 'Kimlik ve Kişisel Bilgiler',
