@@ -9,6 +9,7 @@ import {
   resolveQualityTierRoute,
   validateAnatomicalQuality,
 } from "./qualityGuard";
+import { registerVerifyMediaRoute } from "./routes/verifyMedia";
 import {
   GenerateRequestSchema,
   type AiGenerationArtifact,
@@ -189,6 +190,8 @@ function buildApp(): FastifyInstance {
       keys: keyPool.getMetrics(),
     });
   });
+
+  registerVerifyMediaRoute(server);
 
   server.post("/v1/generate", async (req, reply) => {
     const parsed = GenerateRequestSchema.safeParse(req.body);

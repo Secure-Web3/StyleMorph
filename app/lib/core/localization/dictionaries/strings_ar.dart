@@ -1024,4 +1024,16 @@ final Map<String, String> stringsAr = {
   'aboutCopyrightNotice': 'جميع الحقوق محفوظة لمنصة StyleMorph © ٢٠٢٦',
   'aboutLinkCopied': 'تم النسخ إلى الحافظة',
   'aboutClose': 'إغلاق',
+  'aiStatusReviewing': 'جارٍ الفحص بالذكاء الاصطناعي...',
+  'aiStatusApproved': 'مُوثّق بالذكاء الاصطناعي',
+  'aiStatusRejected': 'يتطلب انتباهاً',
+  'aiStatusManualReview': 'قيد المراجعة',
+  'aiIssueFileTooLarge': 'حجم الملف يتجاوز الحد المسموح به.',
+  'aiIssueUnsupportedFormat':
+      'تنسيق الملف غير مدعوم. يُرجى استخدام JPG أو PNG أو WebP أو MP4.',
+  'aiIssueLowResolution': 'دقة الصورة أو الفيديو منخفضة جداً للتحليل الدقيق.',
+  'aiIssueBlurryOrDark':
+      'الصورة ضبابية أو مظلمة. يُرجى إعادة الالتقاط في إضاءة أفضل.',
+  'aiIssueMissingSubject': 'الموضوع أو المستند المطلوب غير ظاهر بوضوح.',
+  'aiIssuePolicyViolation': 'المحتوى لا يتوافق مع إرشادات السلامة.',
 };

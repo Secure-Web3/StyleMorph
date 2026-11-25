@@ -6,12 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../core/ai/ai_verification_models.dart';
+import '../../../../core/ai/ai_verification_service.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/widgets/ai_review_badge.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
@@ -41,6 +45,8 @@ class _KycVerificationSectionState
   KycDocType _selectedDocType = KycDocType.nationalId;
   XFile? _frontFile;
   XFile? _backFile;
+  AiVerificationStatus? _aiStatus;
+  List<AiVerificationIssueCode> _aiIssues = const [];
 
   @override
   void initState() {
@@ -112,7 +118,47 @@ class _KycVerificationSectionState
           } else {
             _backFile = picked;
           }
+          _aiStatus = AiVerificationStatus.reviewing;
+          _aiIssues = const [];
         });
+
+        final bytes = await picked.readAsBytes();
+        final result = await ref
+            .read(aiVerificationServiceProvider)
+            .verifyKycDocument(
+              bytes: bytes,
+              fileNameOrMime: picked.mimeType ?? picked.name,
+              docType: _selectedDocType.name,
+            );
+
+        if (!mounted) return;
+        setState(() {
+          _aiStatus = result.status;
+          _aiIssues = result.issues;
+        });
+
+        String uid = 'test_user';
+        String? email;
+        try {
+          if (Firebase.apps.isNotEmpty) {
+            final user = FirebaseAuth.instance.currentUser;
+            uid = user?.uid ?? 'test_user';
+            email = user?.email;
+          }
+        } catch (_) {}
+
+        final reason = result.issues.isNotEmpty
+            ? AiReviewBadge.localizeIssue(context.strings, result.issues.first)
+            : null;
+        ref
+            .read(notificationServiceProvider)
+            .notifyKycStatus(
+              uid: uid,
+              approved: result.isApproved,
+              reason: reason,
+              recipientEmail: email,
+            )
+            .catchError((_) {});
       }
     } catch (e) {
       debugPrint('[KycVerificationSection] pickImage error: $e');
@@ -344,6 +390,11 @@ class _KycVerificationSectionState
             style: AppTypography.caption(color: colors.mu),
           ),
           const SizedBox(height: AppSpacing.md),
+
+          if (_aiStatus != null) ...[
+            AiReviewBadge(status: _aiStatus!, issues: _aiIssues),
+            const SizedBox(height: AppSpacing.md),
+          ],
 
           // Rejection Reason Box (if rejected)
           if (kycData.isRejected &&

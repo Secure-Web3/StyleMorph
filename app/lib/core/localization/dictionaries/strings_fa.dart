@@ -1050,4 +1050,17 @@ final Map<String, String> stringsFa = {
   'aboutCopyrightNotice': 'تمامی حقوق برای پلتفرم StyleMorph محفوظ است © ۲۰۲۶',
   'aboutLinkCopied': 'در کلیپ‌بورد کپی شد',
   'aboutClose': 'بستن',
+  'aiStatusReviewing': 'در حال بررسی هوشمند...',
+  'aiStatusApproved': 'تأییدشده توسط هوش مصنوعی',
+  'aiStatusRejected': 'نیازمند اصلاح',
+  'aiStatusManualReview': 'در انتظار بررسی',
+  'aiIssueFileTooLarge': 'حجم فایل از حد مجاز بیشتر است.',
+  'aiIssueUnsupportedFormat':
+      'فرمت فایل پشتیبانی نمی‌شود. از JPG، PNG، WebP یا MP4 استفاده کنید.',
+  'aiIssueLowResolution': 'کیفیت یا وضوح فایل برای پردازش دقیق کافی نیست.',
+  'aiIssueBlurryOrDark':
+      'تصویر تار یا کم‌نور است. لطفاً در نور مناسب مجدداً ثبت کنید.',
+  'aiIssueMissingSubject':
+      'سوژه یا مدرک موردنظر به‌وضوح در تصویر دیده نمی‌شود.',
+  'aiIssuePolicyViolation': 'محتوا با قوانین ایمنی پلتفرم مطابقت ندارد.',
 };

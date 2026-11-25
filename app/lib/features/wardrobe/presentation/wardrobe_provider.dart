@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/ai/ai_verification_service.dart';
 import '../../../core/services/notification_service.dart';
 import '../../../core/services/storage/media_storage_provider.dart';
 import '../../../core/services/storage/media_storage_service.dart';
@@ -233,12 +234,14 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
   final MediaStorageService? _storageService;
   final String? _userId;
   final NotificationService? _notificationService;
+  final AiVerificationService? _aiVerificationService;
 
   WardrobeNotifier(
     this._repo, [
     this._storageService,
     this._userId,
     this._notificationService,
+    this._aiVerificationService,
   ]) : super(
          WardrobeState(
            items: _repo is InMemoryWardrobeRepository
@@ -776,7 +779,45 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
       emoji: '👗',
       eventType: 'wardrobe_item_added',
     );
+    if (images.isNotEmpty) {
+      final firstMime = (mimeTypes != null && mimeTypes.isNotEmpty)
+          ? mimeTypes.first
+          : 'image/jpeg';
+      unawaited(
+        _verifyWardrobeGarmentAsync(
+          bytes: images.first,
+          mimeType: firstMime,
+          title: title,
+          category: category,
+        ),
+      );
+    }
     return item;
+  }
+
+  Future<void> _verifyWardrobeGarmentAsync({
+    required Uint8List bytes,
+    required String mimeType,
+    required String title,
+    required String category,
+  }) async {
+    try {
+      final verifier = _aiVerificationService ?? AiVerificationService();
+      final result = await verifier.verifyWardrobeGarment(
+        bytes: bytes,
+        fileNameOrMime: mimeType,
+        category: category,
+      );
+      if (result.isApproved && _notificationService != null) {
+        final uid = (_userId != null && _userId.isNotEmpty) ? _userId : 'guest';
+        await _notificationService.notifyWardrobeItemApproved(
+          uid: uid,
+          itemName: title,
+        );
+      }
+    } catch (_) {
+      // Non-blocking AI quality-control hook; never fails item creation.
+    }
   }
 
   Future<WardrobeItem> addItemWithImage({
@@ -833,6 +874,13 @@ final wardrobeProvider = StateNotifierProvider<WardrobeNotifier, WardrobeState>(
     final repo = ref.watch(wardrobeRepositoryProvider);
     final storageService = ref.watch(mediaStorageServiceProvider);
     final notificationService = ref.read(notificationServiceProvider);
-    return WardrobeNotifier(repo, storageService, uid, notificationService);
+    final aiVerificationService = ref.read(aiVerificationServiceProvider);
+    return WardrobeNotifier(
+      repo,
+      storageService,
+      uid,
+      notificationService,
+      aiVerificationService,
+    );
   },
 );

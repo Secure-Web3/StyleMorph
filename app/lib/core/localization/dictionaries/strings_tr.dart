@@ -1059,4 +1059,17 @@ final Map<String, String> stringsTr = {
   'aboutCopyrightNotice': '© 2026 StyleMorph. Tüm hakları saklıdır.',
   'aboutLinkCopied': 'Panoya kopyalandı',
   'aboutClose': 'Kapat',
+  'aiStatusReviewing': 'Yapay Zeka İnceliyor...',
+  'aiStatusApproved': 'YZ Onaylı',
+  'aiStatusRejected': 'Düzeltme Gerekli',
+  'aiStatusManualReview': 'İnceleme Bekliyor',
+  'aiIssueFileTooLarge': 'Dosya boyutu izin verilen sınırı aşıyor.',
+  'aiIssueUnsupportedFormat':
+      'Desteklenmeyen dosya formatı. Lütfen JPG, PNG, WebP veya MP4 kullanın.',
+  'aiIssueLowResolution':
+      'Doğru analiz için görüntü veya video çözünürlüğü çok düşük.',
+  'aiIssueBlurryOrDark':
+      'Medya bulanık veya çok karanlık görünüyor. Daha iyi ışıkta tekrar çekin.',
+  'aiIssueMissingSubject': 'Gerekli özne veya belge net şekilde görünmüyor.',
+  'aiIssuePolicyViolation': 'İçerik platform güvenlik kurallarına uymuyor.',
 };

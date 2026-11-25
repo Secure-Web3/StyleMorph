@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../core/ai/ai_verification_models.dart';
+import '../../../../core/ai/ai_verification_service.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/widgets/ai_review_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_media_image.dart';
@@ -43,6 +47,8 @@ class _MediaSlotDef {
 class _MediaSubTabState extends ConsumerState<MediaSubTab> {
   final ImagePicker _picker = ImagePicker();
   String? _uploadingSlot;
+  final Map<String, AiVerificationResult> _slotAiResults = {};
+  final Set<String> _reviewingSlots = {};
 
   List<_MediaSlotDef> _getSlots(BuildContext context, String personaMode) {
     final strings = context.strings;
@@ -142,7 +148,45 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
       if (mounted) {
         setState(() {
           _uploadingSlot = slot.key;
+          _reviewingSlots.add(slot.key);
         });
+      }
+
+      final bytes = await picked.readAsBytes();
+      final aiResult = await ref
+          .read(aiVerificationServiceProvider)
+          .verifyProfileMedia(
+            bytes: bytes,
+            fileNameOrMime: picked.mimeType ?? picked.name,
+            slotKey: slot.key,
+            isVideo: slot.isVideo,
+          );
+
+      if (mounted) {
+        setState(() {
+          _reviewingSlots.remove(slot.key);
+          _slotAiResults[slot.key] = aiResult;
+        });
+      }
+
+      final reason = aiResult.issues.isNotEmpty
+          ? AiReviewBadge.localizeIssue(strings, aiResult.issues.first)
+          : null;
+      ref
+          .read(notificationServiceProvider)
+          .notifyMediaReviewStatus(
+            uid: uid,
+            mediaLabel: slot.title,
+            approved: aiResult.isApproved,
+            reason: reason,
+          )
+          .catchError((_) {});
+
+      if (aiResult.isRejected) {
+        if (context.mounted) {
+          AppToast.showError(context, reason ?? strings.aiStatusRejected);
+        }
+        return;
       }
 
       final downloadUrl = await mediaService.uploadMediaSlot(
@@ -853,6 +897,19 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                       ),
                       textAlign: TextAlign.center,
                     ),
+                    if (_reviewingSlots.contains(slot.key) ||
+                        _slotAiResults[slot.key] != null) ...[
+                      const SizedBox(height: 4),
+                      Center(
+                        child: AiReviewBadge(
+                          status: _reviewingSlots.contains(slot.key)
+                              ? AiVerificationStatus.reviewing
+                              : _slotAiResults[slot.key]!.status,
+                          issues: _slotAiResults[slot.key]?.issues ?? const [],
+                          compact: true,
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 4),
 
                     // Actions Row

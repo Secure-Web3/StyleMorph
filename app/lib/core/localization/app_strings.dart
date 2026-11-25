@@ -1338,6 +1338,18 @@ class AppStrings {
   String get aboutLinkCopied => get('aboutLinkCopied');
   String get aboutClose => get('aboutClose');
 
+  // Phase 4: AI Quality-Control & Verification
+  String get aiStatusReviewing => get('aiStatusReviewing');
+  String get aiStatusApproved => get('aiStatusApproved');
+  String get aiStatusRejected => get('aiStatusRejected');
+  String get aiStatusManualReview => get('aiStatusManualReview');
+  String get aiIssueFileTooLarge => get('aiIssueFileTooLarge');
+  String get aiIssueUnsupportedFormat => get('aiIssueUnsupportedFormat');
+  String get aiIssueLowResolution => get('aiIssueLowResolution');
+  String get aiIssueBlurryOrDark => get('aiIssueBlurryOrDark');
+  String get aiIssueMissingSubject => get('aiIssueMissingSubject');
+  String get aiIssuePolicyViolation => get('aiIssuePolicyViolation');
+
   String formatRelativeTime(DateTime dt) {
     final now = DateTime.now();
     final diff = now.difference(dt);

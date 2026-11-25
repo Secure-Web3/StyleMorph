@@ -1052,4 +1052,18 @@ final Map<String, String> stringsEn = {
   'aboutCopyrightNotice': '© 2026 StyleMorph. All rights reserved.',
   'aboutLinkCopied': 'Copied to clipboard',
   'aboutClose': 'Close',
+  'aiStatusReviewing': 'AI Reviewing...',
+  'aiStatusApproved': 'AI Verified',
+  'aiStatusRejected': 'Needs Attention',
+  'aiStatusManualReview': 'Pending Review',
+  'aiIssueFileTooLarge': 'File size exceeds the allowed limit.',
+  'aiIssueUnsupportedFormat':
+      'Unsupported file format. Please use JPG, PNG, WebP, or MP4.',
+  'aiIssueLowResolution':
+      'Image or video resolution is too low for accurate analysis.',
+  'aiIssueBlurryOrDark':
+      'Media appears blurry or too dark. Please retake in better light.',
+  'aiIssueMissingSubject':
+      'Required subject or document is not clearly visible.',
+  'aiIssuePolicyViolation': 'Content does not meet platform safety guidelines.',
 };
