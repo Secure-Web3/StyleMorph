@@ -314,7 +314,7 @@ class _SearchableCountryViewState extends State<_SearchableCountryView> {
                   return ListTile(
                     leading: Text(c.flag, style: const TextStyle(fontSize: 22)),
                     title: Text(
-                      c.localizedName(widget.localeCode),
+                      c.nameEn,
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 13,
@@ -325,7 +325,7 @@ class _SearchableCountryViewState extends State<_SearchableCountryView> {
                       ),
                     ),
                     subtitle: Text(
-                      '${c.nameEn} (${c.code})',
+                      c.code,
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 11,
@@ -541,7 +541,7 @@ class _SearchableProvinceViewState extends State<_SearchableProvinceView> {
 
                   return ListTile(
                     title: Text(
-                      p.localizedName(widget.localeCode),
+                      p.nameEn,
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 13,
@@ -551,14 +551,16 @@ class _SearchableProvinceViewState extends State<_SearchableProvinceView> {
                         color: isSelected ? colors.pr : colors.tx,
                       ),
                     ),
-                    subtitle: Text(
-                      p.nameEn,
-                      style: TextStyle(
-                        fontFamily: AppTypography.fontFamily,
-                        fontSize: 11,
-                        color: colors.mu,
-                      ),
-                    ),
+                    subtitle: p.code.isNotEmpty
+                        ? Text(
+                            p.code,
+                            style: TextStyle(
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: 11,
+                              color: colors.mu,
+                            ),
+                          )
+                        : null,
                     trailing: isSelected
                         ? FaIcon(
                             FontAwesomeIcons.check,
@@ -775,16 +777,18 @@ class _SearchableCityViewState extends State<_SearchableCityView> {
                     const Divider(height: 1, indent: 16),
                 itemBuilder: (ctx, index) {
                   final c = _filtered[index];
-                  final localizedName = c.localizedName(widget.localeCode);
+                  final latinName = c.nameEn;
                   final isSelected =
                       widget.currentCity != null &&
-                      (widget.currentCity == localizedName ||
-                          widget.currentCity?.toLowerCase() ==
-                              c.nameEn.toLowerCase());
+                      (widget.currentCity?.toLowerCase() ==
+                              c.nameEn.toLowerCase() ||
+                          widget.currentCity == c.nameFa ||
+                          widget.currentCity == c.nameAr ||
+                          widget.currentCity == c.nameTr);
 
                   return ListTile(
                     title: Text(
-                      localizedName,
+                      latinName,
                       style: TextStyle(
                         fontFamily: AppTypography.fontFamily,
                         fontSize: 13,
@@ -794,14 +798,6 @@ class _SearchableCityViewState extends State<_SearchableCityView> {
                         color: isSelected ? colors.pr : colors.tx,
                       ),
                     ),
-                    subtitle: Text(
-                      c.nameEn,
-                      style: TextStyle(
-                        fontFamily: AppTypography.fontFamily,
-                        fontSize: 11,
-                        color: colors.mu,
-                      ),
-                    ),
                     trailing: isSelected
                         ? FaIcon(
                             FontAwesomeIcons.check,
@@ -809,7 +805,7 @@ class _SearchableCityViewState extends State<_SearchableCityView> {
                             color: colors.pr,
                           )
                         : null,
-                    onTap: () => _safePop(localizedName),
+                    onTap: () => _safePop(latinName),
                   );
                 },
               ),

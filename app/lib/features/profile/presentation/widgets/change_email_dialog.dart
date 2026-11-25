@@ -388,25 +388,7 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
           const SizedBox(height: AppSpacing.md),
         ],
 
-        if (_isGoogleUser) ...[
-          AppButton(
-            variant: AppButtonVariant.secondary,
-            isFullWidth: true,
-            icon: FaIcon(FontAwesomeIcons.google, size: 16, color: colors.tx),
-            text: _isLoading ? null : strings.idVerifyWithGoogle,
-            onPressed: _isLoading ? null : _handleGoogleReauthenticate,
-            child: _isLoading
-                ? SizedBox(
-                    width: 16,
-                    height: 16,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: colors.tx,
-                    ),
-                  )
-                : null,
-          ),
-        ] else ...[
+        if (!_isGoogleUser) ...[
           // Password input field
           AppTextField(
             label: strings.idCurrentPasswordLabel,
@@ -461,11 +443,51 @@ class _ChangeEmailDialogState extends State<ChangeEmailDialog> {
 
         // Action Buttons
         if (_isGoogleUser) ...[
-          AppButton(
-            variant: AppButtonVariant.outline,
-            isFullWidth: true,
-            text: strings.back,
-            onPressed: _isLoading ? null : () => Navigator.of(context).pop(),
+          Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: AppButton(
+                  variant: AppButtonVariant.outline,
+                  text: strings.back,
+                  padding: const EdgeInsetsDirectional.symmetric(
+                    horizontal: AppSpacing.sm,
+                  ),
+                  onPressed: _isLoading
+                      ? null
+                      : () => Navigator.of(context).pop(),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                flex: 2,
+                child: AppButton(
+                  variant: AppButtonVariant.secondary,
+                  icon: _isLoading
+                      ? null
+                      : FaIcon(
+                          FontAwesomeIcons.google,
+                          size: 16,
+                          color: colors.tx,
+                        ),
+                  text: _isLoading ? null : strings.idVerifyWithGoogle,
+                  padding: const EdgeInsetsDirectional.symmetric(
+                    horizontal: AppSpacing.sm,
+                  ),
+                  onPressed: _isLoading ? null : _handleGoogleReauthenticate,
+                  child: _isLoading
+                      ? SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: colors.tx,
+                          ),
+                        )
+                      : null,
+                ),
+              ),
+            ],
           ),
         ] else ...[
           Row(

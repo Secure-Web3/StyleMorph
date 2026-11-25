@@ -44,9 +44,22 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
         }
       } catch (_) {}
       if (uid.isNotEmpty) {
-        final fresh = await ref.read(referralServiceProvider).getReferrals(uid);
-        if (mounted && fresh.isNotEmpty) {
-          ref.read(appStateProvider.notifier).setReferralData(referrals: fresh);
+        final referralService = ref.read(referralServiceProvider);
+        final ensuredCode = await referralService.ensureUserReferralCode(uid);
+        final fresh = await referralService.getReferrals(uid);
+        if (mounted) {
+          final currentCode = ref.read(appStateProvider).referralCode;
+          if (fresh.isNotEmpty ||
+              (ensuredCode.isNotEmpty && currentCode.isEmpty)) {
+            ref
+                .read(appStateProvider.notifier)
+                .setReferralData(
+                  referralCode: ensuredCode.isNotEmpty && currentCode.isEmpty
+                      ? ensuredCode
+                      : null,
+                  referrals: fresh.isNotEmpty ? fresh : null,
+                );
+          }
         }
       }
     });
@@ -171,6 +184,45 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
+
+          // Compact Tap-to-Copy 8-Character Referral Code Box (no separate copy button)
+          Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: refCode.isNotEmpty
+                  ? () {
+                      Clipboard.setData(ClipboardData(text: refCode));
+                      AppToast.showSuccess(context, strings.refCopiedToast);
+                    }
+                  : null,
+              borderRadius: AppRadius.rLg,
+              child: Container(
+                height: 44,
+                alignment: Alignment.center,
+                padding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: AppSpacing.md,
+                ),
+                decoration: BoxDecoration(
+                  color: colors.sf,
+                  borderRadius: AppRadius.rLg,
+                  border: Border.all(color: colors.bd),
+                ),
+                child: Text(
+                  refCode.isNotEmpty ? refCode : '...',
+                  style: TextStyle(
+                    fontFamily: AppTypography.fontFamily,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 2.0,
+                    color: colors.pr,
+                  ),
+                  textDirection: TextDirection.ltr,
+                  maxLines: 1,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
 
           // Referral Link Box (Full-Width, Single-Tap Native Share / Copy)
           Row(

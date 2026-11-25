@@ -166,9 +166,29 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     _nidController = TextEditingController(text: values['nid'] ?? '');
     _dobController = TextEditingController(text: values['dob'] ?? '');
     _emailController = TextEditingController(text: initialEmail);
-    _countryController = TextEditingController(text: values['country'] ?? '');
-    _provinceController = TextEditingController(text: values['province'] ?? '');
-    _cityController = TextEditingController(text: values['city'] ?? '');
+    final initialCountry = savedCountryName.isNotEmpty
+        ? IsoLocationData.normalizeCountryName(
+            savedCountryName,
+            code: savedCountryCode,
+          )
+        : '';
+    final initialProvince = savedProvinceName.isNotEmpty
+        ? IsoLocationData.normalizeProvinceName(
+            _selectedCountry,
+            savedProvinceName,
+            code: savedProvinceCode,
+          )
+        : '';
+    final initialCity = (values['city'] ?? '').isNotEmpty
+        ? IsoLocationData.normalizeCityName(
+            values['city'],
+            country: _selectedCountry,
+            province: _selectedProvince,
+          )
+        : '';
+    _countryController = TextEditingController(text: initialCountry);
+    _provinceController = TextEditingController(text: initialProvince);
+    _cityController = TextEditingController(text: initialCity);
     _addressController = TextEditingController(text: values['address'] ?? '');
     _zipController = TextEditingController(text: values['zip'] ?? '');
 
@@ -199,9 +219,49 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     update(_nidController, values['nid']);
     update(_dobController, values['dob']);
     update(_emailController, values['email'] ?? user?.email);
-    update(_countryController, values['country']);
-    update(_provinceController, values['province']);
-    update(_cityController, values['city']);
+    final rawCountry = values['country'] ?? '';
+    final syncedCountry =
+        IsoLocationData.findByCode(values['countryCode']) ??
+        IsoLocationData.findByName(rawCountry) ??
+        _selectedCountry;
+    final syncedProvince =
+        IsoLocationData.findProvince(
+          syncedCountry,
+          code: values['provinceCode'],
+          name: values['province'],
+        ) ??
+        _selectedProvince;
+    update(
+      _countryController,
+      rawCountry.isNotEmpty
+          ? IsoLocationData.normalizeCountryName(
+              rawCountry,
+              code: values['countryCode'],
+            )
+          : '',
+    );
+    final rawProvince = values['province'] ?? '';
+    update(
+      _provinceController,
+      rawProvince.isNotEmpty
+          ? IsoLocationData.normalizeProvinceName(
+              syncedCountry,
+              rawProvince,
+              code: values['provinceCode'],
+            )
+          : '',
+    );
+    final rawCity = values['city'] ?? '';
+    update(
+      _cityController,
+      rawCity.isNotEmpty
+          ? IsoLocationData.normalizeCityName(
+              rawCity,
+              country: syncedCountry,
+              province: syncedProvince,
+            )
+          : '',
+    );
     update(_addressController, values['address']);
     update(_zipController, values['zip']);
 
@@ -457,13 +517,12 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     );
     if (!mounted) return;
     if (picked != null) {
-      final locale = Localizations.localeOf(context).languageCode;
       final strings = context.strings;
-      final localizedName = picked.localizedName(locale);
+      final latinName = picked.nameEn;
       setState(() {
         _selectedCountry = picked;
         _selectedProvince = null;
-        _countryController.text = localizedName;
+        _countryController.text = latinName;
         _provinceController.text = '';
         _cityController.text = '';
 
@@ -482,7 +541,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
         _validateZip(_zipController.text, strings);
         _validateMobile(_mobileSubscriberController.text, strings);
       });
-      _onFieldChanged('country', localizedName);
+      _onFieldChanged('country', latinName);
       _onFieldChanged('countryCode', picked.code);
       _onFieldChanged('province', '');
       _onFieldChanged('provinceCode', '');
@@ -498,14 +557,13 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     );
     if (!mounted) return;
     if (picked != null) {
-      final locale = Localizations.localeOf(context).languageCode;
-      final localizedName = picked.localizedName(locale);
+      final latinName = picked.nameEn;
       setState(() {
         _selectedProvince = picked;
-        _provinceController.text = localizedName;
+        _provinceController.text = latinName;
         _cityController.text = '';
       });
-      _onFieldChanged('province', localizedName);
+      _onFieldChanged('province', latinName);
       _onFieldChanged('provinceCode', picked.code);
       _onFieldChanged('city', '');
     }

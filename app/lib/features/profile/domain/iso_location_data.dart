@@ -1127,4 +1127,84 @@ class IsoLocationData {
     }
     return null;
   }
+
+  /// Resolves a province by [code] or localized/Latin [name] within [country].
+  static IsoProvince? findProvince(
+    IsoCountry country, {
+    String? code,
+    String? name,
+  }) {
+    final normCode = code?.trim().toLowerCase() ?? '';
+    final normName = name?.trim().toLowerCase() ?? '';
+    if (normCode.isEmpty && normName.isEmpty) return null;
+    for (final p in country.provinces) {
+      if ((normCode.isNotEmpty && p.code.toLowerCase() == normCode) ||
+          (normName.isNotEmpty &&
+              (p.nameEn.toLowerCase() == normName ||
+                  p.nameFa.toLowerCase() == normName ||
+                  p.nameAr.toLowerCase() == normName ||
+                  p.nameTr.toLowerCase() == normName))) {
+        return p;
+      }
+    }
+    return null;
+  }
+
+  /// Normalizes a saved country name/code to its canonical Latin (English) name.
+  static String normalizeCountryName(String? name, {String? code}) {
+    final raw = name?.trim() ?? '';
+    final matched = findByCode(code) ?? findByName(raw);
+    if (matched != null) return matched.nameEn;
+    return raw;
+  }
+
+  /// Normalizes a saved province name/code to its canonical Latin (English) name.
+  static String normalizeProvinceName(
+    IsoCountry country,
+    String? name, {
+    String? code,
+  }) {
+    final raw = name?.trim() ?? '';
+    final matched = findProvince(country, code: code, name: raw);
+    if (matched != null) return matched.nameEn;
+    return raw;
+  }
+
+  /// Normalizes a saved city name to its canonical Latin (English) name.
+  static String normalizeCityName(
+    String? name, {
+    IsoCountry? country,
+    IsoProvince? province,
+  }) {
+    final raw = name?.trim() ?? '';
+    if (raw.isEmpty) return '';
+    final norm = raw.toLowerCase();
+
+    bool matchesCity(IsoCity c) =>
+        c.nameEn.toLowerCase() == norm ||
+        c.nameFa.toLowerCase() == norm ||
+        c.nameAr.toLowerCase() == norm ||
+        c.nameTr.toLowerCase() == norm;
+
+    if (province != null) {
+      for (final c in province.cities) {
+        if (matchesCity(c)) return c.nameEn;
+      }
+    }
+    if (country != null) {
+      for (final p in country.provinces) {
+        for (final c in p.cities) {
+          if (matchesCity(c)) return c.nameEn;
+        }
+      }
+    }
+    for (final co in countries) {
+      for (final p in co.provinces) {
+        for (final c in p.cities) {
+          if (matchesCity(c)) return c.nameEn;
+        }
+      }
+    }
+    return raw;
+  }
 }

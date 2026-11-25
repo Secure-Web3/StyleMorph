@@ -113,6 +113,14 @@ class ReferralService {
       final userSnap = await userDocRef.get();
       final currentCode = userSnap.data()?['referralCode']?.toString() ?? '';
       if (currentCode.isNotEmpty) {
+        final codeRef = firestore.collection('referral_codes').doc(currentCode);
+        final codeSnap = await codeRef.get();
+        if (!codeSnap.exists) {
+          await codeRef.set({
+            'uid': uid,
+            'createdAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        }
         return currentCode;
       }
 
@@ -188,7 +196,9 @@ class ReferralService {
         debugPrint(
           '[ReferralService] Referral code "$cleanCode" does not exist in referral_codes.',
         );
-        await clearPendingReferralCode();
+        if (!codeDoc.metadata.isFromCache) {
+          await clearPendingReferralCode();
+        }
         return false;
       }
 
@@ -320,6 +330,23 @@ class ReferralService {
         );
         if (rIndex != -1 && rIndex + 1 < segments.length) {
           code = segments[rIndex + 1];
+        }
+      }
+      if ((code == null || code.trim().isEmpty) && uri.fragment.isNotEmpty) {
+        final fragUri = Uri.tryParse(uri.fragment);
+        if (fragUri != null) {
+          code =
+              fragUri.queryParameters['ref'] ??
+              fragUri.queryParameters['refCode'];
+          if (code == null || code.trim().isEmpty) {
+            final segments = fragUri.pathSegments;
+            final rIndex = segments.indexWhere(
+              (s) => s.toLowerCase() == 'r' || s.toLowerCase() == 'ref',
+            );
+            if (rIndex != -1 && rIndex + 1 < segments.length) {
+              code = segments[rIndex + 1];
+            }
+          }
         }
       }
 

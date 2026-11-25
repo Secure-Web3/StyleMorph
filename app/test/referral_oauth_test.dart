@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -188,6 +189,85 @@ void main() {
         expect(find.text('Friend Two'), findsOneWidget);
         expect(find.text('friend2@example.com'), findsOneWidget);
         expect(container.read(appStateProvider).referralCount, 2);
+      },
+    );
+
+    test(
+      'captureReferralFromUri captures #/?ref=CODE from hash fragment URL',
+      () async {
+        final service = ReferralService();
+        final uri = Uri.parse(
+          'https://stylemorph-preview.web.app/#/?ref=9q7kbzkd',
+        );
+        await service.captureReferralFromUri(uri);
+
+        final storedCode = await service.getPendingReferralCode();
+        expect(storedCode, '9Q7KBZKD');
+      },
+    );
+
+    testWidgets(
+      'ReferralSubTab renders compact tap-to-copy 8-char code box without separate copy button',
+      (tester) async {
+        String? clipboardText;
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+              if (call.method == 'Clipboard.setData') {
+                final args = call.arguments as Map<dynamic, dynamic>;
+                clipboardText = args['text']?.toString();
+              }
+              return null;
+            });
+        addTearDown(() {
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(SystemChannels.platform, null);
+        });
+
+        final initialState = const AppState(
+          referralCode: '9Q7KBZKD',
+          referrals: [],
+          referralCount: 0,
+          networkTier: 'Starter',
+        );
+
+        final container = ProviderContainer(
+          overrides: [
+            appStateProvider.overrideWith(
+              (ref) => _TestAppStateNotifier(initialState),
+            ),
+          ],
+        );
+        addTearDown(container.dispose);
+
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+              theme: testTheme,
+              locale: const Locale('fa'),
+              supportedLocales: const [Locale('fa'), Locale('en')],
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              home: const Scaffold(body: ReferralSubTab()),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final codeFinder = find.text('9Q7KBZKD');
+        expect(codeFinder, findsOneWidget);
+
+        // No separate copy icon button should exist
+        expect(find.byIcon(Icons.copy), findsNothing);
+        expect(find.byIcon(Icons.content_copy), findsNothing);
+
+        // Tapping the code box itself copies the 8-char code to clipboard
+        await tester.tap(codeFinder);
+        await tester.pump();
+        expect(clipboardText, '9Q7KBZKD');
       },
     );
   });
