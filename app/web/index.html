@@ -20,10 +20,12 @@
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
 
-  <!-- iOS meta tags & icons -->
+  <!-- iOS & PWA meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="stylemorph">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="StyleMorph">
+  <meta name="theme-color" content="#0D0D0F">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
@@ -194,26 +196,49 @@
     })();
   </script>
   <!--
-    Unregister any active Flutter service workers and purge stale PWA caches
-    before loading the app. This prevents users from being stuck on an outdated
-    build after a new deployment without needing Incognito or manual cache clear.
+    Unregister ONLY legacy Flutter service workers (anything other than /pwa_sw.js),
+    purge legacy caches only if a legacy service worker was found, and register our
+    lightweight zero-cache /pwa_sw.js for standalone Chrome PWA / WebAPK installability.
   -->
   <script>
     (function () {
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then(function (registrations) {
-          registrations.forEach(function (reg) {
-            reg.unregister();
-          });
+      if (!('serviceWorker' in navigator)) return;
+
+      navigator.serviceWorker.getRegistrations().then(function (registrations) {
+        var legacyRegs = registrations.filter(function (reg) {
+          var scriptUrl =
+            (reg.active && reg.active.scriptURL) ||
+            (reg.waiting && reg.waiting.scriptURL) ||
+            (reg.installing && reg.installing.scriptURL) ||
+            '';
+          return !scriptUrl.endsWith('/pwa_sw.js');
         });
-      }
-      if ('caches' in window) {
-        caches.keys().then(function (cacheNames) {
-          cacheNames.forEach(function (cacheName) {
-            caches.delete(cacheName);
-          });
+
+        if (legacyRegs.length === 0) return;
+
+        Promise.all(
+          legacyRegs.map(function (reg) {
+            return reg.unregister();
+          })
+        ).then(function () {
+          if ('caches' in window) {
+            caches.keys().then(function (cacheNames) {
+              cacheNames.forEach(function (cacheName) {
+                caches.delete(cacheName);
+              });
+            });
+          }
         });
-      }
+      });
+
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('/pwa_sw.js', {
+          scope: '/',
+          updateViaCache: 'none'
+        }).catch(function (err) {
+          console.warn('PWA Service Worker registration failed:', err);
+        });
+      });
     })();
   </script>
 
