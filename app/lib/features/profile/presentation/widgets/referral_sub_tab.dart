@@ -15,6 +15,7 @@ import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../auth/presentation/auth_provider.dart';
 import 'share_actions.dart' as share_actions;
 
 final referralsStreamProvider = StreamProvider.autoDispose
@@ -91,13 +92,15 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
     final colors = context.colors;
     final strings = context.strings;
     final appState = ref.watch(appStateProvider);
-    String uid = '';
-    try {
-      if (Firebase.apps.isNotEmpty) {
-        uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    String uid = ref.watch(currentUidProvider) ?? '';
+    if (uid.isEmpty) {
+      try {
+        if (Firebase.apps.isNotEmpty) {
+          uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+        }
+      } catch (_) {
+        uid = '';
       }
-    } catch (_) {
-      uid = '';
     }
 
     final refCode = appState.referralCode.isNotEmpty
@@ -210,7 +213,8 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
                 child: Text(
                   refCode.isNotEmpty ? refCode : '...',
                   style: TextStyle(
-                    fontFamily: AppTypography.fontFamily,
+                    fontFamily: 'monospace',
+                    fontFamilyFallback: const ['Roboto', 'Arial', 'sans-serif'],
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 2.0,

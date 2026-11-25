@@ -96,58 +96,81 @@ class ReferralService {
   }
 
   /// Ensures a referral code exists for [uid], generating and indexing one if missing.
+  /// Never regenerates or overwrites an existing persisted code.
   Future<String> ensureUserReferralCode(
     String uid, {
     String? existingCode,
   }) async {
     if (uid.isEmpty) return '';
+    final fallbackCode = existingCode?.trim().toUpperCase() ?? '';
     final firestore = _firestore;
     if (firestore == null) {
-      return existingCode?.isNotEmpty == true
-          ? existingCode!
-          : generateReferralCode();
+      return fallbackCode;
     }
 
     try {
       final userDocRef = firestore.collection('users').doc(uid);
       final userSnap = await userDocRef.get();
-      final currentCode = userSnap.data()?['referralCode']?.toString() ?? '';
+      final currentCode =
+          userSnap.data()?['referralCode']?.toString().trim().toUpperCase() ??
+          '';
       if (currentCode.isNotEmpty) {
-        final codeRef = firestore.collection('referral_codes').doc(currentCode);
-        final codeSnap = await codeRef.get();
-        if (!codeSnap.exists) {
-          await codeRef.set({
-            'uid': uid,
-            'createdAt': FieldValue.serverTimestamp(),
-          }, SetOptions(merge: true));
+        try {
+          final codeRef = firestore
+              .collection('referral_codes')
+              .doc(currentCode);
+          final codeSnap = await codeRef.get();
+          if (!codeSnap.exists) {
+            await codeRef.set({
+              'uid': uid,
+              'createdAt': FieldValue.serverTimestamp(),
+            }, SetOptions(merge: true));
+          }
+        } catch (e) {
+          debugPrint('[ReferralService] referral_codes sync notice: $e');
         }
         return currentCode;
       }
 
       // Generate unique 8-char code
-      String code = generateReferralCode();
+      String candidateCode = generateReferralCode();
       for (int i = 0; i < 5; i++) {
         final existing = await firestore
             .collection('referral_codes')
-            .doc(code)
+            .doc(candidateCode)
             .get();
         if (!existing.exists) break;
-        code = generateReferralCode();
+        candidateCode = generateReferralCode();
       }
 
-      final batch = firestore.batch();
-      batch.set(userDocRef, {'referralCode': code}, SetOptions(merge: true));
-      batch.set(firestore.collection('referral_codes').doc(code), {
-        'uid': uid,
-        'createdAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
-      await batch.commit();
-      return code;
+      // Use a transaction so concurrent calls never overwrite an existing code
+      final resolvedCode = await firestore.runTransaction<String>((tx) async {
+        final freshUserSnap = await tx.get(userDocRef);
+        final existingInTx =
+            freshUserSnap
+                .data()?['referralCode']
+                ?.toString()
+                .trim()
+                .toUpperCase() ??
+            '';
+        if (existingInTx.isNotEmpty) {
+          return existingInTx;
+        }
+        tx.set(userDocRef, {
+          'referralCode': candidateCode,
+        }, SetOptions(merge: true));
+        tx.set(
+          firestore.collection('referral_codes').doc(candidateCode),
+          {'uid': uid, 'createdAt': FieldValue.serverTimestamp()},
+          SetOptions(merge: true),
+        );
+        return candidateCode;
+      });
+
+      return resolvedCode;
     } catch (e) {
       debugPrint('[ReferralService] ensureUserReferralCode notice: $e');
-      return existingCode?.isNotEmpty == true
-          ? existingCode!
-          : generateReferralCode();
+      return fallbackCode;
     }
   }
 
@@ -231,11 +254,7 @@ class ReferralService {
           .collection('referrals')
           .doc(newUserUid);
 
-      final batch = firestore.batch();
-
-      // 1. Save referral entry under users/{inviterUid}/referrals/{newUserUid}
-      // Zero writes to protected financial fields (walletBalance, coins, referralCount, networkTier)
-      batch.set(referralRecordRef, {
+      final referralPayload = <String, dynamic>{
         'inviteeUid': newUserUid,
         'displayName': (displayName != null && displayName.isNotEmpty)
             ? displayName
@@ -243,7 +262,13 @@ class ReferralService {
         'email': newEmail,
         'rewardEarned': 0,
         'createdAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      };
+
+      final batch = firestore.batch();
+
+      // 1. Save referral entry under users/{inviterUid}/referrals/{newUserUid}
+      // Zero writes to protected financial fields (walletBalance, coins, referralCount, networkTier)
+      batch.set(referralRecordRef, referralPayload, SetOptions(merge: true));
 
       // 2. Set referredBy metadata on new user
       batch.set(newUserRef, {
@@ -251,7 +276,25 @@ class ReferralService {
         'referredByCode': cleanCode,
       }, SetOptions(merge: true));
 
-      await batch.commit();
+      try {
+        await batch.commit();
+      } catch (batchErr) {
+        debugPrint(
+          '[ReferralService] Batch commit failed ($batchErr); falling back to standalone referral record write.',
+        );
+        await referralRecordRef.set(referralPayload, SetOptions(merge: true));
+        try {
+          await newUserRef.set({
+            'referredBy': inviterUid,
+            'referredByCode': cleanCode,
+          }, SetOptions(merge: true));
+        } catch (userUpdateErr) {
+          debugPrint(
+            '[ReferralService] Optional referredBy update notice: $userUpdateErr',
+          );
+        }
+      }
+
       await clearPendingReferralCode();
       debugPrint(
         '[ReferralService] Successfully attributed referral $cleanCode ($inviterUid -> $newUserUid).',
@@ -276,6 +319,18 @@ class ReferralService {
     referralCode: referralCode,
   );
 
+  static List<ReferralEntry> _sortedEntries(
+    Iterable<QueryDocumentSnapshot<Map<String, dynamic>>> docs,
+  ) {
+    final entries = docs.map(ReferralEntry.fromFirestore).toList();
+    entries.sort((a, b) {
+      final aTime = a.createdAt ?? DateTime.now();
+      final bTime = b.createdAt ?? DateTime.now();
+      return bTime.compareTo(aTime);
+    });
+    return entries;
+  }
+
   /// Fetches real invited friends list for [uid] with limit(50).
   Future<List<ReferralEntry>> getReferrals(String uid) async {
     if (uid.isEmpty) return const [];
@@ -287,10 +342,9 @@ class ReferralService {
           .collection('users')
           .doc(uid)
           .collection('referrals')
-          .orderBy('createdAt', descending: true)
           .limit(50)
           .get();
-      return snap.docs.map(ReferralEntry.fromFirestore).toList();
+      return _sortedEntries(snap.docs);
     } catch (e) {
       debugPrint('[ReferralService] getReferrals notice: $e');
       return const [];
@@ -308,10 +362,9 @@ class ReferralService {
           .collection('users')
           .doc(uid)
           .collection('referrals')
-          .orderBy('createdAt', descending: true)
           .limit(50)
           .snapshots()
-          .map((snap) => snap.docs.map(ReferralEntry.fromFirestore).toList());
+          .map((snap) => _sortedEntries(snap.docs));
     } catch (e) {
       debugPrint('[ReferralService] referralsStream notice: $e');
       return const Stream.empty();

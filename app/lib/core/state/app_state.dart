@@ -509,7 +509,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
           _profileSyncService
               .ensureReferralCode(FirebaseAuth.instance.currentUser!.uid)
               .then((newCode) {
-                if (newCode != null && mounted) {
+                if (newCode != null && newCode.isNotEmpty && mounted) {
                   state = state.copyWith(referralCode: newCode);
                 }
               });

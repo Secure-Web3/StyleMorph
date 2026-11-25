@@ -268,6 +268,47 @@ void main() {
         await tester.tap(codeFinder);
         await tester.pump();
         expect(clipboardText, '9Q7KBZKD');
+
+        // Verify monospace Latin font is enforced on the code box
+        final textWidget = tester.widget<Text>(codeFinder);
+        expect(textWidget.style?.fontFamily, 'monospace');
+      },
+    );
+
+    test(
+      'ensureUserReferralCode returns existingCode consistently without regenerating',
+      () async {
+        final service = ReferralService();
+        final first = await service.ensureUserReferralCode(
+          'uid_abc',
+          existingCode: '9q7kbzkd',
+        );
+        final second = await service.ensureUserReferralCode(
+          'uid_abc',
+          existingCode: '9q7kbzkd',
+        );
+        expect(first, '9Q7KBZKD');
+        expect(second, '9Q7KBZKD');
+      },
+    );
+
+    test(
+      'ReferralEntry.toMap produces exact fields allowed by firestore.rules',
+      () {
+        final entry = ReferralEntry(
+          id: 'invitee_1',
+          inviteeUid: 'invitee_1',
+          displayName: 'Alice',
+          email: 'alice@example.com',
+          rewardEarned: 0,
+          createdAt: DateTime(2026, 11, 25),
+        );
+        final map = entry.toMap();
+        expect(map['inviteeUid'], 'invitee_1');
+        expect(map['rewardEarned'], 0);
+        expect(map['displayName'], 'Alice');
+        expect(map['email'], 'alice@example.com');
+        expect(map.containsKey('createdAt'), isTrue);
       },
     );
   });
