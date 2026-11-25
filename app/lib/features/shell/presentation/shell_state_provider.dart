@@ -95,6 +95,11 @@ class ShellStateNotifier extends StateNotifier<ShellState> {
     }
   }
 
+  void deleteNotification(String id) {
+    final updated = state.notifications.where((n) => n.id != id).toList();
+    state = state.copyWith(notifications: updated);
+  }
+
   void setNotifications(List<AppNotification> notifications) {
     state = state.copyWith(notifications: notifications);
   }

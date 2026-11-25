@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/services/notification_service.dart';
 import '../../../core/services/storage/media_storage_provider.dart';
 import '../../../core/services/storage/media_storage_service.dart';
 import '../../auth/presentation/auth_provider.dart';
@@ -230,17 +232,44 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
   final WardrobeRepository _repo;
   final MediaStorageService? _storageService;
   final String? _userId;
+  final NotificationService? _notificationService;
 
-  WardrobeNotifier(this._repo, [this._storageService, this._userId])
-    : super(
-        WardrobeState(
-          items: _repo is InMemoryWardrobeRepository
-              ? _repo.getItems()
-              : const [],
-          filter: const WardrobeFilter(),
-        ),
-      ) {
+  WardrobeNotifier(
+    this._repo, [
+    this._storageService,
+    this._userId,
+    this._notificationService,
+  ]) : super(
+         WardrobeState(
+           items: _repo is InMemoryWardrobeRepository
+               ? _repo.getItems()
+               : const [],
+           filter: const WardrobeFilter(),
+         ),
+       ) {
     loadInitial();
+  }
+
+  void _notifyWardrobeActivity({
+    required String title,
+    required String body,
+    required String emoji,
+    required String eventType,
+  }) {
+    final uid = _userId;
+    if (uid == null || uid.isEmpty) return;
+    unawaited(
+      (_notificationService ?? NotificationService()).createNotification(
+        uid: uid,
+        title: title,
+        body: body,
+        category: 'wardrobe',
+        targetRoute: 'wardrobe',
+        emoji: emoji,
+        sendEmail: false,
+        eventType: eventType,
+      ),
+    );
   }
 
   Future<void> loadInitial() async {
@@ -428,6 +457,18 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
 
     try {
       await _repo.toggleArchive(id, updated.isArchived);
+      _notifyWardrobeActivity(
+        title: updated.isArchived
+            ? 'Wardrobe Item Archived'
+            : 'Wardrobe Item Restored',
+        body: updated.isArchived
+            ? "'${updated.title}' was moved to archive."
+            : "'${updated.title}' was restored to your wardrobe.",
+        emoji: updated.isArchived ? '📦' : '👗',
+        eventType: updated.isArchived
+            ? 'wardrobe_item_archived'
+            : 'wardrobe_item_restored',
+      );
     } catch (_) {
       // Rollback on failure
       final rollback = List<WardrobeItem>.from(state.items);
@@ -444,6 +485,12 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
       state = state.copyWith(items: newItems);
     }
     await _repo.updateItem(item);
+    _notifyWardrobeActivity(
+      title: 'Wardrobe Item Updated',
+      body: "'${item.title}' details were updated.",
+      emoji: '✏️',
+      eventType: 'wardrobe_item_updated',
+    );
   }
 
   Future<WardrobeItem> updateItemWithImages({
@@ -629,6 +676,15 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
     );
 
     await _repo.deleteItem(id);
+    final itemName = (target != null && target.title.trim().isNotEmpty)
+        ? target.title.trim()
+        : 'Item';
+    _notifyWardrobeActivity(
+      title: 'Wardrobe Item Removed',
+      body: "'$itemName' was removed from your wardrobe.",
+      emoji: '🗑️',
+      eventType: 'wardrobe_item_deleted',
+    );
 
     if (target != null &&
         target.thumbUrl.isNotEmpty &&
@@ -642,6 +698,12 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
   Future<void> addItem(WardrobeItem item) async {
     await _repo.addItem(item);
     state = state.copyWith(items: [item, ...state.items]);
+    _notifyWardrobeActivity(
+      title: 'Wardrobe Item Added',
+      body: "'${item.title}' was added to your wardrobe.",
+      emoji: '👗',
+      eventType: 'wardrobe_item_added',
+    );
   }
 
   Future<WardrobeItem> addItemWithImages({
@@ -708,6 +770,12 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
 
     await _repo.addItem(item);
     state = state.copyWith(items: [item, ...state.items]);
+    _notifyWardrobeActivity(
+      title: 'Wardrobe Item Added',
+      body: "'${item.title}' was added to your wardrobe.",
+      emoji: '👗',
+      eventType: 'wardrobe_item_added',
+    );
     return item;
   }
 
@@ -764,6 +832,7 @@ final wardrobeProvider = StateNotifierProvider<WardrobeNotifier, WardrobeState>(
     final uid = ref.watch(currentUidProvider);
     final repo = ref.watch(wardrobeRepositoryProvider);
     final storageService = ref.watch(mediaStorageServiceProvider);
-    return WardrobeNotifier(repo, storageService, uid);
+    final notificationService = ref.read(notificationServiceProvider);
+    return WardrobeNotifier(repo, storageService, uid, notificationService);
   },
 );

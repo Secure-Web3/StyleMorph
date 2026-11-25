@@ -3,7 +3,8 @@ import 'package:flutter/foundation.dart';
 @immutable
 class AppNotification {
   final String id;
-  final String category; // 'ai', 'shop', 'finance'
+  final String
+  category; // 'account', 'wardrobe', 'wellness', 'stylist', 'atelier', 'shop', 'wallet'
   final String emoji;
   final String title;
   final String body;

@@ -41,12 +41,14 @@ class NotificationEntry {
       createdAt = DateTime.tryParse(rawTs);
     }
 
-    final category = data['category']?.toString().trim() ?? 'account';
+    final category = NotificationService.normalizeCategory(
+      data['category']?.toString() ?? 'account',
+    );
     return NotificationEntry(
       id: doc.id,
       title: data['title']?.toString() ?? '',
       body: data['body']?.toString() ?? '',
-      category: category.isEmpty ? 'account' : category,
+      category: category,
       targetRoute: data['targetRoute']?.toString() ?? 'profile_identity',
       emoji: (data['emoji']?.toString().trim().isNotEmpty ?? false)
           ? data['emoji'].toString()
@@ -70,12 +72,18 @@ class NotificationEntry {
   }
 
   static String _defaultEmojiForCategory(String category) {
-    switch (category) {
-      case 'ai':
+    switch (NotificationService.normalizeCategory(category)) {
+      case 'atelier':
         return '✨';
+      case 'wardrobe':
+        return '👗';
+      case 'wellness':
+        return '🌿';
+      case 'stylist':
+        return '🪄';
       case 'shop':
         return '🛍️';
-      case 'finance':
+      case 'wallet':
         return '🪙';
       case 'account':
       default:
@@ -139,13 +147,48 @@ class NotificationService {
     return sorted;
   }
 
-  /// Filters notifications by [category] (`'all'` returns every item).
+  /// Maps legacy and module category identifiers to canonical module keys
+  /// (`account`, `wardrobe`, `wellness`, `stylist`, `atelier`, `shop`, `wallet`,
+  /// or `all`).
+  static String normalizeCategory(String raw) {
+    final clean = raw.trim().toLowerCase();
+    switch (clean) {
+      case 'all':
+        return 'all';
+      case 'ai':
+      case 'atelier':
+        return 'atelier';
+      case 'deals':
+      case 'shop':
+        return 'shop';
+      case 'finance':
+      case 'wallet':
+        return 'wallet';
+      case 'system':
+      case 'account':
+        return 'account';
+      case 'wardrobe':
+        return 'wardrobe';
+      case 'wellness':
+        return 'wellness';
+      case 'stylist':
+        return 'stylist';
+      default:
+        return 'account';
+    }
+  }
+
+  /// Filters notifications by [category] (`'all'` returns every item),
+  /// normalizing legacy category values for backward compatibility.
   static List<AppNotification> filterByCategory(
     List<AppNotification> items,
     String category,
   ) {
-    if (category == 'all') return items;
-    return items.where((n) => n.category == category).toList();
+    final normalizedTarget = normalizeCategory(category);
+    if (normalizedTarget == 'all') return items;
+    return items
+        .where((n) => normalizeCategory(n.category) == normalizedTarget)
+        .toList();
   }
 
   /// Filters notifications by both [category] (`'all' | ...`) and read [status]
@@ -155,8 +198,11 @@ class NotificationService {
     String category = 'all',
     String status = 'all',
   }) {
+    final normalizedTarget = normalizeCategory(category);
     return items.where((n) {
-      final matchesCategory = category == 'all' || n.category == category;
+      final matchesCategory =
+          normalizedTarget == 'all' ||
+          normalizeCategory(n.category) == normalizedTarget;
       if (!matchesCategory) return false;
       switch (status) {
         case 'unread':
@@ -234,7 +280,33 @@ class NotificationService {
     return cleanEmail.contains('@') && cleanEmail.length > 3;
   }
 
+  /// Computes the Firestore TTL expiration timestamp:
+  /// - **90 days** for sensitive/security/financial events (`sendEmail == true`,
+  ///   `wallet`, `referral_joined`, `kyc`, `new_session`, `terms_signed`).
+  /// - **30 days** for routine notifications.
+  static DateTime computeExpiresAt({
+    required String category,
+    required String eventType,
+    required bool sendEmail,
+    DateTime? now,
+  }) {
+    final base = now ?? DateTime.now();
+    final normalizedCat = normalizeCategory(category);
+    final normalizedEvent = eventType.trim().toLowerCase();
+    final isSensitive =
+        sendEmail ||
+        normalizedCat == 'wallet' ||
+        normalizedEvent == eventReferralJoined ||
+        normalizedEvent == eventKycStatus ||
+        normalizedEvent == eventNewSession ||
+        normalizedEvent == eventAgreementSigned ||
+        normalizedEvent.contains('kyc') ||
+        normalizedEvent.contains('terms_signed');
+    return base.add(Duration(days: isSensitive ? 90 : 30));
+  }
+
   /// Non-blocking, fire-and-forget safe writer for `users/{uid}/notifications`.
+  /// Always attaches an `expiresAt` [Timestamp] for native Firestore TTL.
   /// When [sendEmail] is `true` and [recipientEmail] is valid, also enqueues
   /// a lightweight document in `mail_queue` for sensitive/critical events.
   Future<void> createNotification({
@@ -254,15 +326,22 @@ class NotificationService {
     if (firestore == null) return;
 
     try {
+      final canonicalCategory = normalizeCategory(category);
+      final expiresAt = computeExpiresAt(
+        category: canonicalCategory,
+        eventType: eventType,
+        sendEmail: sendEmail,
+      );
       final payload = <String, dynamic>{
         'title': title,
         'body': body,
-        'category': category,
+        'category': canonicalCategory,
         'targetRoute': targetRoute,
         'emoji': emoji,
         'isRead': false,
         'eventType': eventType,
         'createdAt': FieldValue.serverTimestamp(),
+        'expiresAt': Timestamp.fromDate(expiresAt),
       };
       if (extraData != null && extraData.isNotEmpty) {
         payload.addAll(extraData);
@@ -347,7 +426,7 @@ class NotificationService {
       uid: uid,
       title: 'Wardrobe Item Ready',
       body: '$itemName has been tagged and added to your digital closet.',
-      category: 'ai',
+      category: 'wardrobe',
       targetRoute: 'wardrobe',
       emoji: '👗',
       eventType: eventWardrobeApproved,
@@ -363,7 +442,7 @@ class NotificationService {
       uid: uid,
       title: 'Atelier Render Ready',
       body: 'Your look "$creationTitle" is ready to view.',
-      category: 'ai',
+      category: 'atelier',
       targetRoute: 'atelier_creations',
       emoji: '✨',
       eventType: eventAtelierRenderReady,
@@ -385,6 +464,24 @@ class NotificationService {
           .update({'isRead': true});
     } catch (e) {
       debugPrint('[NotificationService] markAsRead error: $e');
+    }
+  }
+
+  /// Deletes a single notification document from `users/{uid}/notifications`.
+  Future<void> deleteNotification(String uid, String notificationId) async {
+    if (uid.isEmpty || notificationId.isEmpty) return;
+    final firestore = _firestore;
+    if (firestore == null) return;
+
+    try {
+      await firestore
+          .collection('users')
+          .doc(uid)
+          .collection('notifications')
+          .doc(notificationId)
+          .delete();
+    } catch (e) {
+      debugPrint('[NotificationService] deleteNotification error: $e');
     }
   }
 

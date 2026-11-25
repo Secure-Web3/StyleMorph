@@ -260,9 +260,16 @@ class AppStrings {
   String get notifCatShop => get('notifCatShop');
   String get notifCatFinance => get('notifCatFinance');
   String get notifCatAccount => get('notifCatAccount');
+  String get notifCatWardrobe => get('notifCatWardrobe');
+  String get notifCatWellness => get('notifCatWellness');
+  String get notifCatStylist => get('notifCatStylist');
+  String get notifCatAtelier => get('notifCatAtelier');
+  String get notifCatWallet => get('notifCatWallet');
   String get notifFilterAll => get('notifFilterAll');
   String get notifFilterUnread => get('notifFilterUnread');
   String get notifFilterRead => get('notifFilterRead');
+  String get markAsReadTooltip => get('markAsReadTooltip');
+  String get deleteNotificationTooltip => get('deleteNotificationTooltip');
   String get newWord => get('newWord');
   String get newUser => get('newUser');
 
