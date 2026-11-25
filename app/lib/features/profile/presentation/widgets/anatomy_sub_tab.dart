@@ -987,42 +987,69 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
           const SizedBox(height: AppSpacing.sm),
         ],
 
-        // 2. Waist, Abdomen, Hips (3 Columns)
-        Row(
-          children: [
-            Expanded(
-              child: _buildDimensionField(
-                context,
-                fieldKey: 'waist',
-                label: strings.aiWaist,
-                helperHint: strings.aiWaistHint,
-                initialValue: aiDna['waist'] ?? '',
-                suffix: 'cm',
-              ),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            Expanded(
-              child: _buildDimensionField(
-                context,
-                fieldKey: 'belly',
-                label: strings.aiBelly,
-                helperHint: strings.aiBellyHint,
-                initialValue: aiDna['belly'] ?? aiDna['abdomen'] ?? '',
-                suffix: 'cm',
-              ),
-            ),
-            const SizedBox(width: AppSpacing.xs),
-            Expanded(
-              child: _buildDimensionField(
-                context,
-                fieldKey: 'hips',
-                label: strings.aiHips,
-                helperHint: strings.aiHipsHint,
-                initialValue: aiDna['hips'] ?? '',
-                suffix: 'cm',
-              ),
-            ),
-          ],
+        // 2. Waist, Abdomen, Hips (Responsive: max 2 columns on narrow mobile, 3 on wider screens)
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final waistField = _buildDimensionField(
+              context,
+              fieldKey: 'waist',
+              label: strings.aiWaist,
+              helperHint: strings.aiWaistHint,
+              initialValue: aiDna['waist'] ?? '',
+              suffix: 'cm',
+            );
+            final bellyField = _buildDimensionField(
+              context,
+              fieldKey: 'belly',
+              label: strings.aiBelly,
+              helperHint: strings.aiBellyHint,
+              initialValue: aiDna['belly'] ?? aiDna['abdomen'] ?? '',
+              suffix: 'cm',
+            );
+            final hipsField = _buildDimensionField(
+              context,
+              fieldKey: 'hips',
+              label: strings.aiHips,
+              helperHint: strings.aiHipsHint,
+              initialValue: aiDna['hips'] ?? '',
+              suffix: 'cm',
+            );
+
+            if (constraints.maxWidth < 460) {
+              return Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(child: waistField),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(child: bellyField),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(child: hipsField),
+                      const SizedBox(width: AppSpacing.sm),
+                      const Expanded(child: SizedBox.shrink()),
+                    ],
+                  ),
+                ],
+              );
+            }
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(child: waistField),
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(child: bellyField),
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(child: hipsField),
+              ],
+            );
+          },
         ),
         const SizedBox(height: AppSpacing.sm),
 
@@ -1098,25 +1125,48 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
     final strings = context.strings;
     final colors = context.colors;
 
-    return AppTextField(
-      key: ValueKey('$fieldKey-${strings.localeCode}'),
-      label: label,
-      initialValue: initialValue,
-      placeholder: placeholder,
-      suffixText: suffix,
-      keyboardType: keyboardType,
-      labelTrailing: Tooltip(
-        message: helperHint,
-        child: FaIcon(
-          FontAwesomeIcons.circleQuestion,
-          size: 11,
-          color: colors.mu,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 2,
+                softWrap: true,
+                style: AppTypography.inputLabel(color: colors.tx),
+              ),
+            ),
+            const SizedBox(width: AppSpacing.xxs),
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Tooltip(
+                message: helperHint,
+                child: FaIcon(
+                  FontAwesomeIcons.circleQuestion,
+                  size: 11,
+                  color: colors.mu,
+                ),
+              ),
+            ),
+          ],
         ),
-      ),
-      onChanged: (val) {
-        _updateField(fieldKey, val);
-        if (fieldKey == 'belly') _updateField('abdomen', val);
-      },
+        const SizedBox(height: AppSpacing.xs),
+        AppTextField(
+          key: ValueKey('$fieldKey-${strings.localeCode}'),
+          initialValue: initialValue,
+          placeholder: placeholder,
+          suffixText: suffix,
+          keyboardType: keyboardType,
+          onChanged: (val) {
+            _updateField(fieldKey, val);
+            if (fieldKey == 'belly') _updateField('abdomen', val);
+          },
+        ),
+      ],
     );
   }
 

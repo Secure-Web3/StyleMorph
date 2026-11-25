@@ -714,46 +714,57 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
   }
 
   Widget _buildDobRow(AppColors colors, AppStrings strings) {
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: AppTextField(
-            label: strings.idDob,
-            labelTrailing: Text(
-              strings.idDobAgeRequirement,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 10, color: colors.mu),
-            ),
-            placeholder: strings.idDobPlaceholder,
-            controller: _dobController,
-            errorText: _dobError,
-            keyboardType: TextInputType.datetime,
-            textDirection: TextDirection.ltr,
-            maxLength: 10,
-            inputFormatters: [_DateTextInputFormatter()],
-            suffix: IconButton(
-              icon: FaIcon(
-                FontAwesomeIcons.calendar,
-                size: 14,
-                color: colors.mu,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: AppTextField(
+                label: strings.idDob,
+                placeholder: strings.idDobPlaceholder,
+                controller: _dobController,
+                errorText: _dobError,
+                keyboardType: TextInputType.datetime,
+                textDirection: TextDirection.ltr,
+                maxLength: 10,
+                inputFormatters: [_DateTextInputFormatter()],
+                suffix: IconButton(
+                  icon: FaIcon(
+                    FontAwesomeIcons.calendar,
+                    size: 14,
+                    color: colors.mu,
+                  ),
+                  onPressed: _pickDateOfBirth,
+                ),
+                onTap: _pickDateOfBirth,
+                onChanged: (val) {
+                  _onFieldChanged('dob', val);
+                  setState(() {
+                    _validateDob(val, strings);
+                  });
+                },
               ),
-              onPressed: _pickDateOfBirth,
             ),
-            onTap: _pickDateOfBirth,
-            onChanged: (val) {
-              _onFieldChanged('dob', val);
-              setState(() {
-                _validateDob(val, strings);
-              });
-            },
-          ),
+            const SizedBox(width: AppSpacing.xs),
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: _buildAgePill(colors, strings),
+            ),
+          ],
         ),
-        const SizedBox(width: AppSpacing.xs),
-        Padding(
-          padding: const EdgeInsets.only(top: 24),
-          child: _buildAgePill(colors, strings),
+        const SizedBox(height: AppSpacing.xxs),
+        Text(
+          strings.idDobAgeRequirement,
+          softWrap: true,
+          style: TextStyle(
+            fontFamily: AppTypography.fontFamily,
+            fontSize: 11,
+            color: colors.mu,
+            height: 1.4,
+          ),
         ),
       ],
     );

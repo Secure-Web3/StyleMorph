@@ -235,19 +235,7 @@ class _WelcomeBranding extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Glass badge wrapping the logo icon
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.22),
-                width: 1,
-              ),
-            ),
-            child: const AppLogo(size: 32),
-          ),
+          const AppLogo(size: 42, variant: AppLogoVariant.overlay),
           const SizedBox(width: AppSpacing.sm),
           // Editorial wordmark with refined letter-spacing
           BrandWordmark(

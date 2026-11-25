@@ -16,6 +16,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/digit_formatter.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../../core/widgets/brand_wordmark.dart';
@@ -209,33 +210,8 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // Luxury Brand Emblem
-          Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [colors.prt, colors.pr],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(AppRadius.card),
-              boxShadow: [
-                BoxShadow(
-                  color: colors.pr.withValues(alpha: 0.25),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Center(
-              child: FaIcon(
-                FontAwesomeIcons.wandMagicSparkles,
-                size: 28,
-                color: colors.sf,
-              ),
-            ),
-          ),
+          // Official StyleMorph SM Monogram
+          const AppLogo(size: 64),
           const SizedBox(height: AppSpacing.md),
 
           // Brand Name with Editorial letter spacing
