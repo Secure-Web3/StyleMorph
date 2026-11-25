@@ -9,6 +9,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_logo.dart';
+import '../../../../core/widgets/brand_wordmark.dart';
 import 'auth_provider.dart';
 import 'auth_screen.dart';
 import 'widgets/auth_footer.dart';
@@ -249,22 +250,18 @@ class _WelcomeBranding extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.sm),
           // Editorial wordmark with refined letter-spacing
-          Text(
-            strings.appName,
-            style: TextStyle(
-              fontFamily: AppTypography.fontFamily,
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: Colors.white,
-              letterSpacing: 3.5,
-              shadows: [
-                Shadow(
-                  color: Colors.black.withValues(alpha: 0.45),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
+          BrandWordmark(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.4,
+            color: Colors.white,
+            shadows: [
+              Shadow(
+                color: Colors.black.withValues(alpha: 0.45),
+                blurRadius: 8,
+                offset: const Offset(0, 2),
+              ),
+            ],
           ),
         ],
       ),

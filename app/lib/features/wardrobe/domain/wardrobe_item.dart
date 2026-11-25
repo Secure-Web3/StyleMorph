@@ -201,15 +201,26 @@ class WardrobeItem {
       return null;
     }
 
+    String sanitizeUrl(dynamic raw) {
+      if (raw is! String) return '';
+      final trimmed = raw.trim();
+      if (trimmed.isEmpty || trimmed.startsWith('blob:')) return '';
+      return trimmed;
+    }
+
     final itemTitle = (data['title'] ?? data['name'] ?? '') as String;
     final itemCategory = (data['category'] ?? 'tops') as String;
     final zone = (data['aiGarmentZone'] ?? '') as String;
     final rawImages = data['imageUrls'];
     final List<String> images = rawImages is List
-        ? rawImages.cast<String>().toList()
+        ? rawImages
+              .whereType<String>()
+              .map(sanitizeUrl)
+              .where((u) => u.isNotEmpty)
+              .toList()
         : [];
-    final thumb = (data['thumbUrl'] ?? '') as String;
-    final orig = (data['originalUrl'] ?? '') as String;
+    final thumb = sanitizeUrl(data['thumbUrl']);
+    final orig = sanitizeUrl(data['originalUrl']);
     final effectiveImages = images.isNotEmpty
         ? images
         : (orig.isNotEmpty

@@ -53,3 +53,9 @@ flutter:
           weight: 600
         - asset: assets/fonts/Vazirmatn-Bold.ttf
           weight: 700
+    - family: Brygada1918
+      fonts:
+        - asset: assets/fonts/Brygada1918-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Brygada1918-Bold.ttf
+          weight: 700

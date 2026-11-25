@@ -18,6 +18,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../../core/widgets/brand_wordmark.dart';
 import 'about_actions.dart';
 import 'legal_doc_modal_sheet.dart';
 import 'open_source_licenses_sheet.dart';
@@ -238,15 +239,11 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
           const SizedBox(height: AppSpacing.md),
 
           // Brand Name with Editorial letter spacing
-          Text(
-            'StyleMorph',
-            style: TextStyle(
-              fontFamily: 'Vazirmatn',
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 0.8,
-              color: colors.tx,
-            ),
+          BrandWordmark(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.8,
+            color: colors.tx,
           ),
           const SizedBox(height: AppSpacing.xs),
 

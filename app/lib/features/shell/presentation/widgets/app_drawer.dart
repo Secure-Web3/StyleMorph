@@ -13,6 +13,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_logo.dart';
+import '../../../../core/widgets/brand_wordmark.dart';
 import '../../../auth/presentation/auth_provider.dart';
 
 class AppDrawer extends ConsumerWidget {
@@ -52,16 +53,11 @@ class AppDrawer extends ConsumerWidget {
                   const AppLogo(size: 40),
                   const SizedBox(width: AppSpacing.md),
                   Expanded(
-                    child: Text(
-                      strings.appName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: 'Vazirmatn',
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        color: colors.tx,
-                      ),
+                    child: BrandWordmark(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 0.6,
+                      color: colors.tx,
                     ),
                   ),
                 ],

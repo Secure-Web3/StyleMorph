@@ -31,9 +31,9 @@ class AppMediaImage extends StatefulWidget {
     this.gaplessPlayback = true,
   });
 
-  /// In-memory bounded LRU cache for decoded Base64 bytes keyed by content hash.
-  static final LinkedHashMap<int, Uint8List> _decodedBytesCache =
-      LinkedHashMap<int, Uint8List>();
+  /// In-memory bounded LRU cache for decoded Base64 bytes keyed by exact Data URL.
+  static final LinkedHashMap<String, Uint8List> _decodedBytesCache =
+      LinkedHashMap<String, Uint8List>();
   static const int _maxCacheEntries = 128;
 
   /// Returns true if the string represents an inline Data URL.
@@ -42,12 +42,17 @@ class AppMediaImage extends StatefulWidget {
     return url.trimLeft().startsWith('data:');
   }
 
+  /// Returns true if the string is an ephemeral browser `blob:` URL.
+  static bool isBlobUrl(String? url) {
+    if (url == null) return false;
+    return url.trimLeft().startsWith('blob:');
+  }
+
   /// Extracts and decodes byte data from a Base64 Data URL using LRU caching.
   static Uint8List? tryDecodeDataUrl(String dataUrl) {
-    final hash = dataUrl.hashCode;
-    final cached = _decodedBytesCache.remove(hash);
+    final cached = _decodedBytesCache.remove(dataUrl);
     if (cached != null) {
-      _decodedBytesCache[hash] = cached;
+      _decodedBytesCache[dataUrl] = cached;
       return cached;
     }
 
@@ -55,13 +60,16 @@ class AppMediaImage extends StatefulWidget {
       final commaIndex = dataUrl.indexOf(',');
       if (commaIndex == -1) return null;
 
-      final base64Payload = dataUrl.substring(commaIndex + 1).trim();
+      final base64Payload = dataUrl
+          .substring(commaIndex + 1)
+          .replaceAll(RegExp(r'\s+'), '');
+      if (base64Payload.isEmpty) return null;
       final bytes = base64Decode(base64Payload);
 
       if (_decodedBytesCache.length >= _maxCacheEntries) {
         _decodedBytesCache.remove(_decodedBytesCache.keys.first);
       }
-      _decodedBytesCache[hash] = bytes;
+      _decodedBytesCache[dataUrl] = bytes;
 
       return bytes;
     } catch (_) {
@@ -111,9 +119,21 @@ class _AppMediaImageState extends State<AppMediaImage>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    // When returning from background or browser tab switch, trigger repaint
-    // to recover any decoded image surfaces evicted by browser/OS memory pressure.
+    // When returning from background or browser tab switch, evict potentially
+    // GPU-evicted image entries and trigger repaint so CanvasKit/Skwasm
+    // re-uploads textures cleanly instead of painting blank surfaces.
     if (state == AppLifecycleState.resumed && mounted) {
+      final url = widget.imageUrl?.trim();
+      if (url != null && url.isNotEmpty) {
+        if (AppMediaImage.isDataUrl(url)) {
+          final bytes = AppMediaImage.tryDecodeDataUrl(url);
+          if (bytes != null) {
+            PaintingBinding.instance.imageCache.evict(MemoryImage(bytes));
+          }
+        } else if (!AppMediaImage.isBlobUrl(url)) {
+          PaintingBinding.instance.imageCache.evict(NetworkImage(url));
+        }
+      }
       setState(() {
         _renderCycle++;
       });
@@ -135,6 +155,17 @@ class _AppMediaImageState extends State<AppMediaImage>
         return widget.errorBuilder!(
           context,
           ArgumentError('Empty or null image URL'),
+          StackTrace.current,
+        );
+      }
+      return SizedBox(width: widget.width, height: widget.height);
+    }
+
+    if (AppMediaImage.isBlobUrl(url)) {
+      if (widget.errorBuilder != null) {
+        return widget.errorBuilder!(
+          context,
+          StateError('Ephemeral blob: URLs cannot be persisted across reloads'),
           StackTrace.current,
         );
       }

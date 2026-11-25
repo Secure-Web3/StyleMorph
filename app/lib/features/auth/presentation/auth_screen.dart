@@ -20,6 +20,7 @@ import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/app_switch.dart';
 import '../../../../core/widgets/app_text_button.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/brand_wordmark.dart';
 import 'auth_provider.dart';
 import 'widgets/auth_footer.dart';
 import 'widgets/auth_top_bar.dart';
@@ -440,9 +441,11 @@ class _BrandingHeader extends StatelessWidget {
       children: [
         const AppLogo(size: 52),
         const SizedBox(height: AppSpacing.sm),
-        Text(
-          strings.appName,
-          style: AppTypography.headlineMedium(color: colors.tx),
+        BrandWordmark(
+          fontSize: 24,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.8,
+          color: colors.tx,
         ),
         const SizedBox(height: AppSpacing.xxs),
         Text(

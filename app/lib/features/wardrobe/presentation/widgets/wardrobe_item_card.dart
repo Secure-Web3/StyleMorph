@@ -85,6 +85,9 @@ class WardrobeItemCard extends StatelessWidget {
         ? item.title
         : strings.wardrobeCategoryName(item.category);
     final multiUrls = item.effectiveImageUrls;
+    final displayUrl = item.thumbUrl.isNotEmpty
+        ? item.thumbUrl
+        : (multiUrls.isNotEmpty ? multiUrls.first : '');
 
     return AppCard(
       onTap: onTap,
@@ -98,9 +101,9 @@ class WardrobeItemCard extends StatelessWidget {
             child: Stack(
               fit: StackFit.expand,
               children: [
-                (item.thumbUrl.isNotEmpty)
+                (displayUrl.isNotEmpty)
                     ? AppMediaImage(
-                        item.thumbUrl,
+                        displayUrl,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
                             _buildPlaceholder(itemColor),

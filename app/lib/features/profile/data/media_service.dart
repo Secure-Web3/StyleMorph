@@ -53,6 +53,11 @@ class MediaService {
       bytes: bytes,
       mimeType: mimeType,
     );
+    if (downloadUrl.trimLeft().startsWith('blob:')) {
+      throw StateError(
+        'MediaService: Refusing to persist ephemeral blob: URL to Firestore.',
+      );
+    }
 
     // Persist in Firestore
     if (Firebase.apps.isNotEmpty && _firestore != null) {

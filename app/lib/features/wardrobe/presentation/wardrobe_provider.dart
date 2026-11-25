@@ -548,9 +548,13 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
               bytes: bytes,
               mimeType: mime,
             );
-            finalUrls.add(uploaded);
+            if (!uploaded.trimLeft().startsWith('blob:')) {
+              finalUrls.add(uploaded);
+            }
           }
-        } else if (existingUrl != null && existingUrl.isNotEmpty) {
+        } else if (existingUrl != null &&
+            existingUrl.isNotEmpty &&
+            !existingUrl.trimLeft().startsWith('blob:')) {
           finalUrls.add(existingUrl);
         }
       }
@@ -744,7 +748,9 @@ class WardrobeNotifier extends StateNotifier<WardrobeState> {
           mimeType: mime,
         );
       }
-      uploadedUrls.add(uploaded);
+      if (uploaded.isNotEmpty && !uploaded.trimLeft().startsWith('blob:')) {
+        uploadedUrls.add(uploaded);
+      }
     }
 
     final primaryUrl = uploadedUrls.isNotEmpty ? uploadedUrls.first : '';

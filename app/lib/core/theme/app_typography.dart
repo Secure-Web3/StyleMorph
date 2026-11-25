@@ -4,6 +4,7 @@ class AppTypography {
   AppTypography._();
 
   static const String fontFamily = 'Vazirmatn';
+  static const String brandFontFamily = 'Brygada1918';
 
   static TextStyle displayLarge({Color? color}) => TextStyle(
     fontFamily: fontFamily,
