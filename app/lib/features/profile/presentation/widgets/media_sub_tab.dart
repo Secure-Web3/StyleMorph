@@ -192,6 +192,11 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
         return;
       }
 
+      final wasReplacing =
+          (ref.read(appStateProvider).mediaSlots[slot.key] ?? '')
+              .trim()
+              .isNotEmpty;
+
       final downloadUrl = await mediaService.uploadMediaSlot(
         uid: uid,
         slotKey: slot.key,
@@ -202,6 +207,26 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
       ref
           .read(appStateProvider.notifier)
           .updateMediaSlot(slot.key, downloadUrl);
+
+      if (!aiResult.isApproved && !aiResult.isRejected) {
+        ref
+            .read(notificationServiceProvider)
+            .createNotification(
+              uid: uid,
+              title: wasReplacing
+                  ? strings.notifMediaReplacedTitle
+                  : strings.notifMediaUploadedTitle,
+              body: slot.title,
+              category: 'profile',
+              targetRoute: 'profile_gallery',
+              emoji: wasReplacing ? '🔄' : '📸',
+              sendEmail: false,
+              eventType: wasReplacing
+                  ? 'media_slot_replaced'
+                  : 'media_slot_uploaded',
+            )
+            .catchError((_) {});
+      }
 
       if (context.mounted) {
         AppToast.showSuccess(context, '${slot.title} - ${strings.galUploaded}');
@@ -287,6 +312,24 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
           mediaUrl: mediaUrl,
         );
         ref.read(appStateProvider.notifier).deleteMediaSlot(slot.key);
+        if (mounted) {
+          setState(() {
+            _slotAiResults.remove(slot.key);
+          });
+        }
+        ref
+            .read(notificationServiceProvider)
+            .createNotification(
+              uid: uid,
+              title: strings.notifMediaDeletedTitle,
+              body: slot.title,
+              category: 'profile',
+              targetRoute: 'profile_gallery',
+              emoji: '🗑️',
+              sendEmail: false,
+              eventType: 'media_slot_deleted',
+            )
+            .catchError((_) {});
       } catch (e) {
         if (context.mounted) {
           AppToast.showError(context, 'Delete error: $e');
@@ -617,11 +660,24 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
       onTap: () {
         if (!isSelected) {
           ref.read(appStateProvider.notifier).setPersonaMode(modeKey);
-          final uid = FirebaseAuth.instance.currentUser?.uid;
+          final uid = currentAuthenticatedUid();
           if (uid != null) {
             ref
                 .read(mediaServiceProvider)
                 .savePersonaMode(uid: uid, mode: modeKey);
+            ref
+                .read(notificationServiceProvider)
+                .createNotification(
+                  uid: uid,
+                  title: context.strings.notifPersonaModeTitle,
+                  body: title,
+                  category: 'profile',
+                  targetRoute: 'profile_gallery',
+                  emoji: '🎭',
+                  sendEmail: false,
+                  eventType: 'persona_mode_updated',
+                )
+                .catchError((_) {});
           }
         }
       },
@@ -670,6 +726,14 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
     final colors = context.colors;
     final strings = context.strings;
 
+    final uploadedSlots = slots
+        .where((s) => (mediaSlots[s.key] ?? '').trim().isNotEmpty)
+        .toList();
+    final emptySlots = slots
+        .where((s) => (mediaSlots[s.key] ?? '').trim().isEmpty)
+        .toList();
+    final orderedSlots = [...uploadedSlots, ...emptySlots];
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final cardWidth = (constraints.maxWidth - AppSpacing.sm) / 2;
@@ -677,12 +741,13 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
         return Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
-          children: slots.map((slot) {
+          children: orderedSlots.map((slot) {
             final mediaUrl = mediaSlots[slot.key];
             final isUploaded = mediaUrl != null && mediaUrl.isNotEmpty;
             final isUploading = _uploadingSlot == slot.key;
 
             return SizedBox(
+              key: ValueKey(slot.key),
               width: cardWidth,
               child: AppCard(
                 padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
@@ -722,34 +787,34 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                             ),
                           ),
                         ),
-                        if (isUploaded)
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              FaIcon(
-                                FontAwesomeIcons.solidCircleCheck,
-                                size: 10,
-                                color: colors.ok,
-                              ),
-                              const SizedBox(width: 3),
-                              Text(
-                                strings.galUploaded,
-                                style: TextStyle(
-                                  fontFamily: 'Vazirmatn',
-                                  fontSize: 9,
-                                  fontWeight: FontWeight.w600,
-                                  color: colors.ok,
-                                ),
-                              ),
-                            ],
+                        const SizedBox(width: 4),
+                        if (isUploaded || _reviewingSlots.contains(slot.key))
+                          Flexible(
+                            child: AiReviewBadge(
+                              status: _reviewingSlots.contains(slot.key)
+                                  ? AiVerificationStatus.reviewing
+                                  : (_slotAiResults[slot.key]?.status ??
+                                        AiVerificationStatus.pendingAi),
+                              issues:
+                                  _slotAiResults[slot.key]?.issues ?? const [],
+                              isSimulated:
+                                  _slotAiResults[slot.key]?.isSimulated ??
+                                  false,
+                              compact: true,
+                            ),
                           )
                         else
-                          Text(
-                            strings.galAwaitingUpload,
-                            style: TextStyle(
-                              fontFamily: 'Vazirmatn',
-                              fontSize: 9,
-                              color: colors.mu,
+                          Flexible(
+                            child: Text(
+                              strings.galAwaitingUpload,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.end,
+                              style: TextStyle(
+                                fontFamily: 'Vazirmatn',
+                                fontSize: 9,
+                                color: colors.mu,
+                              ),
                             ),
                           ),
                       ],
@@ -841,15 +906,6 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      strings.galUploaded,
-                                      style: TextStyle(
-                                        fontFamily: 'Vazirmatn',
-                                        fontSize: 10,
-                                        color: colors.ok,
-                                      ),
-                                    ),
                                   ],
                                 )
                               else
@@ -900,19 +956,6 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    if (_reviewingSlots.contains(slot.key) ||
-                        _slotAiResults[slot.key] != null) ...[
-                      const SizedBox(height: 4),
-                      Center(
-                        child: AiReviewBadge(
-                          status: _reviewingSlots.contains(slot.key)
-                              ? AiVerificationStatus.reviewing
-                              : _slotAiResults[slot.key]!.status,
-                          issues: _slotAiResults[slot.key]?.issues ?? const [],
-                          compact: true,
-                        ),
-                      ),
-                    ],
                     const SizedBox(height: 4),
 
                     // Actions Row

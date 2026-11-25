@@ -13,6 +13,7 @@ class AiReviewBadge extends StatelessWidget {
   final AiVerificationStatus status;
   final List<AiVerificationIssueCode> issues;
   final bool compact;
+  final bool isSimulated;
   final VoidCallback? onTap;
 
   const AiReviewBadge({
@@ -20,6 +21,7 @@ class AiReviewBadge extends StatelessWidget {
     required this.status,
     this.issues = const [],
     this.compact = false,
+    this.isSimulated = false,
     this.onTap,
   });
 
@@ -53,7 +55,12 @@ class AiReviewBadge extends StatelessWidget {
     final FaIconData icon;
     final String label;
 
-    switch (status) {
+    final effectiveStatus =
+        (status == AiVerificationStatus.approved && isSimulated)
+        ? AiVerificationStatus.pendingAi
+        : status;
+
+    switch (effectiveStatus) {
       case AiVerificationStatus.pending:
       case AiVerificationStatus.reviewing:
         variant = AppBadgeVariant.info;
@@ -62,13 +69,17 @@ class AiReviewBadge extends StatelessWidget {
         break;
       case AiVerificationStatus.pendingAi:
         variant = AppBadgeVariant.warning;
-        icon = FontAwesomeIcons.hourglassHalf;
-        label = strings.aiStatusPendingAi;
+        icon = FontAwesomeIcons.clock;
+        label = compact
+            ? strings.aiStatusPendingCompact
+            : strings.aiStatusPendingAi;
         break;
       case AiVerificationStatus.approved:
         variant = AppBadgeVariant.success;
         icon = FontAwesomeIcons.circleCheck;
-        label = strings.aiStatusApproved;
+        label = compact
+            ? strings.aiStatusApprovedCompact
+            : strings.aiStatusApproved;
         break;
       case AiVerificationStatus.rejected:
         variant = AppBadgeVariant.destructive;
@@ -78,7 +89,9 @@ class AiReviewBadge extends StatelessWidget {
       case AiVerificationStatus.needsManualReview:
         variant = AppBadgeVariant.warning;
         icon = FontAwesomeIcons.clock;
-        label = strings.aiStatusManualReview;
+        label = compact
+            ? strings.aiStatusPendingCompact
+            : strings.aiStatusManualReview;
         break;
     }
 

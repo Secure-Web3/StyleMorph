@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../../core/ai/ai_verification_models.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/utils/digit_formatter.dart';
+import '../../../../core/widgets/ai_review_badge.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_media_image.dart';
 import '../../domain/wardrobe_item.dart';
@@ -146,6 +148,17 @@ class WardrobeItemCard extends StatelessWidget {
                           ),
                         ],
                       ),
+                    ),
+                  ),
+                if (item.aiVerificationStatus.isNotEmpty)
+                  PositionedDirectional(
+                    top: 6,
+                    end: 6,
+                    child: AiReviewBadge(
+                      status: AiVerificationStatus.fromWireValue(
+                        item.aiVerificationStatus,
+                      ),
+                      compact: true,
                     ),
                   ),
               ],

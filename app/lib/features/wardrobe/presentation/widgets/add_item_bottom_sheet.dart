@@ -873,6 +873,7 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                       effectiveEditItem!.aiVerificationStatus,
                     ),
                 issues: _aiIssues,
+                compact: true,
               ),
             ),
           ],

@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/session_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -422,6 +423,24 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
 
     final service = ref.read(sessionServiceProvider);
     await service.revokeSession(session.sessionId);
+    final uid = currentAuthenticatedUid();
+    if (uid != null) {
+      unawaited(
+        ref
+            .read(notificationServiceProvider)
+            .createNotification(
+              uid: uid,
+              title: strings.notifSessionRevokedTitle,
+              body: session.deviceName,
+              category: 'profile',
+              targetRoute: 'profile_sessions',
+              emoji: '🔐',
+              sendEmail: false,
+              eventType: 'session_revoked',
+            )
+            .catchError((_) {}),
+      );
+    }
   }
 
   Future<void> _handleRevokeAllOthers() async {
@@ -440,6 +459,24 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
     try {
       final service = ref.read(sessionServiceProvider);
       await service.revokeAllOtherSessions();
+      final uid = currentAuthenticatedUid();
+      if (uid != null) {
+        unawaited(
+          ref
+              .read(notificationServiceProvider)
+              .createNotification(
+                uid: uid,
+                title: strings.notifSessionsRevokedAllTitle,
+                body: strings.sessTerminateAll,
+                category: 'profile',
+                targetRoute: 'profile_sessions',
+                emoji: '🛡️',
+                sendEmail: false,
+                eventType: 'sessions_revoked_all',
+              )
+              .catchError((_) {}),
+        );
+      }
     } finally {
       if (mounted) setState(() => _isTerminatingAll = false);
     }

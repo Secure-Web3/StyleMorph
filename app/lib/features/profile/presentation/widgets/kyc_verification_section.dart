@@ -890,17 +890,9 @@ class _KycVerificationSectionState
               PositionedDirectional(
                 top: 4,
                 end: 4,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: colors.ok,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const FaIcon(
-                    FontAwesomeIcons.check,
-                    size: 8,
-                    color: Colors.white,
-                  ),
+                child: AiReviewBadge(
+                  status: _aiStatus ?? AiVerificationStatus.pendingAi,
+                  compact: true,
                 ),
               ),
               PositionedDirectional(

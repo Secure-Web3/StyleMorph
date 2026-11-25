@@ -1341,9 +1341,18 @@ class AppStrings {
   // Phase 4: AI Quality-Control & Verification
   String get aiStatusReviewing => get('aiStatusReviewing');
   String get aiStatusPendingAi => get('aiStatusPendingAi');
+  String get aiStatusPendingCompact => get('aiStatusPendingCompact');
   String get aiStatusApproved => get('aiStatusApproved');
+  String get aiStatusApprovedCompact => get('aiStatusApprovedCompact');
   String get aiStatusRejected => get('aiStatusRejected');
   String get aiStatusManualReview => get('aiStatusManualReview');
+  String get notifMediaUploadedTitle => get('notifMediaUploadedTitle');
+  String get notifMediaReplacedTitle => get('notifMediaReplacedTitle');
+  String get notifMediaDeletedTitle => get('notifMediaDeletedTitle');
+  String get notifPersonaModeTitle => get('notifPersonaModeTitle');
+  String get notifSessionRevokedTitle => get('notifSessionRevokedTitle');
+  String get notifSessionsRevokedAllTitle =>
+      get('notifSessionsRevokedAllTitle');
   String get aiIssueFileTooLarge => get('aiIssueFileTooLarge');
   String get aiIssueUnsupportedFormat => get('aiIssueUnsupportedFormat');
   String get aiIssueLowResolution => get('aiIssueLowResolution');
