@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/config/app_build_info.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -85,12 +87,26 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
               );
 
           if (hasUpdate || mustUpdate) {
+            final resolvedVersion = remoteVersion.isNotEmpty
+                ? remoteVersion
+                : '1.0.$remoteBuild';
+            final uid = currentAuthenticatedUid();
+            if (uid != null) {
+              unawaited(
+                NotificationService().createNotification(
+                  uid: uid,
+                  title: 'App Update Available',
+                  body: 'StyleMorph v$resolvedVersion is now available.',
+                  category: 'account',
+                  targetRoute: 'profile_about',
+                  emoji: '🚀',
+                ),
+              );
+            }
             if (mounted) {
               setState(() {
                 _updateStatus = UpdateCheckStatus.updateAvailable;
-                _availableVersion = remoteVersion.isNotEmpty
-                    ? remoteVersion
-                    : '1.0.$remoteBuild';
+                _availableVersion = resolvedVersion;
                 _storeUrl = store;
               });
             }

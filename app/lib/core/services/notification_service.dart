@@ -148,6 +148,28 @@ class NotificationService {
     return items.where((n) => n.category == category).toList();
   }
 
+  /// Filters notifications by both [category] (`'all' | ...`) and read [status]
+  /// (`'all' | 'unread' | 'read'`), preserving their original chronological order.
+  static List<AppNotification> filterNotifications(
+    List<AppNotification> items, {
+    String category = 'all',
+    String status = 'all',
+  }) {
+    return items.where((n) {
+      final matchesCategory = category == 'all' || n.category == category;
+      if (!matchesCategory) return false;
+      switch (status) {
+        case 'unread':
+          return !n.isRead;
+        case 'read':
+          return n.isRead;
+        case 'all':
+        default:
+          return true;
+      }
+    }).toList();
+  }
+
   /// Counts unread notifications.
   static int countUnread(List<AppNotification> items) {
     return items.where((n) => !n.isRead).length;
@@ -190,7 +212,31 @@ class NotificationService {
     }
   }
 
+  /// Typed event constants for notification & sensitive email routing.
+  static const String eventGeneral = 'general';
+  static const String eventReferralJoined = 'referral_joined';
+  static const String eventAppUpdate = 'app_update';
+  static const String eventKycStatus = 'kyc_status';
+  static const String eventMediaReview = 'media_review';
+  static const String eventWardrobeApproved = 'wardrobe_approved';
+  static const String eventAtelierRenderReady = 'atelier_render_ready';
+  static const String eventNewSession = 'new_session';
+  static const String eventAgreementSigned = 'agreement_signed';
+
+  /// Returns `true` only when email dispatch is explicitly requested and a
+  /// valid non-empty recipient email is provided (cost-controlled policy).
+  static bool shouldDispatchEmail({
+    required bool sendEmail,
+    required String? recipientEmail,
+  }) {
+    if (!sendEmail) return false;
+    final cleanEmail = recipientEmail?.trim() ?? '';
+    return cleanEmail.contains('@') && cleanEmail.length > 3;
+  }
+
   /// Non-blocking, fire-and-forget safe writer for `users/{uid}/notifications`.
+  /// When [sendEmail] is `true` and [recipientEmail] is valid, also enqueues
+  /// a lightweight document in `mail_queue` for sensitive/critical events.
   Future<void> createNotification({
     required String uid,
     required String title,
@@ -198,28 +244,130 @@ class NotificationService {
     String category = 'account',
     String targetRoute = 'profile_identity',
     String emoji = '🔔',
+    bool sendEmail = false,
+    String? recipientEmail,
+    String eventType = eventGeneral,
+    Map<String, dynamic>? extraData,
   }) async {
     if (uid.isEmpty) return;
     final firestore = _firestore;
     if (firestore == null) return;
 
     try {
+      final payload = <String, dynamic>{
+        'title': title,
+        'body': body,
+        'category': category,
+        'targetRoute': targetRoute,
+        'emoji': emoji,
+        'isRead': false,
+        'eventType': eventType,
+        'createdAt': FieldValue.serverTimestamp(),
+      };
+      if (extraData != null && extraData.isNotEmpty) {
+        payload.addAll(extraData);
+      }
+
       await firestore
           .collection('users')
           .doc(uid)
           .collection('notifications')
-          .add({
-            'title': title,
-            'body': body,
-            'category': category,
-            'targetRoute': targetRoute,
-            'emoji': emoji,
-            'isRead': false,
-            'createdAt': FieldValue.serverTimestamp(),
-          });
+          .add(payload);
+
+      if (shouldDispatchEmail(
+        sendEmail: sendEmail,
+        recipientEmail: recipientEmail,
+      )) {
+        await firestore.collection('mail_queue').add({
+          'to': recipientEmail!.trim(),
+          'subject': title,
+          'body': body,
+          'eventType': eventType,
+          'uid': uid,
+          'status': 'pending',
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
     } catch (e) {
       debugPrint('[NotificationService] createNotification error: $e');
     }
+  }
+
+  /// Phase 4 AI/Compliance Hook: KYC verification approved or rejected.
+  /// Always dispatches a sensitive email when [recipientEmail] is available.
+  Future<void> notifyKycStatus({
+    required String uid,
+    required bool approved,
+    String? reason,
+    String? recipientEmail,
+  }) {
+    final body = approved
+        ? 'Your identity verification (KYC) has been approved.'
+        : 'Your KYC submission requires attention${reason != null && reason.isNotEmpty ? ': $reason' : '.'}';
+    return createNotification(
+      uid: uid,
+      title: approved ? 'KYC Verified' : 'KYC Review Update',
+      body: body,
+      category: 'account',
+      targetRoute: 'profile_identity',
+      emoji: approved ? '✅' : '⚠️',
+      sendEmail: true,
+      recipientEmail: recipientEmail,
+      eventType: eventKycStatus,
+    );
+  }
+
+  /// Phase 4 AI Hook: Profile/Identity media review status.
+  Future<void> notifyMediaReviewStatus({
+    required String uid,
+    required String mediaLabel,
+    required bool approved,
+    String? reason,
+  }) {
+    final body = approved
+        ? 'Your $mediaLabel photo passed quality review.'
+        : 'Your $mediaLabel photo needs a retake${reason != null && reason.isNotEmpty ? ': $reason' : '.'}';
+    return createNotification(
+      uid: uid,
+      title: approved ? 'Media Approved' : 'Media Review Update',
+      body: body,
+      category: 'ai',
+      targetRoute: 'profile_identity',
+      emoji: approved ? '📸' : '🖼️',
+      eventType: eventMediaReview,
+    );
+  }
+
+  /// Phase 4 AI Hook: Wardrobe item tagging & approval completed.
+  Future<void> notifyWardrobeItemApproved({
+    required String uid,
+    required String itemName,
+  }) {
+    return createNotification(
+      uid: uid,
+      title: 'Wardrobe Item Ready',
+      body: '$itemName has been tagged and added to your digital closet.',
+      category: 'ai',
+      targetRoute: 'wardrobe',
+      emoji: '👗',
+      eventType: eventWardrobeApproved,
+    );
+  }
+
+  /// Phase 4 AI Hook: Virtual Atelier render completed.
+  Future<void> notifyAtelierRenderReady({
+    required String uid,
+    required String creationTitle,
+  }) {
+    return createNotification(
+      uid: uid,
+      title: 'Atelier Render Ready',
+      body: 'Your look "$creationTitle" is ready to view.',
+      category: 'ai',
+      targetRoute: 'atelier_creations',
+      emoji: '✨',
+      eventType: eventAtelierRenderReady,
+    );
   }
 
   /// Marks a single notification as read in Firestore.

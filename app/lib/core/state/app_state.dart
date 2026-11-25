@@ -537,6 +537,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
     }
 
     state = state.copyWith(isSavingProfile: true);
+    final prevSnapshot = state.savedSnapshot;
     try {
       final result = await _profileSyncService.saveProfile(
         identityValues: state.identityValues,
@@ -555,6 +556,14 @@ class AppStateNotifier extends StateNotifier<AppState> {
       );
 
       if (result != null && result.success) {
+        final diffBody = buildProfileDiffSummary(
+          previousIdentity: prevSnapshot?.identityValues ?? const {},
+          currentIdentity: state.identityValues,
+          previousAiDna: prevSnapshot?.aiDnaValues ?? const {},
+          currentAiDna: state.aiDnaValues,
+          previousPersonaMode: prevSnapshot?.personaMode,
+          currentPersonaMode: state.personaMode,
+        );
         state = state.copyWith(
           isSavingProfile: false,
           hasUnsavedProfileChanges: false,
@@ -569,7 +578,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
         captureSavedSnapshot();
         _emitActivityNotification(
           title: 'Profile Updated',
-          body: 'Your personal & profile changes were saved.',
+          body: diffBody,
           targetRoute: 'profile_identity',
           emoji: '👤',
         );
@@ -699,6 +708,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   Future<void> updatePreferencesImmediately(
     UserPreferences updatedPreferences,
   ) async {
+    final prevPreferences = state.preferences;
     final hadUnsaved = state.hasUnsavedProfileChanges;
 
     final updatedSnapshot = state.savedSnapshot != null
@@ -751,9 +761,13 @@ class AppStateNotifier extends StateNotifier<AppState> {
           'preferences': updatedPreferences.toMap(),
           'updatedAt': FieldValue.serverTimestamp(),
         }, SetOptions(merge: true));
+        final diffBody = buildSettingsDiffSummary(
+          previous: prevPreferences,
+          current: updatedPreferences,
+        );
         _emitActivityNotification(
           title: 'Settings Updated',
-          body: 'Your app preferences have been saved.',
+          body: diffBody,
           targetRoute: 'profile_settings',
           emoji: '⚙️',
         );
@@ -976,6 +990,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
       body: 'Your electronic consent has been recorded.',
       targetRoute: 'profile_about',
       emoji: '📜',
+      sendEmail: true,
+      recipientEmail: state.identityValues['email'],
     );
   }
 
@@ -984,6 +1000,8 @@ class AppStateNotifier extends StateNotifier<AppState> {
     required String body,
     required String targetRoute,
     required String emoji,
+    bool sendEmail = false,
+    String? recipientEmail,
   }) {
     final uid = currentAuthenticatedUid();
     if (uid == null) return;
@@ -995,8 +1013,184 @@ class AppStateNotifier extends StateNotifier<AppState> {
         category: 'account',
         targetRoute: targetRoute,
         emoji: emoji,
+        sendEmail: sendEmail,
+        recipientEmail: recipientEmail,
       ),
     );
+  }
+
+  static const Set<String> _sensitiveDiffKeys = {
+    'password',
+    'token',
+    'accesstoken',
+    'refreshtoken',
+    'secret',
+    'nationalid',
+    'national_id',
+    'ssn',
+    'iban',
+    'cardnumber',
+    'cvv',
+    'pin',
+    'otp',
+    'credential',
+    'apikey',
+  };
+
+  static const Map<String, String> _identityFieldLabels = {
+    'firstName': 'First Name',
+    'lastName': 'Last Name',
+    'nickname': 'Nickname',
+    'city': 'City',
+    'country': 'Country',
+    'gender': 'Gender',
+    'birthDate': 'Birth Date',
+    'bio': 'Bio',
+    'phone': 'Phone',
+    'email': 'Email',
+    'occupation': 'Occupation',
+  };
+
+  static bool _isSensitiveDiffKey(String key) {
+    final normalized = key.toLowerCase().replaceAll(RegExp(r'[\s_-]'), '');
+    for (final blocked in _sensitiveDiffKeys) {
+      if (normalized.contains(blocked.replaceAll('_', ''))) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static String _formatDiffValue(String? raw) {
+    final trimmed = raw?.trim() ?? '';
+    return trimmed.isEmpty ? '—' : trimmed;
+  }
+
+  static String _aggregateDiffs(List<String> diffs, String fallback) {
+    if (diffs.isEmpty) return fallback;
+    if (diffs.length <= 3) return diffs.join(', ');
+    final remaining = diffs.length - 3;
+    return '${diffs.take(3).join(', ')} (+$remaining more)';
+  }
+
+  /// Computes a privacy-safe, human-readable before -> after summary of
+  /// non-sensitive profile changes.
+  static String buildProfileDiffSummary({
+    required Map<String, String> previousIdentity,
+    required Map<String, String> currentIdentity,
+    Map<String, String> previousAiDna = const {},
+    Map<String, String> currentAiDna = const {},
+    String? previousPersonaMode,
+    String? currentPersonaMode,
+  }) {
+    final diffs = <String>[];
+    final identityKeys = <String>{
+      ...previousIdentity.keys,
+      ...currentIdentity.keys,
+    };
+
+    for (final key in identityKeys) {
+      if (_isSensitiveDiffKey(key)) continue;
+      final before = previousIdentity[key]?.trim() ?? '';
+      final after = currentIdentity[key]?.trim() ?? '';
+      if (before == after) continue;
+      final label = _identityFieldLabels[key] ?? key;
+      diffs.add(
+        '$label: "${_formatDiffValue(before)}" → "${_formatDiffValue(after)}"',
+      );
+    }
+
+    if (previousPersonaMode != null &&
+        currentPersonaMode != null &&
+        previousPersonaMode != currentPersonaMode) {
+      diffs.add(
+        'Persona Mode: "${_formatDiffValue(previousPersonaMode)}" → "${_formatDiffValue(currentPersonaMode)}"',
+      );
+    }
+
+    final aiDnaKeys = <String>{...previousAiDna.keys, ...currentAiDna.keys};
+    for (final key in aiDnaKeys) {
+      if (_isSensitiveDiffKey(key)) continue;
+      final before = previousAiDna[key]?.trim() ?? '';
+      final after = currentAiDna[key]?.trim() ?? '';
+      if (before == after) continue;
+      diffs.add(
+        '$key: "${_formatDiffValue(before)}" → "${_formatDiffValue(after)}"',
+      );
+    }
+
+    return _aggregateDiffs(
+      diffs,
+      'Your personal & profile changes were saved.',
+    );
+  }
+
+  /// Computes a human-readable before -> after summary of preference changes.
+  static String buildSettingsDiffSummary({
+    required UserPreferences previous,
+    required UserPreferences current,
+  }) {
+    final diffs = <String>[];
+    if (previous.appLanguage != current.appLanguage) {
+      diffs.add(
+        'Language: "${_formatLanguageLabel(previous.appLanguage)}" → "${_formatLanguageLabel(current.appLanguage)}"',
+      );
+    }
+    if (previous.brightnessMode != current.brightnessMode) {
+      diffs.add(
+        'Theme: "${_formatBrightnessLabel(previous.brightnessMode)}" → "${_formatBrightnessLabel(current.brightnessMode)}"',
+      );
+    }
+    if (previous.fashionThemePalette != current.fashionThemePalette) {
+      diffs.add(
+        'Palette: "${previous.fashionThemePalette}" → "${current.fashionThemePalette}"',
+      );
+    }
+    if (previous.appMode != current.appMode) {
+      diffs.add('Mode: "${previous.appMode}" → "${current.appMode}"');
+    }
+    if (previous.showHeaderCoins != current.showHeaderCoins) {
+      diffs.add(
+        'Header Coins: "${previous.showHeaderCoins ? 'On' : 'Off'}" → "${current.showHeaderCoins ? 'On' : 'Off'}"',
+      );
+    }
+    if (previous.showFloatingSupport != current.showFloatingSupport) {
+      diffs.add(
+        'Support Button: "${previous.showFloatingSupport ? 'On' : 'Off'}" → "${current.showFloatingSupport ? 'On' : 'Off'}"',
+      );
+    }
+    if (previous.showEmailInHeader != current.showEmailInHeader) {
+      diffs.add(
+        'Header Email: "${previous.showEmailInHeader ? 'On' : 'Off'}" → "${current.showEmailInHeader ? 'On' : 'Off'}"',
+      );
+    }
+    return _aggregateDiffs(diffs, 'Your app preferences have been saved.');
+  }
+
+  static String _formatLanguageLabel(String code) {
+    switch (code) {
+      case 'fa':
+        return 'فارسی';
+      case 'ar':
+        return 'العربية';
+      case 'tr':
+        return 'Türkçe';
+      case 'en':
+      default:
+        return 'English';
+    }
+  }
+
+  static String _formatBrightnessLabel(String mode) {
+    switch (mode) {
+      case 'dark':
+        return 'Dark';
+      case 'light':
+        return 'Light';
+      case 'system':
+      default:
+        return 'System';
+    }
   }
 
   /// Resets terms acceptance locally (used for testing or revocation).

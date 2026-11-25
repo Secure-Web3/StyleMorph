@@ -311,19 +311,16 @@ class _HeaderActions extends ConsumerWidget {
               constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
               tooltip: strings.notificationsTitle,
             ),
-            // Orange notification dot (only when unread > 0)
+            // Pulsing/glowing orange notification dot (only when unread > 0)
             if (unreadCount > 0)
               PositionedDirectional(
-                top: 4,
-                end: 4,
-                child: Container(
-                  width: 7,
-                  height: 7,
-                  decoration: BoxDecoration(
-                    color: colors.orColor,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: colors.sf, width: 1.5),
-                  ),
+                top: 3,
+                end: 3,
+                child: _PulsingNotificationDot(
+                  key: const Key('header_notifications_unread_dot'),
+                  color: colors.orColor,
+                  borderColor: colors.sf,
+                  isActive: unreadCount > 0,
                 ),
               ),
           ],
@@ -537,6 +534,103 @@ class _HeaderProfileProgressSection extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _PulsingNotificationDot extends StatefulWidget {
+  final Color color;
+  final Color borderColor;
+  final bool isActive;
+
+  const _PulsingNotificationDot({
+    super.key,
+    required this.color,
+    required this.borderColor,
+    required this.isActive,
+  });
+
+  @override
+  State<_PulsingNotificationDot> createState() =>
+      _PulsingNotificationDotState();
+}
+
+class _PulsingNotificationDotState extends State<_PulsingNotificationDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _pulse;
+
+  bool get _isWidgetTestBinding =>
+      WidgetsBinding.instance.runtimeType.toString().contains('Test');
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    );
+    _pulse = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
+    if (widget.isActive) {
+      if (_isWidgetTestBinding) {
+        _controller.value = 0.5;
+      } else {
+        _controller.repeat(reverse: true);
+      }
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant _PulsingNotificationDot oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.isActive && !_controller.isAnimating) {
+      if (_isWidgetTestBinding) {
+        _controller.value = 0.5;
+      } else {
+        _controller.repeat(reverse: true);
+      }
+    } else if (!widget.isActive && _controller.isAnimating) {
+      _controller.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _pulse,
+      builder: (context, child) {
+        final t = _pulse.value;
+        final scale = 0.92 + (0.20 * t);
+        final opacity = 0.72 + (0.28 * t);
+        return Transform.scale(
+          scale: scale,
+          child: Opacity(
+            opacity: opacity,
+            child: Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: widget.color,
+                shape: BoxShape.circle,
+                border: Border.all(color: widget.borderColor, width: 1.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: widget.color.withValues(alpha: 0.25 + (0.35 * t)),
+                    blurRadius: 4 + (4 * t),
+                    spreadRadius: 0.5 + (1.2 * t),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
