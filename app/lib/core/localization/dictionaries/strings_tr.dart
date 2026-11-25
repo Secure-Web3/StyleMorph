@@ -967,6 +967,8 @@ final Map<String, String> stringsTr = {
   'aboutReleaseDateVal': 'Kasım 2026',
   'aboutEnvironmentLabel': 'Ortam',
   'aboutEnvironmentVal': 'Kararlı (Üretim)',
+  'aboutEnvironmentPreview': 'Önizleme (Preview)',
+  'aboutEnvironmentStaging': 'Hazırlık (Staging)',
   'aboutCheckUpdatesBtn': 'Güncellemeleri Denetle',
   'aboutChecking': 'Güncellemeler kontrol ediliyor...',
   'aboutUpToDate': 'StyleMorph\'un en son kararlı sürümünü kullanıyorsunuz.',

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import '../../../../core/config/app_build_info.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -29,8 +30,6 @@ enum UpdateCheckStatus { idle, checking, upToDate, updateAvailable, error }
 class AboutSubTab extends ConsumerStatefulWidget {
   const AboutSubTab({super.key});
 
-  static const String currentVersion = '1.0.0';
-  static const int currentBuildNumber = 100;
   static const String officialWebsite = 'https://stylemorph.app';
   static const String officialSupportEmail = 'support@stylemorph.app';
   static const String officialInstagram =
@@ -59,23 +58,33 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
         if (doc.exists && doc.data() != null) {
           final data = doc.data()!;
           final remoteVersion =
-              data['latestVersion']?.toString() ??
               data['version']?.toString() ??
+              data['latestVersion']?.toString() ??
               '';
           final remoteBuild =
-              (data['latestBuild'] as num?)?.toInt() ??
               (data['build'] as num?)?.toInt() ??
+              (data['latestBuild'] as num?)?.toInt() ??
               0;
+          final minRequiredBuild =
+              (data['minRequiredBuild'] as num?)?.toInt() ?? 0;
+          final forceUpdate = data['forceUpdate'] == true;
           final store =
+              data['webUrl']?.toString() ??
               data['storeUrl']?.toString() ??
               data['downloadUrl']?.toString() ??
               AboutSubTab.officialWebsite;
 
-          if (remoteBuild > AboutSubTab.currentBuildNumber ||
-              (remoteVersion.isNotEmpty &&
-                  remoteVersion != AboutSubTab.currentVersion &&
-                  _compareVersions(remoteVersion, AboutSubTab.currentVersion) >
-                      0)) {
+          final hasUpdate = AppBuildInfo.isUpdateAvailable(
+            remoteVersion: remoteVersion,
+            remoteBuild: remoteBuild,
+          );
+          final mustUpdate =
+              forceUpdate ||
+              AppBuildInfo.isForceUpdateRequired(
+                minRequiredBuild: minRequiredBuild,
+              );
+
+          if (hasUpdate || mustUpdate) {
             if (mounted) {
               setState(() {
                 _updateStatus = UpdateCheckStatus.updateAvailable;
@@ -104,20 +113,6 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
         setState(() => _updateStatus = UpdateCheckStatus.upToDate);
       }
     }
-  }
-
-  int _compareVersions(String v1, String v2) {
-    try {
-      final p1 = v1.split('.').map(int.parse).toList();
-      final p2 = v2.split('.').map(int.parse).toList();
-      for (int i = 0; i < 3; i++) {
-        final n1 = i < p1.length ? p1[i] : 0;
-        final n2 = i < p2.length ? p2[i] : 0;
-        if (n1 > n2) return 1;
-        if (n1 < n2) return -1;
-      }
-    } catch (_) {}
-    return 0;
   }
 
   void _copyToClipboard(String text, String label) {
@@ -278,7 +273,18 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
     AppColors colors,
     AppStrings strings,
   ) {
-    final formattedBuild = strings.formatNumber(AboutSubTab.currentBuildNumber);
+    final formattedBuild = strings.formatNumber(AppBuildInfo.buildNumber);
+    final releaseDateDisplay = AppBuildInfo.releaseDate == 'November 2026'
+        ? strings.aboutReleaseDateVal
+        : DigitFormatter.localizeDigits(
+            AppBuildInfo.releaseDate,
+            strings.localeCode,
+          );
+    final (envLabel, envColor) = switch (AppBuildInfo.environment) {
+      'production' => (strings.aboutEnvironmentVal, colors.ok),
+      'staging' => (strings.aboutEnvironmentStaging, colors.orColor),
+      _ => (strings.aboutEnvironmentPreview, colors.pr),
+    };
 
     return AppCard(
       variant: AppCardVariant.surface,
@@ -291,7 +297,7 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
             icon: Icons.verified_rounded,
             label: strings.aboutVersionLabel,
             value:
-                'v${DigitFormatter.localizeDigits(AboutSubTab.currentVersion, strings.localeCode)}',
+                'v${DigitFormatter.localizeDigits(AppBuildInfo.appVersion, strings.localeCode)}',
             isBold: true,
           ),
           Divider(color: colors.bd, height: 16),
@@ -306,15 +312,15 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
             colors: colors,
             icon: Icons.calendar_today_rounded,
             label: strings.aboutReleaseDateLabel,
-            value: strings.aboutReleaseDateVal,
+            value: releaseDateDisplay,
           ),
           Divider(color: colors.bd, height: 16),
           _buildSpecRow(
             colors: colors,
             icon: Icons.shield_outlined,
             label: strings.aboutEnvironmentLabel,
-            value: strings.aboutEnvironmentVal,
-            valueColor: colors.ok,
+            value: envLabel,
+            valueColor: envColor,
           ),
           Divider(color: colors.bd, height: 24),
 

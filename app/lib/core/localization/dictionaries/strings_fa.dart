@@ -959,6 +959,8 @@ final Map<String, String> stringsFa = {
   'aboutReleaseDateVal': 'نوامبر ۲۰۲۶',
   'aboutEnvironmentLabel': 'محیط اجرا',
   'aboutEnvironmentVal': 'پایدار (پروداکشن)',
+  'aboutEnvironmentPreview': 'پیش‌نمایش (Preview)',
+  'aboutEnvironmentStaging': 'آزمایشی (Staging)',
   'aboutCheckUpdatesBtn': 'بررسی به‌روزرسانی',
   'aboutChecking': 'در حال بررسی نسخه‌های جدید...',
   'aboutUpToDate': 'شما از آخرین نسخه پایدار StyleMorph استفاده می‌کنید.',

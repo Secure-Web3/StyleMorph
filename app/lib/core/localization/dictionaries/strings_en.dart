@@ -960,6 +960,8 @@ final Map<String, String> stringsEn = {
   'aboutReleaseDateVal': 'November 2026',
   'aboutEnvironmentLabel': 'Environment',
   'aboutEnvironmentVal': 'Stable (Production)',
+  'aboutEnvironmentPreview': 'Preview',
+  'aboutEnvironmentStaging': 'Staging',
   'aboutCheckUpdatesBtn': 'Check for Updates',
   'aboutChecking': 'Checking for updates...',
   'aboutUpToDate': 'You are running the latest version of StyleMorph.',

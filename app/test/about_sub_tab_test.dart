@@ -246,7 +246,7 @@ void main() {
       expect(find.text('Build 100'), findsOneWidget);
       expect(find.text('Release Date'), findsOneWidget);
       expect(find.text('November 2026'), findsOneWidget);
-      expect(find.text('Stable (Production)'), findsOneWidget);
+      expect(find.text('Preview'), findsOneWidget);
     });
 
     testWidgets('renders Manual "Check for Updates" Button & triggers check', (

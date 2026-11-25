@@ -27,12 +27,32 @@ class MainShellScreen extends ConsumerStatefulWidget {
 }
 
 class _MainShellScreenState extends ConsumerState<MainShellScreen> {
+  static const List<AppTab> _moduleTabs = [
+    AppTab.wardrobe,
+    AppTab.wellness,
+    AppTab.stylist,
+    AppTab.atelier,
+    AppTab.shop,
+  ];
+  static const double _drawerOverscrollThreshold = 24.0;
+
   // Keep the key as a field so it is not recreated on every rebuild.
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  late final PageController _pageController;
+  bool _isSyncingPageFromState = false;
+  double _startEdgeOverscroll = 0.0;
+  bool _drawerTriggeredThisDrag = false;
+
+  int _moduleIndexFor(AppTab tab) {
+    final idx = _moduleTabs.indexOf(tab);
+    return idx >= 0 ? idx : 0;
+  }
 
   @override
   void initState() {
     super.initState();
+    final initialTab = ref.read(appStateProvider).currentTab;
+    _pageController = PageController(initialPage: _moduleIndexFor(initialTab));
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(sessionServiceProvider).upsertSession().catchError((e) {
         debugPrint('[MainShellScreen] upsertSession error: $e');
@@ -41,6 +61,91 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
           .read(appPrefetchServiceProvider)
           .prefetchOnAuth(ref: ref, context: context);
     });
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void _syncPageControllerToTab(AppTab? previous, AppTab next) {
+    if (next == AppTab.profile) return;
+    final targetIndex = _moduleIndexFor(next);
+
+    if (previous == AppTab.profile) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_pageController.hasClients) return;
+        _isSyncingPageFromState = true;
+        _pageController.jumpToPage(targetIndex);
+        _isSyncingPageFromState = false;
+      });
+      return;
+    }
+
+    if (!_pageController.hasClients) return;
+    final currentPage =
+        _pageController.page?.round() ?? _pageController.initialPage;
+    if (currentPage == targetIndex) return;
+
+    _isSyncingPageFromState = true;
+    _pageController
+        .animateToPage(
+          targetIndex,
+          duration: const Duration(milliseconds: 260),
+          curve: Curves.easeOutCubic,
+        )
+        .whenComplete(() {
+          _isSyncingPageFromState = false;
+        });
+  }
+
+  bool _handlePageScrollNotification(ScrollNotification notification) {
+    if (notification.depth != 0 ||
+        notification.metrics.axis != Axis.horizontal) {
+      return false;
+    }
+
+    if (notification is ScrollStartNotification ||
+        notification is ScrollEndNotification) {
+      _startEdgeOverscroll = 0.0;
+      _drawerTriggeredThisDrag = false;
+      return false;
+    }
+
+    if (notification is OverscrollNotification &&
+        notification.dragDetails != null &&
+        !_drawerTriggeredThisDrag) {
+      final atStartEdge =
+          notification.metrics.pixels <=
+          notification.metrics.minScrollExtent + 0.5;
+      if (atStartEdge && notification.overscroll < 0) {
+        _startEdgeOverscroll += notification.overscroll.abs();
+        if (_startEdgeOverscroll >= _drawerOverscrollThreshold) {
+          _triggerDrawerFromEdgeSwipe();
+        }
+      } else {
+        _startEdgeOverscroll = 0.0;
+      }
+    } else if (notification is ScrollUpdateNotification &&
+        notification.dragDetails != null &&
+        !_drawerTriggeredThisDrag) {
+      final bounceOverscroll =
+          notification.metrics.minScrollExtent - notification.metrics.pixels;
+      if (bounceOverscroll >= _drawerOverscrollThreshold) {
+        _triggerDrawerFromEdgeSwipe();
+      }
+    }
+
+    return false;
+  }
+
+  void _triggerDrawerFromEdgeSwipe() {
+    _drawerTriggeredThisDrag = true;
+    _startEdgeOverscroll = 0.0;
+    if (!(_scaffoldKey.currentState?.isDrawerOpen ?? false)) {
+      _scaffoldKey.currentState?.openDrawer();
+    }
   }
 
   Future<void> _handleTabSwitch(AppTab targetTab) async {
@@ -74,7 +179,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     ref.read(appStateProvider.notifier).switchTab(targetTab);
   }
 
-  Widget _buildBody(AppTab tab) {
+  Widget _buildModulePage(AppTab tab) {
     switch (tab) {
       case AppTab.wardrobe:
         return const WardrobeTab();
@@ -91,13 +196,39 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     }
   }
 
+  Widget _buildModulesPageView() {
+    return NotificationListener<ScrollNotification>(
+      onNotification: _handlePageScrollNotification,
+      child: PageView.builder(
+        controller: _pageController,
+        physics: const PageScrollPhysics(),
+        itemCount: _moduleTabs.length,
+        onPageChanged: (index) {
+          if (_isSyncingPageFromState) return;
+          final targetTab = _moduleTabs[index];
+          final current = ref.read(appStateProvider).currentTab;
+          if (current != targetTab) {
+            ref.read(appStateProvider.notifier).switchTab(targetTab);
+          }
+        },
+        itemBuilder: (context, index) => _buildModulePage(_moduleTabs[index]),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    ref.listen<AppTab>(
+      appStateProvider.select((s) => s.currentTab),
+      _syncPageControllerToTab,
+    );
+
     final colors = context.colors;
     final themeState = ref.watch(themeProvider);
     final currentLang = ref.watch(localeProvider);
     final isDark = themeState.resolveIsDark(context);
     final currentTab = ref.watch(appStateProvider.select((s) => s.currentTab));
+    final isProfile = currentTab == AppTab.profile;
     final hasUnsavedChanges = ref.watch(
       appStateProvider.select((s) => s.hasUnsavedChanges),
     );
@@ -171,6 +302,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                     child: Scaffold(
                       key: _scaffoldKey,
                       backgroundColor: colors.bg,
+                      drawerEnableOpenDragGesture: isProfile,
                       appBar: MainHeader(
                         onOpenDrawer: () =>
                             _scaffoldKey.currentState?.openDrawer(),
@@ -180,7 +312,11 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                         builder: (context, bodyConstraints) {
                           return Stack(
                             children: [
-                              Positioned.fill(child: _buildBody(currentTab)),
+                              Positioned.fill(
+                                child: isProfile
+                                    ? const ProfileTab()
+                                    : _buildModulesPageView(),
+                              ),
                               if (showSupport)
                                 Positioned.fill(
                                   child: SupportWidget(

@@ -28,7 +28,14 @@ jobs:
         run: |
           cd app
           flutter pub get
-          flutter build web --release --base-href "/" --pwa-strategy=none
+          APP_VERSION=$(grep '^version:' pubspec.yaml | sed 's/version:[[:space:]]*//' | cut -d'+' -f1)
+          RELEASE_DATE=$(date -u +%Y-%m-%d)
+          flutter build web --release --base-href "/" --pwa-strategy=none \
+            --dart-define=APP_VERSION="$APP_VERSION" \
+            --dart-define=BUILD_NUMBER="${{ github.run_number }}" \
+            --dart-define=APP_ENV=preview \
+            --dart-define=RELEASE_DATE="$RELEASE_DATE" \
+            --dart-define=GIT_SHA="${{ github.sha }}"
 
       - name: Build Flutter Web Admin Panel
         run: |

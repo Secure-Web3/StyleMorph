@@ -933,6 +933,8 @@ final Map<String, String> stringsAr = {
   'aboutReleaseDateVal': 'نوفمبر ٢٠٢٦',
   'aboutEnvironmentLabel': 'بيئة التشغيل',
   'aboutEnvironmentVal': 'مستقر (الإنتاج)',
+  'aboutEnvironmentPreview': 'معاينة (Preview)',
+  'aboutEnvironmentStaging': 'تجريبي (Staging)',
   'aboutCheckUpdatesBtn': 'التحقق من التحديثات',
   'aboutChecking': 'جارٍ التحقق من وجود تحديثات...',
   'aboutUpToDate': 'أنت تستخدم أحدث إصدار من StyleMorph.',

@@ -1253,6 +1253,8 @@ class AppStrings {
   String get aboutReleaseDateVal => get('aboutReleaseDateVal');
   String get aboutEnvironmentLabel => get('aboutEnvironmentLabel');
   String get aboutEnvironmentVal => get('aboutEnvironmentVal');
+  String get aboutEnvironmentPreview => get('aboutEnvironmentPreview');
+  String get aboutEnvironmentStaging => get('aboutEnvironmentStaging');
   String get aboutCheckUpdatesBtn => get('aboutCheckUpdatesBtn');
   String get aboutChecking => get('aboutChecking');
   String get aboutUpToDate => get('aboutUpToDate');
