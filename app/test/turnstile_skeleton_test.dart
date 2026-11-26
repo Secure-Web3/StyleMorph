@@ -64,8 +64,8 @@ void main() {
         expect(renderBox.size.width, equals(300.0));
         expect(renderBox.size.height, equals(65.0));
 
-        // Verify shield icon is present
-        expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
+        // Verify compact loading spinner is present
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
         // Verify localized checking text is present
         expect(find.text('Performing security check...'), findsOneWidget);
@@ -102,7 +102,7 @@ void main() {
         );
 
         expect(find.text('در حال بررسی امنیتی...'), findsOneWidget);
-        expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
+        expect(find.byType(CircularProgressIndicator), findsOneWidget);
       },
     );
   });

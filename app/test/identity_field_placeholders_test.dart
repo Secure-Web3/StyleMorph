@@ -72,7 +72,7 @@ void main() {
         expect(find.text('انتخاب تاریخ تولد'), findsOneWidget);
 
         // Mobile
-        expect(find.text('+98 912 345 6789'), findsOneWidget);
+        expect(find.text('912 345 6789'), findsOneWidget);
 
         // Country, Province, City
         expect(find.text('مثال: ایران'), findsOneWidget);
@@ -104,7 +104,7 @@ void main() {
         expect(find.text('Select date of birth'), findsOneWidget);
 
         // Mobile
-        expect(find.text('+1 234 567 8900'), findsOneWidget);
+        expect(find.text('234 567 8900'), findsOneWidget);
 
         // Country, Province, City
         expect(find.text('e.g. United States, Canada'), findsOneWidget);

@@ -125,7 +125,7 @@ final Map<String, String> stringsFa = {
   'idDobPlaceholder': 'انتخاب تاریخ تولد',
   'idDobAgeRequirement': 'حداقل سن قانونی ۱۳ سال است',
   'idMobile': 'شماره موبایل',
-  'idMobilePlaceholder': '+98 912 345 6789',
+  'idMobilePlaceholder': '912 345 6789',
   'idVerifyMobile': 'تایید',
   'commonComingSoon': 'به زودی',
   'commonGotIt': 'متوجه شدم',
@@ -891,6 +891,8 @@ final Map<String, String> stringsFa = {
   'authTurnstilePrompt': 'تایید امنیتی ورود',
   'authTurnstileRequired': 'لطفاً تایید امنیتی Cloudflare را تکمیل کنید.',
   'authTurnstileChecking': 'در حال بررسی امنیتی...',
+  'authTurnstileUnavailable':
+      'بررسی امنیتی در دسترس نیست. تلاش مجدد یا تغییر به چالش اعداد.',
   'authVerificationCloudflare': 'کلودفلر',
   'authVerificationMath': 'چالش اعداد',
   'authFallbackSecurityTitle': 'تایید امنیتی جایگزین',

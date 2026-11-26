@@ -125,7 +125,7 @@ final Map<String, String> stringsTr = {
   'idDobPlaceholder': 'Doğum tarihini seçin',
   'idDobAgeRequirement': 'Yasal minimum yaş 13\'tür',
   'idMobile': 'Cep Telefonu',
-  'idMobilePlaceholder': '+90 532 123 4567',
+  'idMobilePlaceholder': '532 123 4567',
   'idVerifyMobile': 'Doğrula',
   'commonComingSoon': 'Yakında',
   'commonGotIt': 'Anladım',
@@ -900,6 +900,8 @@ final Map<String, String> stringsTr = {
   'authTurnstileRequired':
       'Lütfen Cloudflare güvenlik doğrulamasını tamamlayın.',
   'authTurnstileChecking': 'Güvenlik kontrolü yapılıyor...',
+  'authTurnstileUnavailable':
+      'Güvenlik kontrolü kullanılamıyor. Tekrar deneyin veya Matematik Kontrolü\'ne geçin.',
   'authVerificationCloudflare': 'Cloudflare',
   'authVerificationMath': 'Matematik Kontrolü',
   'authFallbackSecurityTitle': 'Güvenlik Doğrulaması',

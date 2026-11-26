@@ -124,7 +124,7 @@ final Map<String, String> stringsAr = {
   'idDobPlaceholder': 'اختر تاريخ الميلاد',
   'idDobAgeRequirement': 'الحد الأدنى للسن القانوني هو 13 عاماً',
   'idMobile': 'رقم الجوال',
-  'idMobilePlaceholder': '+971 50 123 4567',
+  'idMobilePlaceholder': '50 123 4567',
   'idVerifyMobile': 'تأكيد',
   'commonComingSoon': 'قريباً',
   'commonGotIt': 'فهمت ذلك',
@@ -869,6 +869,8 @@ final Map<String, String> stringsAr = {
   'authTurnstilePrompt': 'التحقق الأمني',
   'authTurnstileRequired': 'يرجى إكمال التحقق الأمني من Cloudflare.',
   'authTurnstileChecking': 'جارٍ التحقق من الأمان...',
+  'authTurnstileUnavailable':
+      'التحقق الأمني غير متاح. أعد المحاولة أو انتقل إلى تحدي الأرقام.',
   'authVerificationCloudflare': 'كلودفلير',
   'authVerificationMath': 'تحدي الأرقام',
   'authFallbackSecurityTitle': 'التحقق الأمني البديل',

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -862,6 +863,24 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     );
   }
 
+  Widget _buildCountryPrefixIcon(AppColors colors) {
+    final hasCountry = _countryController.text.trim().isNotEmpty;
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(start: 8, end: 4),
+      child: Center(
+        widthFactor: 1,
+        child: hasCountry
+            ? Text(_selectedCountry.flag, style: const TextStyle(fontSize: 16))
+            : Icon(
+                LucideIcons.globe,
+                key: const Key('identity_country_neutral_globe'),
+                size: 16,
+                color: colors.mu,
+              ),
+      ),
+    );
+  }
+
   Widget _buildEmailField(
     AppColors colors,
     AppStrings strings,
@@ -1330,16 +1349,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                   placeholder: strings.idCountryPlaceholder,
                   controller: _countryController,
                   readOnly: true,
-                  prefix: Padding(
-                    padding: const EdgeInsetsDirectional.only(start: 8, end: 4),
-                    child: Center(
-                      widthFactor: 1,
-                      child: Text(
-                        _selectedCountry.flag,
-                        style: const TextStyle(fontSize: 16),
-                      ),
-                    ),
-                  ),
+                  prefix: _buildCountryPrefixIcon(colors),
                   suffix: const Icon(Icons.arrow_drop_down, size: 20),
                   onTap: _pickCountry,
                 ),
@@ -1373,19 +1383,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
                         placeholder: strings.idCountryPlaceholder,
                         controller: _countryController,
                         readOnly: true,
-                        prefix: Padding(
-                          padding: const EdgeInsetsDirectional.only(
-                            start: 8,
-                            end: 4,
-                          ),
-                          child: Center(
-                            widthFactor: 1,
-                            child: Text(
-                              _selectedCountry.flag,
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ),
+                        prefix: _buildCountryPrefixIcon(colors),
                         suffix: const Icon(Icons.arrow_drop_down, size: 20),
                         onTap: _pickCountry,
                       ),

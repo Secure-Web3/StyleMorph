@@ -167,7 +167,17 @@ class _NotificationSheetState extends ConsumerState<NotificationSheet> {
             AppBadge(
               variant: AppBadgeVariant.destructive,
               size: AppBadgeSize.sm,
-              child: Text(strings.unreadNewCount(unreadCount)),
+              child: Text(
+                strings.unreadNewCount(unreadCount),
+                style: TextStyle(
+                  fontFamily:
+                      AppTypography.fontFamilyFor(strings.localeCode) ??
+                      'sans-serif',
+                  fontFamilyFallback: AppTypography.fontFamilyFallbackFor(
+                    strings.localeCode,
+                  ),
+                ),
+              ),
             ),
             const SizedBox(width: AppSpacing.xs),
           ],

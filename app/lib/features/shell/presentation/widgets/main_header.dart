@@ -151,85 +151,79 @@ class _HeaderAvatar extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 4.0),
       child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: 66.0, maxWidth: 112.0),
+        constraints: const BoxConstraints(minWidth: 66.0, maxWidth: 136.0),
         child: Stack(
-          alignment: Alignment.topCenter,
+          alignment: Alignment.bottomCenter,
+          clipBehavior: Clip.none,
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 10.0),
               child: avatarTapTarget,
             ),
-            Positioned(
-              bottom: 0,
-              child: GestureDetector(
-                key: const Key('header_loyalty_rank_badge'),
-                behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  LoyaltyModalSheet.show(
-                    context,
-                    points: stylePoints,
-                    rank: rank,
-                  );
-                },
+            GestureDetector(
+              key: const Key('header_loyalty_rank_badge'),
+              behavior: HitTestBehavior.opaque,
+              onTap: () {
+                LoyaltyModalSheet.show(
+                  context,
+                  points: stylePoints,
+                  rank: rank,
+                );
+              },
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 136.0),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: colors.sf,
+                  borderRadius: AppRadius.rFull,
+                  border: Border.all(color: colors.sf, width: 1.5),
+                  boxShadow: [
+                    BoxShadow(
+                      color: colors.tx.withValues(alpha: 0.08),
+                      blurRadius: 4,
+                      offset: const Offset(0, 1),
+                    ),
+                  ],
+                ),
                 child: Container(
-                  constraints: const BoxConstraints(maxWidth: 112.0),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 6,
-                    vertical: 2,
+                    horizontal: 5,
+                    vertical: 1.5,
                   ),
                   decoration: BoxDecoration(
-                    color: colors.sf,
+                    color: rankColor.withValues(alpha: 0.14),
                     borderRadius: AppRadius.rFull,
-                    border: Border.all(color: colors.sf, width: 1.5),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colors.tx.withValues(alpha: 0.08),
-                        blurRadius: 4,
-                        offset: const Offset(0, 1),
+                    border: Border.all(
+                      color: rankColor.withValues(alpha: 0.45),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 5,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: rankColor,
+                        ),
+                      ),
+                      const SizedBox(width: 3),
+                      Flexible(
+                        child: Text(
+                          '$rankLabel • $ptsText',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontSize: 9.5,
+                            fontWeight: FontWeight.w700,
+                            color: colors.tx,
+                            height: 1.1,
+                          ),
+                        ),
                       ),
                     ],
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 5,
-                      vertical: 1.5,
-                    ),
-                    decoration: BoxDecoration(
-                      color: rankColor.withValues(alpha: 0.14),
-                      borderRadius: AppRadius.rFull,
-                      border: Border.all(
-                        color: rankColor.withValues(alpha: 0.45),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 5,
-                          height: 5,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: rankColor,
-                          ),
-                        ),
-                        const SizedBox(width: 3),
-                        Flexible(
-                          child: Text(
-                            '$rankLabel • $ptsText',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontFamily: 'Vazirmatn',
-                              fontSize: 9.5,
-                              fontWeight: FontWeight.w700,
-                              color: colors.tx,
-                              height: 1.1,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ),
                 ),
               ),
@@ -480,7 +474,6 @@ class _HeaderActions extends ConsumerWidget {
             Text(
               strings.formatNumber(coins),
               style: TextStyle(
-                fontFamily: 'Vazirmatn',
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: colors.tx,
@@ -489,11 +482,7 @@ class _HeaderActions extends ConsumerWidget {
             const SizedBox(width: 3),
             Text(
               strings.coin,
-              style: TextStyle(
-                fontFamily: 'Vazirmatn',
-                fontSize: 10,
-                color: colors.mu,
-              ),
+              style: TextStyle(fontSize: 10, color: colors.mu),
             ),
           ],
         ),
@@ -549,7 +538,6 @@ class _HeaderProfileProgressSection extends ConsumerWidget {
               Text(
                 strings.formatPercent((profileProgress * 100).round()),
                 style: TextStyle(
-                  fontFamily: 'Vazirmatn',
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
                   color: colors.tx,

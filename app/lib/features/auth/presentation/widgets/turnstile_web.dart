@@ -68,6 +68,7 @@ class _TurnstileWidgetState extends State<TurnstileWidget> {
   String? _widgetId;
   Timer? _renderTimer;
   bool _isInteractive = false;
+  bool _hasError = false;
 
   @override
   void initState() {
@@ -189,8 +190,20 @@ class _TurnstileWidgetState extends State<TurnstileWidget> {
       });
     } else {
       debugPrint('[TurnstileWeb] Turnstile load timeout. Calling onError.');
+      if (mounted) {
+        setState(() => _hasError = true);
+      }
       widget.onError?.call();
     }
+  }
+
+  void _retry() {
+    if (!mounted) return;
+    setState(() {
+      _hasError = false;
+      _isInteractive = false;
+    });
+    _scheduleRender();
   }
 
   @override
@@ -201,17 +214,25 @@ class _TurnstileWidgetState extends State<TurnstileWidget> {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // 1. Cloudflare Turnstile platform view iframe (renders underneath)
-          HtmlElementView(viewType: _viewId),
+          // 1. Cloudflare Turnstile platform view iframe (kept nearly invisible until ready)
+          Opacity(
+            opacity: _isInteractive ? 1.0 : 0.01,
+            child: HtmlElementView(viewType: _viewId),
+          ),
 
-          // 2. Smooth Shimmer/Pulse Skeleton (Cross-fades out when interactive)
+          // 2. Smooth Shimmer/Pulse Skeleton or Fallback Hint (Cross-fades out when interactive)
           IgnorePointer(
             ignoring: _isInteractive,
             child: AnimatedOpacity(
               opacity: _isInteractive ? 0.0 : 1.0,
               duration: const Duration(milliseconds: 350),
               curve: Curves.easeInOut,
-              child: const TurnstileSkeleton(width: 300, height: 65),
+              child: TurnstileSkeleton(
+                width: 300,
+                height: 65,
+                isFailed: _hasError,
+                onRetry: _retry,
+              ),
             ),
           ),
         ],

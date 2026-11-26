@@ -8,7 +8,6 @@ import '../../../../core/services/session_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_toast.dart';
 import 'widgets/about_sub_tab.dart';
@@ -490,7 +489,6 @@ class _SidebarTabButton extends StatelessWidget {
                     child: Text(
                       strings.formatNumber(badgeCount!),
                       style: TextStyle(
-                        fontFamily: AppTypography.fontFamily,
                         fontSize: 9,
                         fontWeight: FontWeight.w700,
                         color: colors.prt,

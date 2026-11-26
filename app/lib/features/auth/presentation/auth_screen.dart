@@ -367,7 +367,12 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                   return Center(
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 480),
-                      child: SingleChildScrollView(child: bodyColumn),
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+                        keyboardDismissBehavior:
+                            ScrollViewKeyboardDismissBehavior.onDrag,
+                        child: bodyColumn,
+                      ),
                     ),
                   );
                 },

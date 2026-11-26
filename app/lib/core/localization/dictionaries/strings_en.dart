@@ -125,7 +125,7 @@ final Map<String, String> stringsEn = {
   'idDobPlaceholder': 'Select date of birth',
   'idDobAgeRequirement': 'Minimum legal age is 13 years',
   'idMobile': 'Mobile Number',
-  'idMobilePlaceholder': '+1 234 567 8900',
+  'idMobilePlaceholder': '234 567 8900',
   'idVerifyMobile': 'Verify',
   'commonComingSoon': 'Coming Soon',
   'commonGotIt': 'Got It',
@@ -893,6 +893,8 @@ final Map<String, String> stringsEn = {
   'authTurnstileRequired':
       'Please complete the Cloudflare security verification.',
   'authTurnstileChecking': 'Performing security check...',
+  'authTurnstileUnavailable':
+      'Security check unavailable. Retry or switch to Math Check.',
   'authVerificationCloudflare': 'Cloudflare',
   'authVerificationMath': 'Math Check',
   'authFallbackSecurityTitle': 'Security Verification',

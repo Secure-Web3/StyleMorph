@@ -1172,6 +1172,7 @@ class AppStrings {
   String get authTurnstilePrompt => get('authTurnstilePrompt');
   String get authTurnstileRequired => get('authTurnstileRequired');
   String get authTurnstileChecking => get('authTurnstileChecking');
+  String get authTurnstileUnavailable => get('authTurnstileUnavailable');
   String get authVerificationCloudflare => get('authVerificationCloudflare');
   String get authVerificationMath => get('authVerificationMath');
   String get authFallbackSecurityTitle => get('authFallbackSecurityTitle');

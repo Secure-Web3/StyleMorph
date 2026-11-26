@@ -136,8 +136,17 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
 
   bool _photoError = false;
   bool _isSaving = false;
+  bool _canScrollDown = false;
   AiVerificationStatus? _aiStatus;
   List<AiVerificationIssueCode> _aiIssues = const [];
+
+  bool _handleScrollMetrics(ScrollMetrics metrics) {
+    final canScroll = metrics.maxScrollExtent - metrics.pixels > 4.0;
+    if (canScroll != _canScrollDown && mounted) {
+      setState(() => _canScrollDown = canScroll);
+    }
+    return false;
+  }
 
   static const _catOptions = [
     'tops',
@@ -664,11 +673,15 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final strings = context.strings;
+    final isCompactHeight = MediaQuery.sizeOf(context).height < 700;
+    final primaryPhotoHeight = isCompactHeight ? 96.0 : 110.0;
 
     return AppBottomSheetShell(
       title: isEditMode
           ? strings.wardEditSheetTitle
           : strings.wardAddSheetTitle,
+      scrollable: false,
+      contentPadding: EdgeInsetsDirectional.zero,
       bottomBar: AppButton(
         isFullWidth: true,
         icon: _isSaving
@@ -688,384 +701,445 @@ class _AddItemBottomSheetState extends State<AddItemBottomSheet> {
                   : strings.wardSaveInWardrobe),
         onPressed: _isSaving ? null : _submit,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
+      child: Stack(
         children: [
-          // Mandatory Primary Image Upload Box with Live Preview
-          GestureDetector(
-            onTap: _isSaving ? null : () => _showImageSourcePicker(context, 0),
-            child: Container(
-              height: 110,
-              decoration: BoxDecoration(
-                color: colors.sf,
-                borderRadius: AppRadius.rCard,
-                border: Border.all(
-                  color: _photoError
-                      ? colors.orColor
-                      : (_hasPhoto ? colors.ok : colors.bd),
-                  width: _photoError || _hasPhoto ? 1.8 : 1.0,
-                ),
-              ),
-              clipBehavior: Clip.antiAlias,
-              child: _imageBytes != null
-                  ? Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        Image.memory(
-                          _imageBytes!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Center(
-                            child: Icon(
-                              Icons.broken_image_outlined,
-                              color: colors.mu,
-                            ),
+          NotificationListener<ScrollNotification>(
+            onNotification: (n) => _handleScrollMetrics(n.metrics),
+            child: NotificationListener<ScrollMetricsNotification>(
+              onNotification: (n) => _handleScrollMetrics(n.metrics),
+              child: SingleChildScrollView(
+                padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Mandatory Primary Image Upload Box with Live Preview
+                    GestureDetector(
+                      onTap: _isSaving
+                          ? null
+                          : () => _showImageSourcePicker(context, 0),
+                      child: Container(
+                        key: const Key('add_item_primary_photo_box'),
+                        height: primaryPhotoHeight,
+                        decoration: BoxDecoration(
+                          color: colors.sf,
+                          borderRadius: AppRadius.rCard,
+                          border: Border.all(
+                            color: _photoError
+                                ? colors.orColor
+                                : (_hasPhoto ? colors.ok : colors.bd),
+                            width: _photoError || _hasPhoto ? 1.8 : 1.0,
                           ),
                         ),
-                        // Overlay controls: Tap to change / Remove button
-                        Positioned(
-                          top: 6,
-                          right: 6,
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _imageBytes = null;
-                                if (!isEditMode || _existingImageUrl.isEmpty) {
-                                  _photoError = true;
-                                }
-                              });
+                        clipBehavior: Clip.antiAlias,
+                        child: _imageBytes != null
+                            ? Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  Image.memory(
+                                    _imageBytes!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) => Center(
+                                          child: Icon(
+                                            Icons.broken_image_outlined,
+                                            color: colors.mu,
+                                          ),
+                                        ),
+                                  ),
+                                  // Overlay controls: Tap to change / Remove button
+                                  Positioned(
+                                    top: 6,
+                                    right: 6,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _imageBytes = null;
+                                          if (!isEditMode ||
+                                              _existingImageUrl.isEmpty) {
+                                            _photoError = true;
+                                          }
+                                        });
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          color: colors.sf.withValues(
+                                            alpha: 0.85,
+                                          ),
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          Icons.close_rounded,
+                                          size: 16,
+                                          color: colors.tx,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 6,
+                                    left: 6,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: colors.sf.withValues(
+                                          alpha: 0.85,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.edit_outlined,
+                                            size: 13,
+                                            color: colors.pr,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            strings.wardChangePhoto,
+                                            style: TextStyle(
+                                              fontFamily:
+                                                  AppTypography.fontFamily,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: colors.pr,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : (isEditMode && _existingImageUrl.isNotEmpty)
+                            ? Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  AppMediaImage(
+                                    _existingImageUrl,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) => Center(
+                                          child: Icon(
+                                            Icons.broken_image_outlined,
+                                            color: colors.mu,
+                                          ),
+                                        ),
+                                  ),
+                                  Positioned(
+                                    bottom: 6,
+                                    left: 6,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: colors.sf.withValues(
+                                          alpha: 0.85,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Icon(
+                                            Icons.edit_outlined,
+                                            size: 13,
+                                            color: colors.pr,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            strings.wardChangePhoto,
+                                            style: TextStyle(
+                                              fontFamily:
+                                                  AppTypography.fontFamily,
+                                              fontSize: 10,
+                                              fontWeight: FontWeight.w600,
+                                              color: colors.pr,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            : Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      Icons.add_a_photo_outlined,
+                                      size: 28,
+                                      color: _photoError
+                                          ? colors.orColor
+                                          : colors.pr,
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      strings.wardPrimaryPhoto,
+                                      style: TextStyle(
+                                        fontFamily: AppTypography.fontFamily,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: _photoError
+                                            ? colors.orColor
+                                            : colors.tx,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                      ),
+                    ),
+                    if (_aiStatus != null ||
+                        (isEditMode &&
+                            (effectiveEditItem
+                                    ?.aiVerificationStatus
+                                    .isNotEmpty ??
+                                false))) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: AiReviewBadge(
+                          status:
+                              _aiStatus ??
+                              AiVerificationStatus.fromWireValue(
+                                effectiveEditItem!.aiVerificationStatus,
+                              ),
+                          issues: _aiIssues,
+                          compact: true,
+                        ),
+                      ),
+                    ],
+                    if (_photoError) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        strings.wardPhotoRequiredInline,
+                        style: TextStyle(
+                          fontFamily: AppTypography.fontFamily,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          color: colors.orColor,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: AppSpacing.xs),
+
+                    // Optional Extra Angles Row (up to 3 total frames)
+                    Row(
+                      children: [
+                        _buildExtraAngleSlot(
+                          slot: 1,
+                          bytes: _angle2Bytes,
+                          existingUrl: _existingAngle2Url,
+                          label: strings.wardAngle2Photo,
+                          colors: colors,
+                        ),
+                        const SizedBox(width: AppSpacing.xs),
+                        _buildExtraAngleSlot(
+                          slot: 2,
+                          bytes: _angle3Bytes,
+                          existingUrl: _existingAngle3Url,
+                          label: strings.wardAngle3Photo,
+                          colors: colors,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+
+                    // Item Name (Optional)
+                    AppTextField(
+                      label: strings.wardItemName,
+                      controller: _nameCtrl,
+                      placeholder: strings.wardItemNameHint,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+
+                    // 10 AI-Optimized Category Chips
+                    Text(
+                      strings.wardCategory,
+                      style: AppTypography.inputLabel(color: colors.tx),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: _catOptions.map((code) {
+                        return AppChip(
+                          label: strings.wardrobeCategoryName(code),
+                          isSelected: _selectedCat == code,
+                          onTap: () => setState(() => _selectedCat = code),
+                        );
+                      }).toList(),
+                    ),
+
+                    // Blue Capsule Helper Box for Selected Category
+                    if (strings
+                        .wardrobeCategoryHint(_selectedCat)
+                        .isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.xs),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsetsDirectional.symmetric(
+                          horizontal: AppSpacing.sm,
+                          vertical: 6,
+                        ),
+                        decoration: BoxDecoration(
+                          color: colors.inb,
+                          borderRadius: BorderRadius.circular(AppRadius.md),
+                          border: Border.all(
+                            color: colors.inColor.withValues(alpha: 0.35),
+                            width: 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.info_outline_rounded,
+                              size: 14,
+                              color: colors.inColor,
+                            ),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                strings.wardrobeCategoryHint(_selectedCat),
+                                style: TextStyle(
+                                  fontFamily: AppTypography.fontFamily,
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w500,
+                                  color: colors.inColor,
+                                  height: 1.3,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: AppSpacing.md),
+
+                    // Color Selector
+                    Text(
+                      '${strings.wardSelectedColor}: ${strings.tr(_selectedColorName)}',
+                      style: AppTypography.inputLabel(color: colors.tx),
+                    ),
+                    const SizedBox(height: AppSpacing.xs),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: _swatches.map((sw) {
+                        final isSel = _selectedColorHex == sw.$2;
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _selectedColorName = sw.$1;
+                              _selectedColorHex = sw.$2;
+                            });
+                          },
+                          child: Container(
+                            width: 24,
+                            height: 24,
+                            decoration: BoxDecoration(
+                              color: sw.$3,
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: isSel ? colors.pr : colors.bd,
+                                width: isSel ? 2.5 : 1,
+                              ),
+                            ),
+                            child: isSel
+                                ? Icon(
+                                    Icons.check,
+                                    size: 13,
+                                    color: sw.$2 == '#f4f4f2'
+                                        ? Colors.black
+                                        : Colors.white,
+                                  )
+                                : null,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+
+                    // Season & Occasion Rows
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppDropdown<String>(
+                            label: strings.wardSeason,
+                            value: _selectedSeason,
+                            items: _seasons
+                                .map(
+                                  (s) => DropdownMenuItem(
+                                    value: s,
+                                    child: Text(strings.tr(s)),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (v) {
+                              if (v != null) {
+                                setState(() => _selectedSeason = v);
+                              }
                             },
-                            child: Container(
-                              padding: const EdgeInsets.all(4),
-                              decoration: BoxDecoration(
-                                color: colors.sf.withValues(alpha: 0.85),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(
-                                Icons.close_rounded,
-                                size: 16,
-                                color: colors.tx,
-                              ),
-                            ),
                           ),
                         ),
-                        Positioned(
-                          bottom: 6,
-                          left: 6,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: colors.sf.withValues(alpha: 0.85),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.edit_outlined,
-                                  size: 13,
-                                  color: colors.pr,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  strings.wardChangePhoto,
-                                  style: TextStyle(
-                                    fontFamily: AppTypography.fontFamily,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                    color: colors.pr,
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: AppDropdown<String>(
+                            label: strings.wardOccasion,
+                            value: _selectedOccasion,
+                            items: _occasions
+                                .map(
+                                  (o) => DropdownMenuItem(
+                                    value: o,
+                                    child: Text(strings.tr(o)),
                                   ),
-                                ),
-                              ],
-                            ),
+                                )
+                                .toList(),
+                            onChanged: (v) {
+                              if (v != null) {
+                                setState(() => _selectedOccasion = v);
+                              }
+                            },
                           ),
                         ),
                       ],
-                    )
-                  : (isEditMode && _existingImageUrl.isNotEmpty)
-                  ? Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        AppMediaImage(
-                          _existingImageUrl,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => Center(
-                            child: Icon(
-                              Icons.broken_image_outlined,
-                              color: colors.mu,
-                            ),
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 6,
-                          left: 6,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: colors.sf.withValues(alpha: 0.85),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  Icons.edit_outlined,
-                                  size: 13,
-                                  color: colors.pr,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  strings.wardChangePhoto,
-                                  style: TextStyle(
-                                    fontFamily: AppTypography.fontFamily,
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                    color: colors.pr,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    )
-                  : Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.add_a_photo_outlined,
-                            size: 28,
-                            color: _photoError ? colors.orColor : colors.pr,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            strings.wardPrimaryPhoto,
-                            style: TextStyle(
-                              fontFamily: AppTypography.fontFamily,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: _photoError ? colors.orColor : colors.tx,
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
-            ),
-          ),
-          if (_aiStatus != null ||
-              (isEditMode &&
-                  (effectiveEditItem?.aiVerificationStatus.isNotEmpty ??
-                      false))) ...[
-            const SizedBox(height: AppSpacing.xs),
-            Align(
-              alignment: AlignmentDirectional.centerStart,
-              child: AiReviewBadge(
-                status:
-                    _aiStatus ??
-                    AiVerificationStatus.fromWireValue(
-                      effectiveEditItem!.aiVerificationStatus,
-                    ),
-                issues: _aiIssues,
-                compact: true,
-              ),
-            ),
-          ],
-          if (_photoError) ...[
-            const SizedBox(height: 4),
-            Text(
-              strings.wardPhotoRequiredInline,
-              style: TextStyle(
-                fontFamily: AppTypography.fontFamily,
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: colors.orColor,
-              ),
-            ),
-          ],
-          const SizedBox(height: AppSpacing.xs),
-
-          // Optional Extra Angles Row (up to 3 total frames)
-          Row(
-            children: [
-              _buildExtraAngleSlot(
-                slot: 1,
-                bytes: _angle2Bytes,
-                existingUrl: _existingAngle2Url,
-                label: strings.wardAngle2Photo,
-                colors: colors,
-              ),
-              const SizedBox(width: AppSpacing.xs),
-              _buildExtraAngleSlot(
-                slot: 2,
-                bytes: _angle3Bytes,
-                existingUrl: _existingAngle3Url,
-                label: strings.wardAngle3Photo,
-                colors: colors,
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.md),
-
-          // Item Name (Optional)
-          AppTextField(
-            label: strings.wardItemName,
-            controller: _nameCtrl,
-            placeholder: strings.wardItemNameHint,
-          ),
-          const SizedBox(height: AppSpacing.md),
-
-          // 10 AI-Optimized Category Chips
-          Text(
-            strings.wardCategory,
-            style: AppTypography.inputLabel(color: colors.tx),
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: _catOptions.map((code) {
-              return AppChip(
-                label: strings.wardrobeCategoryName(code),
-                isSelected: _selectedCat == code,
-                onTap: () => setState(() => _selectedCat = code),
-              );
-            }).toList(),
-          ),
-
-          // Blue Capsule Helper Box for Selected Category
-          if (strings.wardrobeCategoryHint(_selectedCat).isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.xs),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsetsDirectional.symmetric(
-                horizontal: AppSpacing.sm,
-                vertical: 6,
-              ),
-              decoration: BoxDecoration(
-                color: colors.inb,
-                borderRadius: BorderRadius.circular(AppRadius.md),
-                border: Border.all(
-                  color: colors.inColor.withValues(alpha: 0.35),
-                  width: 1,
+                  ],
                 ),
               ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.info_outline_rounded,
-                    size: 14,
-                    color: colors.inColor,
-                  ),
-                  const SizedBox(width: 6),
-                  Expanded(
-                    child: Text(
-                      strings.wardrobeCategoryHint(_selectedCat),
-                      style: TextStyle(
-                        fontFamily: AppTypography.fontFamily,
-                        fontSize: 10.5,
-                        fontWeight: FontWeight.w500,
-                        color: colors.inColor,
-                        height: 1.3,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
-          ],
-          const SizedBox(height: AppSpacing.md),
-
-          // Color Selector
-          Text(
-            '${strings.wardSelectedColor}: ${strings.tr(_selectedColorName)}',
-            style: AppTypography.inputLabel(color: colors.tx),
           ),
-          const SizedBox(height: AppSpacing.xs),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: _swatches.map((sw) {
-              final isSel = _selectedColorHex == sw.$2;
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _selectedColorName = sw.$1;
-                    _selectedColorHex = sw.$2;
-                  });
-                },
-                child: Container(
-                  width: 24,
-                  height: 24,
+          if (_canScrollDown)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 24,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  key: const Key('add_item_sheet_scroll_fade'),
                   decoration: BoxDecoration(
-                    color: sw.$3,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: isSel ? colors.pr : colors.bd,
-                      width: isSel ? 2.5 : 1,
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        colors.sf.withValues(alpha: 0.0),
+                        colors.sf.withValues(alpha: 0.94),
+                      ],
                     ),
                   ),
-                  child: isSel
-                      ? Icon(
-                          Icons.check,
-                          size: 13,
-                          color: sw.$2 == '#f4f4f2'
-                              ? Colors.black
-                              : Colors.white,
-                        )
-                      : null,
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: AppSpacing.md),
-
-          // Season & Occasion Rows
-          Row(
-            children: [
-              Expanded(
-                child: AppDropdown<String>(
-                  label: strings.wardSeason,
-                  value: _selectedSeason,
-                  items: _seasons
-                      .map(
-                        (s) => DropdownMenuItem(
-                          value: s,
-                          child: Text(strings.tr(s)),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null) setState(() => _selectedSeason = v);
-                  },
                 ),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: AppDropdown<String>(
-                  label: strings.wardOccasion,
-                  value: _selectedOccasion,
-                  items: _occasions
-                      .map(
-                        (o) => DropdownMenuItem(
-                          value: o,
-                          child: Text(strings.tr(o)),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (v) {
-                    if (v != null) setState(() => _selectedOccasion = v);
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
         ],
       ),
     );

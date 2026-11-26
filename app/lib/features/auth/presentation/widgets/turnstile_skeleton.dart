@@ -13,8 +13,16 @@ import '../../../../core/theme/app_typography.dart';
 class TurnstileSkeleton extends StatefulWidget {
   final double width;
   final double height;
+  final bool isFailed;
+  final VoidCallback? onRetry;
 
-  const TurnstileSkeleton({super.key, this.width = 300, this.height = 65});
+  const TurnstileSkeleton({
+    super.key,
+    this.width = 300,
+    this.height = 65,
+    this.isFailed = false,
+    this.onRetry,
+  });
 
   @override
   State<TurnstileSkeleton> createState() => _TurnstileSkeletonState();
@@ -68,30 +76,71 @@ class _TurnstileSkeletonState extends State<TurnstileSkeleton>
               width: 1.0,
             ),
           ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.shield_outlined,
-                size: 18,
-                color: colors.mu.withValues(alpha: pulse),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Flexible(
-                child: Text(
-                  strings.authTurnstileChecking,
-                  style: TextStyle(
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: colors.mu.withValues(alpha: pulse),
+          child: widget.isFailed
+              ? InkWell(
+                  onTap: widget.onRetry,
+                  borderRadius: BorderRadius.circular(AppRadius.sm),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.refresh_rounded, size: 16, color: colors.wn),
+                      const SizedBox(width: AppSpacing.xs),
+                      Flexible(
+                        child: Text(
+                          strings.authTurnstileUnavailable,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamilyFor(
+                              strings.localeCode,
+                            ),
+                            fontFamilyFallback:
+                                AppTypography.fontFamilyFallbackFor(
+                                  strings.localeCode,
+                                ),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w500,
+                            color: colors.mu,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  overflow: TextOverflow.ellipsis,
+                )
+              : Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SizedBox(
+                      width: 15,
+                      height: 15,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: colors.mu.withValues(alpha: pulse),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Flexible(
+                      child: Text(
+                        strings.authTurnstileChecking,
+                        style: TextStyle(
+                          fontFamily: AppTypography.fontFamilyFor(
+                            strings.localeCode,
+                          ),
+                          fontFamilyFallback:
+                              AppTypography.fontFamilyFallbackFor(
+                                strings.localeCode,
+                              ),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: colors.mu.withValues(alpha: pulse),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
         );
       },
     );

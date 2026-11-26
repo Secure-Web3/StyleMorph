@@ -80,52 +80,68 @@ class AppDrawer extends ConsumerWidget {
 
             // ── Zone 2: Focused, Non-Redundant Shortcuts ───────────────────
             Expanded(
-              child: ListView(
-                padding: const EdgeInsetsDirectional.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.sm,
-                ),
-                children: [
-                  // Compact Wallet & Plan Card
-                  const _DrawerWalletCard(),
-
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: AppSpacing.xs,
+              child: CustomScrollView(
+                slivers: [
+                  SliverPadding(
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
                     ),
-                    child: Divider(height: 1, color: colors.bd),
-                  ),
+                    sliver: SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Compact Wallet & Plan Card
+                          const _DrawerWalletCard(),
 
-                  // App & Support Section
-                  _DrawerSectionLabel(label: strings.drawerSectionAppSupport),
-                  const SizedBox(height: AppSpacing.xxs),
-                  _DrawerItem(
-                    icon: FontAwesomeIcons.sliders,
-                    title: strings.tSet,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      ref
-                          .read(appStateProvider.notifier)
-                          .switchProfileTab('p-settings');
-                    },
-                  ),
-                  _DrawerItem(
-                    icon: FontAwesomeIcons.headset,
-                    title: strings.mSupport,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      ref.read(appStateProvider.notifier).toggleSupport(true);
-                    },
-                  ),
-                  _DrawerItem(
-                    icon: FontAwesomeIcons.circleInfo,
-                    title: strings.tAbout,
-                    onTap: () {
-                      Navigator.of(context).pop();
-                      ref
-                          .read(appStateProvider.notifier)
-                          .switchProfileTab('p-about');
-                    },
+                          const Spacer(),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.xs,
+                            ),
+                            child: Divider(height: 1, color: colors.bd),
+                          ),
+
+                          // App & Support Section anchored above the bottom dock
+                          _DrawerSectionLabel(
+                            label: strings.drawerSectionAppSupport,
+                          ),
+                          const SizedBox(height: AppSpacing.xxs),
+                          _DrawerItem(
+                            icon: FontAwesomeIcons.sliders,
+                            title: strings.tSet,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              ref
+                                  .read(appStateProvider.notifier)
+                                  .switchProfileTab('p-settings');
+                            },
+                          ),
+                          _DrawerItem(
+                            icon: FontAwesomeIcons.headset,
+                            title: strings.mSupport,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              ref
+                                  .read(appStateProvider.notifier)
+                                  .toggleSupport(true);
+                            },
+                          ),
+                          _DrawerItem(
+                            icon: FontAwesomeIcons.circleInfo,
+                            title: strings.tAbout,
+                            onTap: () {
+                              Navigator.of(context).pop();
+                              ref
+                                  .read(appStateProvider.notifier)
+                                  .switchProfileTab('p-about');
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -492,10 +508,11 @@ class _DrawerProfileCard extends ConsumerWidget {
                   ConstrainedBox(
                     constraints: const BoxConstraints(
                       minWidth: 58.0,
-                      maxWidth: 102.0,
+                      maxWidth: 132.0,
                     ),
                     child: Stack(
-                      alignment: Alignment.topCenter,
+                      alignment: Alignment.bottomCenter,
+                      clipBehavior: Clip.none,
                       children: [
                         Padding(
                           padding: const EdgeInsets.only(bottom: 10.0),
@@ -521,60 +538,56 @@ class _DrawerProfileCard extends ConsumerWidget {
                             ),
                           ),
                         ),
-                        Positioned(
-                          bottom: 0,
+                        Container(
+                          constraints: const BoxConstraints(maxWidth: 132.0),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 5,
+                            vertical: 1.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.bg,
+                            borderRadius: AppRadius.rFull,
+                            border: Border.all(color: colors.bg, width: 1.5),
+                          ),
                           child: Container(
-                            constraints: const BoxConstraints(maxWidth: 102.0),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 5,
-                              vertical: 1.5,
+                              vertical: 1,
                             ),
                             decoration: BoxDecoration(
-                              color: colors.bg,
+                              color: rankColor.withValues(alpha: 0.14),
                               borderRadius: AppRadius.rFull,
-                              border: Border.all(color: colors.bg, width: 1.5),
+                              border: Border.all(
+                                color: rankColor.withValues(alpha: 0.45),
+                                width: 1,
+                              ),
                             ),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 5,
-                                vertical: 1,
-                              ),
-                              decoration: BoxDecoration(
-                                color: rankColor.withValues(alpha: 0.14),
-                                borderRadius: AppRadius.rFull,
-                                border: Border.all(
-                                  color: rankColor.withValues(alpha: 0.45),
-                                  width: 1,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Container(
+                                  width: 5,
+                                  height: 5,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: rankColor,
+                                  ),
                                 ),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    width: 5,
-                                    height: 5,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: rankColor,
+                                const SizedBox(width: 3),
+                                Flexible(
+                                  child: Text(
+                                    '$rankLabel • $pointsText ${strings.pts}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 9.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: colors.tx,
+                                      height: 1.1,
                                     ),
                                   ),
-                                  const SizedBox(width: 3),
-                                  Flexible(
-                                    child: Text(
-                                      '$rankLabel • $pointsText ${strings.pts}',
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontFamily: AppTypography.fontFamily,
-                                        fontSize: 9.5,
-                                        fontWeight: FontWeight.w700,
-                                        color: colors.tx,
-                                        height: 1.1,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
@@ -655,7 +668,6 @@ class _DrawerProfileCard extends ConsumerWidget {
                   Text(
                     percentText,
                     style: TextStyle(
-                      fontFamily: AppTypography.fontFamily,
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       color: colors.tx,

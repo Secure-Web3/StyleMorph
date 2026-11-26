@@ -377,7 +377,7 @@ class _TopBar extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────
-class _CategorySidebar extends StatelessWidget {
+class _CategorySidebar extends StatefulWidget {
   const _CategorySidebar({
     required this.categories,
     required this.selected,
@@ -393,118 +393,192 @@ class _CategorySidebar extends StatelessWidget {
   final void Function(String) onSelect;
 
   @override
+  State<_CategorySidebar> createState() => _CategorySidebarState();
+}
+
+class _CategorySidebarState extends State<_CategorySidebar> {
+  final ScrollController _scrollController = ScrollController();
+  bool _canScrollDown = false;
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  bool _handleScrollMetrics(ScrollMetrics metrics) {
+    final canScroll = metrics.maxScrollExtent - metrics.pixels > 4.0;
+    if (canScroll != _canScrollDown && mounted) {
+      setState(() => _canScrollDown = canScroll);
+    }
+    return false;
+  }
+
+  @override
   Widget build(BuildContext context) {
     final strings = context.strings;
+    final isCompactHeight = MediaQuery.sizeOf(context).height < 720;
+    final itemVerticalPadding = isCompactHeight ? 8.0 : 12.0;
+
     return SizedBox(
       width: 72,
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
-        itemCount: categories.length,
-        itemBuilder: (_, i) {
-          final (code, icon) = categories[i];
-          final isActive = selected == code;
-          final count = itemCount(code);
-          return InkWell(
-            onTap: () => onSelect(code),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 160),
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
-              decoration: BoxDecoration(
-                color: isActive
-                    ? colors.pr.withValues(alpha: 0.08)
-                    : Colors.transparent,
-                border: BorderDirectional(
-                  start: BorderSide(
-                    color: isActive ? colors.pr : Colors.transparent,
-                    width: 3,
-                  ),
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Stack(
-                    clipBehavior: Clip.none,
-                    alignment: Alignment.center,
-                    children: [
-                      Icon(
-                        icon,
-                        size: 18,
-                        color: isActive ? colors.pr : colors.mu,
+      child: Stack(
+        children: [
+          NotificationListener<ScrollNotification>(
+            onNotification: (n) => _handleScrollMetrics(n.metrics),
+            child: NotificationListener<ScrollMetricsNotification>(
+              onNotification: (n) => _handleScrollMetrics(n.metrics),
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                itemCount: widget.categories.length,
+                itemBuilder: (_, i) {
+                  final (code, icon) = widget.categories[i];
+                  final isActive = widget.selected == code;
+                  final count = widget.itemCount(code);
+                  return InkWell(
+                    onTap: () => widget.onSelect(code),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 160),
+                      width: double.infinity,
+                      padding: EdgeInsets.symmetric(
+                        vertical: itemVerticalPadding,
+                        horizontal: 4,
                       ),
-                      PositionedDirectional(
-                        top: -5,
-                        end: -10,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 3,
-                            vertical: 1,
-                          ),
-                          constraints: const BoxConstraints(
-                            minWidth: 14,
-                            minHeight: 12,
-                          ),
-                          decoration: BoxDecoration(
+                      decoration: BoxDecoration(
+                        color: isActive
+                            ? widget.colors.pr.withValues(alpha: 0.08)
+                            : Colors.transparent,
+                        border: BorderDirectional(
+                          start: BorderSide(
                             color: isActive
-                                ? colors.pr
-                                : (count > 0
-                                      ? colors.sf
-                                      : colors.sf.withValues(alpha: 0.5)),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: isActive
-                                  ? colors.pr
-                                  : (count > 0
-                                        ? colors.bd
-                                        : colors.bd.withValues(alpha: 0.6)),
-                              width: 0.8,
-                            ),
+                                ? widget.colors.pr
+                                : Colors.transparent,
+                            width: 3,
                           ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            DigitFormatter.localizeDigits(
-                              count,
-                              strings.localeCode,
-                            ),
+                        ),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Stack(
+                            clipBehavior: Clip.none,
+                            alignment: Alignment.center,
+                            children: [
+                              Icon(
+                                icon,
+                                size: 18,
+                                color: isActive
+                                    ? widget.colors.pr
+                                    : widget.colors.mu,
+                              ),
+                              PositionedDirectional(
+                                top: -5,
+                                end: -10,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 3,
+                                    vertical: 1,
+                                  ),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 14,
+                                    minHeight: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: isActive
+                                        ? widget.colors.pr
+                                        : (count > 0
+                                              ? widget.colors.sf
+                                              : widget.colors.sf.withValues(
+                                                  alpha: 0.5,
+                                                )),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: isActive
+                                          ? widget.colors.pr
+                                          : (count > 0
+                                                ? widget.colors.bd
+                                                : widget.colors.bd.withValues(
+                                                    alpha: 0.6,
+                                                  )),
+                                      width: 0.8,
+                                    ),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    DigitFormatter.localizeDigits(
+                                      count,
+                                      strings.localeCode,
+                                    ),
+                                    style: TextStyle(
+                                      fontSize: 8.5,
+                                      fontWeight: isActive
+                                          ? FontWeight.w700
+                                          : FontWeight.w500,
+                                      color: isActive
+                                          ? widget.colors.prt
+                                          : (count > 0
+                                                ? widget.colors.tx
+                                                : widget.colors.mu.withValues(
+                                                    alpha: 0.7,
+                                                  )),
+                                      height: 1.0,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            strings.wardrobeCategoryName(code),
                             style: TextStyle(
                               fontFamily: AppTypography.fontFamily,
-                              fontSize: 8.5,
+                              fontSize: 9.5,
                               fontWeight: isActive
                                   ? FontWeight.w700
                                   : FontWeight.w500,
                               color: isActive
-                                  ? colors.prt
-                                  : (count > 0
-                                        ? colors.tx
-                                        : colors.mu.withValues(alpha: 0.7)),
-                              height: 1.0,
+                                  ? widget.colors.pr
+                                  : widget.colors.mu,
+                              height: 1.15,
                             ),
+                            textAlign: TextAlign.center,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ),
+                        ],
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    strings.wardrobeCategoryName(code),
-                    style: TextStyle(
-                      fontFamily: AppTypography.fontFamily,
-                      fontSize: 9.5,
-                      fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                      color: isActive ? colors.pr : colors.mu,
-                      height: 1.15,
                     ),
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                  );
+                },
               ),
             ),
-          );
-        },
+          ),
+          if (_canScrollDown)
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 28,
+              child: IgnorePointer(
+                child: DecoratedBox(
+                  key: const Key('wardrobe_sidebar_scroll_fade'),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        widget.colors.bg.withValues(alpha: 0.0),
+                        widget.colors.bg.withValues(alpha: 0.94),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
