@@ -2,10 +2,18 @@ name: Build Signed Universal Android APK
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Optional Git tag (e.g. v1.0.0-android.5) to publish a GitHub Release with StyleMorph-universal.apk"
+        required: false
+        default: ""
+        type: string
 
 jobs:
   build-apk:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -58,3 +66,12 @@ jobs:
           name: StyleMorph-universal-apk
           path: StyleMorph-universal.apk
           retention-days: 14
+
+      - name: Publish GitHub Release
+        if: ${{ inputs.release_tag != '' }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.release_tag }}
+          target_commitish: ${{ github.sha }}
+          name: StyleMorph Android ${{ inputs.release_tag }}
+          files: StyleMorph-universal.apk
