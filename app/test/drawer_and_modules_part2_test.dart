@@ -50,6 +50,8 @@ void main() {
   ProviderContainer createContainer({
     String languageCode = 'fa',
     AppTab initialTab = AppTab.wardrobe,
+    bool showEmailInHeader = false,
+    String email = 'sara@stylemorph.com',
   }) {
     final container = ProviderContainer(
       overrides: [
@@ -61,12 +63,14 @@ void main() {
               userName: 'Sara Ahmadi',
               loyaltyRank: 'Silver',
               stylePoints: 624,
-              profileProgress: 0.84,
+              profileProgress: 0.75,
+              identityValues: {'email': email},
               preferences: UserPreferences(
                 fashionThemePalette: 'editorial',
                 brightnessMode: 'light',
                 appLanguage: languageCode,
                 appMode: 'simple',
+                showEmailInHeader: showEmailInHeader,
               ),
             ),
           ),
@@ -80,13 +84,17 @@ void main() {
   group('Part 2: AppDrawer Refactor & Bottom Nav Unlock', () {
     for (final localeCode in ['fa', 'en']) {
       testWidgets(
-        'AppDrawer renders 3-zone luxury layout without redundant Referral/Companion items or overflow ($localeCode)',
+        'AppDrawer renders unified identity card, enlarged brand strip, no My Activity, and raised Sign out ($localeCode)',
         (tester) async {
           await tester.binding.setSurfaceSize(const Size(360, 667));
           addTearDown(() => tester.binding.setSurfaceSize(null));
 
           final strings = AppStrings(localeCode);
-          final container = createContainer(languageCode: localeCode);
+          final container = createContainer(
+            languageCode: localeCode,
+            showEmailInHeader: false,
+            email: 'sara@stylemorph.com',
+          );
           addTearDown(container.dispose);
 
           await tester.pumpWidget(
@@ -109,19 +117,40 @@ void main() {
           );
           await tester.pumpAndSettle();
 
-          // Zone 1: AppLogo, BrandWordmark, Interactive Profile Card
-          expect(find.byType(AppLogo), findsOneWidget);
-          expect(find.byType(BrandWordmark), findsOneWidget);
+          // Zone 1: Enlarged AppLogo & BrandWordmark
+          final logo = tester.widget<AppLogo>(find.byType(AppLogo));
+          expect(logo.size, inInclusiveRange(46.0, 48.0));
+          final wordmark = tester.widget<BrandWordmark>(
+            find.byType(BrandWordmark),
+          );
+          expect(wordmark.fontSize, inInclusiveRange(22.0, 24.0));
+
+          // Unified Profile Identity Card: name, always-visible email, overlapping rank pill, full-width progress
           expect(find.text('Sara Ahmadi'), findsOneWidget);
+          expect(find.text('sara@stylemorph.com'), findsOneWidget);
           expect(
             find.textContaining(strings.formatNumber(624)),
             findsOneWidget,
           );
-          expect(find.text(strings.formatPercent(84)), findsOneWidget);
+          expect(find.text(strings.formatPercent(75)), findsOneWidget);
+          if (localeCode == 'en') {
+            expect(find.text('75%'), findsOneWidget);
+          }
 
-          // Zone 2: Compact Wallet & Plan + Activity + App & Support
+          final cardBox = tester.getRect(
+            find.byKey(const Key('drawer_profile_card')),
+          );
+          final progressRowBox = tester.getRect(
+            find.byKey(const Key('drawer_profile_progress_row')),
+          );
+          expect(progressRowBox.width, greaterThan(cardBox.width * 0.85));
+
+          // Zone 2: Compact Wallet & Plan + App & Support (My Activity removed)
           expect(find.text(strings.tWal), findsOneWidget);
-          expect(find.text(strings.drawerSectionActivity), findsOneWidget);
+          expect(find.text(strings.drawerSectionActivity), findsNothing);
+          expect(find.text(strings.mHist), findsNothing);
+          expect(find.text(strings.mSaved), findsNothing);
+          expect(find.text(strings.mOrders), findsNothing);
           expect(find.text(strings.drawerSectionAppSupport), findsOneWidget);
           expect(find.text(strings.tSet), findsOneWidget);
           expect(find.text(strings.mSupport), findsOneWidget);
@@ -131,10 +160,16 @@ void main() {
           expect(find.text(strings.tRef), findsNothing);
           expect(find.text(strings.tComp), findsNothing);
 
-          // Zone 3: Quick Control Dock
+          // Zone 3: Quick Control Dock & Raised Sign out button
           expect(find.text(strings.appModeSimple), findsOneWidget);
           expect(find.text(strings.appModeAdvanced), findsOneWidget);
           expect(find.text(strings.mOut), findsOneWidget);
+
+          final signOutRect = tester.getRect(
+            find.byKey(const Key('drawer_sign_out_button')),
+          );
+          expect(signOutRect.height, greaterThanOrEqualTo(40.0));
+          expect(667.0 - signOutRect.bottom, greaterThanOrEqualTo(40.0));
 
           expect(tester.takeException(), isNull);
 
@@ -258,15 +293,15 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        // Verify enlarged 56x56 avatar container
+        // Verify enlarged 56-60px avatar container
         final avatarFinder = find.ancestor(
           of: find.byType(Gender3dAvatar),
           matching: find.byType(Container),
         );
         expect(avatarFinder, findsWidgets);
         final avatarSize = tester.getSize(avatarFinder.first);
-        expect(avatarSize.width, equals(56.0));
-        expect(avatarSize.height, equals(56.0));
+        expect(avatarSize.width, inInclusiveRange(56.0, 60.0));
+        expect(avatarSize.height, inInclusiveRange(56.0, 60.0));
 
         // Verify Latin digits (75% and 624) and zero Persian numerals (۰-۹)
         expect(find.text('75%'), findsOneWidget);

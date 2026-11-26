@@ -51,32 +51,48 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
               horizontal: AppSpacing.lg,
               vertical: 4,
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // ── Top Row ─────────────────────────────────────────────────
-                Row(
-                  children: [
-                    // Start: Larger circular user avatar with colored loyalty-tier border ring
-                    _HeaderAvatar(onOpenDrawer: onOpenDrawer),
-                    const SizedBox(width: AppSpacing.md),
-
-                    // Center (Expanded): User full name above email address
-                    const Expanded(child: _HeaderUserInfo()),
-                    const SizedBox(width: AppSpacing.sm),
-
-                    // End: Compact vertical stack with Notification Bell on top & Coins pill below
-                    const _HeaderActions(),
-                  ],
-                ),
-
-                // ── Bottom Row (Full Width - only on Profile tab) ───────────
-                if (isProfileMode) ...[
-                  const SizedBox(height: 6),
-                  const _HeaderProfileProgressSection(),
-                ],
-              ],
-            ),
+            child: isProfileMode
+                ? Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _HeaderAvatar(
+                        onOpenDrawer: onOpenDrawer,
+                        isProfileMode: true,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      const Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(child: _HeaderUserInfo()),
+                                SizedBox(width: AppSpacing.sm),
+                                _HeaderActions(),
+                              ],
+                            ),
+                            SizedBox(height: 6),
+                            _HeaderProfileProgressSection(),
+                          ],
+                        ),
+                      ),
+                    ],
+                  )
+                : Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _HeaderAvatar(
+                        onOpenDrawer: onOpenDrawer,
+                        isProfileMode: false,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      const Expanded(child: _HeaderUserInfo()),
+                      const SizedBox(width: AppSpacing.sm),
+                      const _HeaderActions(),
+                    ],
+                  ),
           ),
         ),
       ),
@@ -88,19 +104,24 @@ class MainHeader extends ConsumerWidget implements PreferredSizeWidget {
 
 class _HeaderAvatar extends ConsumerWidget {
   final VoidCallback? onOpenDrawer;
+  final bool isProfileMode;
 
-  const _HeaderAvatar({this.onOpenDrawer});
+  const _HeaderAvatar({this.onOpenDrawer, required this.isProfileMode});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
-    final (loyaltyRank, effectiveAvatarUrl, gender) = ref.watch(
+    final strings = context.strings;
+    final (loyaltyRank, stylePoints, effectiveAvatarUrl, gender) = ref.watch(
       appStateProvider.select(
-        (s) => (s.loyaltyRank, s.effectiveAvatarUrl, s.gender),
+        (s) => (s.loyaltyRank, s.stylePoints, s.effectiveAvatarUrl, s.gender),
       ),
     );
 
-    return InkWell(
+    final double avatarSize = isProfileMode ? 66.0 : 54.0;
+
+    final avatarTapTarget = InkWell(
+      key: const Key('header_avatar'),
       onTap: () {
         if (onOpenDrawer != null) {
           onOpenDrawer!();
@@ -108,23 +129,124 @@ class _HeaderAvatar extends ConsumerWidget {
           Scaffold.of(context).openDrawer();
         }
       },
-      borderRadius: BorderRadius.circular(24),
+      borderRadius: BorderRadius.circular(avatarSize / 2),
       child: _buildAvatar(
         colors,
+        avatarSize: avatarSize,
         loyaltyRank: loyaltyRank,
         effectiveAvatarUrl: effectiveAvatarUrl,
         gender: gender,
+      ),
+    );
+
+    if (!isProfileMode) {
+      return avatarTapTarget;
+    }
+
+    final rank = LoyaltyRankExtension.fromString(loyaltyRank);
+    final rankColor = rank.color;
+    final rankLabel = rank.getLocalizedName(strings);
+    final ptsText = '${strings.formatNumber(stylePoints)} ${strings.pts}';
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 4.0),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minWidth: 66.0, maxWidth: 112.0),
+        child: Stack(
+          alignment: Alignment.topCenter,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child: avatarTapTarget,
+            ),
+            Positioned(
+              bottom: 0,
+              child: GestureDetector(
+                key: const Key('header_loyalty_rank_badge'),
+                behavior: HitTestBehavior.opaque,
+                onTap: () {
+                  LoyaltyModalSheet.show(
+                    context,
+                    points: stylePoints,
+                    rank: rank,
+                  );
+                },
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 112.0),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: colors.sf,
+                    borderRadius: AppRadius.rFull,
+                    border: Border.all(color: colors.sf, width: 1.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: colors.tx.withValues(alpha: 0.08),
+                        blurRadius: 4,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 5,
+                      vertical: 1.5,
+                    ),
+                    decoration: BoxDecoration(
+                      color: rankColor.withValues(alpha: 0.14),
+                      borderRadius: AppRadius.rFull,
+                      border: Border.all(
+                        color: rankColor.withValues(alpha: 0.45),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 5,
+                          height: 5,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: rankColor,
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        Flexible(
+                          child: Text(
+                            '$rankLabel • $ptsText',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: 'Vazirmatn',
+                              fontSize: 9.5,
+                              fontWeight: FontWeight.w700,
+                              color: colors.tx,
+                              height: 1.1,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildAvatar(
     AppColors colors, {
+    required double avatarSize,
     required String loyaltyRank,
     required String? effectiveAvatarUrl,
     required String? gender,
   }) {
-    const double avatarSize = 42.0;
     final rank = LoyaltyRankExtension.fromString(loyaltyRank);
     final rankColor = rank.color;
 
@@ -283,7 +405,7 @@ class _HeaderActions extends ConsumerWidget {
 
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
+      crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         // Notification Bell
@@ -389,25 +511,13 @@ class _HeaderProfileProgressSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final strings = context.strings;
-    final (loyaltyRank, stylePoints, profileProgress) = ref.watch(
-      appStateProvider.select(
-        (s) => (s.loyaltyRank, s.stylePoints, s.profileProgress),
-      ),
+    final profileProgress = ref.watch(
+      appStateProvider.select((s) => s.profileProgress),
     );
 
     return Row(
       children: [
-        // 1. Start: Loyalty tier & points pill badge (tapping opens LoyaltyModalSheet)
-        _buildRankPointsBadge(
-          context,
-          colors,
-          strings,
-          loyaltyRank: loyaltyRank,
-          stylePoints: stylePoints,
-        ),
-        const SizedBox(width: AppSpacing.sm),
-
-        // 2. Middle (Expanded): Smooth horizontal profile completion progress bar + localized percentage
+        // 1. Start (Expanded): Smooth horizontal profile completion progress bar + localized percentage
         Expanded(
           key: const Key('header_profile_progress_bar'),
           child: Row(
@@ -450,7 +560,7 @@ class _HeaderProfileProgressSection extends ConsumerWidget {
         ),
         const SizedBox(width: AppSpacing.sm),
 
-        // 3. End: Compact dark pill action button (Complete Profile)
+        // 2. End: Compact dark pill action button (Complete Profile)
         InkWell(
           key: const Key('header_complete_profile_btn'),
           onTap: () {
@@ -477,63 +587,6 @@ class _HeaderProfileProgressSection extends ConsumerWidget {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildRankPointsBadge(
-    BuildContext context,
-    AppColors colors,
-    AppStrings strings, {
-    required String loyaltyRank,
-    required int stylePoints,
-  }) {
-    final rank = LoyaltyRankExtension.fromString(loyaltyRank);
-    final rankColor = rank.color;
-    final rankLabel = rank.getLocalizedName(strings);
-    final ptsText = '${strings.formatNumber(stylePoints)} ${strings.pts}';
-
-    return GestureDetector(
-      key: const Key('header_loyalty_rank_badge'),
-      onTap: () {
-        LoyaltyModalSheet.show(context, points: stylePoints, rank: rank);
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-        decoration: BoxDecoration(
-          color: rankColor.withValues(alpha: 0.12),
-          borderRadius: AppRadius.rFull,
-          border: Border.all(
-            color: rankColor.withValues(alpha: 0.45),
-            width: 1,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 5,
-              height: 5,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: rankColor,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Flexible(
-              child: Text(
-                '$rankLabel • $ptsText',
-                style: TextStyle(
-                  fontFamily: 'Vazirmatn',
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                  color: colors.tx,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

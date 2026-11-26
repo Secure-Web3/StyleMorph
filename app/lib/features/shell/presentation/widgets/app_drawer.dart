@@ -58,11 +58,11 @@ class AppDrawer extends ConsumerWidget {
                 children: [
                   Row(
                     children: [
-                      const AppLogo(size: 38),
+                      const AppLogo(size: 46),
                       const SizedBox(width: AppSpacing.md),
                       Expanded(
                         child: BrandWordmark(
-                          fontSize: 21,
+                          fontSize: 23,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.6,
                           color: colors.tx,
@@ -88,29 +88,6 @@ class AppDrawer extends ConsumerWidget {
                 children: [
                   // Compact Wallet & Plan Card
                   const _DrawerWalletCard(),
-                  const SizedBox(height: AppSpacing.md),
-
-                  // My Activity Section
-                  _DrawerSectionLabel(label: strings.drawerSectionActivity),
-                  const SizedBox(height: AppSpacing.xxs),
-                  _DrawerItem(
-                    icon: FontAwesomeIcons.clockRotateLeft,
-                    title: strings.mHist,
-                    badgeText: strings.soon,
-                    enabled: false,
-                  ),
-                  _DrawerItem(
-                    icon: FontAwesomeIcons.bookmark,
-                    title: strings.mSaved,
-                    badgeText: strings.soon,
-                    enabled: false,
-                  ),
-                  _DrawerItem(
-                    icon: FontAwesomeIcons.bagShopping,
-                    title: strings.mOrders,
-                    badgeText: strings.soon,
-                    enabled: false,
-                  ),
 
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -365,6 +342,7 @@ class AppDrawer extends ConsumerWidget {
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   InkWell(
+                    key: const Key('drawer_sign_out_button'),
                     onTap: () async {
                       Navigator.of(context).pop();
                       try {
@@ -376,32 +354,36 @@ class AppDrawer extends ConsumerWidget {
                       ref.read(appStateProvider.notifier).logout();
                     },
                     borderRadius: AppRadius.rMd,
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.symmetric(
-                        horizontal: AppSpacing.sm,
-                        vertical: AppSpacing.xs,
-                      ),
-                      child: Row(
-                        children: [
-                          FaIcon(
-                            FontAwesomeIcons.rightFromBracket,
-                            size: 14,
-                            color: colors.orColor,
-                          ),
-                          const SizedBox(width: AppSpacing.md),
-                          Text(
-                            strings.mOut,
-                            style: TextStyle(
-                              fontFamily: AppTypography.fontFamily,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(minHeight: 42),
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.symmetric(
+                          horizontal: AppSpacing.sm,
+                          vertical: AppSpacing.sm,
+                        ),
+                        child: Row(
+                          children: [
+                            FaIcon(
+                              FontAwesomeIcons.rightFromBracket,
+                              size: 14,
                               color: colors.orColor,
                             ),
-                          ),
-                        ],
+                            const SizedBox(width: AppSpacing.md),
+                            Text(
+                              strings.mOut,
+                              style: TextStyle(
+                                fontFamily: AppTypography.fontFamily,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: colors.orColor,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
+                  const SizedBox(height: 42),
                 ],
               ),
             ),
@@ -439,6 +421,7 @@ class _DrawerProfileCard extends ConsumerWidget {
       userName,
       avatarUrl,
       gender,
+      identityEmail,
       isKycVerified,
       loyaltyRank,
       stylePoints,
@@ -449,6 +432,7 @@ class _DrawerProfileCard extends ConsumerWidget {
           s.userName,
           s.effectiveAvatarUrl,
           s.aiDnaValues['gender'] ?? 'female',
+          s.identityValues['email'] ?? '',
           s.kycData.isVerified,
           s.loyaltyRank,
           s.stylePoints,
@@ -472,6 +456,10 @@ class _DrawerProfileCard extends ConsumerWidget {
         ? strings.tr(userName)
         : (user?.displayName ??
               (user?.email?.split('@').first ?? strings.newUser));
+    final firebaseEmail = (user?.email ?? '').trim();
+    final userEmail = firebaseEmail.isNotEmpty
+        ? firebaseEmail
+        : identityEmail.trim();
     final rankLabel = _localizedRank(strings, loyaltyRank);
     final rankColor = LoyaltyRankExtension.fromString(loyaltyRank).color;
     final pointsText = strings.formatNumber(stylePoints);
@@ -481,6 +469,7 @@ class _DrawerProfileCard extends ConsumerWidget {
       color: colors.bg,
       borderRadius: AppRadius.rLg,
       child: InkWell(
+        key: const Key('drawer_profile_card'),
         onTap: () {
           Navigator.of(context).pop();
           ref.read(appStateProvider.notifier).switchProfileTab('p-identity');
@@ -492,108 +481,188 @@ class _DrawerProfileCard extends ConsumerWidget {
             borderRadius: AppRadius.rLg,
             border: Border.all(color: colors.bd),
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisSize: MainAxisSize.min,
             children: [
-              // Avatar with loyalty ring
-              Container(
-                width: 56,
-                height: 56,
-                padding: const EdgeInsets.all(2.5),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: rankColor, width: 2.0),
-                ),
-                child: ClipOval(
-                  child: avatarUrl != null && avatarUrl.isNotEmpty
-                      ? AppMediaImage(
-                          avatarUrl,
-                          fit: BoxFit.cover,
-                          width: 51,
-                          height: 51,
-                          errorBuilder: (_, _, _) =>
-                              Gender3dAvatar(gender: gender),
-                        )
-                      : Gender3dAvatar(gender: gender),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-
-              // Name, Tier + Points, Progress Bar
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Avatar with loyalty ring & overlapping rank pill
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      minWidth: 58.0,
+                      maxWidth: 102.0,
+                    ),
+                    child: Stack(
+                      alignment: Alignment.topCenter,
                       children: [
-                        Flexible(
-                          child: Text(
-                            displayName,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontFamily: AppTypography.fontFamily,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
-                              color: colors.tx,
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 10.0),
+                          child: Container(
+                            width: 58,
+                            height: 58,
+                            padding: const EdgeInsets.all(2.5),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(color: rankColor, width: 2.0),
+                            ),
+                            child: ClipOval(
+                              child: avatarUrl != null && avatarUrl.isNotEmpty
+                                  ? AppMediaImage(
+                                      avatarUrl,
+                                      fit: BoxFit.cover,
+                                      width: 53,
+                                      height: 53,
+                                      errorBuilder: (_, _, _) =>
+                                          Gender3dAvatar(gender: gender),
+                                    )
+                                  : Gender3dAvatar(gender: gender),
                             ),
                           ),
                         ),
-                        if (isVerified) ...[
-                          const SizedBox(width: 4),
-                          FaIcon(
-                            FontAwesomeIcons.circleCheck,
-                            size: 11,
-                            color: isKycVerified ? colors.ok : colors.inColor,
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '$rankLabel • $pointsText ${strings.pts}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: AppTypography.fontFamily,
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: colors.mu,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: AppRadius.rFull,
-                            child: LinearProgressIndicator(
-                              value: progress.clamp(0.0, 1.0),
-                              minHeight: 4,
-                              backgroundColor: colors.bd,
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                colors.pr,
+                        Positioned(
+                          bottom: 0,
+                          child: Container(
+                            constraints: const BoxConstraints(maxWidth: 102.0),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 1.5,
+                            ),
+                            decoration: BoxDecoration(
+                              color: colors.bg,
+                              borderRadius: AppRadius.rFull,
+                              border: Border.all(color: colors.bg, width: 1.5),
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 1,
+                              ),
+                              decoration: BoxDecoration(
+                                color: rankColor.withValues(alpha: 0.14),
+                                borderRadius: AppRadius.rFull,
+                                border: Border.all(
+                                  color: rankColor.withValues(alpha: 0.45),
+                                  width: 1,
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Container(
+                                    width: 5,
+                                    height: 5,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: rankColor,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 3),
+                                  Flexible(
+                                    child: Text(
+                                      '$rankLabel • $pointsText ${strings.pts}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontFamily: AppTypography.fontFamily,
+                                        fontSize: 9.5,
+                                        fontWeight: FontWeight.w700,
+                                        color: colors.tx,
+                                        height: 1.1,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: AppSpacing.xs),
-                        Text(
-                          percentText,
-                          style: TextStyle(
-                            fontFamily: AppTypography.fontFamily,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: colors.tx,
-                          ),
-                        ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+
+                  // Name + Verified badge (line 1), Always-visible Email (line 2)
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                displayName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontFamily: AppTypography.fontFamily,
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w700,
+                                  color: colors.tx,
+                                ),
+                              ),
+                            ),
+                            if (isVerified) ...[
+                              const SizedBox(width: 4),
+                              FaIcon(
+                                FontAwesomeIcons.circleCheck,
+                                size: 11,
+                                color: isKycVerified
+                                    ? colors.ok
+                                    : colors.inColor,
+                              ),
+                            ],
+                          ],
+                        ),
+                        if (userEmail.isNotEmpty) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            userEmail,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: AppTypography.fontFamily,
+                              fontSize: 11,
+                              color: colors.mu,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.xxs),
+                  Icon(Icons.chevron_right_rounded, size: 18, color: colors.mu),
+                ],
               ),
-              const SizedBox(width: AppSpacing.xxs),
-              Icon(Icons.chevron_right_rounded, size: 18, color: colors.mu),
+              const SizedBox(height: AppSpacing.sm),
+              Row(
+                key: const Key('drawer_profile_progress_row'),
+                children: [
+                  Expanded(
+                    child: ClipRRect(
+                      borderRadius: AppRadius.rFull,
+                      child: LinearProgressIndicator(
+                        value: progress.clamp(0.0, 1.0),
+                        minHeight: 5,
+                        backgroundColor: colors.bd,
+                        valueColor: AlwaysStoppedAnimation<Color>(colors.pr),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.xs),
+                  Text(
+                    percentText,
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: colors.tx,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -825,56 +894,43 @@ class _DrawerModeSwitcher extends ConsumerWidget {
 class _DrawerItem extends StatelessWidget {
   final FaIconData icon;
   final String title;
-  final String? badgeText;
   final VoidCallback? onTap;
-  final bool enabled;
 
-  const _DrawerItem({
-    required this.icon,
-    required this.title,
-    this.badgeText,
-    this.onTap,
-    this.enabled = true,
-  });
+  const _DrawerItem({required this.icon, required this.title, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
 
-    return Opacity(
-      opacity: enabled ? 1.0 : 0.55,
-      child: InkWell(
-        onTap: enabled ? onTap : null,
-        borderRadius: AppRadius.rMd,
-        child: Padding(
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AppSpacing.sm,
-            vertical: AppSpacing.sm,
-          ),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 20,
-                child: FaIcon(icon, size: 14, color: colors.mu),
-              ),
-              const SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    fontFamily: AppTypography.fontFamily,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                    color: colors.tx,
-                  ),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: AppRadius.rMd,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: AppSpacing.sm,
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 20,
+              child: FaIcon(icon, size: 14, color: colors.mu),
+            ),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontFamily: AppTypography.fontFamily,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: colors.tx,
                 ),
               ),
-              if (badgeText != null)
-                AppBadge(size: AppBadgeSize.sm, child: Text(badgeText!)),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

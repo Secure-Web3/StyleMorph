@@ -377,5 +377,111 @@ void main() {
       expect(find.text('How to Earn StylePoints'), findsOneWidget);
       expect(find.text('Loyalty Rank Perks'), findsOneWidget);
     });
+
+    testWidgets(
+      'MainHeader enlarges avatar in Profile (64-68px) and Regular (52-56px) modes and isolates avatar vs rank pill taps',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(360, 800));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        int drawerOpens = 0;
+
+        Widget buildWithDrawerCallback(AppState state, String localeCode) {
+          return ProviderScope(
+            key: UniqueKey(),
+            overrides: [
+              appStateProvider.overrideWith(
+                (ref) => _TestAppStateNotifier(state),
+              ),
+            ],
+            child: MaterialApp(
+              theme: testTheme,
+              locale: Locale(localeCode),
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              home: Scaffold(
+                appBar: MainHeader(onOpenDrawer: () => drawerOpens++),
+                body: const SizedBox.shrink(),
+              ),
+            ),
+          );
+        }
+
+        // 1. Profile mode on 360px width (en)
+        final profileState = AppState(
+          isLoggedIn: true,
+          currentTab: AppTab.profile,
+          userName: 'Elena Rostova',
+          stylePoints: 624,
+          loyaltyRank: 'Silver',
+          profileProgress: 0.75,
+          showHeaderCoins: true,
+          coins: 350,
+          preferences: const UserPreferences(showEmailInHeader: false),
+        );
+
+        await tester.pumpWidget(buildWithDrawerCallback(profileState, 'en'));
+        await tester.pumpAndSettle();
+
+        final profileAvatarRect = tester.getRect(
+          find.byKey(const Key('header_avatar')),
+        );
+        expect(profileAvatarRect.width, inInclusiveRange(64.0, 68.0));
+        expect(profileAvatarRect.height, inInclusiveRange(64.0, 68.0));
+
+        // Bell is horizontally centered above Coins chip
+        final bellRect = tester.getRect(
+          find.byKey(const Key('header_notifications_bell')),
+        );
+        final coinsRect = tester.getRect(
+          find.byKey(const Key('header_coins_chip')),
+        );
+        expect((bellRect.center.dx - coinsRect.center.dx).abs(), lessThan(2.0));
+
+        // Tapping rank pill opens LoyaltyModalSheet and NEVER triggers drawer
+        await tester.tap(find.byKey(const Key('header_loyalty_rank_badge')));
+        await tester.pumpAndSettle();
+        expect(find.byType(LoyaltyModalSheet), findsOneWidget);
+        expect(drawerOpens, equals(0));
+
+        // Close modal
+        Navigator.of(tester.element(find.byType(LoyaltyModalSheet))).pop();
+        await tester.pumpAndSettle();
+
+        // Tapping top of avatar opens drawer
+        await tester.tapAt(
+          Offset(profileAvatarRect.center.dx, profileAvatarRect.top + 10),
+        );
+        await tester.pumpAndSettle();
+        expect(drawerOpens, equals(1));
+        expect(tester.takeException(), isNull);
+
+        // 2. Profile mode on 360px width (fa) — zero overflow
+        await tester.pumpWidget(buildWithDrawerCallback(profileState, 'fa'));
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+
+        // 3. Regular mode (wardrobe) — 52-56px avatar
+        final regularState = AppState(
+          isLoggedIn: true,
+          currentTab: AppTab.wardrobe,
+          userName: 'Elena Rostova',
+          showHeaderCoins: false,
+          preferences: const UserPreferences(showEmailInHeader: false),
+        );
+        await tester.pumpWidget(buildWithDrawerCallback(regularState, 'en'));
+        await tester.pumpAndSettle();
+
+        final regularAvatarRect = tester.getRect(
+          find.byKey(const Key('header_avatar')),
+        );
+        expect(regularAvatarRect.width, inInclusiveRange(52.0, 56.0));
+        expect(regularAvatarRect.height, inInclusiveRange(52.0, 56.0));
+        expect(tester.takeException(), isNull);
+      },
+    );
   });
 }
