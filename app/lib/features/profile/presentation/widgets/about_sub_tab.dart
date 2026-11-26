@@ -1,6 +1,4 @@
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,7 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/config/app_build_info.dart';
 import '../../../../core/localization/app_strings.dart';
-import '../../../../core/services/notification_service.dart';
+import '../../../../core/services/app_update_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -19,6 +17,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../../core/widgets/app_update_dialog.dart';
 import '../../../../core/widgets/brand_wordmark.dart';
 import 'about_actions.dart';
 import 'legal_doc_modal_sheet.dart';
@@ -48,81 +47,49 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
   UpdateCheckStatus _updateStatus = UpdateCheckStatus.idle;
   String? _availableVersion;
   String? _storeUrl;
+  RemoteVersionInfo? _remoteVersionInfo;
+  bool _isForcedUpdate = false;
 
   Future<void> _checkForUpdates() async {
     setState(() => _updateStatus = UpdateCheckStatus.checking);
     try {
-      if (Firebase.apps.isNotEmpty) {
-        final doc = await FirebaseFirestore.instance
-            .collection('app_config')
-            .doc('version')
-            .get()
-            .timeout(const Duration(seconds: 5));
+      final result = await ref
+          .read(appUpdateServiceProvider)
+          .checkForUpdate(manual: true);
 
-        if (doc.exists && doc.data() != null) {
-          final data = doc.data()!;
-          final remoteVersion =
-              data['version']?.toString() ??
-              data['latestVersion']?.toString() ??
-              '';
-          final remoteBuild =
-              (data['build'] as num?)?.toInt() ??
-              (data['latestBuild'] as num?)?.toInt() ??
-              0;
-          final minRequiredBuild =
-              (data['minRequiredBuild'] as num?)?.toInt() ?? 0;
-          final forceUpdate = data['forceUpdate'] == true;
-          final store =
-              data['webUrl']?.toString() ??
-              data['storeUrl']?.toString() ??
-              data['downloadUrl']?.toString() ??
-              AboutSubTab.officialWebsite;
+      if (result.updateAvailable && result.remoteInfo != null) {
+        final info = result.remoteInfo!;
+        final resolvedVersion = info.resolvedVersion;
+        final store =
+            info.webUrl ??
+            info.androidUrl ??
+            info.iosUrl ??
+            AboutSubTab.officialWebsite;
 
-          final hasUpdate = AppBuildInfo.isUpdateAvailable(
-            remoteVersion: remoteVersion,
-            remoteBuild: remoteBuild,
+        if (mounted) {
+          setState(() {
+            _updateStatus = UpdateCheckStatus.updateAvailable;
+            _availableVersion = resolvedVersion;
+            _storeUrl = store;
+            _remoteVersionInfo = info;
+            _isForcedUpdate = result.isForced;
+          });
+          await AppUpdateDialog.show(
+            context,
+            remoteInfo: info,
+            isForced: result.isForced,
           );
-          final mustUpdate =
-              forceUpdate ||
-              AppBuildInfo.isForceUpdateRequired(
-                minRequiredBuild: minRequiredBuild,
-              );
-
-          if (hasUpdate || mustUpdate) {
-            final resolvedVersion = remoteVersion.isNotEmpty
-                ? remoteVersion
-                : '1.0.$remoteBuild';
-            final uid = currentAuthenticatedUid();
-            if (uid != null) {
-              unawaited(
-                NotificationService().createNotification(
-                  uid: uid,
-                  title: 'App Update Available',
-                  body: 'StyleMorph v$resolvedVersion is now available.',
-                  category: 'account',
-                  targetRoute: 'profile_about',
-                  emoji: '🚀',
-                ),
-              );
-            }
-            if (mounted) {
-              setState(() {
-                _updateStatus = UpdateCheckStatus.updateAvailable;
-                _availableVersion = resolvedVersion;
-                _storeUrl = store;
-              });
-            }
-            return;
-          }
         }
+        return;
       }
 
-      // If no remote version exists or build is up-to-date
-      await Future.delayed(const Duration(milliseconds: 600));
+      await Future.delayed(const Duration(milliseconds: 400));
       if (mounted) {
         setState(() {
           _updateStatus = UpdateCheckStatus.upToDate;
           _availableVersion = null;
+          _remoteVersionInfo = null;
+          _isForcedUpdate = false;
         });
       }
     } catch (_) {
@@ -416,6 +383,14 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
                         ? strings.aboutUpdateActionWeb
                         : strings.aboutUpdateActionMobile,
                     onPressed: () {
+                      if (_remoteVersionInfo != null) {
+                        AppUpdateDialog.show(
+                          context,
+                          remoteInfo: _remoteVersionInfo!,
+                          isForced: _isForcedUpdate,
+                        );
+                        return;
+                      }
                       if (kIsWeb) {
                         reloadAppWindow();
                       } else {

@@ -1379,6 +1379,26 @@ class AppStrings {
   String get aboutLinkCopied => get('aboutLinkCopied');
   String get aboutClose => get('aboutClose');
 
+  // In-App Update & Auto-Check Settings
+  String get setAutoCheckUpdatesTitle => get('setAutoCheckUpdatesTitle');
+  String get setAutoCheckUpdatesDesc => get('setAutoCheckUpdatesDesc');
+  String get updateDialogTitle => get('updateDialogTitle');
+  String get updateDialogForcedTitle => get('updateDialogForcedTitle');
+  String get updateDialogForcedDesc => get('updateDialogForcedDesc');
+  String get updateDialogCurrentLabel => get('updateDialogCurrentLabel');
+  String get updateDialogNewLabel => get('updateDialogNewLabel');
+  String get updateDialogReleaseNotesTitle =>
+      get('updateDialogReleaseNotesTitle');
+  String get updateDialogDownloadInstallBtn =>
+      get('updateDialogDownloadInstallBtn');
+  String get updateDialogWebReloadBtn => get('updateDialogWebReloadBtn');
+  String get updateDialogStoreBtn => get('updateDialogStoreBtn');
+  String get updateDialogLaterBtn => get('updateDialogLaterBtn');
+  String get updateDialogDownloading => get('updateDialogDownloading');
+  String get updateDialogInstalling => get('updateDialogInstalling');
+  String get updateDialogError => get('updateDialogError');
+  String get updateDialogRetryBtn => get('updateDialogRetryBtn');
+
   // Phase 4: AI Quality-Control & Verification
   String get aiStatusReviewing => get('aiStatusReviewing');
   String get aiStatusPendingAi => get('aiStatusPendingAi');

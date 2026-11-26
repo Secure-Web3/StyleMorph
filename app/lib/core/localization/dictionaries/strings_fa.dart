@@ -1119,4 +1119,21 @@ final Map<String, String> stringsFa = {
   'aiIssueMissingSubject':
       'سوژه یا مدرک موردنظر به‌وضوح در تصویر دیده نمی‌شود.',
   'aiIssuePolicyViolation': 'محتوا با قوانین ایمنی پلتفرم مطابقت ندارد.',
+  'setAutoCheckUpdatesTitle': 'بررسی خودکار بروزرسانی‌ها',
+  'setAutoCheckUpdatesDesc': 'بررسی نسخه‌های جدید هنگام ورود به برنامه',
+  'updateDialogTitle': 'بروزرسانی جدید در دسترس است',
+  'updateDialogForcedTitle': 'بروزرسانی الزامی',
+  'updateDialogForcedDesc':
+      'برای ادامه استفاده از StyleMorph نصب این بروزرسانی ضروری است.',
+  'updateDialogCurrentLabel': 'فعلی',
+  'updateDialogNewLabel': 'جدید',
+  'updateDialogReleaseNotesTitle': 'تغییرات این نسخه',
+  'updateDialogDownloadInstallBtn': 'دانلود و نصب',
+  'updateDialogWebReloadBtn': 'بروزرسانی فوری',
+  'updateDialogStoreBtn': 'باز کردن لینک بروزرسانی',
+  'updateDialogLaterBtn': 'بعداً',
+  'updateDialogDownloading': 'در حال دانلود بروزرسانی...',
+  'updateDialogInstalling': 'در حال باز کردن نصب‌کننده...',
+  'updateDialogError': 'دانلود ناموفق بود. لطفاً دوباره تلاش کنید.',
+  'updateDialogRetryBtn': 'تلاش مجدد',
 };

@@ -1123,4 +1123,21 @@ final Map<String, String> stringsEn = {
   'aiIssueMissingSubject':
       'Required subject or document is not clearly visible.',
   'aiIssuePolicyViolation': 'Content does not meet platform safety guidelines.',
+  'setAutoCheckUpdatesTitle': 'Auto-Check for Updates',
+  'setAutoCheckUpdatesDesc': 'Check for new app versions on launch',
+  'updateDialogTitle': 'App Update Available',
+  'updateDialogForcedTitle': 'Required Update',
+  'updateDialogForcedDesc':
+      'A critical update is required to continue using StyleMorph.',
+  'updateDialogCurrentLabel': 'Current',
+  'updateDialogNewLabel': 'New',
+  'updateDialogReleaseNotesTitle': "What's New",
+  'updateDialogDownloadInstallBtn': 'Download & Install',
+  'updateDialogWebReloadBtn': 'Update Now',
+  'updateDialogStoreBtn': 'Open Update Link',
+  'updateDialogLaterBtn': 'Later',
+  'updateDialogDownloading': 'Downloading update...',
+  'updateDialogInstalling': 'Opening installer...',
+  'updateDialogError': 'Download failed. Please try again.',
+  'updateDialogRetryBtn': 'Retry',
 };

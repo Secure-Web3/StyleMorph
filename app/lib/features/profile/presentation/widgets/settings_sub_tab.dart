@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_language.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/localization/locale_provider.dart';
+import '../../../../core/services/app_update_service.dart';
 import '../../../../core/services/biometric_service.dart';
 import '../../../../core/services/two_factor_service.dart';
 import '../../../../core/state/app_state.dart';
@@ -36,12 +37,23 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
   String _backupFrequency = 'weekly';
   bool _biometricLockEnabled = false;
   bool _isBiometricSupported = !kIsWeb;
+  bool _autoCheckUpdates = true;
 
   @override
   void initState() {
     super.initState();
     _backupFrequency = ref.read(appStateProvider).preferences.autoDataBackup;
     _loadBiometricPref();
+    _loadAutoCheckUpdatesPref();
+  }
+
+  Future<void> _loadAutoCheckUpdatesPref() async {
+    final enabled = await ref
+        .read(appUpdateServiceProvider)
+        .isAutoCheckEnabled();
+    if (mounted) {
+      setState(() => _autoCheckUpdates = enabled);
+    }
   }
 
   Future<void> _loadBiometricPref() async {
@@ -405,6 +417,19 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                         .read(appStateProvider.notifier)
                         .toggleShowEmailInHeader(val);
                     ref.read(appStateProvider.notifier).markProfileDirty();
+                  },
+                ),
+                Divider(height: 1, color: colors.bd),
+                AppSwitchTile(
+                  label: strings.setAutoCheckUpdatesTitle,
+                  subtitle: strings.setAutoCheckUpdatesDesc,
+                  value: _autoCheckUpdates,
+                  onChanged: (val) async {
+                    setState(() => _autoCheckUpdates = val);
+                    await ref
+                        .read(appUpdateServiceProvider)
+                        .setAutoCheckEnabled(val);
+                    ref.invalidate(autoCheckUpdatesProvider);
                   },
                 ),
               ],
