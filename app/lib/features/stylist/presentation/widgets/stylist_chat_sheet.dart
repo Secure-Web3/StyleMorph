@@ -8,6 +8,7 @@ import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
+import '../../../../core/widgets/email_verification_gate.dart';
 import '../stylist_provider.dart';
 
 class StylistChatSheet extends ConsumerStatefulWidget {
@@ -29,6 +30,7 @@ class _StylistChatSheetState extends ConsumerState<StylistChatSheet> {
   }
 
   void _send() {
+    if (!EmailVerificationGate.checkVerified(context, ref)) return;
     final text = _inputCtrl.text.trim();
     if (text.isEmpty) return;
 

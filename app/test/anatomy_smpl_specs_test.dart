@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:stylemorph/core/state/app_state.dart';
 import 'package:stylemorph/core/theme/app_colors.dart';
 import 'package:stylemorph/core/theme/app_theme.dart';
+import 'package:stylemorph/features/auth/presentation/email_verification_screen.dart';
 import 'package:stylemorph/features/profile/data/user_preferences.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/anatomy_sub_tab.dart';
 
@@ -27,6 +28,7 @@ void main() {
   }) {
     return ProviderScope(
       overrides: [
+        emailVerifiedOverrideProvider.overrideWith((ref) => true),
         if (initialState != null)
           appStateProvider.overrideWith(
             (ref) => _TestAppStateNotifier(initialState),

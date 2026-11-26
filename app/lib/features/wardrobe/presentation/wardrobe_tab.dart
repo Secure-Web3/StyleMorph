@@ -11,6 +11,7 @@ import '../../../core/widgets/app_button.dart';
 import '../../../core/widgets/app_icon_button.dart';
 import '../../../core/widgets/app_modal.dart';
 import '../../../core/widgets/app_text_field.dart';
+import '../../../core/widgets/email_verification_gate.dart';
 import '../domain/wardrobe_item.dart';
 import 'wardrobe_provider.dart';
 import 'widgets/add_item_bottom_sheet.dart';
@@ -167,6 +168,7 @@ class WardrobeTab extends ConsumerWidget {
   }
 
   void _showAddSheet(BuildContext context, WidgetRef ref) {
+    if (!EmailVerificationGate.checkVerified(context, ref)) return;
     AppModal.showSheet(
       context: context,
       child: AddItemBottomSheet(
@@ -273,11 +275,16 @@ class WardrobeTab extends ConsumerWidget {
       context: context,
       child: WardrobeItemDetailSheet(
         item: item,
-        onFav: () =>
-            ref.read(wardrobeProvider.notifier).toggleFavorite(item.id),
-        onArchive: () =>
-            ref.read(wardrobeProvider.notifier).toggleArchive(item.id),
+        onFav: () {
+          if (!EmailVerificationGate.checkVerified(context, ref)) return;
+          ref.read(wardrobeProvider.notifier).toggleFavorite(item.id);
+        },
+        onArchive: () {
+          if (!EmailVerificationGate.checkVerified(context, ref)) return;
+          ref.read(wardrobeProvider.notifier).toggleArchive(item.id);
+        },
         onDelete: () {
+          if (!EmailVerificationGate.checkVerified(context, ref)) return;
           Navigator.pop(context);
           ref.read(wardrobeProvider.notifier).deleteItem(item.id);
         },

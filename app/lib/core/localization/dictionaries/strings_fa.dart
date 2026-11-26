@@ -887,6 +887,11 @@ final Map<String, String> stringsFa = {
   'emailVerificationGoToProfile': 'رفتن به بخش هویت و پروفایل',
   'emailVerificationSuccessToast': 'ایمیل شما با موفقیت تأیید شد.',
   'idUnverified': 'تأیید نشده',
+  'notifEmailVerifyTitle': 'ایمیل خود را تایید کنید',
+  'notifEmailVerifyBody':
+      'لینک تایید به {email} ارسال شد. برای تغییر یا ارسال مجدد به تب هویت بروید و پوشه Spam/Junk را نیز بررسی کنید.',
+  'kycEmailVerificationRequiredHint':
+      'برای آپلود یا ارسال مدارک احراز هویت (KYC)، ابتدا ایمیل خود را تایید کنید.',
   // Turnstile Anti-Bot
   'authTurnstilePrompt': 'تایید امنیتی ورود',
   'authTurnstileRequired': 'لطفاً تایید امنیتی Cloudflare را تکمیل کنید.',

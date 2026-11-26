@@ -895,6 +895,11 @@ final Map<String, String> stringsTr = {
   'emailVerificationGoToProfile': 'Profile ve Kimliğe Git',
   'emailVerificationSuccessToast': 'E-postanız başarıyla doğrulandı.',
   'idUnverified': 'Doğrulanmadı',
+  'notifEmailVerifyTitle': 'E-posta adresinizi doğrulayın',
+  'notifEmailVerifyBody':
+      '{email} adresine doğrulama bağlantısı gönderildi. Kimlik sekmesine gitmek için dokunun veya Spam/Gereksiz klasörünü kontrol edin.',
+  'kycEmailVerificationRequiredHint':
+      'KYC belgelerini yüklemek veya göndermek için lütfen önce e-posta adresinizi doğrulayın.',
   // Turnstile Anti-Bot
   'authTurnstilePrompt': 'Güvenlik Doğrulaması',
   'authTurnstileRequired':

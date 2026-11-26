@@ -308,6 +308,7 @@ void main() {
           child: const KycVerificationSection(),
           locale: const Locale('fa'),
           initialState: pendingState,
+          isEmailVerified: true,
         ),
       );
       await tester.pumpAndSettle();

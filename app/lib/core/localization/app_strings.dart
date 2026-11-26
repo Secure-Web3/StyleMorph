@@ -1167,6 +1167,11 @@ class AppStrings {
   String get emailVerificationSuccessToast =>
       get('emailVerificationSuccessToast');
   String get idUnverified => get('idUnverified');
+  String get notifEmailVerifyTitle => get('notifEmailVerifyTitle');
+  String notifEmailVerifyBody(String email) =>
+      get('notifEmailVerifyBody').replaceAll('{email}', email);
+  String get kycEmailVerificationRequiredHint =>
+      get('kycEmailVerificationRequiredHint');
 
   // Turnstile getters
   String get authTurnstilePrompt => get('authTurnstilePrompt');

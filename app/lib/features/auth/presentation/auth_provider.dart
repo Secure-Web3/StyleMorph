@@ -2,6 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/firebase_auth_repository.dart';
+import '../../../core/localization/app_strings.dart';
+import '../../../core/localization/locale_provider.dart';
+import '../../../core/services/notification_service.dart';
 import '../../../core/services/prefetch/app_prefetch_service.dart';
 import '../../../core/services/referral_service.dart';
 import '../../../core/services/session_persistence_service.dart';
@@ -348,6 +351,25 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
           await user.sendEmailVerification();
         } catch (e) {
           debugPrint('[AuthFormNotifier] sendEmailVerification error: $e');
+        }
+        if (!user.emailVerified) {
+          try {
+            final langCode = _ref.read(localeProvider).code;
+            final strings = AppStrings(langCode);
+            final targetEmail = user.email ?? state.email.trim();
+            await _ref
+                .read(notificationServiceProvider)
+                .createEmailVerificationNotification(
+                  uid: user.uid,
+                  email: targetEmail,
+                  title: strings.notifEmailVerifyTitle,
+                  body: strings.notifEmailVerifyBody(targetEmail),
+                );
+          } catch (e) {
+            debugPrint(
+              '[AuthFormNotifier] email verification notification error: $e',
+            );
+          }
         }
       }
       if (await _isCurrentDeviceBlocked()) return false;

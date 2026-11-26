@@ -865,6 +865,11 @@ final Map<String, String> stringsAr = {
   'emailVerificationGoToProfile': 'الانتقال إلى الملف الشخصي والهوية',
   'emailVerificationSuccessToast': 'تم تأكيد بريدك الإلكتروني بنجاح.',
   'idUnverified': 'غير مؤكد',
+  'notifEmailVerifyTitle': 'تحقق من عنوان بريدك الإلكتروني',
+  'notifEmailVerifyBody':
+      'تم إرسال رابط التحقق إلى {email}. اضغط لفتح تبويب الهوية أو تحقق من مجلد الرسائل غير المرغوب فيها (Spam/Junk).',
+  'kycEmailVerificationRequiredHint':
+      'يرجى التحقق من بريدك الإلكتروني أولاً لرفع أو إرسال مستندات التحقق (KYC).',
   // Turnstile Anti-Bot
   'authTurnstilePrompt': 'التحقق الأمني',
   'authTurnstileRequired': 'يرجى إكمال التحقق الأمني من Cloudflare.',

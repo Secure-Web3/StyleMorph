@@ -268,6 +268,7 @@ class NotificationService {
   static const String eventAtelierRenderReady = 'atelier_render_ready';
   static const String eventNewSession = 'new_session';
   static const String eventAgreementSigned = 'agreement_signed';
+  static const String eventEmailVerification = 'email_verification';
 
   /// Returns `true` only when email dispatch is explicitly requested and a
   /// valid non-empty recipient email is provided (cost-controlled policy).
@@ -303,6 +304,27 @@ class NotificationService {
         normalizedEvent.contains('kyc') ||
         normalizedEvent.contains('terms_signed');
     return base.add(Duration(days: isSensitive ? 90 : 30));
+  }
+
+  /// Creates an in-app notification reminding an Email/Password user to verify
+  /// their email (and check Spam/Junk), routing directly to Profile → Identity.
+  Future<void> createEmailVerificationNotification({
+    required String uid,
+    required String email,
+    required String title,
+    required String body,
+  }) async {
+    await createNotification(
+      uid: uid,
+      title: title,
+      body: body,
+      category: 'account',
+      targetRoute: 'profile_identity',
+      emoji: '✉️',
+      sendEmail: false,
+      eventType: eventEmailVerification,
+      extraData: {'email': email},
+    );
   }
 
   /// Non-blocking, fire-and-forget safe writer for `users/{uid}/notifications`.

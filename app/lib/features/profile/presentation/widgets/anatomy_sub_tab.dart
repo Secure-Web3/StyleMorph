@@ -11,6 +11,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_dropdown.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/email_verification_gate.dart';
 
 class AnatomySubTab extends ConsumerStatefulWidget {
   const AnatomySubTab({super.key});
@@ -59,6 +60,7 @@ class _AnatomySubTabState extends ConsumerState<AnatomySubTab> {
   static const List<String> _braCups = ['A', 'B', 'C', 'D', 'E', 'F'];
 
   void _updateField(String key, String value) {
+    if (!EmailVerificationGate.checkVerified(context, ref)) return;
     ref.read(appStateProvider.notifier).updateAiDnaField(key, value);
   }
 

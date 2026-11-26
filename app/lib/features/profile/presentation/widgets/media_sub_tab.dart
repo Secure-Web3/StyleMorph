@@ -17,6 +17,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_media_image.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../../core/widgets/email_verification_gate.dart';
 import '../profile_providers.dart';
 import 'camera_alignment_guide_dialog.dart';
 import 'kyc_image_preview_dialog.dart';
@@ -123,6 +124,7 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
     _MediaSlotDef slot, {
     required ImageSource source,
   }) async {
+    if (!EmailVerificationGate.checkVerified(context, ref)) return;
     final uid = FirebaseAuth.instance.currentUser?.uid ?? 'guest_user';
     final mediaService = ref.read(mediaServiceProvider);
     final strings = context.strings;
@@ -245,6 +247,7 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
   }
 
   Future<void> _pickWithCamera(BuildContext context, _MediaSlotDef slot) async {
+    if (!EmailVerificationGate.checkVerified(context, ref)) return;
     final ready = await CameraAlignmentGuideDialog.show(
       context,
       slotKey: slot.key,
@@ -261,6 +264,7 @@ class _MediaSubTabState extends ConsumerState<MediaSubTab> {
     _MediaSlotDef slot,
     String? mediaUrl,
   ) async {
+    if (!EmailVerificationGate.checkVerified(context, ref)) return;
     final colors = context.colors;
     final strings = context.strings;
 

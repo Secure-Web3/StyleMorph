@@ -22,6 +22,8 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/app_media_image.dart';
 import '../../../../core/widgets/app_section_header.dart';
+import '../../../../core/widgets/email_verification_gate.dart';
+import '../../../auth/presentation/email_verification_provider.dart';
 import '../../domain/kyc_model.dart';
 import '../profile_providers.dart';
 import 'kyc_image_preview_dialog.dart';
@@ -183,6 +185,7 @@ class _KycVerificationSectionState
   }
 
   void _showImageSourceSheet(bool isFront) {
+    if (!EmailVerificationGate.checkVerified(context, ref)) return;
     final strings = context.strings;
     final colors = context.colors;
 
@@ -227,6 +230,7 @@ class _KycVerificationSectionState
   }
 
   Future<void> _handleSubmit() async {
+    if (!EmailVerificationGate.checkVerified(context, ref)) return;
     final strings = context.strings;
     final kycData = ref.read(appStateProvider).kycData;
 
@@ -306,6 +310,7 @@ class _KycVerificationSectionState
   }
 
   Future<void> _handleDelete() async {
+    if (!EmailVerificationGate.checkVerified(context, ref)) return;
     final strings = context.strings;
     final kycData = ref.read(appStateProvider).kycData;
 
@@ -455,6 +460,31 @@ class _KycVerificationSectionState
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+
+          // Email Verification Lock Notice for Unverified Users
+          if (!ref.watch(emailVerificationProvider).isVerified) ...[
+            Container(
+              padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
+              decoration: BoxDecoration(
+                color: colors.wnb,
+                borderRadius: AppRadius.rMd,
+                border: Border.all(color: colors.wn.withValues(alpha: 0.3)),
+              ),
+              child: Row(
+                children: [
+                  FaIcon(FontAwesomeIcons.lock, size: 13, color: colors.wn),
+                  const SizedBox(width: AppSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      strings.kycEmailVerificationRequiredHint,
+                      style: AppTypography.caption(color: colors.tx),
                     ),
                   ),
                 ],

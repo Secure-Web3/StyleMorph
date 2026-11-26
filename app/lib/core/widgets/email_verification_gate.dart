@@ -11,6 +11,14 @@ import 'app_feedback.dart';
 import 'app_modal.dart';
 import '../../features/auth/presentation/email_verification_provider.dart';
 
+/// Namespaced helper for checking email verification before write/AI/financial actions.
+class EmailVerificationGate {
+  const EmailVerificationGate._();
+
+  static bool checkVerified(BuildContext context, WidgetRef ref) =>
+      checkEmailVerificationGate(context, ref);
+}
+
 /// Checks if the current user's email is verified.
 /// If verified, returns `true`.
 /// If not verified, shows a localized soft-gate prompt dialog and returns `false`.
@@ -95,7 +103,42 @@ Future<bool?> showEmailVerificationSoftGate(
             ),
             const SizedBox(height: AppSpacing.sm),
 
-            // Action 2: Check Verification Right Now
+            // Action 2: Resend Verification Email
+            AppButton(
+              isFullWidth: true,
+              variant: AppButtonVariant.outline,
+              text: verificationState.isResending
+                  ? null
+                  : (verificationState.cooldownSeconds > 0
+                        ? strings.authEmailResendCooldown(
+                            verificationState.cooldownSeconds,
+                          )
+                        : strings.authEmailResendBtn),
+              onPressed:
+                  (verificationState.isResending ||
+                      verificationState.cooldownSeconds > 0)
+                  ? null
+                  : () async {
+                      final sent = await notifier.resendVerificationEmail();
+                      if (!context.mounted) return;
+                      if (sent) {
+                        AppFeedback.showSuccess(
+                          context,
+                          strings.authVerificationEmailSent,
+                        );
+                      }
+                    },
+              child: verificationState.isResending
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator.adaptive(strokeWidth: 2),
+                    )
+                  : null,
+            ),
+            const SizedBox(height: AppSpacing.sm),
+
+            // Action 3: Check Verification Right Now
             AppButton(
               isFullWidth: true,
               variant: AppButtonVariant.outline,
@@ -131,7 +174,7 @@ Future<bool?> showEmailVerificationSoftGate(
             ),
             const SizedBox(height: AppSpacing.xs),
 
-            // Action 3: Close / Later
+            // Action 4: Close / Later
             AppButton(
               isFullWidth: true,
               variant: AppButtonVariant.ghost,

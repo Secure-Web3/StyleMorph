@@ -888,6 +888,11 @@ final Map<String, String> stringsEn = {
   'emailVerificationGoToProfile': 'Go to Profile & Identity',
   'emailVerificationSuccessToast': 'Your email has been verified successfully.',
   'idUnverified': 'Unverified',
+  'notifEmailVerifyTitle': 'Verify your email address',
+  'notifEmailVerifyBody':
+      'A verification link was sent to {email}. Tap to open Identity settings or check your Spam/Junk folder.',
+  'kycEmailVerificationRequiredHint':
+      'Please verify your email address first to upload or submit KYC documents.',
   // Turnstile Anti-Bot
   'authTurnstilePrompt': 'Security Verification',
   'authTurnstileRequired':

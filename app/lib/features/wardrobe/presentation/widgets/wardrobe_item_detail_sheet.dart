@@ -12,6 +12,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_media_image.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_toast.dart';
+import '../../../../core/widgets/email_verification_gate.dart';
 import '../../domain/wardrobe_item.dart';
 import '../wardrobe_provider.dart';
 import 'add_item_bottom_sheet.dart';
@@ -175,6 +176,7 @@ class _WardrobeItemDetailSheetState
   }
 
   void _openEditSheet(BuildContext context, WardrobeItem currentItem) {
+    if (!EmailVerificationGate.checkVerified(context, ref)) return;
     if (widget.onEdit != null) {
       widget.onEdit!();
       return;
