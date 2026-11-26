@@ -10,9 +10,11 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import 'core/localization/app_language.dart';
 import 'core/localization/locale_provider.dart';
 import 'core/services/app_check_service.dart';
+import 'core/services/app_update_service.dart';
 import 'core/services/biometric_service.dart';
 import 'core/services/emulator_config.dart';
 import 'core/services/prefetch/app_prefetch_service.dart';
+import 'core/services/push_notification_service.dart';
 import 'core/services/referral_service.dart';
 import 'core/services/screenshot_protection_service.dart';
 import 'core/services/session_persistence_service.dart';
@@ -22,6 +24,7 @@ import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
 import 'core/widgets/app_media_image.dart';
+import 'core/widgets/app_update_dialog.dart';
 import 'core/widgets/unified_splash_screen.dart';
 import 'features/auth/presentation/auth_provider.dart';
 import 'core/state/app_state.dart';
@@ -54,6 +57,7 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
     );
     await AppCheckService.initialize();
+    await PushNotificationService.initialize();
     await EmulatorConfig.connectIfEnabled(
       connectAuth: (host, port) async {
         await FirebaseAuth.instance.useAuthEmulator(host, port);
@@ -142,6 +146,80 @@ class StyleMorphApp extends ConsumerWidget {
   }
 }
 
+/// Coordinates throttled automatic update checks and once-per-session
+/// optional update dialog presentation.
+@visibleForTesting
+class AppUpdateSessionCoordinator {
+  static const Duration autoCheckCooldown = Duration(minutes: 30);
+
+  DateTime? _lastCheckAt;
+  bool _isChecking = false;
+  bool _optionalDialogShownThisSession = false;
+  bool _lastCheckWasForced = false;
+  bool _isDialogOpen = false;
+
+  bool shouldRunAutoCheck({bool manual = false, DateTime? now}) {
+    if (_isChecking) return false;
+    if (manual || _lastCheckWasForced) return true;
+    final last = _lastCheckAt;
+    if (last == null) return true;
+    return (now ?? DateTime.now()).difference(last) >= autoCheckCooldown;
+  }
+
+  bool shouldShowDialog({required bool isForced}) {
+    if (_isDialogOpen) return false;
+    if (isForced) return true;
+    return !_optionalDialogShownThisSession;
+  }
+
+  void markCheckCompleted({
+    required bool isForced,
+    bool dialogShown = false,
+    DateTime? now,
+  }) {
+    _lastCheckAt = now ?? DateTime.now();
+    _lastCheckWasForced = isForced;
+    if (dialogShown && !isForced) {
+      _optionalDialogShownThisSession = true;
+    }
+  }
+
+  Future<void> checkAndPrompt(
+    BuildContext context,
+    AppUpdateService service, {
+    bool manual = false,
+  }) async {
+    if (!shouldRunAutoCheck(manual: manual)) return;
+
+    _isChecking = true;
+    try {
+      final result = await service.checkForUpdate(
+        manual: manual || _lastCheckWasForced,
+      );
+      final canShow =
+          result.updateAvailable &&
+          result.remoteInfo != null &&
+          shouldShowDialog(isForced: result.isForced);
+      markCheckCompleted(isForced: result.isForced, dialogShown: canShow);
+
+      if (canShow && context.mounted) {
+        _isDialogOpen = true;
+        try {
+          await AppUpdateDialog.show(
+            context,
+            remoteInfo: result.remoteInfo!,
+            isForced: result.isForced,
+          );
+        } finally {
+          _isDialogOpen = false;
+        }
+      }
+    } finally {
+      _isChecking = false;
+    }
+  }
+}
+
 /// Routes to [MainShellScreen] or [WelcomeScreen] based on Firebase Auth stream.
 /// When a user is authenticated, holds on [UnifiedSplashScreen] until Firestore profile
 /// data has been fetched and applied to [AppState] (gate-level pre-fetch).
@@ -154,20 +232,46 @@ class _AuthGate extends ConsumerStatefulWidget {
 
 class _AuthGateState extends ConsumerState<_AuthGate>
     with WidgetsBindingObserver {
+  final AppUpdateSessionCoordinator _updateCoordinator =
+      AppUpdateSessionCoordinator();
+  bool _launchUpdateChecked = false;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    PushNotificationService.setOnAppUpdateTap(() {
+      if (!mounted) return;
+      _updateCoordinator.checkAndPrompt(
+        context,
+        ref.read(appUpdateServiceProvider),
+        manual: true,
+      );
+    });
   }
 
   @override
   void dispose() {
+    PushNotificationService.setOnAppUpdateTap(null);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      final user = ref.read(authStateChangesProvider).value;
+      final appState = ref.read(appStateProvider);
+      if (user != null &&
+          appState.isProfileLoaded &&
+          appState.loadedUid == user.uid) {
+        _updateCoordinator.checkAndPrompt(
+          context,
+          ref.read(appUpdateServiceProvider),
+        );
+      }
+    }
+
     if (kIsWeb) return;
     if (state == AppLifecycleState.paused) {
       final isAuthenticating = ref
@@ -197,6 +301,7 @@ class _AuthGateState extends ConsumerState<_AuthGate>
       },
       data: (user) {
         if (user == null) {
+          _launchUpdateChecked = false;
           if (ref.read(twoFactorSessionVerifiedProvider)) {
             Future.microtask(() {
               ref.read(twoFactorSessionVerifiedProvider.notifier).state = false;
@@ -267,6 +372,17 @@ class _AuthGateState extends ConsumerState<_AuthGate>
             Future.microtask(() => appNotifier.loadProfileFromFirestore());
           }
           return const UnifiedSplashScreen();
+        }
+
+        if (!_launchUpdateChecked) {
+          _launchUpdateChecked = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            _updateCoordinator.checkAndPrompt(
+              context,
+              ref.read(appUpdateServiceProvider),
+            );
+          });
         }
 
         return const SessionRevocationListener(child: MainShellScreen());

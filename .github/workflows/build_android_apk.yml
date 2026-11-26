@@ -8,6 +8,11 @@ on:
         required: false
         default: ""
         type: string
+      force_update:
+        description: "Mark this release as a forced update in Firestore app_config/version"
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build-apk:
@@ -75,3 +80,14 @@ jobs:
           target_commitish: ${{ github.sha }}
           name: StyleMorph Android ${{ inputs.release_tag }}
           files: StyleMorph-universal.apk
+
+      - name: Update Firestore app_config/version & Send FCM Push
+        if: ${{ inputs.release_tag != '' }}
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          APP_VERSION: ${{ inputs.release_tag }}
+          BUILD_NUMBER: ${{ github.run_number }}
+          ANDROID_URL: https://github.com/${{ github.repository }}/releases/download/${{ inputs.release_tag }}/StyleMorph-universal.apk
+          RELEASE_NOTES: StyleMorph Android ${{ inputs.release_tag }}
+          FORCE_UPDATE: ${{ inputs.force_update }}
+        run: node .github/scripts/publish_release_update.mjs
