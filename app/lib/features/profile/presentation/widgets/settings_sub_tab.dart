@@ -633,7 +633,6 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                     Text(
                       strings.twoFaTitle,
                       style: TextStyle(
-                        fontFamily: AppTypography.fontFamily,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: colors.tx,
@@ -642,11 +641,7 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                     const SizedBox(height: 2),
                     Text(
                       strings.twoFaDesc,
-                      style: TextStyle(
-                        fontFamily: AppTypography.fontFamily,
-                        fontSize: 11,
-                        color: colors.mu,
-                      ),
+                      style: TextStyle(fontSize: 11, color: colors.mu),
                     ),
                   ],
                 ),

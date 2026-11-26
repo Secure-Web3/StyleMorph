@@ -907,9 +907,11 @@ final Map<String, String> stringsTr = {
   'twoFaStatusActiveEmail': 'Aktif • E-posta Kodu',
   'twoFaChooseMethod': '2FA Yöntemini Seçin',
   'twoFaMethodTotp': 'Kimlik Doğrulayıcı Uygulama',
-  'twoFaMethodTotpDesc': 'Google Authenticator, Apple Passwords, Authy',
+  'twoFaMethodTotpDesc':
+      'Telefonunuzda her 30 saniyede bir çevrimdışı 6 haneli kod üretir (en yüksek güvenlik).',
   'twoFaMethodEmail': 'E-posta Doğrulama Kodu',
-  'twoFaMethodEmailDesc': 'Her girişte e-posta ile 6 haneli kod alın',
+  'twoFaMethodEmailDesc':
+      'Her girişte doğrulanmış e-posta adresinize tek kullanımlık 6 haneli kod gönderir.',
   'twoFaScanQrHint':
       'Bu QR kodunu kimlik doğrulayıcı uygulamanızla tarayın veya aşağıdaki kurulum anahtarını kopyalayın.',
   'twoFaCopyKey': 'Anahtarı Kopyala',
@@ -936,6 +938,25 @@ final Map<String, String> stringsTr = {
       'Devam etmek için e-posta adresinize gönderilen 6 haneli kodu girin.',
   'twoFaVerifyContinueBtn': 'Doğrula ve Devam Et',
   'twoFaResendCodeBtn': 'Kodu Tekrar Gönder',
+  'twoFaActiveCardTitle': 'Bu 2FA yöntemi şu anda aktif',
+  'twoFaActiveCardDesc':
+      'Hesabınız korunuyor. Aşağıdan devre dışı bırakabilir veya diğer yöntem sekmesine geçebilirsiniz.',
+  'twoFaSwitchToTotpBtn': 'Kimlik Doğrulayıcıya Geç',
+  'twoFaSwitchToEmailBtn': 'E-posta Koduna Geç',
+  'twoFaSwitchAutoReplaceNote':
+      'Bu yöntemi onaylamak mevcut aktif 2FA yönteminizi otomatik olarak değiştirip devre dışı bırakacaktır.',
+  'twoFaGetAppLabel': 'Kimlik doğrulayıcı uygulamaya mı ihtiyacınız var?',
+  'twoFaGetOnGooglePlay': 'Google Play\'den İndir',
+  'twoFaGetOnAppStore': 'App Store\'dan İndir',
+  'twoFaPasteBtn': 'Yapıştır',
+  'twoFaClipboardInvalid': 'Panoda geçerli 6 haneli bir kod bulunamadı.',
+  'twoFaLostAccessEmailBtn':
+      'Kimlik doğrulayıcınıza erişimi kaybettiniz mi? E-postaya kod gönder',
+  'twoFaUseTotpInsteadBtn': 'Kimlik Doğrulayıcı Kodunu Kullan',
+  'twoFaRecoveryModeDesc':
+      'Doğrulanmış e-posta adresinize gönderilen 6 haneli kurtarma kodunu girin.',
+  'twoFaRecoverySuccessNotice':
+      'E-posta kurtarma ile giriş yapıldı. Kimlik doğrulayıcınızı kalıcı olarak kaybettiyseniz Profil → Ayarlar bölümünden 2FA\'yı değiştirebilirsiniz.',
   // Turnstile Anti-Bot
   'authTurnstilePrompt': 'Güvenlik Doğrulaması',
   'authTurnstileRequired':

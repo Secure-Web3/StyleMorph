@@ -107,6 +107,24 @@ class TwoFactorService {
   static const Duration emailOtpTtl = Duration(minutes: 5);
   static const Duration emailResendCooldown = Duration(seconds: 60);
 
+  /// Converts Persian (`۰-۹`) and Arabic-Indic (`٠-٩`) digits to ASCII `0-9`,
+  /// strips non-digit characters (spaces, hyphens, etc.), and returns the
+  /// normalized 6-digit OTP if valid, or `null` otherwise.
+  static String? extractSixDigitOtp(String raw) {
+    final buffer = StringBuffer();
+    for (final rune in raw.runes) {
+      if (rune >= 0x30 && rune <= 0x39) {
+        buffer.writeCharCode(rune);
+      } else if (rune >= 0x06F0 && rune <= 0x06F9) {
+        buffer.writeCharCode(0x30 + (rune - 0x06F0));
+      } else if (rune >= 0x0660 && rune <= 0x0669) {
+        buffer.writeCharCode(0x30 + (rune - 0x0660));
+      }
+    }
+    final digits = buffer.toString();
+    return digits.length == 6 ? digits : null;
+  }
+
   final FirebaseFirestore? _customFirestore;
   final EmailOtpDispatcher _emailDispatcher;
   final Random _random;

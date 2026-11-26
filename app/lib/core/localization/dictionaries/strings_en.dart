@@ -900,9 +900,11 @@ final Map<String, String> stringsEn = {
   'twoFaStatusActiveEmail': 'Active • Email Code',
   'twoFaChooseMethod': 'Choose 2FA Method',
   'twoFaMethodTotp': 'Authenticator App',
-  'twoFaMethodTotpDesc': 'Google Authenticator, Apple Passwords, Authy',
+  'twoFaMethodTotpDesc':
+      'Generates a 6-digit code offline on your phone every 30 seconds (highest security).',
   'twoFaMethodEmail': 'Email Verification Code',
-  'twoFaMethodEmailDesc': 'Receive a 6-digit code via email on each login',
+  'twoFaMethodEmailDesc':
+      'Sends a one-time 6-digit code to your verified email on each login.',
   'twoFaScanQrHint':
       'Scan this QR code with your authenticator app, or copy the setup key below.',
   'twoFaCopyKey': 'Copy Key',
@@ -928,6 +930,25 @@ final Map<String, String> stringsEn = {
       'Enter the 6-digit code sent to your email address to continue.',
   'twoFaVerifyContinueBtn': 'Verify & Continue',
   'twoFaResendCodeBtn': 'Resend Code',
+  'twoFaActiveCardTitle': 'This 2FA method is currently active',
+  'twoFaActiveCardDesc':
+      'Your account is protected. You can disable 2FA below or switch to the other method tab.',
+  'twoFaSwitchToTotpBtn': 'Switch to Authenticator',
+  'twoFaSwitchToEmailBtn': 'Switch to Email Code',
+  'twoFaSwitchAutoReplaceNote':
+      'Confirming this method will automatically replace and disable your currently active 2FA method.',
+  'twoFaGetAppLabel': 'Need an authenticator app?',
+  'twoFaGetOnGooglePlay': 'Get on Google Play',
+  'twoFaGetOnAppStore': 'Get on App Store',
+  'twoFaPasteBtn': 'Paste',
+  'twoFaClipboardInvalid': 'No valid 6-digit code found in clipboard.',
+  'twoFaLostAccessEmailBtn':
+      'Lost access to your authenticator? Send code to email',
+  'twoFaUseTotpInsteadBtn': 'Use Authenticator Code',
+  'twoFaRecoveryModeDesc':
+      'Enter the 6-digit recovery code sent to your verified email address.',
+  'twoFaRecoverySuccessNotice':
+      'Signed in via email recovery. You can disable or switch 2FA in Profile → Settings if you lost your authenticator.',
   // Turnstile Anti-Bot
   'authTurnstilePrompt': 'Security Verification',
   'authTurnstileRequired':

@@ -877,9 +877,11 @@ final Map<String, String> stringsAr = {
   'twoFaStatusActiveEmail': 'مفعل • رمز البريد',
   'twoFaChooseMethod': 'اختر طريقة المصادقة الثنائية',
   'twoFaMethodTotp': 'تطبيق المصادقة',
-  'twoFaMethodTotpDesc': 'Google Authenticator، Apple Passwords، Authy',
+  'twoFaMethodTotpDesc':
+      'ينشئ رمزاً من 6 أرقام دون إنترنت على هاتفك كل 30 ثانية (أعلى أمان).',
   'twoFaMethodEmail': 'رمز التحقق عبر البريد',
-  'twoFaMethodEmailDesc': 'استلام رمز من 6 أرقام عبر البريد عند كل تسجيل دخول',
+  'twoFaMethodEmailDesc':
+      'يرسل رمزاً لمرة واحدة من 6 أرقام إلى بريدك الموثق عند كل تسجيل دخول.',
   'twoFaScanQrHint':
       'امسح رمز QR هذا بتطبيق المصادقة أو انسخ مفتاح الإعداد أدناه.',
   'twoFaCopyKey': 'نسخ المفتاح',
@@ -903,6 +905,25 @@ final Map<String, String> stringsAr = {
       'أدخل الرمز المكون من 6 أرقام المرسل إلى بريدك للمتابعة.',
   'twoFaVerifyContinueBtn': 'تحقق ومتابعة',
   'twoFaResendCodeBtn': 'إعادة إرسال الرمز',
+  'twoFaActiveCardTitle': 'طريقة المصادقة الثنائية هذه مفعّلة حالياً',
+  'twoFaActiveCardDesc':
+      'حسابك محمي. يمكنك تعطيلها أدناه أو التبديل إلى علامة تبويب الطريقة الأخرى.',
+  'twoFaSwitchToTotpBtn': 'التبديل إلى تطبيق المصادقة',
+  'twoFaSwitchToEmailBtn': 'التبديل إلى رمز البريد',
+  'twoFaSwitchAutoReplaceNote':
+      'تأكيد هذه الطريقة سيستبدل ويعطل طريقة المصادقة الثنائية النشطة حالياً تلقائياً.',
+  'twoFaGetAppLabel': 'هل تحتاج إلى تطبيق مصادقة؟',
+  'twoFaGetOnGooglePlay': 'تنزيل من Google Play',
+  'twoFaGetOnAppStore': 'تنزيل من App Store',
+  'twoFaPasteBtn': 'لصق',
+  'twoFaClipboardInvalid': 'لم يتم العثور على رمز صالح من 6 أرقام في الحافظة.',
+  'twoFaLostAccessEmailBtn':
+      'فقدت الوصول إلى تطبيق المصادقة؟ أرسل الرمز إلى البريد',
+  'twoFaUseTotpInsteadBtn': 'استخدام رمز تطبيق المصادقة',
+  'twoFaRecoveryModeDesc':
+      'أدخل رمز الاسترداد المكون من 6 أرقام المرسل إلى بريدك الإلكتروني الموثق.',
+  'twoFaRecoverySuccessNotice':
+      'تم تسجيل الدخول عبر استرداد البريد. يمكنك تعطيل أو تغيير 2FA من الملف الشخصي ← الإعدادات.',
   // Turnstile Anti-Bot
   'authTurnstilePrompt': 'التحقق الأمني',
   'authTurnstileRequired': 'يرجى إكمال التحقق الأمني من Cloudflare.',

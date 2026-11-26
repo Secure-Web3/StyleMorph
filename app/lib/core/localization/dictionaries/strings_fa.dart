@@ -899,9 +899,11 @@ final Map<String, String> stringsFa = {
   'twoFaStatusActiveEmail': 'فعال • کد ایمیلی',
   'twoFaChooseMethod': 'روش تایید دو مرحله‌ای را انتخاب کنید',
   'twoFaMethodTotp': 'برنامه احراز هویت',
-  'twoFaMethodTotpDesc': 'Google Authenticator، Apple Passwords، Authy',
+  'twoFaMethodTotpDesc':
+      'هر ۳۰ ثانیه یک کد ۶ رقمی آفلاین روی گوشی شما می‌سازد (بالاترین امنیت).',
   'twoFaMethodEmail': 'کد تایید ایمیلی',
-  'twoFaMethodEmailDesc': 'دریافت کد ۶ رقمی از طریق ایمیل در هر ورود',
+  'twoFaMethodEmailDesc':
+      'در هر ورود یک کد ۶ رقمی یک‌بارمصرف به ایمیل تاییدشده شما ارسال می‌کند.',
   'twoFaScanQrHint':
       'این کد QR را با برنامه احراز هویت اسکن کنید یا کلید راه‌اندازی زیر را کپی نمایید.',
   'twoFaCopyKey': 'کپی کلید',
@@ -926,6 +928,25 @@ final Map<String, String> stringsFa = {
       'برای ادامه، کد ۶ رقمی ارسال‌شده به ایمیل خود را وارد کنید.',
   'twoFaVerifyContinueBtn': 'تایید و ادامه',
   'twoFaResendCodeBtn': 'ارسال مجدد کد',
+  'twoFaActiveCardTitle': 'این روش تایید دو مرحله‌ای در حال حاضر فعال است',
+  'twoFaActiveCardDesc':
+      'حساب شما محافظت شده است. می‌توانید از دکمه زیر آن را غیرفعال کنید یا به تب روش دیگر بروید.',
+  'twoFaSwitchToTotpBtn': 'تغییر به برنامه احراز هویت',
+  'twoFaSwitchToEmailBtn': 'تغییر به کد ایمیلی',
+  'twoFaSwitchAutoReplaceNote':
+      'تایید این روش به‌طور خودکار روش فعلی 2FA را جایگزین و غیرفعال می‌کند.',
+  'twoFaGetAppLabel': 'نیاز به برنامه احراز هویت دارید؟',
+  'twoFaGetOnGooglePlay': 'دریافت از Google Play',
+  'twoFaGetOnAppStore': 'دریافت از App Store',
+  'twoFaPasteBtn': 'چسباندن',
+  'twoFaClipboardInvalid': 'کد ۶ رقمی معتبری در حافظه موقت یافت نشد.',
+  'twoFaLostAccessEmailBtn':
+      'دسترسی به برنامه احراز هویت را از دست داده‌اید؟ ارسال کد به ایمیل',
+  'twoFaUseTotpInsteadBtn': 'استفاده از کد برنامه احراز هویت',
+  'twoFaRecoveryModeDesc':
+      'کد ۶ رقمی بازیابی ارسال‌شده به ایمیل تاییدشده خود را وارد کنید.',
+  'twoFaRecoverySuccessNotice':
+      'ورود با کد بازیابی ایمیل انجام شد. در صورت از دست دادن همیشگی برنامه احراز هویت، از مسیر پروفایل ← تنظیمات روش 2FA را تغییر یا غیرفعال کنید.',
   // Turnstile Anti-Bot
   'authTurnstilePrompt': 'تایید امنیتی ورود',
   'authTurnstileRequired': 'لطفاً تایید امنیتی Cloudflare را تکمیل کنید.',

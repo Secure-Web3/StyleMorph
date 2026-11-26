@@ -1203,6 +1203,20 @@ class AppStrings {
   String get twoFaLoginEmailDesc => get('twoFaLoginEmailDesc');
   String get twoFaVerifyContinueBtn => get('twoFaVerifyContinueBtn');
   String get twoFaResendCodeBtn => get('twoFaResendCodeBtn');
+  String get twoFaActiveCardTitle => get('twoFaActiveCardTitle');
+  String get twoFaActiveCardDesc => get('twoFaActiveCardDesc');
+  String get twoFaSwitchToTotpBtn => get('twoFaSwitchToTotpBtn');
+  String get twoFaSwitchToEmailBtn => get('twoFaSwitchToEmailBtn');
+  String get twoFaSwitchAutoReplaceNote => get('twoFaSwitchAutoReplaceNote');
+  String get twoFaGetAppLabel => get('twoFaGetAppLabel');
+  String get twoFaGetOnGooglePlay => get('twoFaGetOnGooglePlay');
+  String get twoFaGetOnAppStore => get('twoFaGetOnAppStore');
+  String get twoFaPasteBtn => get('twoFaPasteBtn');
+  String get twoFaClipboardInvalid => get('twoFaClipboardInvalid');
+  String get twoFaLostAccessEmailBtn => get('twoFaLostAccessEmailBtn');
+  String get twoFaUseTotpInsteadBtn => get('twoFaUseTotpInsteadBtn');
+  String get twoFaRecoveryModeDesc => get('twoFaRecoveryModeDesc');
+  String get twoFaRecoverySuccessNotice => get('twoFaRecoverySuccessNotice');
 
   // Turnstile getters
   String get authTurnstilePrompt => get('authTurnstilePrompt');
