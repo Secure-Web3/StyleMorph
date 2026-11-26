@@ -1,0 +1,60 @@
+name: Build Signed Universal Android APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-apk:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+          cache: true
+
+      - name: Decode Android Keystore
+        run: echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 --decode > app/android/app/stylemorph-key.jks
+
+      - name: Generate Android key.properties
+        run: |
+          cat << 'EOF' > app/android/key.properties
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyAlias=stylemorph
+          storeFile=stylemorph-key.jks
+          EOF
+
+      - name: Write google-services.json
+        run: |
+          cat << 'EOF' > app/android/app/google-services.json
+          ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
+          EOF
+
+      - name: Install Flutter dependencies
+        working-directory: app
+        run: flutter pub get
+
+      - name: Build Universal Release APK
+        working-directory: app
+        run: flutter build apk --release
+
+      - name: Prepare Universal APK Artifact
+        run: cp app/build/app/outputs/flutter-apk/app-release.apk StyleMorph-universal.apk
+
+      - name: Upload Universal APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: StyleMorph-universal-apk
+          path: StyleMorph-universal.apk
+          retention-days: 14
