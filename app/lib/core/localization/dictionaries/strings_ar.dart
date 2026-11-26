@@ -893,6 +893,10 @@ final Map<String, String> stringsAr = {
   'setBiometricUnlockBtn': 'فتح القفل بالبصمة',
   'setBiometricLockedTitle': 'التطبيق مقفل',
   'setBiometricLockedDesc': 'يرجى التحقق ببصمة الإصبع أو الوجه للمتابعة.',
+  'setBiometricUnavailable':
+      'المصادقة البيومترية أو رمز الجهاز غير متوفرة أو غير مفعّلة على هذا الجهاز.',
+  'setBiometricAuthFailed':
+      'تم إلغاء المصادقة البيومترية أو فشلت. لم يتم تفعيل القفل الحيوي.',
   // Sessions sub-tab
   'tSess': 'الجلسات',
   'sessHeader': 'الجلسات والأجهزة النشطة',

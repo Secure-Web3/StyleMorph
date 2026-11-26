@@ -918,6 +918,10 @@ final Map<String, String> stringsFa = {
   'setBiometricLockedTitle': 'برنامه قفل است',
   'setBiometricLockedDesc':
       'برای دسترسی به حساب، لطفاً با اثر انگشت یا چهره خود وارد شوید.',
+  'setBiometricUnavailable':
+      'احراز هویت بیومتریک یا رمز دستگاه روی این گوشی در دسترس یا تنظیم نشده است.',
+  'setBiometricAuthFailed':
+      'تایید هویت بیومتریک لغو شد یا ناموفق بود. قفل بیومتریک فعال نشد.',
   // Sessions sub-tab
   'tSess': 'نشست‌ها',
   'sessHeader': 'نشست‌های فعال و دستگاه‌ها',

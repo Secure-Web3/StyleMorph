@@ -1219,6 +1219,8 @@ class AppStrings {
   String get setBiometricUnlockBtn => get('setBiometricUnlockBtn');
   String get setBiometricLockedTitle => get('setBiometricLockedTitle');
   String get setBiometricLockedDesc => get('setBiometricLockedDesc');
+  String get setBiometricUnavailable => get('setBiometricUnavailable');
+  String get setBiometricAuthFailed => get('setBiometricAuthFailed');
 
   // Sessions sub-tab getters
   String get tSess => get('tSess');

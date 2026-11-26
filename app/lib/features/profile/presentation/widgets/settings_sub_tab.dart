@@ -31,6 +31,7 @@ class SettingsSubTab extends ConsumerStatefulWidget {
 class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
   String _backupFrequency = 'weekly';
   bool _biometricLockEnabled = false;
+  bool _isBiometricSupported = !kIsWeb;
 
   @override
   void initState() {
@@ -40,12 +41,15 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
   }
 
   Future<void> _loadBiometricPref() async {
-    final enabled = await ref
-        .read(biometricServiceProvider)
-        .isBiometricLockEnabled();
+    final service = ref.read(biometricServiceProvider);
+    final available = await service.isBiometricAvailable();
+    final enabled = await service.isBiometricLockEnabled();
     final prefBiometric = ref.read(appStateProvider).preferences.biometricLock;
     if (mounted) {
-      setState(() => _biometricLockEnabled = enabled || prefBiometric);
+      setState(() {
+        _isBiometricSupported = available;
+        _biometricLockEnabled = enabled || prefBiometric;
+      });
     }
   }
 
@@ -55,6 +59,16 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
     final strings = context.strings;
 
     if (value) {
+      final available = await service.isBiometricAvailable();
+      if (!available) {
+        if (mounted) {
+          setState(() => _isBiometricSupported = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(strings.setBiometricUnavailable)),
+          );
+        }
+        return;
+      }
       // Immediately prompt biometric authentication once before saving
       final success = await service.authenticate(
         localizedReason: strings.setBiometricAuthReason,
@@ -62,8 +76,13 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
       if (success && mounted) {
         await service.setBiometricLockEnabled(true);
         ref.read(appStateProvider.notifier).setBiometricLock(true);
+        ref.read(biometricUnlockedProvider.notifier).state = true;
         ref.invalidate(biometricLockEnabledProvider);
         setState(() => _biometricLockEnabled = true);
+      } else if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(strings.setBiometricAuthFailed)));
       }
     } else {
       await service.setBiometricLockEnabled(false);
@@ -398,17 +417,25 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
             ),
             child: Column(
               children: [
-                AppSwitchTile(
-                  label: strings.setBiometricTitle,
-                  subtitle: kIsWeb
-                      ? strings.setBiometricMobileOnly
-                      : strings.setBiometricDesc,
-                  value: kIsWeb ? false : _biometricLockEnabled,
-                  onChanged: (val) {
-                    if (!kIsWeb) {
-                      _toggleBiometric(val);
-                    }
-                  },
+                IgnorePointer(
+                  ignoring: kIsWeb,
+                  child: Opacity(
+                    opacity: kIsWeb ? 0.5 : 1.0,
+                    child: AppSwitchTile(
+                      label: strings.setBiometricTitle,
+                      subtitle: kIsWeb
+                          ? strings.setBiometricMobileOnly
+                          : (_isBiometricSupported
+                                ? strings.setBiometricDesc
+                                : strings.setBiometricUnavailable),
+                      value: kIsWeb ? false : _biometricLockEnabled,
+                      onChanged: (val) {
+                        if (!kIsWeb) {
+                          _toggleBiometric(val);
+                        }
+                      },
+                    ),
+                  ),
                 ),
                 Divider(height: 1, color: colors.bd),
                 Material(

@@ -925,6 +925,10 @@ final Map<String, String> stringsTr = {
   'setBiometricLockedTitle': 'Uygulama Kilitli',
   'setBiometricLockedDesc':
       'Devam etmek için lütfen parmak iziniz veya Face ID ile kimliğinizi doğrulayın.',
+  'setBiometricUnavailable':
+      'Bu cihazda biyometrik veya cihaz kilidi doğrulaması kullanılamıyor veya kayıtlı değil.',
+  'setBiometricAuthFailed':
+      'Biyometrik doğrulama iptal edildi veya başarısız oldu. Biyometrik kilit etkinleştirilmedi.',
   // Sessions sub-tab
   'tSess': 'Oturumlar',
   'sessHeader': 'Aktif Oturumlar ve Cihazlar',

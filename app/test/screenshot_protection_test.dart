@@ -27,18 +27,27 @@ void main() {
       expect(service.isProtectionEnabled, isFalse);
     });
 
-    test('enables protection idempotently', () {
+    test('respects kEnableScreenshotProtection flag on enableProtection', () {
       service.enableProtection();
-      expect(service.isProtectionEnabled, isTrue);
+      expect(
+        service.isProtectionEnabled,
+        ScreenshotProtectionService.kEnableScreenshotProtection,
+      );
 
-      // Calling again should not throw and remain enabled
+      // Calling again should not throw and remain consistent with the flag
       service.enableProtection();
-      expect(service.isProtectionEnabled, isTrue);
+      expect(
+        service.isProtectionEnabled,
+        ScreenshotProtectionService.kEnableScreenshotProtection,
+      );
     });
 
     test('disables protection correctly', () {
       service.enableProtection();
-      expect(service.isProtectionEnabled, isTrue);
+      expect(
+        service.isProtectionEnabled,
+        ScreenshotProtectionService.kEnableScreenshotProtection,
+      );
 
       service.disableProtection();
       expect(service.isProtectionEnabled, isFalse);

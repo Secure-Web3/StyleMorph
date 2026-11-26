@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'core/localization/app_language.dart';
 import 'core/localization/locale_provider.dart';
+import 'core/services/app_check_service.dart';
 import 'core/services/biometric_service.dart';
 import 'core/services/emulator_config.dart';
 import 'core/services/prefetch/app_prefetch_service.dart';
@@ -33,7 +34,11 @@ import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  ScreenshotProtectionService().enableProtection();
+  if (ScreenshotProtectionService.kEnableScreenshotProtection) {
+    ScreenshotProtectionService().enableProtection();
+  } else {
+    ScreenshotProtectionService().disableProtection();
+  }
 
   // Capture pending referral code from URL early before screen routing or Firebase init
   try {
@@ -46,6 +51,7 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    await AppCheckService.initialize();
     await EmulatorConfig.connectIfEnabled(
       connectAuth: (host, port) async {
         await FirebaseAuth.instance.useAuthEmulator(host, port);
@@ -137,11 +143,45 @@ class StyleMorphApp extends ConsumerWidget {
 /// Routes to [MainShellScreen] or [WelcomeScreen] based on Firebase Auth stream.
 /// When a user is authenticated, holds on [UnifiedSplashScreen] until Firestore profile
 /// data has been fetched and applied to [AppState] (gate-level pre-fetch).
-class _AuthGate extends ConsumerWidget {
+class _AuthGate extends ConsumerStatefulWidget {
   const _AuthGate();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_AuthGate> createState() => _AuthGateState();
+}
+
+class _AuthGateState extends ConsumerState<_AuthGate>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (kIsWeb) return;
+    if (state == AppLifecycleState.paused) {
+      final isAuthenticating = ref
+          .read(biometricServiceProvider)
+          .isAuthenticating;
+      final isLockEnabled =
+          ref.read(biometricLockEnabledProvider).value ?? false;
+      final isUnlocked = ref.read(biometricUnlockedProvider);
+      if (!isAuthenticating && isLockEnabled && isUnlocked) {
+        ref.read(biometricUnlockedProvider.notifier).state = false;
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authAsync = ref.watch(authStateChangesProvider);
     final appState = ref.watch(appStateProvider);
     final appNotifier = ref.read(appStateProvider.notifier);
@@ -180,8 +220,11 @@ class _AuthGate extends ConsumerWidget {
 
         // 1. Mobile Biometric App Lock Check
         if (!kIsWeb) {
-          final isLockEnabled =
-              ref.watch(biometricLockEnabledProvider).value ?? false;
+          final biometricLockAsync = ref.watch(biometricLockEnabledProvider);
+          if (biometricLockAsync.isLoading) {
+            return const UnifiedSplashScreen();
+          }
+          final isLockEnabled = biometricLockAsync.value ?? false;
           final isUnlocked = ref.watch(biometricUnlockedProvider);
           if (isLockEnabled && !isUnlocked) {
             return const BiometricLockScreen();

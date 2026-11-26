@@ -918,6 +918,10 @@ final Map<String, String> stringsEn = {
   'setBiometricLockedTitle': 'App is Locked',
   'setBiometricLockedDesc':
       'Please authenticate with your fingerprint or Face ID to continue.',
+  'setBiometricUnavailable':
+      'Biometric or device credential authentication is not available or enrolled on this device.',
+  'setBiometricAuthFailed':
+      'Biometric authentication was cancelled or failed. Biometric lock was not enabled.',
   // Sessions sub-tab
   'tSess': 'Sessions',
   'sessHeader': 'Active Sessions & Devices',
