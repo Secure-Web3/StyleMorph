@@ -892,6 +892,40 @@ final Map<String, String> stringsFa = {
       'لینک تایید به {email} ارسال شد. برای تغییر یا ارسال مجدد به تب هویت بروید و پوشه Spam/Junk را نیز بررسی کنید.',
   'kycEmailVerificationRequiredHint':
       'برای آپلود یا ارسال مدارک احراز هویت (KYC)، ابتدا ایمیل خود را تایید کنید.',
+  'twoFaTitle': 'تایید دو مرحله‌ای (2FA)',
+  'twoFaDesc': 'محافظت مضاعف از حساب با برنامه احراز هویت یا ایمیل',
+  'twoFaStatusDisabled': 'غیرفعال',
+  'twoFaStatusActiveTotp': 'فعال • برنامه احراز هویت',
+  'twoFaStatusActiveEmail': 'فعال • کد ایمیلی',
+  'twoFaChooseMethod': 'روش تایید دو مرحله‌ای را انتخاب کنید',
+  'twoFaMethodTotp': 'برنامه احراز هویت',
+  'twoFaMethodTotpDesc': 'Google Authenticator، Apple Passwords، Authy',
+  'twoFaMethodEmail': 'کد تایید ایمیلی',
+  'twoFaMethodEmailDesc': 'دریافت کد ۶ رقمی از طریق ایمیل در هر ورود',
+  'twoFaScanQrHint':
+      'این کد QR را با برنامه احراز هویت اسکن کنید یا کلید راه‌اندازی زیر را کپی نمایید.',
+  'twoFaCopyKey': 'کپی کلید',
+  'twoFaKeyCopied': 'کلید راه‌اندازی کپی شد',
+  'twoFaEnterCodeLabel': 'کد تایید ۶ رقمی را وارد کنید',
+  'twoFaCodePlaceholder': '000000',
+  'twoFaActivateBtn': 'تایید و فعال‌سازی 2FA',
+  'twoFaDisableBtn': 'غیرفعال‌سازی 2FA',
+  'twoFaDisableConfirm': 'آیا از غیرفعال‌سازی تایید دو مرحله‌ای مطمئن هستید؟',
+  'twoFaEnabledSuccess': 'تایید دو مرحله‌ای با موفقیت فعال شد',
+  'twoFaDisabledSuccess': 'تایید دو مرحله‌ای غیرفعال شد',
+  'twoFaInvalidCode': 'کد ۶ رقمی نامعتبر یا منقضی شده است. دوباره تلاش کنید.',
+  'twoFaSendEmailCodeBtn': 'ارسال کد تایید',
+  'twoFaEmailPreviewNotice':
+      'حالت پیش‌نمایش: ارسال ایمیل به‌صورت محلی شبیه‌سازی می‌شود.',
+  'twoFaVerifyEmailFirst':
+      'برای فعال‌سازی 2FA ایمیلی، ابتدا ایمیل خود را در تب هویت تایید کنید.',
+  'twoFaLoginTitle': 'تایید هویت دو مرحله‌ای',
+  'twoFaLoginTotpDesc':
+      'برای ادامه، کد ۶ رقمی برنامه احراز هویت خود را وارد کنید.',
+  'twoFaLoginEmailDesc':
+      'برای ادامه، کد ۶ رقمی ارسال‌شده به ایمیل خود را وارد کنید.',
+  'twoFaVerifyContinueBtn': 'تایید و ادامه',
+  'twoFaResendCodeBtn': 'ارسال مجدد کد',
   // Turnstile Anti-Bot
   'authTurnstilePrompt': 'تایید امنیتی ورود',
   'authTurnstileRequired': 'لطفاً تایید امنیتی Cloudflare را تکمیل کنید.',

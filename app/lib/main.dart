@@ -16,6 +16,7 @@ import 'core/services/prefetch/app_prefetch_service.dart';
 import 'core/services/referral_service.dart';
 import 'core/services/screenshot_protection_service.dart';
 import 'core/services/session_persistence_service.dart';
+import 'core/services/two_factor_service.dart';
 import 'core/services/welcome_persistence_service.dart';
 import 'core/theme/app_colors.dart';
 import 'core/theme/app_theme.dart';
@@ -27,6 +28,7 @@ import 'core/state/app_state.dart';
 import 'features/auth/presentation/auth_screen.dart';
 import 'features/auth/presentation/biometric_lock_screen.dart';
 import 'features/auth/presentation/welcome_screen.dart';
+import 'features/auth/presentation/widgets/two_factor_verify_screen.dart';
 import 'features/profile/presentation/widgets/sessions_sub_tab.dart';
 import 'features/shell/presentation/main_shell_screen.dart';
 import 'features/wardrobe/presentation/wardrobe_provider.dart';
@@ -195,6 +197,11 @@ class _AuthGateState extends ConsumerState<_AuthGate>
       },
       data: (user) {
         if (user == null) {
+          if (ref.read(twoFactorSessionVerifiedProvider)) {
+            Future.microtask(() {
+              ref.read(twoFactorSessionVerifiedProvider.notifier).state = false;
+            });
+          }
           if (appState.isProfileLoaded || appState.loadedUid != null) {
             AppMediaImage.clearCache();
             ref.read(appPrefetchServiceProvider).reset();
@@ -229,6 +236,21 @@ class _AuthGateState extends ConsumerState<_AuthGate>
           if (isLockEnabled && !isUnlocked) {
             return const BiometricLockScreen();
           }
+        }
+
+        // 1b. Two-Factor Authentication (2FA) Login Verification Gate
+        final twoFactorAsync = ref.watch(twoFactorConfigProvider(user.uid));
+        if (twoFactorAsync.isLoading) {
+          return const UnifiedSplashScreen();
+        }
+        final twoFactorConfig = twoFactorAsync.value ?? const TwoFactorConfig();
+        final is2faVerified = ref.watch(twoFactorSessionVerifiedProvider);
+        if (twoFactorConfig.enabled && !is2faVerified) {
+          return TwoFactorVerifyScreen(
+            uid: user.uid,
+            email: user.email ?? '',
+            config: twoFactorConfig,
+          );
         }
 
         // 2. Gate-Level Pre-Fetch: Ensure profile is loaded for current authenticated UID

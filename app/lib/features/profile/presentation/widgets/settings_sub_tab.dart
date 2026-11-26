@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,12 +8,14 @@ import '../../../../core/localization/app_language.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/localization/locale_provider.dart';
 import '../../../../core/services/biometric_service.dart';
+import '../../../../core/services/two_factor_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_provider.dart';
+import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_dropdown.dart';
@@ -20,6 +23,7 @@ import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_switch.dart';
 import '../../../auth/presentation/auth_provider.dart';
 import 'change_password_dialog.dart';
+import 'two_factor_setup_dialog.dart';
 
 class SettingsSubTab extends ConsumerStatefulWidget {
   const SettingsSubTab({super.key});
@@ -438,6 +442,8 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                   ),
                 ),
                 Divider(height: 1, color: colors.bd),
+                _buildTwoFactorTile(context, colors, strings),
+                Divider(height: 1, color: colors.bd),
                 Material(
                   color: Colors.transparent,
                   child: InkWell(
@@ -545,6 +551,93 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTwoFactorTile(
+    BuildContext context,
+    AppColors colors,
+    AppStrings strings,
+  ) {
+    String uid = '';
+    try {
+      if (Firebase.apps.isNotEmpty) {
+        uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+      }
+    } catch (_) {}
+    final config = uid.isEmpty
+        ? const TwoFactorConfig()
+        : (ref.watch(twoFactorConfigProvider(uid)).value ??
+              const TwoFactorConfig());
+
+    final statusLabel = !config.enabled
+        ? strings.twoFaStatusDisabled
+        : (config.method == TwoFactorMethod.totp
+              ? strings.twoFaStatusActiveTotp
+              : strings.twoFaStatusActiveEmail);
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => TwoFactorSetupDialog.show(context, currentConfig: config),
+        borderRadius: AppRadius.rMd,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+          child: Row(
+            children: [
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: colors.pr.withValues(alpha: 0.1),
+                  borderRadius: AppRadius.rMd,
+                ),
+                alignment: Alignment.center,
+                child: FaIcon(
+                  FontAwesomeIcons.shieldHalved,
+                  size: 13,
+                  color: colors.pr,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      strings.twoFaTitle,
+                      style: TextStyle(
+                        fontFamily: AppTypography.fontFamily,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: colors.tx,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      strings.twoFaDesc,
+                      style: TextStyle(
+                        fontFamily: AppTypography.fontFamily,
+                        fontSize: 11,
+                        color: colors.mu,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              AppBadge(
+                variant: config.enabled
+                    ? AppBadgeVariant.success
+                    : AppBadgeVariant.standard,
+                child: Text(statusLabel, style: const TextStyle(fontSize: 10)),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Icon(Icons.chevron_right, size: 18, color: colors.mu),
+            ],
+          ),
+        ),
       ),
     );
   }

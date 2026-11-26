@@ -900,6 +900,42 @@ final Map<String, String> stringsTr = {
       '{email} adresine doğrulama bağlantısı gönderildi. Kimlik sekmesine gitmek için dokunun veya Spam/Gereksiz klasörünü kontrol edin.',
   'kycEmailVerificationRequiredHint':
       'KYC belgelerini yüklemek veya göndermek için lütfen önce e-posta adresinizi doğrulayın.',
+  'twoFaTitle': 'İki Faktörlü Doğrulama (2FA)',
+  'twoFaDesc': 'Kimlik Doğrulayıcı Uygulama veya E-posta ile ek hesap koruması',
+  'twoFaStatusDisabled': 'Devre Dışı',
+  'twoFaStatusActiveTotp': 'Aktif • Kimlik Doğrulayıcı',
+  'twoFaStatusActiveEmail': 'Aktif • E-posta Kodu',
+  'twoFaChooseMethod': '2FA Yöntemini Seçin',
+  'twoFaMethodTotp': 'Kimlik Doğrulayıcı Uygulama',
+  'twoFaMethodTotpDesc': 'Google Authenticator, Apple Passwords, Authy',
+  'twoFaMethodEmail': 'E-posta Doğrulama Kodu',
+  'twoFaMethodEmailDesc': 'Her girişte e-posta ile 6 haneli kod alın',
+  'twoFaScanQrHint':
+      'Bu QR kodunu kimlik doğrulayıcı uygulamanızla tarayın veya aşağıdaki kurulum anahtarını kopyalayın.',
+  'twoFaCopyKey': 'Anahtarı Kopyala',
+  'twoFaKeyCopied': 'Kurulum anahtarı kopyalandı',
+  'twoFaEnterCodeLabel': '6 haneli doğrulama kodunu girin',
+  'twoFaCodePlaceholder': '000000',
+  'twoFaActivateBtn': 'Onayla ve 2FA Etkinleştir',
+  'twoFaDisableBtn': '2FA Devre Dışı Bırak',
+  'twoFaDisableConfirm':
+      'İki faktörlü doğrulamayı devre dışı bırakmak istediğinizden emin misiniz?',
+  'twoFaEnabledSuccess': 'İki faktörlü doğrulama etkinleştirildi',
+  'twoFaDisabledSuccess': 'İki faktörlü doğrulama devre dışı bırakıldı',
+  'twoFaInvalidCode':
+      'Geçersiz veya süresi dolmuş 6 haneli kod. Tekrar deneyin.',
+  'twoFaSendEmailCodeBtn': 'Doğrulama Kodu Gönder',
+  'twoFaEmailPreviewNotice':
+      'Önizleme modu: e-posta gönderimi yerel olarak simüle edilir.',
+  'twoFaVerifyEmailFirst':
+      'E-posta 2FA etkinleştirmeden önce Kimlik sekmesinden e-postanızı doğrulayın.',
+  'twoFaLoginTitle': 'İki Faktörlü Doğrulama',
+  'twoFaLoginTotpDesc':
+      'Devam etmek için Kimlik Doğrulayıcı uygulamanızdaki 6 haneli kodu girin.',
+  'twoFaLoginEmailDesc':
+      'Devam etmek için e-posta adresinize gönderilen 6 haneli kodu girin.',
+  'twoFaVerifyContinueBtn': 'Doğrula ve Devam Et',
+  'twoFaResendCodeBtn': 'Kodu Tekrar Gönder',
   // Turnstile Anti-Bot
   'authTurnstilePrompt': 'Güvenlik Doğrulaması',
   'authTurnstileRequired':

@@ -1173,6 +1173,37 @@ class AppStrings {
   String get kycEmailVerificationRequiredHint =>
       get('kycEmailVerificationRequiredHint');
 
+  // Two-Factor Authentication (2FA)
+  String get twoFaTitle => get('twoFaTitle');
+  String get twoFaDesc => get('twoFaDesc');
+  String get twoFaStatusDisabled => get('twoFaStatusDisabled');
+  String get twoFaStatusActiveTotp => get('twoFaStatusActiveTotp');
+  String get twoFaStatusActiveEmail => get('twoFaStatusActiveEmail');
+  String get twoFaChooseMethod => get('twoFaChooseMethod');
+  String get twoFaMethodTotp => get('twoFaMethodTotp');
+  String get twoFaMethodTotpDesc => get('twoFaMethodTotpDesc');
+  String get twoFaMethodEmail => get('twoFaMethodEmail');
+  String get twoFaMethodEmailDesc => get('twoFaMethodEmailDesc');
+  String get twoFaScanQrHint => get('twoFaScanQrHint');
+  String get twoFaCopyKey => get('twoFaCopyKey');
+  String get twoFaKeyCopied => get('twoFaKeyCopied');
+  String get twoFaEnterCodeLabel => get('twoFaEnterCodeLabel');
+  String get twoFaCodePlaceholder => get('twoFaCodePlaceholder');
+  String get twoFaActivateBtn => get('twoFaActivateBtn');
+  String get twoFaDisableBtn => get('twoFaDisableBtn');
+  String get twoFaDisableConfirm => get('twoFaDisableConfirm');
+  String get twoFaEnabledSuccess => get('twoFaEnabledSuccess');
+  String get twoFaDisabledSuccess => get('twoFaDisabledSuccess');
+  String get twoFaInvalidCode => get('twoFaInvalidCode');
+  String get twoFaSendEmailCodeBtn => get('twoFaSendEmailCodeBtn');
+  String get twoFaEmailPreviewNotice => get('twoFaEmailPreviewNotice');
+  String get twoFaVerifyEmailFirst => get('twoFaVerifyEmailFirst');
+  String get twoFaLoginTitle => get('twoFaLoginTitle');
+  String get twoFaLoginTotpDesc => get('twoFaLoginTotpDesc');
+  String get twoFaLoginEmailDesc => get('twoFaLoginEmailDesc');
+  String get twoFaVerifyContinueBtn => get('twoFaVerifyContinueBtn');
+  String get twoFaResendCodeBtn => get('twoFaResendCodeBtn');
+
   // Turnstile getters
   String get authTurnstilePrompt => get('authTurnstilePrompt');
   String get authTurnstileRequired => get('authTurnstileRequired');

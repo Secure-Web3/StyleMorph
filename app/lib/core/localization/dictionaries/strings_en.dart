@@ -893,6 +893,41 @@ final Map<String, String> stringsEn = {
       'A verification link was sent to {email}. Tap to open Identity settings or check your Spam/Junk folder.',
   'kycEmailVerificationRequiredHint':
       'Please verify your email address first to upload or submit KYC documents.',
+  'twoFaTitle': 'Two-Factor Authentication (2FA)',
+  'twoFaDesc': 'Extra account protection via Authenticator App or Email',
+  'twoFaStatusDisabled': 'Disabled',
+  'twoFaStatusActiveTotp': 'Active • Authenticator',
+  'twoFaStatusActiveEmail': 'Active • Email Code',
+  'twoFaChooseMethod': 'Choose 2FA Method',
+  'twoFaMethodTotp': 'Authenticator App',
+  'twoFaMethodTotpDesc': 'Google Authenticator, Apple Passwords, Authy',
+  'twoFaMethodEmail': 'Email Verification Code',
+  'twoFaMethodEmailDesc': 'Receive a 6-digit code via email on each login',
+  'twoFaScanQrHint':
+      'Scan this QR code with your authenticator app, or copy the setup key below.',
+  'twoFaCopyKey': 'Copy Key',
+  'twoFaKeyCopied': 'Setup key copied to clipboard',
+  'twoFaEnterCodeLabel': 'Enter 6-digit verification code',
+  'twoFaCodePlaceholder': '000000',
+  'twoFaActivateBtn': 'Confirm & Enable 2FA',
+  'twoFaDisableBtn': 'Disable 2FA',
+  'twoFaDisableConfirm':
+      'Are you sure you want to disable Two-Factor Authentication?',
+  'twoFaEnabledSuccess': 'Two-Factor Authentication enabled',
+  'twoFaDisabledSuccess': 'Two-Factor Authentication disabled',
+  'twoFaInvalidCode': 'Invalid or expired 6-digit code. Please try again.',
+  'twoFaSendEmailCodeBtn': 'Send Verification Code',
+  'twoFaEmailPreviewNotice':
+      'Preview mode: email delivery is simulated locally (no live mail server).',
+  'twoFaVerifyEmailFirst':
+      'Please verify your email address in Identity tab before enabling Email 2FA.',
+  'twoFaLoginTitle': 'Two-Factor Verification',
+  'twoFaLoginTotpDesc':
+      'Enter the 6-digit code from your Authenticator App to continue.',
+  'twoFaLoginEmailDesc':
+      'Enter the 6-digit code sent to your email address to continue.',
+  'twoFaVerifyContinueBtn': 'Verify & Continue',
+  'twoFaResendCodeBtn': 'Resend Code',
   // Turnstile Anti-Bot
   'authTurnstilePrompt': 'Security Verification',
   'authTurnstileRequired':
