@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stylemorph/core/localization/app_strings.dart';
 import 'package:stylemorph/core/services/totp_helper.dart';
 import 'package:stylemorph/core/services/two_factor_service.dart';
@@ -450,5 +451,125 @@ void main() {
         }
       },
     );
+  });
+
+  group('Batch 3 - Persistent 7-Day Session-Bound 2FA', () {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+    });
+
+    test(
+      'isPersistedSessionValid returns true within 7 days for matching uid and sessionId',
+      () async {
+        final t0 = DateTime(2026, 11, 20, 12, 0);
+        await TwoFactorService.markSessionVerified(
+          uid: 'user-1',
+          sessionId: 'sess-a',
+          now: t0,
+        );
+
+        final within6Days = await TwoFactorService.isPersistedSessionValid(
+          uid: 'user-1',
+          sessionId: 'sess-a',
+          now: t0.add(const Duration(days: 6, hours: 23)),
+        );
+        expect(within6Days, isTrue);
+
+        // Touching activity refreshes the 7-day sliding window.
+        final tTouch = t0.add(const Duration(days: 5));
+        await TwoFactorService.touchSessionActivity(
+          uid: 'user-1',
+          sessionId: 'sess-a',
+          now: tTouch,
+        );
+
+        final afterRefresh = await TwoFactorService.isPersistedSessionValid(
+          uid: 'user-1',
+          sessionId: 'sess-a',
+          now: tTouch.add(const Duration(days: 6)),
+        );
+        expect(afterRefresh, isTrue);
+      },
+    );
+
+    test(
+      'returns false and clears storage after > 7 days of inactivity',
+      () async {
+        final t0 = DateTime(2026, 11, 1, 10, 0);
+        await TwoFactorService.markSessionVerified(
+          uid: 'user-1',
+          sessionId: 'sess-a',
+          now: t0,
+        );
+
+        final expired = await TwoFactorService.isPersistedSessionValid(
+          uid: 'user-1',
+          sessionId: 'sess-a',
+          now: t0.add(const Duration(days: 7, minutes: 1)),
+        );
+        expect(expired, isFalse);
+
+        // Verify storage was cleared even if checked with an earlier timestamp.
+        final afterClear = await TwoFactorService.isPersistedSessionValid(
+          uid: 'user-1',
+          sessionId: 'sess-a',
+          now: t0.add(const Duration(hours: 1)),
+        );
+        expect(afterClear, isFalse);
+      },
+    );
+
+    test('returns false when sessionId or uid changes', () async {
+      final t0 = DateTime(2026, 11, 20, 12, 0);
+      await TwoFactorService.markSessionVerified(
+        uid: 'user-1',
+        sessionId: 'sess-a',
+        now: t0,
+      );
+
+      expect(
+        await TwoFactorService.isPersistedSessionValid(
+          uid: 'user-1',
+          sessionId: 'sess-revoked-new',
+          now: t0.add(const Duration(minutes: 5)),
+        ),
+        isFalse,
+      );
+
+      await TwoFactorService.markSessionVerified(
+        uid: 'user-1',
+        sessionId: 'sess-a',
+        now: t0,
+      );
+
+      expect(
+        await TwoFactorService.isPersistedSessionValid(
+          uid: 'user-2',
+          sessionId: 'sess-a',
+          now: t0.add(const Duration(minutes: 5)),
+        ),
+        isFalse,
+      );
+    });
+
+    test('clearPersistedVerification removes stored state cleanly', () async {
+      final t0 = DateTime(2026, 11, 20, 12, 0);
+      await TwoFactorService.markSessionVerified(
+        uid: 'user-1',
+        sessionId: 'sess-a',
+        now: t0,
+      );
+
+      await TwoFactorService.clearPersistedVerification();
+
+      expect(
+        await TwoFactorService.isPersistedSessionValid(
+          uid: 'user-1',
+          sessionId: 'sess-a',
+          now: t0.add(const Duration(minutes: 1)),
+        ),
+        isFalse,
+      );
+    });
   });
 }

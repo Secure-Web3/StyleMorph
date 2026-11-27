@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'totp_helper.dart';
 
 /// Supported Two-Factor Authentication methods.
@@ -106,6 +108,99 @@ class _PendingEmailOtp {
 class TwoFactorService {
   static const Duration emailOtpTtl = Duration(minutes: 5);
   static const Duration emailResendCooldown = Duration(seconds: 60);
+  static const Duration kTwoFactorInactivityTtl = Duration(days: 7);
+  static const String _persistedSessionKey = 'two_factor_verified_session_v1';
+
+  /// Persists 2FA verification for [uid] and [sessionId] with a 7-day inactivity TTL.
+  static Future<void> markSessionVerified({
+    required String uid,
+    required String sessionId,
+    DateTime? now,
+  }) async {
+    if (uid.isEmpty || sessionId.isEmpty) return;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final payload = jsonEncode(<String, dynamic>{
+        'uid': uid,
+        'sessionId': sessionId,
+        'lastActiveMs': (now ?? DateTime.now()).millisecondsSinceEpoch,
+      });
+      await prefs.setString(_persistedSessionKey, payload);
+    } catch (e) {
+      debugPrint('[TwoFactorService] markSessionVerified notice: $e');
+    }
+  }
+
+  /// Returns true only if a persisted 2FA verification record matches [uid] and
+  /// [sessionId] and has not exceeded [kTwoFactorInactivityTtl] (7 days).
+  /// Automatically clears stale, expired, or mismatched records.
+  static Future<bool> isPersistedSessionValid({
+    required String uid,
+    required String sessionId,
+    DateTime? now,
+  }) async {
+    if (uid.isEmpty || sessionId.isEmpty) return false;
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_persistedSessionKey);
+      if (raw == null || raw.isEmpty) return false;
+
+      final decoded = jsonDecode(raw);
+      if (decoded is! Map) {
+        await clearPersistedVerification();
+        return false;
+      }
+
+      final storedUid = decoded['uid']?.toString() ?? '';
+      final storedSessionId = decoded['sessionId']?.toString() ?? '';
+      final lastActiveMs = decoded['lastActiveMs'];
+      if (storedUid != uid ||
+          storedSessionId != sessionId ||
+          lastActiveMs is! int) {
+        await clearPersistedVerification();
+        return false;
+      }
+
+      final currentMs = (now ?? DateTime.now()).millisecondsSinceEpoch;
+      final elapsedMs = currentMs - lastActiveMs;
+      if (elapsedMs < 0 || elapsedMs > kTwoFactorInactivityTtl.inMilliseconds) {
+        await clearPersistedVerification();
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      debugPrint('[TwoFactorService] isPersistedSessionValid notice: $e');
+      await clearPersistedVerification();
+      return false;
+    }
+  }
+
+  /// Refreshes the last-active timestamp if the persisted 2FA record is still valid.
+  static Future<void> touchSessionActivity({
+    required String uid,
+    required String sessionId,
+    DateTime? now,
+  }) async {
+    if (uid.isEmpty || sessionId.isEmpty) return;
+    final valid = await isPersistedSessionValid(
+      uid: uid,
+      sessionId: sessionId,
+      now: now,
+    );
+    if (!valid) return;
+    await markSessionVerified(uid: uid, sessionId: sessionId, now: now);
+  }
+
+  /// Clears any persisted 2FA session verification record immediately.
+  static Future<void> clearPersistedVerification() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove(_persistedSessionKey);
+    } catch (e) {
+      debugPrint('[TwoFactorService] clearPersistedVerification notice: $e');
+    }
+  }
 
   /// Converts Persian (`۰-۹`) and Arabic-Indic (`٠-٩`) digits to ASCII `0-9`,
   /// strips non-digit characters (spaces, hyphens, etc.), and returns the

@@ -18,6 +18,7 @@ import 'core/services/push_notification_service.dart';
 import 'core/services/referral_service.dart';
 import 'core/services/screenshot_protection_service.dart';
 import 'core/services/session_persistence_service.dart';
+import 'core/services/session_service.dart';
 import 'core/services/two_factor_service.dart';
 import 'core/services/welcome_persistence_service.dart';
 import 'core/theme/app_colors.dart';
@@ -235,11 +236,80 @@ class _AuthGateState extends ConsumerState<_AuthGate>
   final AppUpdateSessionCoordinator _updateCoordinator =
       AppUpdateSessionCoordinator();
   bool _launchUpdateChecked = false;
+  String? _hydrated2faUid;
+  bool _isHydrating2fa = false;
+  VoidCallback? _disposeScreenLockListener;
+
+  Future<void> _hydrateTwoFactorState(String uid) async {
+    try {
+      final sessionId = await ref
+          .read(sessionServiceProvider)
+          .currentSessionId();
+      final isValid = await TwoFactorService.isPersistedSessionValid(
+        uid: uid,
+        sessionId: sessionId,
+      );
+      if (!mounted) return;
+      _hydrated2faUid = uid;
+      _isHydrating2fa = false;
+      if (isValid) {
+        await TwoFactorService.touchSessionActivity(
+          uid: uid,
+          sessionId: sessionId,
+        );
+        if (mounted) {
+          ref.read(twoFactorSessionVerifiedProvider.notifier).state = true;
+        }
+      } else {
+        setState(() {});
+      }
+    } catch (_) {
+      if (!mounted) return;
+      _hydrated2faUid = uid;
+      _isHydrating2fa = false;
+      setState(() {});
+    }
+  }
+
+  Future<void> _refreshTwoFactorActivityOnResume(String uid) async {
+    try {
+      final sessionId = await ref
+          .read(sessionServiceProvider)
+          .currentSessionId();
+      final isValid = await TwoFactorService.isPersistedSessionValid(
+        uid: uid,
+        sessionId: sessionId,
+      );
+      if (!mounted) return;
+      if (isValid) {
+        await TwoFactorService.touchSessionActivity(
+          uid: uid,
+          sessionId: sessionId,
+        );
+      } else if (ref.read(twoFactorSessionVerifiedProvider)) {
+        ref.read(twoFactorSessionVerifiedProvider.notifier).state = false;
+      }
+    } catch (_) {}
+  }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _disposeScreenLockListener = ref
+        .read(biometricServiceProvider)
+        .registerScreenLockListener(() {
+          if (!mounted) return;
+          final isAuthenticating = ref
+              .read(biometricServiceProvider)
+              .isAuthenticating;
+          final isLockEnabled =
+              ref.read(biometricLockEnabledProvider).value ?? false;
+          final isUnlocked = ref.read(biometricUnlockedProvider);
+          if (!isAuthenticating && isLockEnabled && isUnlocked) {
+            ref.read(biometricUnlockedProvider.notifier).state = false;
+          }
+        });
     PushNotificationService.setOnAppUpdateTap(() {
       if (!mounted) return;
       _updateCoordinator.checkAndPrompt(
@@ -252,6 +322,7 @@ class _AuthGateState extends ConsumerState<_AuthGate>
 
   @override
   void dispose() {
+    _disposeScreenLockListener?.call();
     PushNotificationService.setOnAppUpdateTap(null);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
@@ -261,6 +332,9 @@ class _AuthGateState extends ConsumerState<_AuthGate>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       final user = ref.read(authStateChangesProvider).value;
+      if (user != null) {
+        _refreshTwoFactorActivityOnResume(user.uid);
+      }
       final appState = ref.read(appStateProvider);
       if (user != null &&
           appState.isProfileLoaded &&
@@ -271,23 +345,24 @@ class _AuthGateState extends ConsumerState<_AuthGate>
         );
       }
     }
-
-    if (kIsWeb) return;
-    if (state == AppLifecycleState.paused) {
-      final isAuthenticating = ref
-          .read(biometricServiceProvider)
-          .isAuthenticating;
-      final isLockEnabled =
-          ref.read(biometricLockEnabledProvider).value ?? false;
-      final isUnlocked = ref.read(biometricUnlockedProvider);
-      if (!isAuthenticating && isLockEnabled && isUnlocked) {
-        ref.read(biometricUnlockedProvider.notifier).state = false;
-      }
-    }
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen<bool>(twoFactorSessionVerifiedProvider, (prev, next) {
+      if (next == true) {
+        final user = ref.read(authStateChangesProvider).value;
+        if (user != null) {
+          ref.read(sessionServiceProvider).currentSessionId().then((sessionId) {
+            TwoFactorService.markSessionVerified(
+              uid: user.uid,
+              sessionId: sessionId,
+            );
+          });
+        }
+      }
+    });
+
     final authAsync = ref.watch(authStateChangesProvider);
     final appState = ref.watch(appStateProvider);
     final appNotifier = ref.read(appStateProvider.notifier);
@@ -302,6 +377,8 @@ class _AuthGateState extends ConsumerState<_AuthGate>
       data: (user) {
         if (user == null) {
           _launchUpdateChecked = false;
+          _hydrated2faUid = null;
+          _isHydrating2fa = false;
           if (ref.read(twoFactorSessionVerifiedProvider)) {
             Future.microtask(() {
               ref.read(twoFactorSessionVerifiedProvider.notifier).state = false;
@@ -351,6 +428,14 @@ class _AuthGateState extends ConsumerState<_AuthGate>
         final twoFactorConfig = twoFactorAsync.value ?? const TwoFactorConfig();
         final is2faVerified = ref.watch(twoFactorSessionVerifiedProvider);
         if (twoFactorConfig.enabled && !is2faVerified) {
+          if (_hydrated2faUid != user.uid && !_isHydrating2fa) {
+            _isHydrating2fa = true;
+            Future.microtask(() => _hydrateTwoFactorState(user.uid));
+            return const UnifiedSplashScreen();
+          }
+          if (_isHydrating2fa) {
+            return const UnifiedSplashScreen();
+          }
           return TwoFactorVerifyScreen(
             uid: user.uid,
             email: user.email ?? '',

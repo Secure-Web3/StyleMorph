@@ -9,6 +9,7 @@ import 'package:shadcn_ui/shadcn_ui.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/services/notification_service.dart';
 import '../../../../core/services/session_service.dart';
+import '../../../../core/services/two_factor_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -220,6 +221,9 @@ class _SessionRevocationListenerState
     if (mounted) {
       ref.read(appStateProvider.notifier).logout();
     }
+    try {
+      await TwoFactorService.clearPersistedVerification();
+    } catch (_) {}
   }
 
   @override

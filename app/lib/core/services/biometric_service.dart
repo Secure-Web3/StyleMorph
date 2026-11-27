@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -9,6 +10,11 @@ import 'session_storage_stub.dart'
 /// Service managing device biometric authentication and biometric app lock preference.
 class BiometricService {
   static const String _biometricLockPrefsKey = 'biometric_lock_enabled';
+  static const String screenLockChannelName =
+      'com.stylemorph.stylemorph/screen_lock';
+  static const MethodChannel _screenLockChannel = MethodChannel(
+    screenLockChannelName,
+  );
 
   final LocalAuthentication _auth;
   bool _isAuthenticating = false;
@@ -90,6 +96,21 @@ class BiometricService {
     } finally {
       _isAuthenticating = false;
     }
+  }
+
+  /// Registers a native OS screen-lock listener (Android ACTION_SCREEN_OFF,
+  /// iOS protectedDataWillBecomeUnavailable) and returns a cleanup callback.
+  /// Safely no-ops on Web (`kIsWeb`).
+  VoidCallback registerScreenLockListener(VoidCallback onScreenLocked) {
+    if (kIsWeb) return () {};
+    _screenLockChannel.setMethodCallHandler((call) async {
+      if (call.method == 'onScreenLocked') {
+        onScreenLocked();
+      }
+    });
+    return () {
+      _screenLockChannel.setMethodCallHandler(null);
+    };
   }
 }
 

@@ -9,6 +9,7 @@ import '../../../core/services/prefetch/app_prefetch_service.dart';
 import '../../../core/services/referral_service.dart';
 import '../../../core/services/session_persistence_service.dart';
 import '../../../core/services/session_service.dart';
+import '../../../core/services/two_factor_service.dart';
 import '../../../core/services/welcome_persistence_service.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/widgets/app_media_image.dart';
@@ -246,6 +247,9 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
     } catch (_) {}
     try {
       await SessionService().clearCurrentSessionId();
+    } catch (_) {}
+    try {
+      await TwoFactorService.clearPersistedVerification();
     } catch (_) {}
     AppMediaImage.clearCache();
     _ref.read(appPrefetchServiceProvider).reset();
