@@ -625,6 +625,11 @@ final Map<String, String> stringsAr = {
   'shopEmpty': 'لا توجد منتجات مطابقة لهذه الفلاتر',
   'shopClearAllFilters': 'مسح جميع الفلاتر',
   'shopClear': 'مسح',
+  'shopWebOpenExternal': 'فتح في المتصفح الخارجي',
+  'shopWebLoading': 'جارٍ تحميل نتائج الصور...',
+  'shopWebPreviewTitle': 'اكتشاف بصري ذكي',
+  'shopWebPreviewDesc':
+      'في متصفحات الويب، يفتح البحث البصري في علامة تبويب جديدة مع الفلاتر النشطة.',
   'shopDisclaimer':
       'الأسعار والمخزون للعرض التوضيحي. تشمل مشتريات StyleMorph ضمان التطبيق، بينما تتبع المشتريات الخارجية سياسة المتجر.',
   'shopAppBadge': 'التطبيق',

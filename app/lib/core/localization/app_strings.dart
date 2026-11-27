@@ -911,6 +911,10 @@ class AppStrings {
   String get shopEmpty => get('shopEmpty');
   String get shopClearAllFilters => get('shopClearAllFilters');
   String get shopClear => get('shopClear');
+  String get shopWebOpenExternal => get('shopWebOpenExternal');
+  String get shopWebLoading => get('shopWebLoading');
+  String get shopWebPreviewTitle => get('shopWebPreviewTitle');
+  String get shopWebPreviewDesc => get('shopWebPreviewDesc');
   String get shopDisclaimer => get('shopDisclaimer');
   String get shopAppBadge => get('shopAppBadge');
   String get shopOutOfStock => get('shopOutOfStock');

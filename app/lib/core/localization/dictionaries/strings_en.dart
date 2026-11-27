@@ -643,6 +643,11 @@ final Map<String, String> stringsEn = {
   'shopEmpty': 'No products match these filters',
   'shopClearAllFilters': 'Clear All Filters',
   'shopClear': 'Clear',
+  'shopWebOpenExternal': 'Open in External Browser',
+  'shopWebLoading': 'Loading visual discovery...',
+  'shopWebPreviewTitle': 'Smart Visual Discovery',
+  'shopWebPreviewDesc':
+      'In web browsers, visual search opens cleanly in a new tab with your active filters.',
   'shopDisclaimer':
       'Prices and stock are illustrative. Exclusive StyleMorph and official dealer items ship with in-app guarantee; external purchases follow the seller’s policies.',
   'shopAppBadge': 'App',

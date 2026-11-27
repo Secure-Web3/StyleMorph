@@ -16,12 +16,10 @@ import '../../../core/widgets/app_section_header.dart';
 import '../../../core/widgets/app_switch.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/app_toast.dart';
-import '../domain/shop_product.dart';
+import '../domain/shop_query_builder.dart';
 import 'shop_provider.dart';
-import 'widgets/shop_product_card.dart';
 import 'widgets/shop_filter_sheet.dart';
-import 'widgets/shop_product_detail_sheet.dart';
-import 'widgets/try_on_sheet.dart';
+import 'widgets/shop_web_discovery_view.dart';
 
 class ShopTab extends ConsumerStatefulWidget {
   const ShopTab({super.key});
@@ -87,29 +85,6 @@ class _ShopTabState extends ConsumerState<ShopTab> {
   void dispose() {
     _searchCtrl.dispose();
     super.dispose();
-  }
-
-  void _openDetailSheet(ShopProduct product) {
-    ref.read(shopProvider.notifier).addRecentlyViewed(product.id);
-    final notifier = ref.read(shopProvider.notifier);
-
-    AppModal.showSheet(
-      context: context,
-      child: Consumer(
-        builder: (ctx, watchRef, _) {
-          final currentShop = watchRef.watch(shopProvider);
-          return ShopProductDetailSheet(
-            product: product,
-            isWishlisted: currentShop.wishlist.contains(product.id),
-            isCompared: currentShop.compareList.contains(product.id),
-            hasPriceAlert: currentShop.priceAlerts.containsKey(product.id),
-            onWishlist: () => notifier.toggleWishlist(product.id),
-            onCompare: () => notifier.toggleCompare(product.id),
-            onPriceAlert: () => notifier.setPriceAlert(product.id, 10),
-          );
-        },
-      ),
-    );
   }
 
   void _openFilterSheet() {
@@ -181,6 +156,22 @@ class _ShopTabState extends ConsumerState<ShopTab> {
     final appCoins = ref.watch(appStateProvider).coins;
     final products = shopState.filteredProducts;
     final activeFilters = shopState.filter.activeFilterCount;
+    final searchQuery = ShopSearchQueryBuilder.buildQuery(
+      filter: shopState.filter,
+      localeCode: strings.localeCode,
+    );
+    final searchUri = ShopSearchQueryBuilder.buildSearchUri(
+      filter: shopState.filter,
+      localeCode: strings.localeCode,
+    );
+    final activeFilterLabels = <String>[
+      if (shopState.filter.category != 'all')
+        _categoryLabel(strings, shopState.filter.category),
+      ...shopState.filter.brands.map(strings.tr),
+      ...shopState.filter.colors.map(strings.tr),
+      ...shopState.filter.sizes.map(strings.formatNumber),
+      if (shopState.filter.fitFilter) strings.shopFitMeBanner,
+    ];
 
     return Column(
       children: [
@@ -261,164 +252,78 @@ class _ShopTabState extends ConsumerState<ShopTab> {
           ),
         ),
 
-        // --- Main Scrollable Products Grid ---
-        Expanded(
-          child: SingleChildScrollView(
-            padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+        // --- Row 3: "Fit For Me" Banner ---
+        Container(
+          color: colors.sf,
+          padding: const EdgeInsetsDirectional.fromSTEB(
+            AppSpacing.sm,
+            0,
+            AppSpacing.sm,
+            AppSpacing.xs,
+          ),
+          child: AppCard(
+            padding: const EdgeInsetsDirectional.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            child: Row(
               children: [
-                // "Fit For Me" Banner
-                AppCard(
-                  margin: const EdgeInsetsDirectional.only(
-                    bottom: AppSpacing.sm,
-                  ),
-                  padding: const EdgeInsetsDirectional.symmetric(
-                    horizontal: AppSpacing.md,
-                    vertical: AppSpacing.sm,
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.person_pin_circle_rounded,
-                        size: 18,
-                        color: colors.pr,
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: AppSwitchTile(
-                          padding: EdgeInsetsDirectional.zero,
-                          label: strings.shopFitMeBanner,
-                          subtitle: strings.shopFitMeSub,
-                          value: shopState.filter.fitFilter,
-                          onChanged: (_) => notifier.toggleFitFilter(),
-                        ),
-                      ),
-                    ],
+                Icon(
+                  Icons.person_pin_circle_rounded,
+                  size: 18,
+                  color: colors.pr,
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: AppSwitchTile(
+                    padding: EdgeInsetsDirectional.zero,
+                    label: strings.shopFitMeBanner,
+                    subtitle: strings.shopFitMeSub,
+                    value: shopState.filter.fitFilter,
+                    onChanged: (_) => notifier.toggleFitFilter(),
                   ),
                 ),
-
-                // Results count & sort indicator
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 4,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        strings.countWithUnit(
-                          products.length,
-                          strings.shopProductUnit,
-                        ),
-                        style: TextStyle(
-                          fontFamily: 'Vazirmatn',
-                          fontSize: 10,
-                          color: colors.mu,
-                        ),
-                      ),
-                      Text(
-                        '${strings.shopSortPrefix}: ${_sortLabel(strings, shopState.filter.sortOption)}',
-                        style: TextStyle(
-                          fontFamily: 'Vazirmatn',
-                          fontSize: 10,
-                          color: colors.mu,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 6),
-
-                // Products 2-Column Grid
-                if (products.isEmpty)
-                  Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(32),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.sentiment_dissatisfied_rounded,
-                            size: 44,
-                            color: colors.mu,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            strings.shopEmpty,
-                            style: TextStyle(
-                              fontFamily: 'Vazirmatn',
-                              fontSize: 13,
-                              color: colors.mu,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () => notifier.resetFilters(),
-                            child: Text(strings.shopClearAllFilters),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
-                else
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          crossAxisSpacing: 8,
-                          mainAxisSpacing: 8,
-                          childAspectRatio: 0.58,
-                        ),
-                    itemCount: products.length,
-                    itemBuilder: (_, i) {
-                      final p = products[i];
-                      return ShopProductCard(
-                        product: p,
-                        colors: colors,
-                        isWishlisted: shopState.wishlist.contains(p.id),
-                        isCompared: shopState.compareList.contains(p.id),
-                        onTap: () => _openDetailSheet(p),
-                        onWishlist: () => notifier.toggleWishlist(p.id),
-                        onCompare: () => notifier.toggleCompare(p.id),
-                        onTryOn: () {
-                          AppModal.showSheet(
-                            context: context,
-                            child: TryOnSheet(product: p),
-                          );
-                        },
-                      );
-                    },
-                  ),
-
-                const SizedBox(height: AppSpacing.lg),
-                // Disclaimer text
-                AppCard(
-                  padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.info_outline_rounded,
-                        size: 15,
-                        color: colors.mu,
-                      ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Expanded(
-                        child: Text(
-                          strings.shopDisclaimer,
-                          style: AppTypography.caption(color: colors.mu),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xl),
               ],
             ),
+          ),
+        ),
+
+        // --- Row 4: Status & Active Sort Bar ---
+        Container(
+          color: colors.sf,
+          padding: const EdgeInsetsDirectional.symmetric(
+            horizontal: AppSpacing.md,
+            vertical: 6,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                strings.countWithUnit(products.length, strings.shopProductUnit),
+                style: TextStyle(
+                  fontFamily: 'Vazirmatn',
+                  fontSize: 10,
+                  color: colors.mu,
+                ),
+              ),
+              Text(
+                '${strings.shopSortPrefix}: ${_sortLabel(strings, shopState.filter.sortOption)}',
+                style: TextStyle(
+                  fontFamily: 'Vazirmatn',
+                  fontSize: 10,
+                  color: colors.mu,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // --- Image-First Google Search WebView / Web Fallback ---
+        Expanded(
+          child: ShopWebDiscoveryView(
+            searchUri: searchUri,
+            searchQuery: searchQuery,
+            activeFilterLabels: activeFilterLabels,
           ),
         ),
 

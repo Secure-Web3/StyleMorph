@@ -649,6 +649,11 @@ final Map<String, String> stringsTr = {
   'shopEmpty': 'Bu filtrelere uygun ürün bulunamadı',
   'shopClearAllFilters': 'Tüm Filtreleri Temizle',
   'shopClear': 'Temizle',
+  'shopWebOpenExternal': 'Harici Tarayıcıda Aç',
+  'shopWebLoading': 'Görsel sonuçlar yükleniyor...',
+  'shopWebPreviewTitle': 'Akıllı Görsel Keşif',
+  'shopWebPreviewDesc':
+      'Web tarayıcılarında görsel arama, aktif filtrelerinizle yeni sekmede açılır.',
   'shopDisclaimer':
       'Fiyatlar ve stoklar örnek amaçlıdır. StyleMorph ürünleri uygulama garantili, dış site alımları satıcı politikasına tabidir.',
   'shopAppBadge': 'Uygulama',
