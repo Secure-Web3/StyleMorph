@@ -113,6 +113,17 @@ void main() {
         expect(workflowSource, contains('force_update:'));
         expect(workflowSource, contains('publish_release_update.mjs'));
         expect(workflowSource, contains('StyleMorph-universal.apk'));
+        expect(workflowSource, contains('--dart-define=BUILD_NUMBER'));
+        expect(workflowSource, contains('--dart-define=APP_VERSION'));
+
+        final manifestFile = File('android/app/src/main/AndroidManifest.xml');
+        expect(manifestFile.existsSync(), isTrue);
+        final manifestSource = manifestFile.readAsStringSync();
+        expect(
+          manifestSource,
+          contains('com.google.firebase.messaging.default_notification_icon'),
+        );
+        expect(manifestSource, contains('@drawable/ic_stat_stylemorph'));
       },
     );
   });

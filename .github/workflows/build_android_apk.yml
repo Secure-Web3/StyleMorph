@@ -58,9 +58,34 @@ jobs:
         working-directory: app
         run: flutter pub get
 
+      - name: Resolve Build Metadata
+        run: |
+          RAW_TAG="${{ inputs.release_tag }}"
+          if [ -n "$RAW_TAG" ]; then
+            APP_VERSION="${RAW_TAG#v}"
+            APP_VERSION="${APP_VERSION#V}"
+          else
+            APP_VERSION="$(grep -E '^version:' app/pubspec.yaml | head -n1 | sed -E 's/^version:[[:space:]]*([^+[:space:]]+).*/\1/')"
+          fi
+          BUILD_NUMBER="${{ github.run_number }}"
+          RELEASE_DATE="$(date -u +%Y-%m-%d)"
+          echo "APP_VERSION=${APP_VERSION}" >> "$GITHUB_ENV"
+          echo "BUILD_NUMBER=${BUILD_NUMBER}" >> "$GITHUB_ENV"
+          echo "RELEASE_DATE=${RELEASE_DATE}" >> "$GITHUB_ENV"
+          echo "APP_ENV=preview" >> "$GITHUB_ENV"
+          echo "GIT_SHA=${{ github.sha }}" >> "$GITHUB_ENV"
+
       - name: Build Universal Release APK
         working-directory: app
-        run: flutter build apk --release
+        run: |
+          flutter build apk --release \
+            --build-name="$APP_VERSION" \
+            --build-number="$BUILD_NUMBER" \
+            --dart-define=APP_VERSION="$APP_VERSION" \
+            --dart-define=BUILD_NUMBER="$BUILD_NUMBER" \
+            --dart-define=RELEASE_DATE="$RELEASE_DATE" \
+            --dart-define=APP_ENV=preview \
+            --dart-define=GIT_SHA="${{ github.sha }}"
 
       - name: Prepare Universal APK Artifact
         run: cp app/build/app/outputs/flutter-apk/app-release.apk StyleMorph-universal.apk
@@ -85,8 +110,8 @@ jobs:
         if: ${{ inputs.release_tag != '' }}
         env:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          APP_VERSION: ${{ inputs.release_tag }}
-          BUILD_NUMBER: ${{ github.run_number }}
+          APP_VERSION: ${{ env.APP_VERSION }}
+          BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
           ANDROID_URL: https://github.com/${{ github.repository }}/releases/download/${{ inputs.release_tag }}/StyleMorph-universal.apk
           RELEASE_NOTES: StyleMorph Android ${{ inputs.release_tag }}
           FORCE_UPDATE: ${{ inputs.force_update }}
