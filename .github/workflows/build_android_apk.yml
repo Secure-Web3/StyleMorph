@@ -1,10 +1,10 @@
-name: Build Signed Universal Android APK
+name: Build Signed Android APK
 
 on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: "Optional Git tag (e.g. v1.0.0-android.5) to publish a GitHub Release with StyleMorph-universal.apk"
+        description: "Optional Git tag (e.g. v1.0.0-android.5) to publish a GitHub Release with StyleMorph-arm64.apk"
         required: false
         default: ""
         type: string
@@ -75,10 +75,13 @@ jobs:
           echo "APP_ENV=preview" >> "$GITHUB_ENV"
           echo "GIT_SHA=${{ github.sha }}" >> "$GITHUB_ENV"
 
-      - name: Build Universal Release APK
+      - name: Build Split Release APKs (arm64-v8a & armeabi-v7a)
         working-directory: app
         run: |
           flutter build apk --release \
+            --split-per-abi \
+            --split-debug-info=build/app/outputs/symbols \
+            --obfuscate \
             --build-name="$APP_VERSION" \
             --build-number="$BUILD_NUMBER" \
             --dart-define=APP_VERSION="$APP_VERSION" \
@@ -87,14 +90,31 @@ jobs:
             --dart-define=APP_ENV=preview \
             --dart-define=GIT_SHA="${{ github.sha }}"
 
-      - name: Prepare Universal APK Artifact
-        run: cp app/build/app/outputs/flutter-apk/app-release.apk StyleMorph-universal.apk
+      - name: Prepare APK Artifacts
+        run: |
+          cp app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk StyleMorph-arm64.apk
+          cp app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk StyleMorph-armeabi-v7a.apk
 
-      - name: Upload Universal APK Artifact
+      - name: Verify Signed APK (apksigner & aapt2)
+        run: |
+          set -euo pipefail
+          BUILD_TOOLS_DIR="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)"
+          if [ -z "$BUILD_TOOLS_DIR" ]; then
+            echo "Android build-tools not found under $ANDROID_HOME/build-tools"
+            exit 1
+          fi
+          echo "Using Android build-tools: $BUILD_TOOLS_DIR"
+          "$BUILD_TOOLS_DIR/apksigner" verify --verbose --print-certs StyleMorph-arm64.apk
+          BADGING="$("$BUILD_TOOLS_DIR/aapt2" dump badging StyleMorph-arm64.apk)"
+          printf '%s\n' "$BADGING" | head -n 20
+
+      - name: Upload APK Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: StyleMorph-universal-apk
-          path: StyleMorph-universal.apk
+          name: StyleMorph-android-apks
+          path: |
+            StyleMorph-arm64.apk
+            StyleMorph-armeabi-v7a.apk
           retention-days: 14
 
       - name: Publish GitHub Release
@@ -104,7 +124,9 @@ jobs:
           tag_name: ${{ inputs.release_tag }}
           target_commitish: ${{ github.sha }}
           name: StyleMorph Android ${{ inputs.release_tag }}
-          files: StyleMorph-universal.apk
+          files: |
+            StyleMorph-arm64.apk
+            StyleMorph-armeabi-v7a.apk
 
       - name: Update Firestore app_config/version & Send FCM Push
         if: ${{ inputs.release_tag != '' }}
@@ -112,7 +134,7 @@ jobs:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           APP_VERSION: ${{ env.APP_VERSION }}
           BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
-          ANDROID_URL: https://github.com/${{ github.repository }}/releases/download/${{ inputs.release_tag }}/StyleMorph-universal.apk
+          ANDROID_URL: https://github.com/${{ github.repository }}/releases/download/${{ inputs.release_tag }}/StyleMorph-arm64.apk
           RELEASE_NOTES: StyleMorph Android ${{ inputs.release_tag }}
           FORCE_UPDATE: ${{ inputs.force_update }}
         run: node .github/scripts/publish_release_update.mjs
