@@ -72,6 +72,12 @@ Future<void> main() async {
   } catch (e) {
     debugPrint('[FirebaseInit] Notice: $e');
   }
+  try {
+    await BiometricService().isBiometricLockEnabled();
+  } catch (e) {
+    debugPrint('[BiometricWarmup] Notice: $e');
+  }
+
   runApp(const ProviderScope(child: StyleMorphApp()));
 }
 

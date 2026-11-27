@@ -15,6 +15,14 @@ class BiometricService {
   static const MethodChannel _screenLockChannel = MethodChannel(
     screenLockChannelName,
   );
+  static bool? _cachedEnabled;
+
+  /// Synchronous in-memory cache of the biometric lock preference.
+  /// Returns `null` until [isBiometricLockEnabled] or [setBiometricLockEnabled] runs.
+  static bool? get cachedEnabled => _cachedEnabled;
+
+  @visibleForTesting
+  static void resetCacheForTest() => _cachedEnabled = null;
 
   final LocalAuthentication _auth;
   bool _isAuthenticating = false;
@@ -51,26 +59,35 @@ class BiometricService {
 
   /// Checks whether the user has toggled biometric app lock ON in settings.
   Future<bool> isBiometricLockEnabled() async {
-    if (kIsWeb) return false;
+    if (kIsWeb) {
+      _cachedEnabled = false;
+      return false;
+    }
     try {
       final prefs = await SharedPreferences.getInstance();
       if (prefs.containsKey(_biometricLockPrefsKey)) {
-        return prefs.getBool(_biometricLockPrefsKey) ?? false;
+        final enabled = prefs.getBool(_biometricLockPrefsKey) ?? false;
+        _cachedEnabled = enabled;
+        return enabled;
       }
       final legacyEnabled = await SessionLocalStorage.getBiometricLockEnabled();
       if (legacyEnabled) {
         await prefs.setBool(_biometricLockPrefsKey, true);
       }
+      _cachedEnabled = legacyEnabled;
       return legacyEnabled;
     } catch (e) {
       debugPrint('[BiometricService] isBiometricLockEnabled notice: $e');
-      return await SessionLocalStorage.getBiometricLockEnabled();
+      final fallback = await SessionLocalStorage.getBiometricLockEnabled();
+      _cachedEnabled = fallback;
+      return fallback;
     }
   }
 
   /// Saves the user preference for biometric lock.
   Future<void> setBiometricLockEnabled(bool enabled) async {
     if (kIsWeb) return;
+    _cachedEnabled = enabled;
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool(_biometricLockPrefsKey, enabled);

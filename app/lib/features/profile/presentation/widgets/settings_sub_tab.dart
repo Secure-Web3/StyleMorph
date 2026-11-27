@@ -42,7 +42,11 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
   @override
   void initState() {
     super.initState();
-    _backupFrequency = ref.read(appStateProvider).preferences.autoDataBackup;
+    final appState = ref.read(appStateProvider);
+    _backupFrequency = appState.preferences.autoDataBackup;
+    _biometricLockEnabled =
+        !kIsWeb &&
+        (BiometricService.cachedEnabled ?? appState.preferences.biometricLock);
     _loadBiometricPref();
     _loadAutoCheckUpdatesPref();
   }
@@ -61,10 +65,13 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
     final available = await service.isBiometricAvailable();
     final enabled = await service.isBiometricLockEnabled();
     final prefBiometric = ref.read(appStateProvider).preferences.biometricLock;
-    if (mounted) {
+    final resolvedEnabled = enabled || prefBiometric;
+    if (!mounted) return;
+    if (_isBiometricSupported != available ||
+        _biometricLockEnabled != resolvedEnabled) {
       setState(() {
         _isBiometricSupported = available;
-        _biometricLockEnabled = enabled || prefBiometric;
+        _biometricLockEnabled = resolvedEnabled;
       });
     }
   }
@@ -91,7 +98,9 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
       );
       if (success && mounted) {
         await service.setBiometricLockEnabled(true);
-        ref.read(appStateProvider.notifier).setBiometricLock(true);
+        ref
+            .read(appStateProvider.notifier)
+            .setBiometricLock(true, persistImmediately: true);
         ref.read(biometricUnlockedProvider.notifier).state = true;
         ref.invalidate(biometricLockEnabledProvider);
         setState(() => _biometricLockEnabled = true);
@@ -102,7 +111,9 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
       }
     } else {
       await service.setBiometricLockEnabled(false);
-      ref.read(appStateProvider.notifier).setBiometricLock(false);
+      ref
+          .read(appStateProvider.notifier)
+          .setBiometricLock(false, persistImmediately: true);
       ref.invalidate(biometricLockEnabledProvider);
       setState(() => _biometricLockEnabled = false);
     }
@@ -111,12 +122,23 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
   @override
   Widget build(BuildContext context) {
     ref.listen<AppState>(appStateProvider, (previous, next) {
-      if (previous?.preferences != next.preferences &&
-          !next.hasUnsavedProfileChanges) {
-        setState(() {
-          _backupFrequency = next.preferences.autoDataBackup;
-          _biometricLockEnabled = next.preferences.biometricLock;
-        });
+      if (previous?.preferences != next.preferences) {
+        final backupChanged =
+            previous?.preferences.autoDataBackup !=
+            next.preferences.autoDataBackup;
+        final bioChanged =
+            previous?.preferences.biometricLock !=
+            next.preferences.biometricLock;
+        if (backupChanged || bioChanged) {
+          setState(() {
+            if (backupChanged) {
+              _backupFrequency = next.preferences.autoDataBackup;
+            }
+            if (bioChanged) {
+              _biometricLockEnabled = next.preferences.biometricLock;
+            }
+          });
+        }
       }
     });
 
@@ -326,7 +348,10 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                 ref.read(themeProvider.notifier).setPalette(palette);
                 ref
                     .read(appStateProvider.notifier)
-                    .setFashionThemePalette(palette.name);
+                    .setFashionThemePalette(
+                      palette.name,
+                      persistImmediately: true,
+                    );
               }
             },
           ),
@@ -355,7 +380,7 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                 ref.read(themeProvider.notifier).setThemeMode(mode);
                 ref
                     .read(appStateProvider.notifier)
-                    .setBrightnessMode(mode.name);
+                    .setBrightnessMode(mode.name, persistImmediately: true);
               }
             },
           ),
@@ -374,7 +399,9 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
             onChanged: (code) {
               if (code != null) {
                 ref.read(localeProvider.notifier).setLanguage(code);
-                ref.read(appStateProvider.notifier).setAppLanguage(code);
+                ref
+                    .read(appStateProvider.notifier)
+                    .setAppLanguage(code, persistImmediately: true);
               }
             },
           ),
@@ -395,8 +422,7 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                   onChanged: (val) {
                     ref
                         .read(appStateProvider.notifier)
-                        .toggleFloatingSupport(val);
-                    ref.read(appStateProvider.notifier).markProfileDirty();
+                        .toggleFloatingSupport(val, persistImmediately: true);
                   },
                 ),
                 Divider(height: 1, color: colors.bd),
@@ -404,8 +430,9 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                   label: strings.setShowHeaderCoins,
                   value: appState.showHeaderCoins,
                   onChanged: (val) {
-                    ref.read(appStateProvider.notifier).toggleHeaderCoins(val);
-                    ref.read(appStateProvider.notifier).markProfileDirty();
+                    ref
+                        .read(appStateProvider.notifier)
+                        .toggleHeaderCoins(val, persistImmediately: true);
                   },
                 ),
                 Divider(height: 1, color: colors.bd),
@@ -415,8 +442,7 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
                   onChanged: (val) {
                     ref
                         .read(appStateProvider.notifier)
-                        .toggleShowEmailInHeader(val);
-                    ref.read(appStateProvider.notifier).markProfileDirty();
+                        .toggleShowEmailInHeader(val, persistImmediately: true);
                   },
                 ),
                 Divider(height: 1, color: colors.bd),
@@ -549,7 +575,9 @@ class _SettingsSubTabState extends ConsumerState<SettingsSubTab> {
             onChanged: (val) {
               if (val != null) {
                 setState(() => _backupFrequency = val);
-                ref.read(appStateProvider.notifier).setAutoDataBackup(val);
+                ref
+                    .read(appStateProvider.notifier)
+                    .setAutoDataBackup(val, persistImmediately: true);
               }
             },
           ),

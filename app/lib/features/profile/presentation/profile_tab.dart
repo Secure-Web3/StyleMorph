@@ -30,12 +30,7 @@ class ProfileTab extends ConsumerStatefulWidget {
 }
 
 class _ProfileTabState extends ConsumerState<ProfileTab> {
-  static const Set<String> _editableTabs = {
-    'p-identity',
-    'p-ai',
-    'p-companion',
-    'p-settings',
-  };
+  static const Set<String> _editableTabs = {'p-identity', 'p-ai'};
 
   final Map<String, ScrollController> _subTabScrollControllers = {};
 
@@ -101,7 +96,8 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
     final appState = ref.read(appStateProvider);
     if (targetId == appState.currentProfileTab) return;
 
-    if (appState.hasUnsavedChanges) {
+    if (_editableTabs.contains(appState.currentProfileTab) &&
+        appState.hasUnsavedChanges) {
       final action = await UnsavedChangesDialog.show(context);
       if (!mounted) return;
 
@@ -172,8 +168,8 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
 
     final subTabs = [
       _SubTabMeta('p-identity', strings.tIdent, FontAwesomeIcons.idCard),
-      _SubTabMeta('p-gallery', strings.tGal, FontAwesomeIcons.images),
       _SubTabMeta('p-ai', strings.tAi, FontAwesomeIcons.dna),
+      _SubTabMeta('p-gallery', strings.tGal, FontAwesomeIcons.images),
       _SubTabMeta(
         'p-wallet',
         strings.tWal,

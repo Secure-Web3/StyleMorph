@@ -14,6 +14,7 @@ import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_feedback.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/widgets/app_text_field.dart';
+import '../../../../core/widgets/brand_wordmark.dart';
 import '../email_verification_provider.dart';
 import 'auth_footer.dart';
 import 'auth_top_bar.dart';
@@ -183,6 +184,15 @@ class _TwoFactorVerifyScreenState extends ConsumerState<TwoFactorVerifyScreen> {
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
                           const Center(child: AppLogo(size: 56)),
+                          const SizedBox(height: AppSpacing.sm),
+                          Center(
+                            child: BrandWordmark(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.8,
+                              color: colors.tx,
+                            ),
+                          ),
                           const SizedBox(height: AppSpacing.md),
                           Center(
                             child: FaIcon(

@@ -676,7 +676,19 @@ class AppStateNotifier extends StateNotifier<AppState> {
     state = state.copyWith(isSupportOpen: open ?? !state.isSupportOpen);
   }
 
-  void toggleFloatingSupport(bool show) {
+  Future<void> toggleFloatingSupport(
+    bool show, {
+    bool persistImmediately = false,
+  }) async {
+    if (persistImmediately) {
+      await updatePreferencesImmediately(
+        state.preferences.copyWith(showFloatingSupport: show),
+      );
+      if (!show && state.isSupportOpen) {
+        state = state.copyWith(isSupportOpen: false);
+      }
+      return;
+    }
     state = state.copyWith(
       showFloatingSupport: show,
       preferences: state.preferences.copyWith(showFloatingSupport: show),
@@ -686,7 +698,16 @@ class AppStateNotifier extends StateNotifier<AppState> {
     WebUnloadGuard.update(true);
   }
 
-  void toggleHeaderCoins(bool show) {
+  Future<void> toggleHeaderCoins(
+    bool show, {
+    bool persistImmediately = false,
+  }) async {
+    if (persistImmediately) {
+      await updatePreferencesImmediately(
+        state.preferences.copyWith(showHeaderCoins: show),
+      );
+      return;
+    }
     state = state.copyWith(
       showHeaderCoins: show,
       preferences: state.preferences.copyWith(showHeaderCoins: show),
@@ -695,7 +716,16 @@ class AppStateNotifier extends StateNotifier<AppState> {
     WebUnloadGuard.update(true);
   }
 
-  void toggleShowEmailInHeader(bool show) {
+  Future<void> toggleShowEmailInHeader(
+    bool show, {
+    bool persistImmediately = false,
+  }) async {
+    if (persistImmediately) {
+      await updatePreferencesImmediately(
+        state.preferences.copyWith(showEmailInHeader: show),
+      );
+      return;
+    }
     state = state.copyWith(
       preferences: state.preferences.copyWith(showEmailInHeader: show),
       hasUnsavedProfileChanges: true,
@@ -828,7 +858,16 @@ class AppStateNotifier extends StateNotifier<AppState> {
     }
   }
 
-  void setAutoDataBackup(String frequency) {
+  Future<void> setAutoDataBackup(
+    String frequency, {
+    bool persistImmediately = false,
+  }) async {
+    if (persistImmediately) {
+      await updatePreferencesImmediately(
+        state.preferences.copyWith(autoDataBackup: frequency),
+      );
+      return;
+    }
     state = state.copyWith(
       preferences: state.preferences.copyWith(autoDataBackup: frequency),
       hasUnsavedProfileChanges: true,
@@ -836,7 +875,16 @@ class AppStateNotifier extends StateNotifier<AppState> {
     WebUnloadGuard.update(true);
   }
 
-  void setBiometricLock(bool enabled) {
+  Future<void> setBiometricLock(
+    bool enabled, {
+    bool persistImmediately = false,
+  }) async {
+    if (persistImmediately) {
+      await updatePreferencesImmediately(
+        state.preferences.copyWith(biometricLock: enabled),
+      );
+      return;
+    }
     state = state.copyWith(
       preferences: state.preferences.copyWith(biometricLock: enabled),
       hasUnsavedProfileChanges: true,

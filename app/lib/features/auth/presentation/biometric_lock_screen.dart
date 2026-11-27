@@ -9,6 +9,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_logo.dart';
+import '../../../../core/widgets/brand_wordmark.dart';
 import 'widgets/auth_footer.dart';
 import 'widgets/auth_top_bar.dart';
 
@@ -80,8 +81,17 @@ class _BiometricLockScreenState extends ConsumerState<BiometricLockScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // App Logo
+                        // App Logo & Brand Wordmark
                         const Center(child: AppLogo(size: 64)),
+                        const SizedBox(height: AppSpacing.sm),
+                        Center(
+                          child: BrandWordmark(
+                            fontSize: 24,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.8,
+                            color: colors.tx,
+                          ),
+                        ),
                         const SizedBox(height: AppSpacing.xl),
 
                         // Fingerprint Icon Container
