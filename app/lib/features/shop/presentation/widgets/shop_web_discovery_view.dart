@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,8 @@ import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../domain/extracted_web_product.dart';
+import 'web_product_action_bar.dart';
 
 /// Displays an image-first Google Search WebView on mobile (`!kIsWeb`) with
 /// live [AppColors] theme synchronization and header masking, or a sleek
@@ -37,12 +40,21 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
   WebViewController? _controller;
   bool _isLoading = true;
   bool _webViewSupported = false;
+  bool _canGoBack = false;
+  bool _isProductPage = false;
+  ExtractedWebProduct? _extractedProduct;
   AppColors? _lastColors;
 
   @override
   void initState() {
     super.initState();
     _initWebViewIfSupported();
+  }
+
+  static bool _isGoogleSearchUrl(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return false;
+    return uri.host.contains('google.') && uri.path.startsWith('/search');
   }
 
   void _initWebViewIfSupported() {
@@ -52,15 +64,33 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
         ..setNavigationDelegate(
           NavigationDelegate(
-            onPageStarted: (_) {
-              if (mounted) {
-                setState(() => _isLoading = true);
-              }
-            },
-            onPageFinished: (_) {
+            onNavigationRequest: (request) => NavigationDecision.navigate,
+            onPageStarted: (url) {
               if (!mounted) return;
-              setState(() => _isLoading = false);
-              _injectHeaderMaskAndTheme(context.colors);
+              setState(() {
+                _isLoading = true;
+                _isProductPage = !_isGoogleSearchUrl(url);
+                if (!_isProductPage) {
+                  _extractedProduct = null;
+                }
+              });
+            },
+            onPageFinished: (url) async {
+              if (!mounted) return;
+              final canBack =
+                  await (_controller?.canGoBack() ?? Future.value(false));
+              final onProductPage = !_isGoogleSearchUrl(url);
+              if (!mounted) return;
+              setState(() {
+                _isLoading = false;
+                _canGoBack = canBack;
+                _isProductPage = onProductPage;
+              });
+              if (onProductPage) {
+                await _extractProductMetadata();
+              } else {
+                await _injectHeaderMaskAndTheme(context.colors);
+              }
             },
             onWebResourceError: (_) {
               if (mounted) {
@@ -126,6 +156,110 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
       );
     } catch (_) {}
   }
+
+  Future<void> _extractProductMetadata() async {
+    final controller = _controller;
+    if (!_webViewSupported || controller == null) return;
+    try {
+      final raw = await controller.runJavaScriptReturningResult(
+        _extractPageProductMetadataJs,
+      );
+      if (!mounted) return;
+
+      dynamic decoded = raw;
+      if (decoded is String) {
+        decoded = jsonDecode(decoded);
+        if (decoded is String) {
+          decoded = jsonDecode(decoded);
+        }
+      }
+
+      if (decoded is Map) {
+        final product = ExtractedWebProduct.fromJson(
+          Map<String, dynamic>.from(decoded),
+        );
+        if (product.isValid) {
+          setState(() => _extractedProduct = product);
+        }
+      }
+    } catch (_) {}
+  }
+
+  static const String _extractPageProductMetadataJs = '''
+(function extractPageProductMetadata() {
+  function metaContent(selectors) {
+    for (var i = 0; i < selectors.length; i++) {
+      var el = document.querySelector(selectors[i]);
+      if (el && el.getAttribute('content')) {
+        return el.getAttribute('content').trim();
+      }
+    }
+    return '';
+  }
+
+  var title = metaContent([
+    'meta[property="og:title"]',
+    'meta[name="twitter:title"]'
+  ]) || (document.title || '').trim();
+
+  var imageUrl = metaContent([
+    'meta[property="og:image"]',
+    'meta[property="og:image:secure_url"]',
+    'meta[name="twitter:image"]'
+  ]);
+
+  if (!imageUrl) {
+    var imgs = Array.prototype.slice.call(document.querySelectorAll('img'));
+    var bestArea = 0;
+    for (var j = 0; j < imgs.length; j++) {
+      var img = imgs[j];
+      var src = img.currentSrc || img.src || '';
+      if (!src || src.indexOf('data:') === 0) continue;
+      var w = img.naturalWidth || img.width || 0;
+      var h = img.naturalHeight || img.height || 0;
+      var area = w * h;
+      if (area > bestArea && w >= 120 && h >= 120) {
+        bestArea = area;
+        imageUrl = src;
+      }
+    }
+  }
+
+  var priceText = metaContent([
+    'meta[property="product:price:amount"]',
+    'meta[property="og:price:amount"]'
+  ]);
+  var currency = metaContent([
+    'meta[property="product:price:currency"]',
+    'meta[property="og:price:currency"]'
+  ]);
+
+  if (!priceText) {
+    var scripts = document.querySelectorAll('script[type="application/ld+json"]');
+    for (var k = 0; k < scripts.length; k++) {
+      try {
+        var data = JSON.parse(scripts[k].textContent || '{}');
+        var offers = data.offers || (Array.isArray(data['@graph']) ? data['@graph'][0] && data['@graph'][0].offers : null);
+        if (Array.isArray(offers)) offers = offers[0];
+        if (offers && offers.price) {
+          priceText = String(offers.price);
+          currency = currency || String(offers.priceCurrency || '');
+          break;
+        }
+      } catch (e) {}
+    }
+  }
+
+  return JSON.stringify({
+    title: title,
+    imageUrl: imageUrl,
+    pageUrl: window.location.href || '',
+    sourceHost: window.location.hostname || '',
+    priceText: priceText,
+    currency: currency
+  });
+})();
+''';
 
   static String _buildHeaderMaskJs() {
     return '''
@@ -208,6 +342,54 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
       child: Stack(
         children: [
           WebViewWidget(controller: _controller!),
+          if (_canGoBack)
+            PositionedDirectional(
+              top: AppSpacing.sm,
+              start: AppSpacing.sm,
+              child: Material(
+                color: colors.sf.withValues(alpha: 0.94),
+                borderRadius: AppRadius.rFull,
+                elevation: 2,
+                child: InkWell(
+                  borderRadius: AppRadius.rFull,
+                  onTap: () => _controller?.goBack(),
+                  child: Container(
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: AppRadius.rFull,
+                      border: Border.all(color: colors.bd),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.arrow_back_rounded,
+                          size: 15,
+                          color: colors.pr,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          strings.shopWebBackToResults,
+                          style: AppTypography.cardTitle(color: colors.tx),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if (_isProductPage &&
+              _extractedProduct != null &&
+              _extractedProduct!.isValid)
+            PositionedDirectional(
+              bottom: AppSpacing.sm,
+              start: AppSpacing.sm,
+              end: AppSpacing.sm,
+              child: WebProductActionBar(product: _extractedProduct!),
+            ),
           if (_isLoading)
             Positioned(
               top: 0,
