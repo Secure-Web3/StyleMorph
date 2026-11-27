@@ -7,8 +7,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stylemorph/core/localization/app_strings.dart';
 import 'package:stylemorph/core/services/totp_helper.dart';
 import 'package:stylemorph/core/services/two_factor_service.dart';
+import 'package:stylemorph/core/state/app_state.dart';
 import 'package:stylemorph/core/theme/app_colors.dart';
 import 'package:stylemorph/core/theme/app_theme.dart';
+import 'package:stylemorph/features/auth/data/firebase_auth_repository.dart';
 import 'package:stylemorph/features/auth/presentation/email_verification_provider.dart';
 import 'package:stylemorph/features/auth/presentation/email_verification_screen.dart';
 import 'package:stylemorph/features/auth/presentation/widgets/two_factor_verify_screen.dart';
@@ -571,5 +573,68 @@ void main() {
         isFalse,
       );
     });
+
+    test(
+      'AppStateNotifier.logout and FirebaseAuthRepository.signOut clear 7-day 2FA cache',
+      () async {
+        final now = DateTime.now();
+        await TwoFactorService.markSessionVerified(
+          uid: 'user-signout-1',
+          sessionId: 'sess-signout-1',
+          now: now,
+        );
+        expect(
+          await TwoFactorService.isPersistedSessionValid(
+            uid: 'user-signout-1',
+            sessionId: 'sess-signout-1',
+            now: now.add(const Duration(days: 3)),
+          ),
+          isTrue,
+        );
+
+        // AppStateNotifier.logout() must clear the persisted 2FA verification.
+        final notifier = AppStateNotifier();
+        notifier.logout();
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        expect(
+          await TwoFactorService.isPersistedSessionValid(
+            uid: 'user-signout-1',
+            sessionId: 'sess-signout-1',
+            now: now.add(const Duration(days: 3)),
+          ),
+          isFalse,
+        );
+
+        // Re-verify and confirm FirebaseAuthRepository.signOut() clears it too.
+        await TwoFactorService.markSessionVerified(
+          uid: 'user-signout-1',
+          sessionId: 'sess-signout-1',
+          now: now,
+        );
+        expect(
+          await TwoFactorService.isPersistedSessionValid(
+            uid: 'user-signout-1',
+            sessionId: 'sess-signout-1',
+            now: now.add(const Duration(days: 3)),
+          ),
+          isTrue,
+        );
+
+        final repo = FirebaseAuthRepository();
+        try {
+          await repo.signOut();
+        } catch (_) {
+          // FirebaseAuth.instance is uninitialized in pure unit tests.
+        }
+        expect(
+          await TwoFactorService.isPersistedSessionValid(
+            uid: 'user-signout-1',
+            sessionId: 'sess-signout-1',
+            now: now.add(const Duration(days: 3)),
+          ),
+          isFalse,
+        );
+      },
+    );
   });
 }

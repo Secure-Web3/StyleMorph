@@ -19,6 +19,7 @@ import '../../features/shell/domain/notification_item.dart';
 import '../services/loyalty_service.dart';
 import '../services/notification_service.dart';
 import '../services/referral_service.dart';
+import '../services/two_factor_service.dart';
 import '../services/web_unload_guard.dart';
 
 export '../../features/profile/data/profile_firestore_mapper.dart';
@@ -1010,6 +1011,7 @@ class AppStateNotifier extends StateNotifier<AppState> {
   }
 
   void logout() {
+    unawaited(TwoFactorService.clearPersistedVerification());
     resetUserSession();
   }
 
