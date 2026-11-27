@@ -984,6 +984,7 @@ final Map<String, String> stringsTr = {
   'setBiometricAuthReason': 'StyleMorph\'a erişmek için doğrulama yapın',
   'setBiometricMobileOnly': 'Yalnızca mobil uygulamada kullanılabilir',
   'setBiometricUnlockBtn': 'Biyometrik ile Kilidi Aç',
+  'setBiometricTapToUnlock': 'Kilidi açmak için dokunun',
   'setBiometricLockedTitle': 'Uygulama Kilitli',
   'setBiometricLockedDesc':
       'Devam etmek için lütfen parmak iziniz veya Face ID ile kimliğinizi doğrulayın.',

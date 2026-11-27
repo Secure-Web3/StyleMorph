@@ -1267,6 +1267,7 @@ class AppStrings {
   String get setBiometricAuthReason => get('setBiometricAuthReason');
   String get setBiometricMobileOnly => get('setBiometricMobileOnly');
   String get setBiometricUnlockBtn => get('setBiometricUnlockBtn');
+  String get setBiometricTapToUnlock => get('setBiometricTapToUnlock');
   String get setBiometricLockedTitle => get('setBiometricLockedTitle');
   String get setBiometricLockedDesc => get('setBiometricLockedDesc');
   String get setBiometricUnavailable => get('setBiometricUnavailable');

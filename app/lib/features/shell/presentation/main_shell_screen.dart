@@ -36,6 +36,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   ];
   static const double _drawerOverscrollThreshold = 24.0;
   static const double _profileDrawerSwipeThreshold = 32.0;
+  static const double _profileExitSwipeThreshold = 48.0;
 
   // Keep the key as a field so it is not recreated on every rebuild.
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -43,8 +44,9 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
   bool _isSyncingPageFromState = false;
   double _startEdgeOverscroll = 0.0;
   bool _drawerTriggeredThisDrag = false;
-  double _profileHorizontalDragDelta = 0.0;
-  bool _profileDrawerTriggeredThisDrag = false;
+  int? _profileActivePointer;
+  Offset _profilePointerDelta = Offset.zero;
+  bool _profileSwipeHandledThisDrag = false;
 
   int _moduleIndexFor(AppTab tab) {
     final idx = _moduleTabs.indexOf(tab);
@@ -199,34 +201,62 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     }
   }
 
+  void _resetProfilePointerTracking() {
+    _profileActivePointer = null;
+    _profilePointerDelta = Offset.zero;
+    _profileSwipeHandledThisDrag = false;
+  }
+
   Widget _buildProfileWithDrawerSwipe(BuildContext context) {
-    return GestureDetector(
+    return Listener(
       behavior: HitTestBehavior.translucent,
-      onHorizontalDragStart: (_) {
-        _profileHorizontalDragDelta = 0.0;
-        _profileDrawerTriggeredThisDrag = false;
+      onPointerDown: (event) {
+        if (_profileActivePointer != null) return;
+        _profileActivePointer = event.pointer;
+        _profilePointerDelta = Offset.zero;
+        _profileSwipeHandledThisDrag = false;
       },
-      onHorizontalDragUpdate: (details) {
-        if (_profileDrawerTriggeredThisDrag) return;
-        _profileHorizontalDragDelta += details.primaryDelta ?? 0.0;
+      onPointerMove: (event) {
+        if (event.pointer != _profileActivePointer ||
+            _profileSwipeHandledThisDrag) {
+          return;
+        }
+        _profilePointerDelta += event.delta;
+        final dx = _profilePointerDelta.dx;
+        final dy = _profilePointerDelta.dy;
+
+        // Ignore vertical scrolls or diagonal drifts that are not clearly horizontal.
+        if (dy.abs() > 40.0 || dx.abs() <= dy.abs() * 1.5) {
+          return;
+        }
+
         final isRtl = Directionality.of(context) == TextDirection.rtl;
-        final shouldOpen = isRtl
-            ? _profileHorizontalDragDelta <= -_profileDrawerSwipeThreshold
-            : _profileHorizontalDragDelta >= _profileDrawerSwipeThreshold;
-        if (shouldOpen) {
-          _profileDrawerTriggeredThisDrag = true;
+        final shouldOpenDrawer = isRtl
+            ? dx <= -_profileDrawerSwipeThreshold
+            : dx >= _profileDrawerSwipeThreshold;
+        final shouldExitToWardrobe = isRtl
+            ? dx >= _profileExitSwipeThreshold
+            : dx <= -_profileExitSwipeThreshold;
+
+        if (shouldOpenDrawer) {
+          _profileSwipeHandledThisDrag = true;
           if (!(_scaffoldKey.currentState?.isDrawerOpen ?? false)) {
             _scaffoldKey.currentState?.openDrawer();
           }
+        } else if (shouldExitToWardrobe) {
+          _profileSwipeHandledThisDrag = true;
+          _handleTabSwitch(AppTab.wardrobe);
         }
       },
-      onHorizontalDragEnd: (_) {
-        _profileHorizontalDragDelta = 0.0;
-        _profileDrawerTriggeredThisDrag = false;
+      onPointerUp: (event) {
+        if (event.pointer == _profileActivePointer) {
+          _resetProfilePointerTracking();
+        }
       },
-      onHorizontalDragCancel: () {
-        _profileHorizontalDragDelta = 0.0;
-        _profileDrawerTriggeredThisDrag = false;
+      onPointerCancel: (event) {
+        if (event.pointer == _profileActivePointer) {
+          _resetProfilePointerTracking();
+        }
       },
       child: const ProfileTab(),
     );

@@ -976,6 +976,7 @@ final Map<String, String> stringsEn = {
   'setBiometricAuthReason': 'Authenticate to access StyleMorph',
   'setBiometricMobileOnly': 'Available on mobile app',
   'setBiometricUnlockBtn': 'Unlock with Biometrics',
+  'setBiometricTapToUnlock': 'Tap to unlock',
   'setBiometricLockedTitle': 'App is Locked',
   'setBiometricLockedDesc':
       'Please authenticate with your fingerprint or Face ID to continue.',

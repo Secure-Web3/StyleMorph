@@ -975,6 +975,7 @@ final Map<String, String> stringsFa = {
       'برای فعال‌سازی یا ورود به StyleMorph، هویت خود را تایید کنید.',
   'setBiometricMobileOnly': 'مختص نسخه اپلیکیشن موبایل',
   'setBiometricUnlockBtn': 'بازگشایی با بیومتریک',
+  'setBiometricTapToUnlock': 'برای بازگشایی لمس کنید',
   'setBiometricLockedTitle': 'برنامه قفل است',
   'setBiometricLockedDesc':
       'برای دسترسی به حساب، لطفاً با اثر انگشت یا چهره خود وارد شوید.',

@@ -10,6 +10,8 @@ import 'package:stylemorph/core/state/app_state.dart';
 import 'package:stylemorph/core/theme/app_colors.dart';
 import 'package:stylemorph/core/theme/app_theme.dart';
 import 'package:stylemorph/core/theme/theme_provider.dart';
+import 'package:stylemorph/core/widgets/app_button.dart';
+import 'package:stylemorph/core/widgets/app_logo.dart';
 import 'package:stylemorph/core/widgets/app_switch.dart';
 import 'package:stylemorph/core/widgets/brand_wordmark.dart';
 import 'package:stylemorph/features/auth/presentation/biometric_lock_screen.dart';
@@ -39,8 +41,14 @@ class _TestAppStateNotifier extends AppStateNotifier {
 class _FakeBiometricService extends BiometricService {
   final bool supported;
   final bool enabled;
+  final bool authResult;
+  int authenticateCalls = 0;
 
-  _FakeBiometricService({this.supported = true, this.enabled = true});
+  _FakeBiometricService({
+    this.supported = true,
+    this.enabled = true,
+    this.authResult = false,
+  });
 
   @override
   Future<bool> isBiometricAvailable() async => supported;
@@ -49,7 +57,10 @@ class _FakeBiometricService extends BiometricService {
   Future<bool> isBiometricLockEnabled() async => enabled;
 
   @override
-  Future<bool> authenticate({required String localizedReason}) async => false;
+  Future<bool> authenticate({required String localizedReason}) async {
+    authenticateCalls++;
+    return authResult;
+  }
 }
 
 Widget _wrapWithApp({
@@ -289,21 +300,74 @@ void main() {
       },
     );
 
-    testWidgets('BiometricLockScreen renders BrandWordmark', (tester) async {
-      await tester.pumpWidget(
-        _wrapWithApp(
-          extraOverrides: [
-            biometricServiceProvider.overrideWithValue(
-              _FakeBiometricService(supported: true, enabled: true),
-            ),
+    testWidgets(
+      'BiometricLockScreen renders Plan 1 single fingerprint target, AppLogo, BrandWordmark, and Tap to unlock without redundant button',
+      (tester) async {
+        final fakeService = _FakeBiometricService(
+          supported: true,
+          enabled: true,
+          authResult: true,
+        );
+        final container = ProviderContainer(
+          overrides: [
+            biometricServiceProvider.overrideWithValue(fakeService),
+            themeProvider.overrideWith((ref) => ThemeNotifier()),
+            localeProvider.overrideWith((ref) => LocaleNotifier()),
           ],
-          child: const BiometricLockScreen(),
-        ),
-      );
-      await tester.pumpAndSettle();
+        );
+        addTearDown(container.dispose);
 
-      expect(find.byType(BrandWordmark), findsOneWidget);
-      expect(find.text(BrandWordmark.brandText), findsOneWidget);
-    });
+        await tester.pumpWidget(
+          UncontrolledProviderScope(
+            container: container,
+            child: MaterialApp(
+              theme: AppTheme.buildTheme(
+                palette: AppPalette.editorial,
+                isDark: false,
+              ),
+              locale: const Locale('fa'),
+              supportedLocales: const [
+                Locale('fa'),
+                Locale('en'),
+                Locale('ar'),
+                Locale('tr'),
+              ],
+              localizationsDelegates: const [
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              home: const Directionality(
+                textDirection: TextDirection.rtl,
+                child: BiometricLockScreen(),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(find.byType(AppLogo), findsOneWidget);
+        expect(find.byType(BrandWordmark), findsOneWidget);
+        expect(find.text(BrandWordmark.brandText), findsOneWidget);
+        expect(
+          find.byKey(const Key('biometric_fingerprint_btn')),
+          findsOneWidget,
+        );
+        expect(find.text('برای بازگشایی لمس کنید'), findsOneWidget);
+        expect(find.text('بازگشایی با بیومتریک'), findsNothing);
+        expect(find.text('Unlock with Biometrics'), findsNothing);
+        expect(find.byType(AppButton), findsNothing);
+
+        // initState triggers biometric prompt once; tapping the fingerprint circle triggers it again.
+        final callsAfterInit = fakeService.authenticateCalls;
+        expect(callsAfterInit, greaterThanOrEqualTo(1));
+
+        await tester.tap(find.byKey(const Key('biometric_fingerprint_btn')));
+        await tester.pumpAndSettle();
+
+        expect(fakeService.authenticateCalls, callsAfterInit + 1);
+        expect(container.read(biometricUnlockedProvider), isTrue);
+      },
+    );
   });
 }

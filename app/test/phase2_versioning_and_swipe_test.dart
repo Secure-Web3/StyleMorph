@@ -9,7 +9,9 @@ import 'package:stylemorph/core/localization/locale_provider.dart';
 import 'package:stylemorph/core/state/app_state.dart';
 import 'package:stylemorph/core/theme/app_colors.dart';
 import 'package:stylemorph/core/theme/app_theme.dart';
+import 'package:stylemorph/features/profile/presentation/profile_tab.dart';
 import 'package:stylemorph/features/profile/presentation/widgets/about_sub_tab.dart';
+import 'package:stylemorph/features/profile/presentation/widgets/unsaved_changes_dialog.dart';
 import 'package:stylemorph/features/shell/presentation/main_shell_screen.dart';
 import 'package:stylemorph/features/shell/presentation/widgets/app_drawer.dart';
 
@@ -22,6 +24,8 @@ class _FixedLocaleNotifier extends LocaleNotifier {
 ProviderContainer _createTestContainer({
   AppTab initialTab = AppTab.wardrobe,
   String languageCode = 'fa',
+  bool hasUnsavedProfileChanges = false,
+  String currentProfileTab = 'p-identity',
 }) {
   final language = AppLanguage.fromCode(languageCode);
   return ProviderContainer(
@@ -31,6 +35,8 @@ ProviderContainer _createTestContainer({
         (ref) => AppStateNotifier()
           ..state = AppState(
             currentTab: initialTab,
+            currentProfileTab: currentProfileTab,
+            hasUnsavedProfileChanges: hasUnsavedProfileChanges,
             userName: 'Test User',
             userHandle: '@test_user',
             stylePoints: 250,
@@ -294,5 +300,166 @@ void main() {
 
       expect(find.byType(AppDrawer), findsOneWidget);
     });
+
+    testWidgets('LTR (en): start-to-end swipe on Profile opens AppDrawer', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(430, 932));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final language = AppLanguage.fromCode('en');
+      final container = _createTestContainer(
+        initialTab: AppTab.profile,
+        languageCode: 'en',
+      );
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        _wrapWithApp(
+          container: container,
+          language: language,
+          child: const MainShellScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AppDrawer), findsNothing);
+
+      // In LTR, start -> end is left -> right (+dx)
+      await tester.drag(find.byType(ProfileTab), const Offset(200, 0));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AppDrawer), findsOneWidget);
+      expect(container.read(appStateProvider).currentTab, AppTab.profile);
+    });
+
+    testWidgets('RTL (fa): start-to-end swipe on Profile opens AppDrawer', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(430, 932));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final language = AppLanguage.fromCode('fa');
+      final container = _createTestContainer(
+        initialTab: AppTab.profile,
+        languageCode: 'fa',
+      );
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        _wrapWithApp(
+          container: container,
+          language: language,
+          child: const MainShellScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AppDrawer), findsNothing);
+
+      // In RTL, start -> end is right -> left (-dx)
+      await tester.drag(find.byType(ProfileTab), const Offset(-200, 0));
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AppDrawer), findsOneWidget);
+      expect(container.read(appStateProvider).currentTab, AppTab.profile);
+    });
+
+    testWidgets('LTR (en): end-to-start swipe on Profile exits to Wardrobe', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(430, 932));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final language = AppLanguage.fromCode('en');
+      final container = _createTestContainer(
+        initialTab: AppTab.profile,
+        languageCode: 'en',
+        currentProfileTab: 'p-settings',
+      );
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        _wrapWithApp(
+          container: container,
+          language: language,
+          child: const MainShellScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // In LTR, end -> start is right -> left (-dx)
+      await tester.drag(find.byType(ProfileTab), const Offset(-200, 0));
+      await tester.pumpAndSettle();
+
+      expect(container.read(appStateProvider).currentTab, AppTab.wardrobe);
+    });
+
+    testWidgets('RTL (fa): end-to-start swipe on Profile exits to Wardrobe', (
+      tester,
+    ) async {
+      await tester.binding.setSurfaceSize(const Size(430, 932));
+      addTearDown(() => tester.binding.setSurfaceSize(null));
+
+      final language = AppLanguage.fromCode('fa');
+      final container = _createTestContainer(
+        initialTab: AppTab.profile,
+        languageCode: 'fa',
+        currentProfileTab: 'p-settings',
+      );
+      addTearDown(container.dispose);
+
+      await tester.pumpWidget(
+        _wrapWithApp(
+          container: container,
+          language: language,
+          child: const MainShellScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // In RTL, end -> start is left -> right (+dx)
+      await tester.drag(find.byType(ProfileTab), const Offset(200, 0));
+      await tester.pumpAndSettle();
+
+      expect(container.read(appStateProvider).currentTab, AppTab.wardrobe);
+    });
+
+    testWidgets(
+      'Profile end-to-start swipe respects UnsavedChangesDialog when Identity is dirty',
+      (tester) async {
+        await tester.binding.setSurfaceSize(const Size(430, 932));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+
+        final language = AppLanguage.fromCode('en');
+        final container = _createTestContainer(
+          initialTab: AppTab.profile,
+          languageCode: 'en',
+          currentProfileTab: 'p-identity',
+        );
+        addTearDown(container.dispose);
+
+        await tester.pumpWidget(
+          _wrapWithApp(
+            container: container,
+            language: language,
+            child: const MainShellScreen(),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        // Simulate user editing an Identity field after ProfileTab mounts
+        container.read(appStateProvider.notifier).markDirty();
+        await tester.pump();
+
+        // Swipe end -> start in LTR (-dx)
+        await tester.drag(find.byType(ProfileTab), const Offset(-200, 0));
+        await tester.pumpAndSettle();
+
+        // Guard dialog must appear and keep user on Profile until resolved
+        expect(find.byType(UnsavedChangesDialog), findsOneWidget);
+        expect(container.read(appStateProvider).currentTab, AppTab.profile);
+      },
+    );
   });
 }

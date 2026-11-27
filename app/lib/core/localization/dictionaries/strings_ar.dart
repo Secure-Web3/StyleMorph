@@ -950,6 +950,7 @@ final Map<String, String> stringsAr = {
   'setBiometricAuthReason': 'يرجى التحقق للوصول إلى StyleMorph',
   'setBiometricMobileOnly': 'متاح على تطبيق الهاتف فقط',
   'setBiometricUnlockBtn': 'فتح القفل بالبصمة',
+  'setBiometricTapToUnlock': 'انقر لفتح القفل',
   'setBiometricLockedTitle': 'التطبيق مقفل',
   'setBiometricLockedDesc': 'يرجى التحقق ببصمة الإصبع أو الوجه للمتابعة.',
   'setBiometricUnavailable':
