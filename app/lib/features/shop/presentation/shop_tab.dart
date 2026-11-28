@@ -207,13 +207,22 @@ class _ShopTabState extends ConsumerState<ShopTab>
     final activeFilters = shopState.filter.activeFilterCount;
     final isWishlistSelected = shopState.filter.category == 'fav';
     final savedCount = shopState.totalWishlistCount;
+    final profileFit = shopState.profileFit;
     final searchQuery = ShopSearchQueryBuilder.buildQuery(
       filter: shopState.filter,
       localeCode: strings.localeCode,
+      clothingSize: profileFit?.clothingSize ?? 'M',
+      shoeSize: profileFit?.shoeSize ?? '42',
+      profileGender: profileFit?.normalizedGenderCode,
+      fitPreference: profileFit?.fitPreference,
     );
     final searchUri = ShopSearchQueryBuilder.buildSearchUri(
       filter: shopState.filter,
       localeCode: strings.localeCode,
+      clothingSize: profileFit?.clothingSize ?? 'M',
+      shoeSize: profileFit?.shoeSize ?? '42',
+      profileGender: profileFit?.normalizedGenderCode,
+      fitPreference: profileFit?.fitPreference,
     );
     final dismissiblePills = _buildDismissibleFilterPills(
       strings,

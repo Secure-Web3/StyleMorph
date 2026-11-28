@@ -28,11 +28,19 @@ class ShopWebDiscoveryView extends ConsumerStatefulWidget {
     required this.searchUri,
     required this.searchQuery,
     this.activeFilterLabels = const [],
+    @visibleForTesting this.onTestProductChannelReady,
   });
 
   final Uri searchUri;
   final String searchQuery;
   final List<String> activeFilterLabels;
+  final void Function(void Function(String) onMessage)?
+  onTestProductChannelReady;
+
+  @visibleForTesting
+  static Color resolveWebViewBackgroundColor(BuildContext context) {
+    return Theme.of(context).colorScheme.surface;
+  }
 
   /// Injected CSS/JS rule that guarantees sharp, unblurred, full-opacity
   /// rendering for search-grid thumbnails and opened product images.
@@ -52,9 +60,9 @@ class ShopWebDiscoveryView extends ConsumerStatefulWidget {
 ''';
   }
 
-  /// Lightweight JS long-press bridge on `<img>` and product anchor cards
-  /// (`a img`) that suppresses the native context menu and posts product
-  /// metadata to `StyleMorphProductChannel`.
+  /// Capturing JS long-press bridge on `document` that resolves elements under
+  /// transparent product-card overlays (`elementFromPoint`), suppresses the
+  /// native context menu, and posts product metadata to `StyleMorphProductChannel`.
   @visibleForTesting
   static String buildImageLongPressBridgeJs() {
     return '''
@@ -65,21 +73,48 @@ class ShopWebDiscoveryView extends ConsumerStatefulWidget {
   var holdTimer = null;
   var startX = 0;
   var startY = 0;
+  var longPressFired = false;
 
-  function findProductPayload(target) {
-    if (!target || !target.closest) return null;
-    var img = target.tagName === 'IMG' ? target : target.closest('img');
-    var anchor = target.closest('a');
-    if (!img && anchor) {
-      img = anchor.querySelector('img');
+  function extractBgImageUrl(el) {
+    if (!el || !window.getComputedStyle) return '';
+    var bg = window.getComputedStyle(el).backgroundImage || '';
+    var match = bg.match(/url\\(["']?([^"')]+)["']?\\)/i);
+    return (match && match[1]) ? match[1] : '';
+  }
+
+  function findProductPayload(rawTarget, x, y) {
+    var pointTarget = (typeof x === 'number' && typeof y === 'number' && document.elementFromPoint)
+      ? (document.elementFromPoint(x, y) || rawTarget)
+      : rawTarget;
+    if (!pointTarget || !pointTarget.closest) return null;
+
+    var tile = pointTarget.closest('a, [data-docid], [data-ved], article, li, [data-ri], .isv-r') ||
+      pointTarget.closest('div');
+    var anchor = pointTarget.closest('a') || (tile && tile.querySelector ? tile.querySelector('a') : null);
+    var img = pointTarget.tagName === 'IMG' ? pointTarget : pointTarget.closest('img');
+    if (!img && tile && tile.querySelector) {
+      img = tile.querySelector('img');
     }
-    if (!img) return null;
-    var imageUrl = img.currentSrc || img.src || '';
+
+    var imageUrl = '';
+    if (img) {
+      imageUrl = img.currentSrc || img.src || img.getAttribute('data-src') || '';
+    }
+    if (!imageUrl) {
+      imageUrl = extractBgImageUrl(pointTarget) || extractBgImageUrl(tile);
+    }
     if (!imageUrl || imageUrl.indexOf('data:') === 0) return null;
+
     var pageUrl = (anchor && anchor.href) ? anchor.href : (window.location.href || '');
-    var rawTitle = (img.getAttribute('alt') || (anchor && anchor.getAttribute('aria-label')) || '').trim();
-    if (!rawTitle && anchor) {
-      var heading = anchor.querySelector('h1, h2, h3, h4, span, div');
+    var rawTitle = (
+      (img && img.getAttribute('alt')) ||
+      pointTarget.getAttribute('aria-label') ||
+      pointTarget.getAttribute('title') ||
+      (anchor && (anchor.getAttribute('aria-label') || anchor.getAttribute('title'))) ||
+      ''
+    ).trim();
+    if (!rawTitle && tile && tile.querySelector) {
+      var heading = tile.querySelector('h1, h2, h3, h4, [role="heading"], span, div');
       if (heading && heading.textContent) {
         rawTitle = heading.textContent.trim().slice(0, 120);
       }
@@ -105,25 +140,29 @@ class ShopWebDiscoveryView extends ConsumerStatefulWidget {
   }
 
   document.addEventListener('contextmenu', function(e) {
-    var payload = findProductPayload(e.target);
+    var payload = findProductPayload(e.target, e.clientX, e.clientY);
     if (payload) {
       e.preventDefault();
       e.stopPropagation();
       postPayload(payload);
     }
-  }, true);
+  }, { capture: true, passive: false });
 
   document.addEventListener('touchstart', function(e) {
     if (!e.touches || e.touches.length !== 1) return;
-    var payload = findProductPayload(e.target);
-    if (!payload) return;
+    longPressFired = false;
     startX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
+    var target = e.target;
     clearTimeout(holdTimer);
     holdTimer = setTimeout(function() {
-      postPayload(payload);
+      var payload = findProductPayload(target, startX, startY);
+      if (payload) {
+        longPressFired = true;
+        postPayload(payload);
+      }
     }, 500);
-  }, { passive: true, capture: true });
+  }, { capture: true, passive: false });
 
   document.addEventListener('touchmove', function(e) {
     if (!holdTimer || !e.touches || e.touches.length !== 1) return;
@@ -133,17 +172,23 @@ class ShopWebDiscoveryView extends ConsumerStatefulWidget {
       clearTimeout(holdTimer);
       holdTimer = null;
     }
-  }, { passive: true, capture: true });
+  }, { capture: true, passive: false });
 
-  document.addEventListener('touchend', function() {
+  document.addEventListener('touchend', function(e) {
     clearTimeout(holdTimer);
     holdTimer = null;
-  }, { passive: true, capture: true });
+    if (longPressFired) {
+      e.preventDefault();
+      e.stopPropagation();
+      longPressFired = false;
+    }
+  }, { capture: true, passive: false });
 
   document.addEventListener('touchcancel', function() {
     clearTimeout(holdTimer);
     holdTimer = null;
-  }, { passive: true, capture: true });
+    longPressFired = false;
+  }, { capture: true, passive: false });
 })();
 ''';
   }
@@ -163,6 +208,7 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView>
   ExtractedWebProduct? _extractedProduct;
   ExtractedWebProduct? _longPressedProduct;
   AppColors? _lastColors;
+  ThemeData? _lastTheme;
 
   @override
   bool get wantKeepAlive => true;
@@ -170,6 +216,9 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView>
   @override
   void initState() {
     super.initState();
+    widget.onTestProductChannelReady?.call((rawJson) {
+      _handleProductChannelMessage(JavaScriptMessage(message: rawJson));
+    });
     _initWebViewIfSupported();
   }
 
@@ -244,10 +293,17 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final theme = Theme.of(context);
     final colors = context.colors;
-    if (_lastColors != colors) {
+    if (_lastTheme != theme || _lastColors != colors) {
+      _lastTheme = theme;
       _lastColors = colors;
-      _syncThemeToWebView(colors);
+      _syncThemeToWebView(
+        colors,
+        surfaceColor: ShopWebDiscoveryView.resolveWebViewBackgroundColor(
+          context,
+        ),
+      );
     }
   }
 
@@ -267,11 +323,14 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView>
     return '#${rgb.toRadixString(16).padLeft(6, '0')}';
   }
 
-  Future<void> _syncThemeToWebView(AppColors colors) async {
+  Future<void> _syncThemeToWebView(
+    AppColors colors, {
+    Color? surfaceColor,
+  }) async {
     final controller = _controller;
     if (!_webViewSupported || controller == null) return;
     try {
-      await controller.setBackgroundColor(colors.bg);
+      await controller.setBackgroundColor(surfaceColor ?? colors.bg);
       await controller.runJavaScript(_buildThemeSyncJs(colors));
     } catch (_) {}
   }
@@ -315,7 +374,10 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView>
     final controller = _controller;
     if (!_webViewSupported || controller == null) return;
     try {
-      await controller.setBackgroundColor(colors.bg);
+      final surfaceColor = ShopWebDiscoveryView.resolveWebViewBackgroundColor(
+        context,
+      );
+      await controller.setBackgroundColor(surfaceColor);
       await controller.runJavaScript(
         '${_buildHeaderMaskJs()}\n${_buildThemeSyncJs(colors)}\n${ShopWebDiscoveryView.buildCrispImagesJs()}',
       );

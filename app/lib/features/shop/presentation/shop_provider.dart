@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/state/app_state.dart';
 import '../data/shop_repository.dart';
 import '../domain/extracted_web_product.dart';
 import '../domain/shop_product.dart';
+import '../domain/shop_query_builder.dart';
 
 class ShopFilter {
   final String
@@ -91,6 +93,7 @@ class ShopState {
   final List<int> compareList;
   final Map<int, int> priceAlerts; // productId -> alert discount pct
   final List<int> recentlyViewed;
+  final ShopProfileFitSpec? profileFit;
 
   const ShopState({
     required this.products,
@@ -101,6 +104,7 @@ class ShopState {
     this.compareList = const [],
     this.priceAlerts = const {},
     this.recentlyViewed = const [2, 4],
+    this.profileFit,
   });
 
   int get totalWishlistCount => wishlist.length + webWishlist.length;
@@ -115,6 +119,7 @@ class ShopState {
     List<int>? compareList,
     Map<int, int>? priceAlerts,
     List<int>? recentlyViewed,
+    ShopProfileFitSpec? profileFit,
   }) {
     return ShopState(
       products: products ?? this.products,
@@ -127,13 +132,20 @@ class ShopState {
       compareList: compareList ?? this.compareList,
       priceAlerts: priceAlerts ?? this.priceAlerts,
       recentlyViewed: recentlyViewed ?? this.recentlyViewed,
+      profileFit: profileFit ?? this.profileFit,
     );
   }
 
   bool _isSizeFit(ShopProduct p) {
+    final fitGender = profileFit?.normalizedGenderCode;
+    if (fitGender != null && p.gender != 'u' && p.gender != fitGender) {
+      return false;
+    }
     if (p.sizes.isEmpty) return true;
-    if (p.category == 'shoe') return p.sizes.contains('42');
-    if (p.category == 'cloth') return p.sizes.contains('M');
+    final shoeSize = profileFit?.shoeSize ?? '42';
+    final clothingSize = profileFit?.clothingSize ?? 'M';
+    if (p.category == 'shoe') return p.sizes.contains(shoeSize);
+    if (p.category == 'cloth') return p.sizes.contains(clothingSize);
     return true;
   }
 
@@ -225,6 +237,13 @@ class ShopNotifier extends StateNotifier<ShopState> {
           webWishlist: _repo.getSavedWebWishlist(),
         ),
       );
+
+  void syncProfileFit(Map<String, String> aiDnaValues) {
+    final resolved = ShopSearchQueryBuilder.resolveProfileFitSpec(aiDnaValues);
+    if (state.profileFit != resolved) {
+      state = state.copyWith(profileFit: resolved);
+    }
+  }
 
   void refresh() {
     state = state.copyWith(
@@ -336,9 +355,15 @@ final shopRepositoryProvider = Provider<ShopRepository>(
   (_) => ShopRepository(),
 );
 
-final shopProvider = StateNotifierProvider<ShopNotifier, ShopState>(
-  (ref) => ShopNotifier(ref.read(shopRepositoryProvider)),
-);
+final shopProvider = StateNotifierProvider<ShopNotifier, ShopState>((ref) {
+  final notifier = ShopNotifier(ref.read(shopRepositoryProvider));
+  notifier.syncProfileFit(ref.read(appStateProvider).aiDnaValues);
+  ref.listen<Map<String, String>>(
+    appStateProvider.select((s) => s.aiDnaValues),
+    (_, next) => notifier.syncProfileFit(next),
+  );
+  return notifier;
+});
 
 /// Holds the latest Shop product payload handed off to Stylist or Atelier.
 class ShopHandoffState {
