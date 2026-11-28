@@ -1212,4 +1212,15 @@ final Map<String, String> stringsEn = {
   'updateDialogInstalling': 'Opening installer...',
   'updateDialogError': 'Download failed. Please try again.',
   'updateDialogRetryBtn': 'Retry',
+  'connServerUnreachableBanner':
+      'Unable to reach sync and update servers. Please check your internet connection or VPN.',
+  'connRetryBtn': 'Retry',
+  'aboutUpdateServerUnreachable':
+      'Update server could not be reached. Please check your internet connection or VPN and try again.',
+  'loyaltyYourEarnedPointsTitle': 'Your Earned Points',
+  'loyaltyBreakdownProfile': 'Profile Completion ({percent})',
+  'loyaltyBreakdownEmail': 'Verified Email',
+  'loyaltyBreakdownReferrals': 'Friend Referrals ({count})',
+  'loyaltyBreakdownAiUsage': 'AI Usage ({count})',
+  'loyaltyBreakdownWallet': 'Wallet Activity ({count} coins)',
 };

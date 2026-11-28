@@ -1180,4 +1180,15 @@ final Map<String, String> stringsAr = {
   'updateDialogInstalling': 'جارٍ فتح المثبّت...',
   'updateDialogError': 'فشل التنزيل. يُرجى المحاولة مرة أخرى.',
   'updateDialogRetryBtn': 'إعادة المحاولة',
+  'connServerUnreachableBanner':
+      'تعذر الوصول إلى خوادم المزامنة والتحديثات. يُرجى التحقق من اتصالك بالإنترنت أو VPN.',
+  'connRetryBtn': 'إعادة المحاولة',
+  'aboutUpdateServerUnreachable':
+      'تعذر الوصول إلى خادم التحديثات. يُرجى التحقق من اتصالك بالإنترنت أو VPN والمحاولة مجدداً.',
+  'loyaltyYourEarnedPointsTitle': 'تفاصيل نقاطك المكتسبة',
+  'loyaltyBreakdownProfile': 'اكتمال الملف ({percent})',
+  'loyaltyBreakdownEmail': 'تأكيد البريد الإلكتروني',
+  'loyaltyBreakdownReferrals': 'دعوة الأصدقاء ({count})',
+  'loyaltyBreakdownAiUsage': 'استخدام الذكاء الاصطناعي ({count})',
+  'loyaltyBreakdownWallet': 'نشاط المحفظة ({count} عملة)',
 };

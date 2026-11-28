@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -330,9 +331,11 @@ class ProfileSyncService {
       }
     }
     ref.read(localeProvider.notifier).setLanguage(prefs.appLanguage);
-    ref
-        .read(biometricServiceProvider)
-        .setBiometricLockEnabled(prefs.biometricLock);
+    unawaited(
+      ref
+          .read(biometricServiceProvider)
+          .reconcileSyncedBiometricLock(prefs.biometricLock),
+    );
   }
 }
 

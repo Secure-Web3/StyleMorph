@@ -1498,6 +1498,23 @@ class AppStrings {
     return get('timeDaysAgo').replaceAll('{n}', d);
   }
 
+  // Connectivity / VPN & Earned Points Breakdown getters
+  String get connServerUnreachableBanner => get('connServerUnreachableBanner');
+  String get connRetryBtn => get('connRetryBtn');
+  String get aboutUpdateServerUnreachable =>
+      get('aboutUpdateServerUnreachable');
+  String get loyaltyYourEarnedPointsTitle =>
+      get('loyaltyYourEarnedPointsTitle');
+  String loyaltyBreakdownProfile(String percent) =>
+      get('loyaltyBreakdownProfile').replaceAll('{percent}', percent);
+  String get loyaltyBreakdownEmail => get('loyaltyBreakdownEmail');
+  String loyaltyBreakdownReferrals(String count) =>
+      get('loyaltyBreakdownReferrals').replaceAll('{count}', count);
+  String loyaltyBreakdownAiUsage(String count) =>
+      get('loyaltyBreakdownAiUsage').replaceAll('{count}', count);
+  String loyaltyBreakdownWallet(String count) =>
+      get('loyaltyBreakdownWallet').replaceAll('{count}', count);
+
   String authErrorMessage(String code) {
     switch (code) {
       case 'device-blocked':

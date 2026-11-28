@@ -1,11 +1,17 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/localization/app_strings.dart';
 import '../../../../core/localization/locale_provider.dart';
+import '../../../../core/services/connection_health_service.dart';
 import '../../../../core/services/prefetch/app_prefetch_service.dart';
 import '../../../../core/services/session_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../../core/theme/app_radius.dart';
+import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../atelier/presentation/atelier_tab.dart';
 import '../../profile/presentation/profile_tab.dart';
@@ -65,6 +71,9 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
       ref
           .read(appPrefetchServiceProvider)
           .prefetchOnAuth(ref: ref, context: context);
+      if (!kIsWeb) {
+        ref.read(connectionHealthProvider.notifier).checkReachability();
+      }
     });
   }
 
@@ -301,6 +310,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
     final showSupport = ref.watch(
       appStateProvider.select((s) => s.showFloatingSupport || s.isSupportOpen),
     );
+    final connectionHealth = ref.watch(connectionHealthProvider);
 
     // Outer background: slightly darker than surface for desktop web frame effect.
     final outerColor = isDark
@@ -375,29 +385,47 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                             _scaffoldKey.currentState?.openDrawer(),
                       ),
                       drawer: const AppDrawer(),
-                      body: LayoutBuilder(
-                        builder: (context, bodyConstraints) {
-                          return Stack(
-                            children: [
-                              Positioned.fill(
-                                child: Offstage(
-                                  offstage: isProfile,
-                                  child: _buildModulesPageView(),
-                                ),
-                              ),
-                              if (isProfile)
-                                Positioned.fill(
-                                  child: _buildProfileWithDrawerSwipe(context),
-                                ),
-                              if (showSupport)
-                                Positioned.fill(
-                                  child: SupportWidget(
-                                    bodySize: bodyConstraints.biggest,
-                                  ),
-                                ),
-                            ],
-                          );
-                        },
+                      body: Column(
+                        children: [
+                          if (connectionHealth.shouldShowBanner)
+                            _ServerConnectivityBanner(
+                              isChecking: connectionHealth.isChecking,
+                              onRetry: () => ref
+                                  .read(connectionHealthProvider.notifier)
+                                  .checkReachability(resetDismissed: true),
+                              onDismiss: () => ref
+                                  .read(connectionHealthProvider.notifier)
+                                  .dismissBanner(),
+                            ),
+                          Expanded(
+                            child: LayoutBuilder(
+                              builder: (context, bodyConstraints) {
+                                return Stack(
+                                  children: [
+                                    Positioned.fill(
+                                      child: Offstage(
+                                        offstage: isProfile,
+                                        child: _buildModulesPageView(),
+                                      ),
+                                    ),
+                                    if (isProfile)
+                                      Positioned.fill(
+                                        child: _buildProfileWithDrawerSwipe(
+                                          context,
+                                        ),
+                                      ),
+                                    if (showSupport)
+                                      Positioned.fill(
+                                        child: SupportWidget(
+                                          bodySize: bodyConstraints.biggest,
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                       bottomNavigationBar: AppBottomNav(
                         onTabSelected: _handleTabSwitch,
@@ -409,6 +437,100 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _ServerConnectivityBanner extends StatelessWidget {
+  final bool isChecking;
+  final VoidCallback onRetry;
+  final VoidCallback onDismiss;
+
+  const _ServerConnectivityBanner({
+    required this.isChecking,
+    required this.onRetry,
+    required this.onDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final strings = context.strings;
+
+    return Container(
+      key: const Key('server_unreachable_banner'),
+      width: double.infinity,
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.md,
+        AppSpacing.xs,
+        AppSpacing.xs,
+        AppSpacing.xs,
+      ),
+      decoration: BoxDecoration(
+        color: colors.orColor.withValues(alpha: 0.12),
+        border: Border(
+          bottom: BorderSide(color: colors.orColor.withValues(alpha: 0.35)),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.wifi_off_rounded, size: 16, color: colors.orColor),
+          const SizedBox(width: AppSpacing.xs),
+          Expanded(
+            child: Text(
+              strings.connServerUnreachableBanner,
+              style: TextStyle(
+                fontFamily: AppTypography.fontFamily,
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: colors.tx,
+                height: 1.35,
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          TextButton(
+            key: const Key('server_unreachable_retry_btn'),
+            onPressed: isChecking ? null : onRetry,
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm,
+                vertical: 4,
+              ),
+              minimumSize: const Size(0, 28),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              backgroundColor: colors.orColor.withValues(alpha: 0.16),
+              shape: RoundedRectangleBorder(borderRadius: AppRadius.rSm),
+            ),
+            child: isChecking
+                ? SizedBox(
+                    width: 12,
+                    height: 12,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 1.8,
+                      color: colors.orColor,
+                    ),
+                  )
+                : Text(
+                    strings.connRetryBtn,
+                    style: TextStyle(
+                      fontFamily: AppTypography.fontFamily,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: colors.orColor,
+                    ),
+                  ),
+          ),
+          IconButton(
+            key: const Key('server_unreachable_dismiss_btn'),
+            onPressed: onDismiss,
+            icon: Icon(Icons.close_rounded, size: 16, color: colors.mu),
+            padding: const EdgeInsets.all(4),
+            constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+            visualDensity: VisualDensity.compact,
+          ),
+        ],
       ),
     );
   }

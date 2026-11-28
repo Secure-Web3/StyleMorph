@@ -16,6 +16,7 @@ import '../../features/profile/domain/profile_progress_calculator.dart';
 import '../../features/profile/domain/profile_snapshot.dart';
 import '../../features/shell/domain/app_tab.dart';
 import '../../features/shell/domain/notification_item.dart';
+import '../services/biometric_service.dart';
 import '../services/loyalty_service.dart';
 import '../services/notification_service.dart';
 import '../services/referral_service.dart';
@@ -473,6 +474,19 @@ class AppStateNotifier extends StateNotifier<AppState> {
 
       if (result != null) {
         final parsed = result.parsed;
+        var effectivePreferences = parsed.preferences;
+        if (effectivePreferences.biometricLock) {
+          final biometricService =
+              _ref?.read(biometricServiceProvider) ?? BiometricService();
+          final isBindingValid = await biometricService
+              .reconcileSyncedBiometricLock(true);
+          if (!isBindingValid) {
+            effectivePreferences = effectivePreferences.copyWith(
+              biometricLock: false,
+            );
+            unawaited(updatePreferencesImmediately(effectivePreferences));
+          }
+        }
         state = state.copyWith(
           photoUrl: parsed.photoUrl,
           identityValues: parsed.identity,
@@ -487,9 +501,9 @@ class AppStateNotifier extends StateNotifier<AppState> {
           kycData: parsed.kyc,
           personaMode: parsed.personaMode,
           mediaSlots: parsed.mediaSlots,
-          preferences: parsed.preferences,
-          showFloatingSupport: parsed.preferences.showFloatingSupport,
-          showHeaderCoins: parsed.preferences.showHeaderCoins,
+          preferences: effectivePreferences,
+          showFloatingSupport: effectivePreferences.showFloatingSupport,
+          showHeaderCoins: effectivePreferences.showHeaderCoins,
           referralCode: parsed.referralCode,
           referralCount: result.referrals.isNotEmpty
               ? result.referrals.length

@@ -80,70 +80,57 @@ class AppDrawer extends ConsumerWidget {
 
             // ── Zone 2: Focused, Non-Redundant Shortcuts ───────────────────
             Expanded(
-              child: CustomScrollView(
-                slivers: [
-                  SliverPadding(
-                    padding: const EdgeInsetsDirectional.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.sm,
-                    ),
-                    sliver: SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          // Compact Wallet & Plan Card
-                          const _DrawerWalletCard(),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: AppSpacing.md,
+                  vertical: AppSpacing.sm,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Compact Wallet & Plan Card
+                    const _DrawerWalletCard(),
 
-                          const Spacer(),
-
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.xs,
-                            ),
-                            child: Divider(height: 1, color: colors.bd),
-                          ),
-
-                          // App & Support Section anchored above the bottom dock
-                          _DrawerSectionLabel(
-                            label: strings.drawerSectionAppSupport,
-                          ),
-                          const SizedBox(height: AppSpacing.xxs),
-                          _DrawerItem(
-                            icon: FontAwesomeIcons.sliders,
-                            title: strings.tSet,
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              ref
-                                  .read(appStateProvider.notifier)
-                                  .switchProfileTab('p-settings');
-                            },
-                          ),
-                          _DrawerItem(
-                            icon: FontAwesomeIcons.headset,
-                            title: strings.mSupport,
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              ref
-                                  .read(appStateProvider.notifier)
-                                  .toggleSupport(true);
-                            },
-                          ),
-                          _DrawerItem(
-                            icon: FontAwesomeIcons.circleInfo,
-                            title: strings.tAbout,
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              ref
-                                  .read(appStateProvider.notifier)
-                                  .switchProfileTab('p-about');
-                            },
-                          ),
-                        ],
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.sm,
                       ),
+                      child: Divider(height: 1, color: colors.bd),
                     ),
-                  ),
-                ],
+
+                    // App & Support Section directly below Wallet & Plan
+                    _DrawerSectionLabel(label: strings.drawerSectionAppSupport),
+                    const SizedBox(height: AppSpacing.xxs),
+                    _DrawerItem(
+                      icon: FontAwesomeIcons.sliders,
+                      title: strings.tSet,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        ref
+                            .read(appStateProvider.notifier)
+                            .switchProfileTab('p-settings');
+                      },
+                    ),
+                    _DrawerItem(
+                      icon: FontAwesomeIcons.headset,
+                      title: strings.mSupport,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        ref.read(appStateProvider.notifier).toggleSupport(true);
+                      },
+                    ),
+                    _DrawerItem(
+                      icon: FontAwesomeIcons.circleInfo,
+                      title: strings.tAbout,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        ref
+                            .read(appStateProvider.notifier)
+                            .switchProfileTab('p-about');
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
 

@@ -1,42 +1,78 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/services/loyalty_service.dart';
+import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
+import '../../../auth/presentation/email_verification_provider.dart';
 
-class LoyaltyModalSheet extends StatelessWidget {
+class LoyaltyModalSheet extends ConsumerWidget {
   final int points;
   final LoyaltyRank rank;
+  final LoyaltyPointsBreakdown? breakdown;
 
   const LoyaltyModalSheet({
     super.key,
     required this.points,
     required this.rank,
+    this.breakdown,
   });
 
   static Future<void> show(
     BuildContext context, {
     required int points,
     required LoyaltyRank rank,
+    LoyaltyPointsBreakdown? breakdown,
   }) {
     return AppModal.showSheet(
       context: context,
-      child: LoyaltyModalSheet(points: points, rank: rank),
+      child: LoyaltyModalSheet(
+        points: points,
+        rank: rank,
+        breakdown: breakdown,
+      ),
     );
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final strings = context.strings;
     final rankColor = rank.color;
     final rankName = rank.getLocalizedName(strings);
     final progressToNext = LoyaltyService.calculateProgressToNextRank(points);
     final nextThreshold = rank.nextRankThreshold;
+
+    final resolvedBreakdown =
+        breakdown ??
+        () {
+          final (
+            profileProgress,
+            referralCount,
+            aiUsageCount,
+            coins,
+          ) = ref.watch(
+            appStateProvider.select(
+              (s) =>
+                  (s.profileProgress, s.referralCount, s.aiUsageCount, s.coins),
+            ),
+          );
+          final isEmailVerified = ref.watch(
+            emailVerificationProvider.select((s) => s.isVerified),
+          );
+          return LoyaltyService.calculateBreakdown(
+            profileProgress: profileProgress,
+            isEmailVerified: isEmailVerified,
+            referralCount: referralCount,
+            aiUsageCount: aiUsageCount,
+            coinActivity: coins,
+          );
+        }();
 
     return AppBottomSheetShell(
       title: strings.loyaltyTitle,
@@ -163,6 +199,82 @@ class LoyaltyModalSheet extends StatelessWidget {
                     ),
                   ),
                 ],
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+
+          // ── 1B. Itemized Earned Points Breakdown ──────────────────────────
+          Text(
+            strings.loyaltyYourEarnedPointsTitle,
+            style: TextStyle(
+              fontFamily: 'Vazirmatn',
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: colors.tx,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          AppCard(
+            key: const Key('loyalty_earned_points_breakdown_card'),
+            variant: AppCardVariant.surface,
+            padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
+            child: Column(
+              children: [
+                _buildBreakdownRow(
+                  colors,
+                  strings,
+                  FontAwesomeIcons.solidUser,
+                  strings.loyaltyBreakdownProfile(
+                    strings.formatPercent(
+                      resolvedBreakdown.profileCompletionPercent,
+                    ),
+                  ),
+                  resolvedBreakdown.profilePoints,
+                  accentColor: rankColor,
+                ),
+                Divider(height: 12, color: colors.bd.withValues(alpha: 0.5)),
+                _buildBreakdownRow(
+                  colors,
+                  strings,
+                  FontAwesomeIcons.envelopeCircleCheck,
+                  strings.loyaltyBreakdownEmail,
+                  resolvedBreakdown.emailPoints,
+                  accentColor: rankColor,
+                ),
+                Divider(height: 12, color: colors.bd.withValues(alpha: 0.5)),
+                _buildBreakdownRow(
+                  colors,
+                  strings,
+                  FontAwesomeIcons.userPlus,
+                  strings.loyaltyBreakdownReferrals(
+                    strings.formatNumber(resolvedBreakdown.referralCount),
+                  ),
+                  resolvedBreakdown.referralPoints,
+                  accentColor: rankColor,
+                ),
+                Divider(height: 12, color: colors.bd.withValues(alpha: 0.5)),
+                _buildBreakdownRow(
+                  colors,
+                  strings,
+                  FontAwesomeIcons.wandMagicSparkles,
+                  strings.loyaltyBreakdownAiUsage(
+                    strings.formatNumber(resolvedBreakdown.aiUsageCount),
+                  ),
+                  resolvedBreakdown.aiPoints,
+                  accentColor: rankColor,
+                ),
+                Divider(height: 12, color: colors.bd.withValues(alpha: 0.5)),
+                _buildBreakdownRow(
+                  colors,
+                  strings,
+                  FontAwesomeIcons.coins,
+                  strings.loyaltyBreakdownWallet(
+                    strings.formatNumber(resolvedBreakdown.coinActivity),
+                  ),
+                  resolvedBreakdown.walletPoints,
+                  accentColor: rankColor,
+                ),
               ],
             ),
           ),
@@ -326,6 +438,48 @@ class LoyaltyModalSheet extends StatelessWidget {
             );
           }),
           const SizedBox(height: AppSpacing.md),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBreakdownRow(
+    AppColors colors,
+    AppStrings strings,
+    FaIconData icon,
+    String label,
+    int earnedPoints, {
+    required Color accentColor,
+  }) {
+    final hasEarned = earnedPoints > 0;
+    final ptsLabel = '+${strings.formatNumber(earnedPoints)} ${strings.pts}';
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: Row(
+        children: [
+          FaIcon(icon, size: 12, color: hasEarned ? accentColor : colors.mu),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontFamily: 'Vazirmatn',
+                fontSize: 11,
+                fontWeight: FontWeight.w500,
+                color: colors.tx,
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            ptsLabel,
+            style: TextStyle(
+              fontFamily: 'Vazirmatn',
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: hasEarned ? accentColor : colors.mu,
+            ),
+          ),
         ],
       ),
     );

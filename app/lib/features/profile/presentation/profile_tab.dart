@@ -230,7 +230,29 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
       builder: (context, constraints) {
         final compactSidebar = constraints.maxHeight < 560;
         final itemVerticalPad = compactSidebar ? 3.0 : 6.0;
+        final itemSpacing = compactSidebar ? 1.0 : 3.0;
         final firstBottomTabId = isAdvanced ? 'p-sessions' : 'p-settings';
+        final splitIndex = subTabs.indexWhere((t) => t.id == firstBottomTabId);
+        final topTabs = splitIndex >= 0
+            ? subTabs.sublist(0, splitIndex)
+            : subTabs;
+        final bottomTabs = splitIndex >= 0
+            ? subTabs.sublist(splitIndex)
+            : const <_SubTabMeta>[];
+
+        Widget buildSidebarButton(_SubTabMeta tab) {
+          return _SidebarTabButton(
+            key: Key('profile_nav_${tab.id}'),
+            tab: tab,
+            isActive: activeTabId == tab.id,
+            verticalPad: itemVerticalPad,
+            colors: colors,
+            strings: strings,
+            badgeCount: tab.id == 'p-sessions' ? activeSessionsCount : null,
+            showAlertBadge: tab.id == 'p-about' && isTermsUnsigned,
+            onTap: tab.isEnabled ? () => _handleSubTabSwitch(tab.id) : null,
+          );
+        }
 
         return SizedBox(
           width: constraints.maxWidth,
@@ -238,7 +260,7 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // ── Start Sidebar Navigation (Fixed width 82px, NON-scrolling) ──
+              // ── Start Sidebar Navigation (Fixed width 82px) ─────────────
               Container(
                 width: 82,
                 decoration: BoxDecoration(
@@ -248,36 +270,44 @@ class _ProfileTabState extends ConsumerState<ProfileTab> {
                 child: SafeArea(
                   top: false,
                   bottom: false,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Column(
-                      children: [
-                        for (int i = 0; i < subTabs.length; i++) ...[
-                          if (subTabs[i].id == firstBottomTabId &&
-                              !compactSidebar)
-                            const Spacer(),
-                          _SidebarTabButton(
-                            key: Key('profile_nav_${subTabs[i].id}'),
-                            tab: subTabs[i],
-                            isActive: activeTabId == subTabs[i].id,
-                            verticalPad: itemVerticalPad,
-                            colors: colors,
-                            strings: strings,
-                            badgeCount: subTabs[i].id == 'p-sessions'
-                                ? activeSessionsCount
-                                : null,
-                            showAlertBadge:
-                                subTabs[i].id == 'p-about' && isTermsUnsigned,
-                            onTap: subTabs[i].isEnabled
-                                ? () => _handleSubTabSwitch(subTabs[i].id)
-                                : null,
+                  child: LayoutBuilder(
+                    builder: (context, sidebarConstraints) {
+                      return SingleChildScrollView(
+                        physics: const ClampingScrollPhysics(),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: sidebarConstraints.maxHeight,
                           ),
-                          if (i < subTabs.length - 1 &&
-                              subTabs[i + 1].id != firstBottomTabId)
-                            SizedBox(height: compactSidebar ? 1 : 3),
-                        ],
-                      ],
-                    ),
+                          child: IntrinsicHeight(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 6),
+                              child: Column(
+                                children: [
+                                  for (int i = 0; i < topTabs.length; i++) ...[
+                                    buildSidebarButton(topTabs[i]),
+                                    if (i < topTabs.length - 1)
+                                      SizedBox(height: itemSpacing),
+                                  ],
+                                  if (bottomTabs.isNotEmpty) ...[
+                                    const Spacer(),
+                                    SizedBox(height: itemSpacing),
+                                    for (
+                                      int i = 0;
+                                      i < bottomTabs.length;
+                                      i++
+                                    ) ...[
+                                      buildSidebarButton(bottomTabs[i]),
+                                      if (i < bottomTabs.length - 1)
+                                        SizedBox(height: itemSpacing),
+                                    ],
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),

@@ -25,10 +25,15 @@ class BiometricService {
   static void resetCacheForTest() => _cachedEnabled = null;
 
   final LocalAuthentication _auth;
+  final Future<bool> Function()? localBindingChecker;
+  final Future<void> Function(bool)? localBindingWriter;
   bool _isAuthenticating = false;
 
-  BiometricService({LocalAuthentication? auth})
-    : _auth = auth ?? LocalAuthentication();
+  BiometricService({
+    LocalAuthentication? auth,
+    this.localBindingChecker,
+    this.localBindingWriter,
+  }) : _auth = auth ?? LocalAuthentication();
 
   /// Whether an OS biometric prompt is currently active.
   bool get isAuthenticating => _isAuthenticating;
@@ -84,6 +89,44 @@ class BiometricService {
     }
   }
 
+  /// Checks whether a local device-bound biometric binding exists.
+  ///
+  /// Returns `false` on web or after a fresh reinstall where local device-bound
+  /// storage was wiped, even if cloud/backup preferences still report `true`.
+  /// On app updates (without uninstall), the local binding remains intact.
+  Future<bool> hasValidLocalBiometricBinding() async {
+    if (kIsWeb) return false;
+    try {
+      if (localBindingChecker != null) {
+        return await localBindingChecker!();
+      }
+      return await SessionLocalStorage.getBiometricLockEnabled();
+    } catch (e) {
+      debugPrint('[BiometricService] hasValidLocalBiometricBinding notice: $e');
+      return false;
+    }
+  }
+
+  /// Reconciles a synced/restored [syncedBiometricEnabled] flag against the
+  /// local device-bound biometric marker during startup/profile hydration.
+  ///
+  /// Returns `true` only when both [syncedBiometricEnabled] and
+  /// [hasValidLocalBiometricBinding] are `true`. Otherwise resets the local
+  /// biometric lock preference to `false` and returns `false`.
+  Future<bool> reconcileSyncedBiometricLock(bool syncedBiometricEnabled) async {
+    if (kIsWeb || !syncedBiometricEnabled) {
+      await setBiometricLockEnabled(false);
+      return false;
+    }
+    final hasBinding = await hasValidLocalBiometricBinding();
+    if (!hasBinding) {
+      await setBiometricLockEnabled(false);
+      return false;
+    }
+    await setBiometricLockEnabled(true);
+    return true;
+  }
+
   /// Saves the user preference for biometric lock.
   Future<void> setBiometricLockEnabled(bool enabled) async {
     if (kIsWeb) return;
@@ -94,7 +137,11 @@ class BiometricService {
     } catch (e) {
       debugPrint('[BiometricService] setBiometricLockEnabled notice: $e');
     }
-    await SessionLocalStorage.setBiometricLockEnabled(enabled);
+    if (localBindingWriter != null) {
+      await localBindingWriter!(enabled);
+    } else {
+      await SessionLocalStorage.setBiometricLockEnabled(enabled);
+    }
   }
 
   /// Triggers biometric prompt (Face ID / Fingerprint / Passcode fallback).

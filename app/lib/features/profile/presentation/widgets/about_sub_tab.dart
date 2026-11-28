@@ -7,6 +7,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import '../../../../core/config/app_build_info.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/services/app_update_service.dart';
+import '../../../../core/services/connection_health_service.dart';
 import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
@@ -83,10 +84,16 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
         return;
       }
 
+      final isReachable = await ref
+          .read(connectionHealthProvider.notifier)
+          .checkReachability(resetDismissed: true);
+
       await Future.delayed(const Duration(milliseconds: 400));
       if (mounted) {
         setState(() {
-          _updateStatus = UpdateCheckStatus.upToDate;
+          _updateStatus = isReachable
+              ? UpdateCheckStatus.upToDate
+              : UpdateCheckStatus.error;
           _availableVersion = null;
           _remoteVersionInfo = null;
           _isForcedUpdate = false;
@@ -94,8 +101,7 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
       }
     } catch (_) {
       if (mounted) {
-        // Graceful fallback: user is on latest known client build
-        setState(() => _updateStatus = UpdateCheckStatus.upToDate);
+        setState(() => _updateStatus = UpdateCheckStatus.error);
       }
     }
   }
@@ -399,6 +405,36 @@ class _AboutSubTabState extends ConsumerState<AboutSubTab> {
                         }
                       }
                     },
+                  ),
+                ],
+              ),
+            ),
+          ] else if (_updateStatus == UpdateCheckStatus.error) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Container(
+              key: const Key('about_update_unreachable_notice'),
+              padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
+              decoration: BoxDecoration(
+                color: colors.orColor.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(AppRadius.sm),
+                border: Border.all(
+                  color: colors.orColor.withValues(alpha: 0.35),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.wifi_off_rounded, size: 16, color: colors.orColor),
+                  const SizedBox(width: AppSpacing.xs),
+                  Expanded(
+                    child: Text(
+                      strings.aboutUpdateServerUnreachable,
+                      style: TextStyle(
+                        fontFamily: 'Vazirmatn',
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: colors.orColor,
+                      ),
+                    ),
                   ),
                 ],
               ),

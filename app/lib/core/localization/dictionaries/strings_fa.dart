@@ -1208,4 +1208,15 @@ final Map<String, String> stringsFa = {
   'updateDialogInstalling': 'در حال باز کردن نصب‌کننده...',
   'updateDialogError': 'دانلود ناموفق بود. لطفاً دوباره تلاش کنید.',
   'updateDialogRetryBtn': 'تلاش مجدد',
+  'connServerUnreachableBanner':
+      'دسترسی به سرورهای همگام‌سازی و بررسی بروزرسانی برقرار نیست. لطفاً اتصال اینترنت یا VPN خود را بررسی کنید.',
+  'connRetryBtn': 'تلاش مجدد',
+  'aboutUpdateServerUnreachable':
+      'سرور بروزرسانی در دسترس نیست. لطفاً اتصال اینترنت یا VPN خود را بررسی کرده و دوباره تلاش کنید.',
+  'loyaltyYourEarnedPointsTitle': 'جزئیات امتیازات شما',
+  'loyaltyBreakdownProfile': 'تکمیل پروفایل ({percent})',
+  'loyaltyBreakdownEmail': 'تایید ایمیل',
+  'loyaltyBreakdownReferrals': 'دعوت از دوستان ({count})',
+  'loyaltyBreakdownAiUsage': 'استفاده از هوش مصنوعی ({count})',
+  'loyaltyBreakdownWallet': 'فعالیت کیف‌پول ({count} سکه)',
 };

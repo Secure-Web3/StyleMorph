@@ -133,6 +133,34 @@ class LoyaltyEvaluation {
   const LoyaltyEvaluation({required this.points, required this.rank});
 }
 
+@immutable
+class LoyaltyPointsBreakdown {
+  final int profileCompletionPercent;
+  final int profilePoints;
+  final int emailPoints;
+  final int referralCount;
+  final int referralPoints;
+  final int aiUsageCount;
+  final int aiPoints;
+  final int coinActivity;
+  final int walletPoints;
+
+  const LoyaltyPointsBreakdown({
+    required this.profileCompletionPercent,
+    required this.profilePoints,
+    required this.emailPoints,
+    required this.referralCount,
+    required this.referralPoints,
+    required this.aiUsageCount,
+    required this.aiPoints,
+    required this.coinActivity,
+    required this.walletPoints,
+  });
+
+  int get totalPoints =>
+      profilePoints + emailPoints + referralPoints + aiPoints + walletPoints;
+}
+
 class LoyaltyService {
   LoyaltyService._();
 
@@ -155,6 +183,32 @@ class LoyaltyService {
     return LoyaltyEvaluation(points: points, rank: rank);
   }
 
+  /// Returns an itemized breakdown of earned StylePoints per category.
+  static LoyaltyPointsBreakdown calculateBreakdown({
+    required double profileProgress,
+    required bool isEmailVerified,
+    int referralCount = 0,
+    int aiUsageCount = 0,
+    int coinActivity = 0,
+  }) {
+    final clampedProgress = profileProgress.clamp(0.0, 1.0);
+    final safeReferrals = referralCount.clamp(0, 999999);
+    final safeAiUsage = aiUsageCount.clamp(0, 999999);
+    final safeCoins = coinActivity.clamp(0, 99999999);
+
+    return LoyaltyPointsBreakdown(
+      profileCompletionPercent: (clampedProgress * 100).round(),
+      profilePoints: (clampedProgress * 300).round(),
+      emailPoints: isEmailVerified ? 100 : 0,
+      referralCount: safeReferrals,
+      referralPoints: safeReferrals * 150,
+      aiUsageCount: safeAiUsage,
+      aiPoints: safeAiUsage * 10,
+      coinActivity: safeCoins,
+      walletPoints: safeCoins ~/ 10,
+    );
+  }
+
   /// Calculates real StylePoints from transparent user activity.
   static int calculateStylePoints({
     required double profileProgress,
@@ -163,12 +217,13 @@ class LoyaltyService {
     int aiUsageCount = 0,
     int coinActivity = 0,
   }) {
-    final profilePts = (profileProgress.clamp(0.0, 1.0) * 300).round();
-    final emailPts = isEmailVerified ? 100 : 0;
-    final referralPts = (referralCount.clamp(0, 999999)) * 150;
-    final aiPts = (aiUsageCount.clamp(0, 999999)) * 10;
-    final coinPts = (coinActivity.clamp(0, 99999999)) ~/ 10;
-    return profilePts + emailPts + referralPts + aiPts + coinPts;
+    return calculateBreakdown(
+      profileProgress: profileProgress,
+      isEmailVerified: isEmailVerified,
+      referralCount: referralCount,
+      aiUsageCount: aiUsageCount,
+      coinActivity: coinActivity,
+    ).totalPoints;
   }
 
   /// Maps StylePoints to progressive Loyalty Rank.
