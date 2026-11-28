@@ -239,6 +239,14 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
   /// Performs centralized sign-out and wipes image caches, prefetch states,
   /// user session data, and wardrobe provider instances.
   Future<void> signOut() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null && uid.isNotEmpty) {
+      try {
+        await _ref
+            .read(sessionServiceProvider)
+            .deleteCurrentSessionOnSignOut(uid);
+      } catch (_) {}
+    }
     try {
       await _repository.signOut();
     } catch (_) {}
@@ -246,7 +254,7 @@ class AuthFormNotifier extends StateNotifier<AuthFormState> {
       await FirebaseAuth.instance.signOut();
     } catch (_) {}
     try {
-      await SessionService().clearCurrentSessionId();
+      await _ref.read(sessionServiceProvider).clearCurrentSessionId();
     } catch (_) {}
     try {
       await TwoFactorService.clearPersistedVerification();

@@ -19,8 +19,10 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_section_header.dart';
+import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../auth/presentation/auth_provider.dart';
+import 'two_factor_setup_dialog.dart';
 
 // ── Remote sign-out & device block listener widget ────────────────────────
 
@@ -373,7 +375,103 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
     return result ?? false;
   }
 
-  Future<void> _handleBlock(SessionInfo session) async {
+  String _activeUid() {
+    return SessionRevocationListener.testUidOverride ??
+        currentAuthenticatedUid() ??
+        '';
+  }
+
+  String _activeEmail() {
+    if (Firebase.apps.isNotEmpty) {
+      return FirebaseAuth.instance.currentUser?.email ?? '';
+    }
+    return '';
+  }
+
+  Future<bool> _ensureTrustPeriodSatisfied(
+    List<SessionInfo> sessions,
+    String currentId,
+  ) async {
+    final currentSession = sessions.cast<SessionInfo?>().firstWhere(
+      (s) => s?.sessionId == currentId,
+      orElse: () => null,
+    );
+    if (currentSession == null) return true;
+
+    final remaining = SessionService.remainingTrustDuration(currentSession);
+    if (remaining <= Duration.zero) return true;
+
+    final hours = remaining.inHours;
+    final mins = remaining.inMinutes.remainder(60);
+    final strings = context.strings;
+    final colors = context.colors;
+    final formatted =
+        '${strings.formatNumber(hours.toString())}h ${strings.formatNumber(mins.toString())}m';
+
+    await AppModal.showAppDialog<void>(
+      context: context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Icon(LucideIcons.clock, size: 20, color: colors.wn),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(
+                  strings.sessCooldownTitle,
+                  style: AppTypography.sectionTitle(color: colors.tx),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text(
+            strings.sessCooldownMsg(formatted),
+            style: AppTypography.bodyMedium(color: colors.mu),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: AppButton(
+              size: AppButtonSize.sm,
+              text: strings.dialogConfirm,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+        ],
+      ),
+    );
+    return false;
+  }
+
+  Future<bool> _showStepUpOtpModal(TwoFactorConfig twoFactorConfig) async {
+    final uid = _activeUid();
+    final email = _activeEmail();
+    final twoFactorService = ref.read(twoFactorServiceProvider);
+
+    final verified = await AppModal.showAppDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      child: _StepUpOtpDialog(
+        uid: uid,
+        email: email,
+        config: twoFactorConfig,
+        service: twoFactorService,
+      ),
+    );
+    return verified ?? false;
+  }
+
+  Future<void> _handleBlock(
+    SessionInfo session,
+    List<SessionInfo> sessions,
+    String currentId,
+    TwoFactorConfig twoFactorConfig,
+  ) async {
+    if (!await _ensureTrustPeriodSatisfied(sessions, currentId)) return;
+    if (!mounted) return;
     final strings = context.strings;
     final colors = context.colors;
     final confirmed = await _showConfirmModal(
@@ -383,7 +481,8 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
       confirmColor: colors.orColor,
       icon: LucideIcons.ban,
     );
-    if (!confirmed) return;
+    if (!confirmed || !mounted) return;
+    if (!await _showStepUpOtpModal(twoFactorConfig)) return;
 
     final service = ref.read(sessionServiceProvider);
     await service.blockDevice(
@@ -394,7 +493,14 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
     );
   }
 
-  Future<void> _handleUnblock(SessionInfo session) async {
+  Future<void> _handleUnblock(
+    SessionInfo session,
+    List<SessionInfo> sessions,
+    String currentId,
+    TwoFactorConfig twoFactorConfig,
+  ) async {
+    if (!await _ensureTrustPeriodSatisfied(sessions, currentId)) return;
+    if (!mounted) return;
     final strings = context.strings;
     final colors = context.colors;
     final confirmed = await _showConfirmModal(
@@ -404,7 +510,8 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
       confirmColor: colors.ok,
       icon: LucideIcons.shieldCheck,
     );
-    if (!confirmed) return;
+    if (!confirmed || !mounted) return;
+    if (!await _showStepUpOtpModal(twoFactorConfig)) return;
 
     final service = ref.read(sessionServiceProvider);
     await service.unblockDevice(
@@ -413,7 +520,14 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
     );
   }
 
-  Future<void> _handleDelete(SessionInfo session) async {
+  Future<void> _handleDelete(
+    SessionInfo session,
+    List<SessionInfo> sessions,
+    String currentId,
+    TwoFactorConfig twoFactorConfig,
+  ) async {
+    if (!await _ensureTrustPeriodSatisfied(sessions, currentId)) return;
+    if (!mounted) return;
     final strings = context.strings;
     final colors = context.colors;
     final confirmed = await _showConfirmModal(
@@ -423,7 +537,8 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
       confirmColor: colors.orColor,
       icon: LucideIcons.trash2,
     );
-    if (!confirmed) return;
+    if (!confirmed || !mounted) return;
+    if (!await _showStepUpOtpModal(twoFactorConfig)) return;
 
     final service = ref.read(sessionServiceProvider);
     await service.revokeSession(session.sessionId);
@@ -447,7 +562,13 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
     }
   }
 
-  Future<void> _handleRevokeAllOthers() async {
+  Future<void> _handleRevokeAllOthers(
+    List<SessionInfo> sessions,
+    String currentId,
+    TwoFactorConfig twoFactorConfig,
+  ) async {
+    if (!await _ensureTrustPeriodSatisfied(sessions, currentId)) return;
+    if (!mounted) return;
     final strings = context.strings;
     final colors = context.colors;
     final confirmed = await _showConfirmModal(
@@ -457,7 +578,8 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
       confirmColor: colors.orColor,
       icon: LucideIcons.power,
     );
-    if (!confirmed) return;
+    if (!confirmed || !mounted) return;
+    if (!await _showStepUpOtpModal(twoFactorConfig)) return;
 
     setState(() => _isTerminatingAll = true);
     try {
@@ -494,6 +616,13 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
     final sessionsAsync = ref.watch(allSessionsProvider);
     final currentSessionAsync = ref.watch(currentSessionIdProvider);
     final currentId = currentSessionAsync.valueOrNull ?? '';
+    final uid = _activeUid();
+    final twoFactorAsync = uid.isNotEmpty
+        ? ref.watch(twoFactorConfigProvider(uid))
+        : const AsyncValue<TwoFactorConfig>.data(TwoFactorConfig());
+    final twoFactorConfig =
+        twoFactorAsync.valueOrNull ?? const TwoFactorConfig();
+    final loadedSessions = sessionsAsync.valueOrNull ?? const <SessionInfo>[];
 
     // Evaluate auto-retry state whenever sessionsAsync updates
     sessionsAsync.when(
@@ -538,6 +667,59 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
           ),
           const SizedBox(height: AppSpacing.sm),
 
+          // ── Non-blocking 2FA security warning banner ──────────────────
+          if (!twoFactorConfig.enabled) ...[
+            AppCard(
+              variant: AppCardVariant.surface,
+              borderColor: colors.wn.withValues(alpha: 0.45),
+              padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(LucideIcons.shieldAlert, size: 18, color: colors.wn),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              strings.sessTwoFaBannerTitle,
+                              style: AppTypography.titleMedium(
+                                color: colors.tx,
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.xxs),
+                            Text(
+                              strings.sessTwoFaBannerBody,
+                              style: AppTypography.caption(color: colors.mu),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: AppButton(
+                      variant: AppButtonVariant.outline,
+                      size: AppButtonSize.sm,
+                      text: strings.sessTwoFaBannerBtn,
+                      onPressed: () => TwoFactorSetupDialog.show(
+                        context,
+                        currentConfig: twoFactorConfig,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+
           // ── Subtitle + Terminate All button ───────────────────────────
           AppCard(
             variant: AppCardVariant.subtle,
@@ -563,7 +745,13 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
                           color: colors.orColor,
                         ),
                   text: _isTerminatingAll ? null : strings.sessTerminateAll,
-                  onPressed: _isTerminatingAll ? null : _handleRevokeAllOthers,
+                  onPressed: _isTerminatingAll
+                      ? null
+                      : () => _handleRevokeAllOthers(
+                          loadedSessions,
+                          currentId,
+                          twoFactorConfig,
+                        ),
                   child: _isTerminatingAll
                       ? SizedBox(
                           width: 16,
@@ -660,42 +848,34 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
                 );
               }
 
-              // Legacy fallback: if NO session document has isPrimary == true,
-              // treat the earliest session (oldest createdAt) as Primary
-              final hasExplicitPrimary = sessions.any((s) => s.isPrimary);
-              String? fallbackPrimaryId;
-              if (!hasExplicitPrimary && sessions.isNotEmpty) {
-                final earliest = sessions.reduce(
-                  (a, b) => a.createdAt.isBefore(b.createdAt) ? a : b,
-                );
-                fallbackPrimaryId = earliest.sessionId;
-              }
-
-              final currentSession = sessions.cast<SessionInfo?>().firstWhere(
-                (s) => s?.sessionId == currentId,
-                orElse: () => null,
-              );
-              final isCurrentDevicePrimary =
-                  (currentSession?.isPrimary ?? false) ||
-                  (fallbackPrimaryId != null && currentId == fallbackPrimaryId);
-
               return Column(
                 children: [
                   for (final session in sessions) ...[
                     _SessionCard(
                       session: session,
                       isCurrentDevice: session.sessionId == currentId,
-                      isPrimary:
-                          session.isPrimary ||
-                          (session.sessionId == fallbackPrimaryId),
-                      isViewerPrimary: isCurrentDevicePrimary,
                       isExpanded: _expandedSessionId == session.sessionId,
                       colors: colors,
                       strings: strings,
                       onToggleExpand: () => _toggleExpand(session.sessionId),
-                      onBlock: () => _handleBlock(session),
-                      onUnblock: () => _handleUnblock(session),
-                      onDelete: () => _handleDelete(session),
+                      onBlock: () => _handleBlock(
+                        session,
+                        sessions,
+                        currentId,
+                        twoFactorConfig,
+                      ),
+                      onUnblock: () => _handleUnblock(
+                        session,
+                        sessions,
+                        currentId,
+                        twoFactorConfig,
+                      ),
+                      onDelete: () => _handleDelete(
+                        session,
+                        sessions,
+                        currentId,
+                        twoFactorConfig,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.sm),
                   ],
@@ -714,8 +894,6 @@ class _SessionsSubTabState extends ConsumerState<SessionsSubTab> {
 class _SessionCard extends StatelessWidget {
   final SessionInfo session;
   final bool isCurrentDevice;
-  final bool isPrimary;
-  final bool isViewerPrimary;
   final bool isExpanded;
   final AppColors colors;
   final AppStrings strings;
@@ -727,8 +905,6 @@ class _SessionCard extends StatelessWidget {
   const _SessionCard({
     required this.session,
     required this.isCurrentDevice,
-    required this.isPrimary,
-    required this.isViewerPrimary,
     required this.isExpanded,
     required this.colors,
     required this.strings,
@@ -902,12 +1078,6 @@ class _SessionCard extends StatelessWidget {
                           spacing: AppSpacing.xs,
                           runSpacing: 2,
                           children: [
-                            if (isPrimary)
-                              AppBadge(
-                                variant: AppBadgeVariant.active,
-                                size: AppBadgeSize.sm,
-                                child: Text(strings.sessPrimaryBadge),
-                              ),
                             if (isCurrentDevice)
                               AppBadge(
                                 variant: AppBadgeVariant.success,
@@ -1063,52 +1233,37 @@ class _SessionCard extends StatelessWidget {
                   ),
 
                   // Row 2 (Two Equal Side-by-Side Action Buttons separated by 10 spacing):
-                  // STRICT CONSTRAINT: Never show destructive buttons on This Device or Primary Device!
-                  if (!isCurrentDevice && !isPrimary) ...[
+                  // Never show destructive buttons on This Device itself.
+                  if (!isCurrentDevice) ...[
                     const SizedBox(height: 10),
-                    if (isViewerPrimary) ...[
-                      Row(
-                        children: [
-                          Expanded(
-                            child: session.isBlocked
-                                ? _buildActionButton(
-                                    color: colors.ok,
-                                    icon: LucideIcons.shieldCheck,
-                                    label: strings.sessUnblockBtn,
-                                    onTap: onUnblock,
-                                  )
-                                : _buildActionButton(
-                                    color: colors.orColor,
-                                    icon: LucideIcons.ban,
-                                    label: strings.sessBlockBtn,
-                                    onTap: onBlock,
-                                  ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: session.isBlocked
+                              ? _buildActionButton(
+                                  color: colors.ok,
+                                  icon: LucideIcons.shieldCheck,
+                                  label: strings.sessUnblockBtn,
+                                  onTap: onUnblock,
+                                )
+                              : _buildActionButton(
+                                  color: colors.orColor,
+                                  icon: LucideIcons.ban,
+                                  label: strings.sessBlockBtn,
+                                  onTap: onBlock,
+                                ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: _buildActionButton(
+                            color: colors.orColor,
+                            icon: LucideIcons.trash2,
+                            label: strings.sessDelete,
+                            onTap: onDelete,
                           ),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: _buildActionButton(
-                              color: colors.orColor,
-                              icon: LucideIcons.trash2,
-                              label: strings.sessDelete,
-                              onTap: onDelete,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ] else ...[
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildActionButton(
-                              color: colors.orColor,
-                              icon: LucideIcons.trash2,
-                              label: strings.sessDelete,
-                              onTap: onDelete,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
+                        ),
+                      ],
+                    ),
                   ],
                 ],
               ),
@@ -1161,6 +1316,214 @@ class _InfoRow extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+// ── Step-Up 6-Digit OTP Verification Modal ──────────────────────────────────
+
+class _StepUpOtpDialog extends StatefulWidget {
+  final String uid;
+  final String email;
+  final TwoFactorConfig config;
+  final TwoFactorService service;
+
+  const _StepUpOtpDialog({
+    required this.uid,
+    required this.email,
+    required this.config,
+    required this.service,
+  });
+
+  @override
+  State<_StepUpOtpDialog> createState() => _StepUpOtpDialogState();
+}
+
+class _StepUpOtpDialogState extends State<_StepUpOtpDialog> {
+  final TextEditingController _codeCtrl = TextEditingController();
+  String? _errorText;
+  String? _previewHint;
+  int _resendCooldown = 0;
+  Timer? _cooldownTimer;
+
+  bool get _isTotp =>
+      widget.config.enabled && widget.config.method == TwoFactorMethod.totp;
+
+  @override
+  void initState() {
+    super.initState();
+    if (!_isTotp) {
+      _sendEmailOtp();
+    }
+  }
+
+  @override
+  void dispose() {
+    _cooldownTimer?.cancel();
+    _codeCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _sendEmailOtp() async {
+    final res = await widget.service.requestEmailOtp(
+      uid: widget.uid,
+      email: widget.email,
+    );
+    if (!mounted) return;
+    setState(() {
+      _previewHint = res.previewCode;
+      _resendCooldown = res.cooldownRemainingSeconds > 0
+          ? res.cooldownRemainingSeconds
+          : (res.sent ? 60 : 0);
+    });
+    _startCooldownTimer();
+  }
+
+  void _startCooldownTimer() {
+    _cooldownTimer?.cancel();
+    if (_resendCooldown <= 0) return;
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_resendCooldown <= 1) {
+        timer.cancel();
+        setState(() => _resendCooldown = 0);
+      } else {
+        setState(() => _resendCooldown--);
+      }
+    });
+  }
+
+  Future<void> _pasteCode() async {
+    final data = await Clipboard.getData(Clipboard.kTextPlain);
+    final otp = TwoFactorService.extractSixDigitOtp(data?.text ?? '');
+    if (otp != null && mounted) {
+      setState(() {
+        _codeCtrl.text = otp;
+        _errorText = null;
+      });
+    }
+  }
+
+  void _verify() {
+    final normalized =
+        TwoFactorService.extractSixDigitOtp(_codeCtrl.text) ??
+        _codeCtrl.text.trim();
+    final ok = widget.service.verifyStepUpCode(
+      config: widget.config,
+      uid: widget.uid,
+      code: normalized,
+    );
+    if (ok) {
+      Navigator.of(context).pop(true);
+    } else {
+      setState(() {
+        _errorText = context.strings.sessStepUpInvalidCode;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final strings = context.strings;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Icon(LucideIcons.shieldCheck, size: 20, color: colors.pr),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                strings.sessStepUpTitle,
+                style: AppTypography.sectionTitle(color: colors.tx),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          _isTotp ? strings.sessStepUpTotpDesc : strings.sessStepUpEmailDesc,
+          style: AppTypography.bodyMedium(color: colors.mu),
+        ),
+        if (_previewHint != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Preview OTP: $_previewHint',
+            style: AppTypography.caption(color: colors.wn),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.md),
+        Row(
+          children: [
+            Expanded(
+              child: AppTextField(
+                controller: _codeCtrl,
+                placeholder: strings.sessStepUpCodeHint,
+                keyboardType: TextInputType.number,
+                maxLength: 6,
+                onChanged: (_) {
+                  if (_errorText != null) {
+                    setState(() => _errorText = null);
+                  }
+                },
+              ),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            AppButton(
+              variant: AppButtonVariant.outline,
+              size: AppButtonSize.sm,
+              text: strings.sessStepUpPaste,
+              onPressed: _pasteCode,
+            ),
+          ],
+        ),
+        if (_errorText != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            _errorText!,
+            style: AppTypography.caption(color: colors.orColor),
+          ),
+        ],
+        if (!_isTotp) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: AppButton(
+              variant: AppButtonVariant.ghost,
+              size: AppButtonSize.sm,
+              text: _resendCooldown > 0
+                  ? '${strings.sessStepUpResend} (${strings.formatNumber(_resendCooldown.toString())}s)'
+                  : strings.sessStepUpResend,
+              onPressed: _resendCooldown > 0 ? null : _sendEmailOtp,
+            ),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.lg),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            AppButton(
+              variant: AppButtonVariant.ghost,
+              size: AppButtonSize.sm,
+              text: strings.dialogCancel,
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            AppButton(
+              variant: AppButtonVariant.primary,
+              size: AppButtonSize.sm,
+              text: strings.sessStepUpVerifyBtn,
+              onPressed: _verify,
+            ),
+          ],
+        ),
+      ],
     );
   }
 }

@@ -1049,6 +1049,23 @@ final Map<String, String> stringsFa = {
       'فقط دستگاه اصلی مجاز به مدیریت یا مسدودسازی نشست‌ها می‌باشد.',
   'sessCopiedToast': 'شناسه نشست در کلیپ‌بورد کپی شد',
   'sessErrLoad': 'خطا در بارگذاری نشست‌ها',
+  'sessCooldownTitle': 'محافظت امنیتی ۷۲ ساعته',
+  'sessCooldownMsg':
+      'برای امنیت شما، نشست‌های جدید باید ۷۲ ساعت صبر کنند تا بتوانند سایر دستگاه‌ها را حذف یا مسدود کنند. زمان باقی‌مانده: {remaining}',
+  'sessStepUpTitle': 'تأیید امنیتی دو مرحله‌ای',
+  'sessStepUpTotpDesc':
+      'برای تأیید این عملیات، کد ۶ رقمی برنامه احراز هویت خود را وارد کنید.',
+  'sessStepUpEmailDesc':
+      'برای تأیید این عملیات، کد ۶ رقمی ارسال‌شده به ایمیل خود را وارد کنید.',
+  'sessStepUpCodeHint': 'کد ۶ رقمی',
+  'sessStepUpInvalidCode': 'کد ۶ رقمی نامعتبر یا منقضی شده است.',
+  'sessStepUpPaste': 'جای‌گذاری',
+  'sessStepUpResend': 'ارسال مجدد کد',
+  'sessStepUpVerifyBtn': 'تأیید و ادامه',
+  'sessTwoFaBannerTitle': 'احراز هویت دو مرحله‌ای غیرفعال است',
+  'sessTwoFaBannerBody':
+      'فعال‌سازی ۲FA برای جلوگیری از حذف یا مسدودسازی غیرمجاز نشست‌ها در صورت لو رفتن رمز عبور ضروری است. مسئولیت غیرفعال ماندن ۲FA بر عهده کاربر است.',
+  'sessTwoFaBannerBtn': 'فعال‌سازی ۲FA',
   'dialogCancel': 'انصراف',
   'dialogConfirm': 'تأیید',
   // About & Updates Sub-Tab

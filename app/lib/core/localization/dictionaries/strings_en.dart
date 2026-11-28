@@ -1051,6 +1051,23 @@ final Map<String, String> stringsEn = {
       'Only the primary device is authorized to block or delete sessions.',
   'sessCopiedToast': 'Session ID copied to clipboard',
   'sessErrLoad': 'Failed to load sessions',
+  'sessCooldownTitle': '72-Hour Security Protection',
+  'sessCooldownMsg':
+      'For your security, new sessions must wait 72 hours before terminating or blocking other devices. Remaining: {remaining}',
+  'sessStepUpTitle': 'Security Verification',
+  'sessStepUpTotpDesc':
+      'Enter the 6-digit code from your authenticator app to confirm this session action.',
+  'sessStepUpEmailDesc':
+      'Enter the 6-digit verification code sent to your email to confirm this session action.',
+  'sessStepUpCodeHint': '6-digit code',
+  'sessStepUpInvalidCode': 'Invalid or expired 6-digit code.',
+  'sessStepUpPaste': 'Paste',
+  'sessStepUpResend': 'Resend Code',
+  'sessStepUpVerifyBtn': 'Verify & Continue',
+  'sessTwoFaBannerTitle': 'Two-Factor Authentication Is Off',
+  'sessTwoFaBannerBody':
+      'Enabling 2FA protects your active sessions from unauthorized termination if your credentials are compromised. Leaving 2FA disabled is at your own risk.',
+  'sessTwoFaBannerBtn': 'Enable 2FA',
   'dialogCancel': 'Cancel',
   'dialogConfirm': 'Confirm',
   // About & Updates Sub-Tab

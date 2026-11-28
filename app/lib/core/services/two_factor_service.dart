@@ -409,6 +409,21 @@ class TwoFactorService {
     }
   }
 
+  /// Verifies a 6-digit Step-Up OTP code for sensitive session actions.
+  /// Uses TOTP when [config] has TOTP enabled; otherwise verifies Email OTP.
+  bool verifyStepUpCode({
+    required TwoFactorConfig config,
+    required String uid,
+    required String code,
+  }) {
+    if (config.enabled && config.method == TwoFactorMethod.totp) {
+      final secret = config.totpSecret ?? '';
+      if (secret.isEmpty) return false;
+      return TotpHelper.verifyCode(secret, code);
+    }
+    return verifyEmailOtp(uid: uid, code: code);
+  }
+
   Future<void> _saveConfig(String uid, TwoFactorConfig config) async {
     final db = _firestore;
     if (db == null) return;

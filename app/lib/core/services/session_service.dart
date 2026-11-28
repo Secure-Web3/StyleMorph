@@ -157,7 +157,24 @@ class SessionService {
 
   static const Duration sessionInactivityExpiry = Duration(days: 5);
   static const Duration lastActiveThrottle = Duration(minutes: 15);
+  static const Duration kSessionManagementMinAge = Duration(hours: 72);
   static const int maxConcurrentSessions = 5;
+
+  /// Returns [Duration.zero] when [currentSession] has been active for at least
+  /// [kSessionManagementMinAge] (72 hours), or the remaining wait duration.
+  static Duration remainingTrustDuration(
+    SessionInfo currentSession, {
+    DateTime? now,
+  }) {
+    final elapsed = (now ?? DateTime.now()).difference(
+      currentSession.createdAt,
+    );
+    if (elapsed >= kSessionManagementMinAge) {
+      return Duration.zero;
+    }
+    final remaining = kSessionManagementMinAge - elapsed;
+    return remaining.isNegative ? kSessionManagementMinAge : remaining;
+  }
 
   DateTime? _lastActivityWriteTime;
 
@@ -229,6 +246,43 @@ class SessionService {
 
   static String? _cachedSessionId;
   static String? _cachedDeviceId;
+
+  /// Deletes the current session document (and any duplicate docs matching
+  /// [currentDeviceId]) from Firestore cleanly before clearing local session ID.
+  /// Wrapped in try/catch + timeout so offline sign-out never hangs.
+  Future<void> deleteCurrentSessionOnSignOut(String uid) async {
+    if (uid.isEmpty || (Firebase.apps.isEmpty && _customFirestore == null)) {
+      await clearCurrentSessionId();
+      return;
+    }
+    try {
+      final sessId = await currentSessionId();
+      final devId = await currentDeviceId();
+      final sessionsCol = _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('sessions');
+      await sessionsCol
+          .doc(sessId)
+          .delete()
+          .timeout(const Duration(seconds: 3));
+      final sameDeviceSnap = await sessionsCol
+          .where('deviceId', isEqualTo: devId)
+          .get()
+          .timeout(const Duration(seconds: 3));
+      if (sameDeviceSnap.docs.isNotEmpty) {
+        final batch = _firestore.batch();
+        for (final doc in sameDeviceSnap.docs) {
+          batch.delete(doc.reference);
+        }
+        await batch.commit().timeout(const Duration(seconds: 3));
+      }
+    } catch (e) {
+      debugPrint('[SessionService] deleteCurrentSessionOnSignOut error: $e');
+    } finally {
+      await clearCurrentSessionId();
+    }
+  }
 
   /// Clears the cached session ID from memory and local storage so the next
   /// login generates a fresh session document. Persistent deviceId remains intact.
@@ -428,7 +482,7 @@ class SessionService {
           blockedSnap.exists &&
           (blockedSnap.data()?['isBlocked'] as bool? ?? false);
 
-      // 2. Fetch all existing sessions to handle Primary Device assignment
+      // 2. Deduplicate sessions by deviceId so each physical device has at most ONE card
       final allSessionsSnap = await _firestore
           .collection('users')
           .doc(user.uid)
@@ -436,6 +490,34 @@ class SessionService {
           .get();
 
       final existingSessions = allSessionsSnap.docs;
+      final sameDeviceDocs = existingSessions
+          .where((d) => (d.data()['deviceId'] as String? ?? '') == deviceId)
+          .toList();
+
+      String effectiveSessionId = sessionId;
+      if (sameDeviceDocs.isNotEmpty) {
+        final hasCurrent = sameDeviceDocs.any((d) => d.id == sessionId);
+        if (!hasCurrent) {
+          sameDeviceDocs.sort((a, b) {
+            final tA =
+                (a.data()['lastActiveAt'] as Timestamp?)?.toDate() ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+            final tB =
+                (b.data()['lastActiveAt'] as Timestamp?)?.toDate() ??
+                DateTime.fromMillisecondsSinceEpoch(0);
+            return tB.compareTo(tA);
+          });
+          effectiveSessionId = sameDeviceDocs.first.id;
+          _cachedSessionId = effectiveSessionId;
+          await SessionLocalStorage.setSessionId(effectiveSessionId);
+        }
+        for (final dup in sameDeviceDocs) {
+          if (dup.id != effectiveSessionId) {
+            await dup.reference.delete();
+          }
+        }
+      }
+
       final hasPrimary = existingSessions.any(
         (doc) => (doc.data()['isPrimary'] as bool? ?? false) == true,
       );
@@ -446,7 +528,10 @@ class SessionService {
         // If an existing session is primary, keep this session's existing isPrimary value
         final existingCurrentDoc = existingSessions
             .cast<QueryDocumentSnapshot<Map<String, dynamic>>?>()
-            .firstWhere((doc) => doc?.id == sessionId, orElse: () => null);
+            .firstWhere(
+              (doc) => doc?.id == effectiveSessionId,
+              orElse: () => null,
+            );
         isThisSessionPrimary =
             existingCurrentDoc?.data()['isPrimary'] as bool? ?? false;
       } else {
@@ -469,7 +554,7 @@ class SessionService {
             }
           }
 
-          if (earliestDoc.id == sessionId) {
+          if (earliestDoc.id == effectiveSessionId) {
             isThisSessionPrimary = true;
           } else {
             // Promote earliest session to Primary immediately in Firestore
@@ -483,7 +568,7 @@ class SessionService {
           .collection('users')
           .doc(user.uid)
           .collection('sessions')
-          .doc(sessionId);
+          .doc(effectiveSessionId);
 
       final existing = await docRef.get();
       if (existing.exists) {
@@ -494,7 +579,7 @@ class SessionService {
             DateTime.now().difference(existingLastActive) >=
                 sessionInactivityExpiry) {
           debugPrint(
-            '[SessionService] Session $sessionId has expired (> 5 days inactivity). Deleting document and signing out.',
+            '[SessionService] Session $effectiveSessionId has expired (> 5 days inactivity). Deleting document and signing out.',
           );
           await docRef.delete();
           await _auth.signOut();
@@ -528,7 +613,7 @@ class SessionService {
         await docRef.update(updateData);
       } else {
         final session = SessionInfo(
-          sessionId: sessionId,
+          sessionId: effectiveSessionId,
           deviceId: deviceId,
           deviceType: meta['deviceType']!,
           deviceName: meta['deviceName']!,
@@ -570,7 +655,7 @@ class SessionService {
             }
             await docRef.set(ipUpdates, SetOptions(merge: true));
             debugPrint(
-              '[SessionService] Background IP/location merged for session: $sessionId',
+              '[SessionService] Background IP/location merged for session: $effectiveSessionId',
             );
           }
         } catch (e) {
@@ -579,10 +664,10 @@ class SessionService {
       }());
 
       // Enforce maximum of 5 concurrent active sessions upon login
-      await enforceMaxActiveSessions(user.uid, sessionId);
+      await enforceMaxActiveSessions(user.uid, effectiveSessionId);
 
       debugPrint(
-        '[SessionService] Session upserted: $sessionId (primary: $isThisSessionPrimary)',
+        '[SessionService] Session upserted: $effectiveSessionId (primary: $isThisSessionPrimary)',
       );
     } catch (e) {
       debugPrint('[SessionService] upsertSession error: $e');
@@ -601,18 +686,17 @@ class SessionService {
     if (user == null) return false;
 
     try {
+      final myId = await currentSessionId();
+      if (targetSessionId == myId) {
+        // Never allow blocking This Device itself
+        return false;
+      }
+
       final targetDocRef = _firestore
           .collection('users')
           .doc(user.uid)
           .collection('sessions')
           .doc(targetSessionId);
-
-      final targetDoc = await targetDocRef.get();
-      if (targetDoc.exists &&
-          (targetDoc.data()?['isPrimary'] as bool? ?? false)) {
-        // Never allow blocking the Primary Device
-        return false;
-      }
 
       final batch = _firestore.batch();
       batch.update(targetDocRef, {'isBlocked': true, 'isActive': false});
@@ -713,17 +797,17 @@ class SessionService {
     final user = _auth.currentUser;
     if (user == null) return false;
     try {
+      final myId = await currentSessionId();
+      if (targetSessionId == myId) {
+        // Never allow revoking This Device itself
+        return false;
+      }
+
       final docRef = _firestore
           .collection('users')
           .doc(user.uid)
           .collection('sessions')
           .doc(targetSessionId);
-
-      final doc = await docRef.get();
-      if (doc.exists && (doc.data()?['isPrimary'] as bool? ?? false)) {
-        // Cannot delete Primary Device
-        return false;
-      }
 
       await docRef.delete();
       debugPrint('[SessionService] Revoked session: $targetSessionId');
@@ -747,14 +831,11 @@ class SessionService {
       final batch = _firestore.batch();
       for (final doc in snap.docs) {
         if (doc.id != myId) {
-          final isPrimary = doc.data()['isPrimary'] as bool? ?? false;
-          if (!isPrimary) {
-            batch.delete(doc.reference);
-          }
+          batch.delete(doc.reference);
         }
       }
       await batch.commit();
-      debugPrint('[SessionService] All other secondary sessions revoked.');
+      debugPrint('[SessionService] All other sessions revoked.');
     } catch (e) {
       debugPrint('[SessionService] revokeAllOtherSessions error: $e');
     }

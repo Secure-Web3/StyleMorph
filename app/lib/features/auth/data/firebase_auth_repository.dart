@@ -9,6 +9,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../../../core/services/loyalty_service.dart';
 import '../../../core/services/referral_service.dart';
+import '../../../core/services/session_service.dart';
 import '../../../core/services/two_factor_service.dart';
 import '../../../core/state/app_state.dart';
 import '../../profile/data/user_preferences.dart';
@@ -436,6 +437,15 @@ class FirebaseAuthRepository implements AuthRepository {
 
   @override
   Future<void> signOut() async {
+    final uid = currentUser?.uid;
+    if (uid != null && uid.isNotEmpty) {
+      try {
+        await SessionService(
+          firestore: _customFirestore,
+          auth: _customAuth,
+        ).deleteCurrentSessionOnSignOut(uid);
+      } catch (_) {}
+    }
     await TwoFactorService.clearPersistedVerification();
     await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
   }

@@ -1059,6 +1059,23 @@ final Map<String, String> stringsTr = {
       'Yalnızca ana cihaz oturumları engelleme veya silme yetkisine sahiptir.',
   'sessCopiedToast': 'Oturum kimliği panoya kopyalandı',
   'sessErrLoad': 'Oturumlar yüklenemedi',
+  'sessCooldownTitle': '72 Saatlik Güvenlik Koruması',
+  'sessCooldownMsg':
+      'Güvenliğiniz için yeni oturumlar diğer cihazları sonlandırmadan veya engellemeden önce 72 saat beklemelidir. Kalan: {remaining}',
+  'sessStepUpTitle': 'Güvenlik Doğrulaması',
+  'sessStepUpTotpDesc':
+      'Bu oturum işlemini onaylamak için kimlik doğrulayıcı uygulamanızdaki 6 haneli kodu girin.',
+  'sessStepUpEmailDesc':
+      'Bu oturum işlemini onaylamak için e-postanıza gönderilen 6 haneli doğrulama kodunu girin.',
+  'sessStepUpCodeHint': '6 haneli kod',
+  'sessStepUpInvalidCode': 'Geçersiz veya süresi dolmuş 6 haneli kod.',
+  'sessStepUpPaste': 'Yapıştır',
+  'sessStepUpResend': 'Kodu Tekrar Gönder',
+  'sessStepUpVerifyBtn': 'Doğrula ve Devam Et',
+  'sessTwoFaBannerTitle': 'İki Faktörlü Doğrulama Kapalı',
+  'sessTwoFaBannerBody':
+      '2FA etkinleştirmek, bilgileriniz ele geçirilirse oturumlarınızın yetkisiz sonlandırılmasını önler. Kapalı bırakmanın sorumluluğu kullanıcıya aittir.',
+  'sessTwoFaBannerBtn': '2FA Etkinleştir',
   'dialogCancel': 'İptal',
   'dialogConfirm': 'Onayla',
   // About & Updates Sub-Tab

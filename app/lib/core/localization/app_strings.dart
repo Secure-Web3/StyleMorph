@@ -1329,6 +1329,20 @@ class AppStrings {
   String get sessPrimaryOnlyNotice => get('sessPrimaryOnlyNotice');
   String get sessCopiedToast => get('sessCopiedToast');
   String get sessErrLoad => get('sessErrLoad');
+  String get sessCooldownTitle => get('sessCooldownTitle');
+  String sessCooldownMsg(String remaining) =>
+      get('sessCooldownMsg').replaceAll('{remaining}', remaining);
+  String get sessStepUpTitle => get('sessStepUpTitle');
+  String get sessStepUpTotpDesc => get('sessStepUpTotpDesc');
+  String get sessStepUpEmailDesc => get('sessStepUpEmailDesc');
+  String get sessStepUpCodeHint => get('sessStepUpCodeHint');
+  String get sessStepUpInvalidCode => get('sessStepUpInvalidCode');
+  String get sessStepUpPaste => get('sessStepUpPaste');
+  String get sessStepUpResend => get('sessStepUpResend');
+  String get sessStepUpVerifyBtn => get('sessStepUpVerifyBtn');
+  String get sessTwoFaBannerTitle => get('sessTwoFaBannerTitle');
+  String get sessTwoFaBannerBody => get('sessTwoFaBannerBody');
+  String get sessTwoFaBannerBtn => get('sessTwoFaBannerBtn');
   String get dialogCancel => get('dialogCancel');
   String get dialogConfirm => get('dialogConfirm');
 

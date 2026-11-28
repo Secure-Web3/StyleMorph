@@ -71,12 +71,14 @@ jobs:
           BUILD_NUMBER="${{ github.run_number }}"
           RELEASE_DATE="$(date -u +%Y-%m-%d)"
           APK_FILENAME="StyleMorph-V${APP_VERSION}-B${BUILD_NUMBER}.apk"
+          APK_ARM32_FILENAME="StyleMorph-V${APP_VERSION}-B${BUILD_NUMBER}-arm32.apk"
           echo "APP_VERSION=${APP_VERSION}" >> "$GITHUB_ENV"
           echo "BUILD_NUMBER=${BUILD_NUMBER}" >> "$GITHUB_ENV"
           echo "RELEASE_DATE=${RELEASE_DATE}" >> "$GITHUB_ENV"
           echo "APP_ENV=preview" >> "$GITHUB_ENV"
           echo "GIT_SHA=${{ github.sha }}" >> "$GITHUB_ENV"
           echo "apk_filename=${APK_FILENAME}" >> "$GITHUB_OUTPUT"
+          echo "apk_arm32_filename=${APK_ARM32_FILENAME}" >> "$GITHUB_OUTPUT"
 
       - name: Build Split Release APKs (arm64-v8a & armeabi-v7a)
         working-directory: app
@@ -96,7 +98,7 @@ jobs:
       - name: Prepare APK Artifacts
         run: |
           cp app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk "${{ steps.meta.outputs.apk_filename }}"
-          cp app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk StyleMorph-armeabi-v7a.apk
+          cp app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk "${{ steps.meta.outputs.apk_arm32_filename }}"
 
       - name: Verify Signed APK (apksigner & aapt2)
         run: |
@@ -117,7 +119,7 @@ jobs:
           name: StyleMorph-android-apks
           path: |
             ${{ steps.meta.outputs.apk_filename }}
-            StyleMorph-armeabi-v7a.apk
+            ${{ steps.meta.outputs.apk_arm32_filename }}
           retention-days: 14
 
       - name: Publish GitHub Release
@@ -129,7 +131,7 @@ jobs:
           name: StyleMorph Android ${{ inputs.release_tag }}
           files: |
             ${{ steps.meta.outputs.apk_filename }}
-            StyleMorph-armeabi-v7a.apk
+            ${{ steps.meta.outputs.apk_arm32_filename }}
 
       - name: Update Firestore app_config/version & Send FCM Push
         if: ${{ inputs.release_tag != '' }}

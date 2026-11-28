@@ -1022,6 +1022,23 @@ final Map<String, String> stringsAr = {
   'sessPrimaryOnlyNotice': 'فقط الجهاز الرئيسي مصرح له بحظر أو حذف الجلسات.',
   'sessCopiedToast': 'تم نسخ معرّف الجلسة إلى الحافظة',
   'sessErrLoad': 'فشل في تحميل الجلسات',
+  'sessCooldownTitle': 'حماية أمنية لمدة 72 ساعة',
+  'sessCooldownMsg':
+      'لأمانك، يجب أن تنتظر الجلسات الجديدة 72 ساعة قبل إنهاء أو حظر الأجهزة الأخرى. المتبقي: {remaining}',
+  'sessStepUpTitle': 'التحقق الأمني',
+  'sessStepUpTotpDesc':
+      'أدخل الرمز المكون من 6 أرقام من تطبيق المصادقة لتأكيد هذا الإجراء.',
+  'sessStepUpEmailDesc':
+      'أدخل رمز التحقق المكون من 6 أرقام المرسل إلى بريدك الإلكتروني لتأكيد هذا الإجراء.',
+  'sessStepUpCodeHint': 'رمز من 6 أرقام',
+  'sessStepUpInvalidCode': 'الرمز غير صالح أو منتهي الصلاحية.',
+  'sessStepUpPaste': 'لصق',
+  'sessStepUpResend': 'إعادة إرسال الرمز',
+  'sessStepUpVerifyBtn': 'تحقق ومتابعة',
+  'sessTwoFaBannerTitle': 'المصادقة الثنائية معطلة',
+  'sessTwoFaBannerBody':
+      'تفعيل المصادقة الثنائية ضروري لحماية جلساتك من الإنهاء غير المصرح به في حال تسرب بياناتك. بقاؤها معطلة يكون على مسؤوليتك.',
+  'sessTwoFaBannerBtn': 'تفعيل 2FA',
   'dialogCancel': 'إلغاء',
   'dialogConfirm': 'تأكيد',
   // About & Updates Sub-Tab
