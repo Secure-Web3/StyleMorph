@@ -76,52 +76,33 @@ class _UnifiedSplashScreenState extends State<UnifiedSplashScreen>
           child: Stack(
             alignment: Alignment.center,
             children: [
-              // Ultra-soft radial champagne ambient glow seamlessly fading into #0D0D0F.
-              Container(
+              // Base layer: true transparent RGBA SM monogram & star on pure transparent background.
+              Image.asset(
+                _logoAsset,
                 width: _logoSize,
                 height: _logoSize,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      const Color(0xFFD4AF37).withValues(alpha: 0.06),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.75],
-                  ),
-                ),
+                fit: BoxFit.contain,
+                gaplessPlayback: true,
               ),
 
-              // Base layer: true transparent RGBA SM monogram & star.
-              Opacity(
-                opacity: 0.92,
-                child: Image.asset(
-                  _logoAsset,
-                  width: _logoSize,
-                  height: _logoSize,
-                  fit: BoxFit.contain,
-                  gaplessPlayback: true,
-                ),
-              ),
-
-              // Sheen overlay: clipped strictly to non-transparent logo pixels via
-              // BlendMode.srcIn so the #0D0D0F background is never touched.
+              // Sheen overlay: masked strictly to non-transparent logo pixels via
+              // BlendMode.srcATop so alpha == 0 pixels never receive any tint or glow.
               AnimatedBuilder(
                 animation: _sheenProgress,
                 builder: (context, child) {
                   final t = _sheenProgress.value;
                   final shift = -1.6 + (3.2 * t);
                   return ShaderMask(
-                    blendMode: BlendMode.srcIn,
+                    blendMode: BlendMode.srcATop,
                     shaderCallback: (Rect bounds) {
                       return LinearGradient(
                         begin: Alignment(shift - 0.65, shift - 0.65),
                         end: Alignment(shift + 0.65, shift + 0.65),
                         colors: const [
                           Colors.transparent,
-                          Color(0x66D4AF37),
-                          Color(0xF5FFF6D1),
-                          Color(0x66D4AF37),
+                          Color(0x55D4AF37),
+                          Color(0xE6FFF6D1),
+                          Color(0x55D4AF37),
                           Colors.transparent,
                         ],
                         stops: const [0.0, 0.25, 0.50, 0.75, 1.0],

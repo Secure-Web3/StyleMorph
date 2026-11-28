@@ -23,6 +23,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Java 17
         uses: actions/setup-java@v4
@@ -142,6 +144,48 @@ jobs:
             ${{ steps.meta.outputs.apk_universal }}
           retention-days: 14
 
+      - name: Generate Structured Release Notes
+        if: ${{ inputs.release_tag != '' }}
+        run: |
+          PREV_TAG="$(git describe --tags --abbrev=0 "${{ inputs.release_tag }}^" 2>/dev/null || git tag --sort=-v:refname | grep -Fxv "${{ inputs.release_tag }}" | head -n 1 || true)"
+          if [ -n "$PREV_TAG" ]; then
+            COMMITS="$(git log "${PREV_TAG}..HEAD" --no-merges --pretty=format:"%s" || true)"
+          else
+            COMMITS="$(git log -n 20 --no-merges --pretty=format:"%s" || true)"
+          fi
+
+          FEATURES="$(printf '%s\n' "$COMMITS" | grep -E '^(feat|perf|style|refactor)(\([^)]*\))?:' || true)"
+          FIXES="$(printf '%s\n' "$COMMITS" | grep -E '^(fix|security|ci|chore|test)(\([^)]*\))?:' || true)"
+          OTHER="$(printf '%s\n' "$COMMITS" | grep -Ev '^(feat|perf|style|refactor|fix|security|ci|chore|test)(\([^)]*\))?:' || true)"
+
+          {
+            echo "## StyleMorph Android ${{ inputs.release_tag }}"
+            echo ""
+            echo "### ✨ What's New & Improvements"
+            if [ -n "$FEATURES" ]; then
+              printf '%s\n' "$FEATURES" | sed 's/^/- /'
+            else
+              echo "- General performance, UI, and stability refinements."
+            fi
+            echo ""
+            echo "### 🐛 Bug Fixes & Security"
+            if [ -n "$FIXES" ]; then
+              printf '%s\n' "$FIXES" | sed 's/^/- /'
+            else
+              echo "- Routine maintenance and security hardening."
+            fi
+            if [ -n "$OTHER" ]; then
+              echo ""
+              echo "### 📝 Other Changes"
+              printf '%s\n' "$OTHER" | sed 's/^/- /'
+            fi
+            echo ""
+            echo "### 📦 APK Downloads"
+            echo "- \`${{ steps.meta.outputs.apk_arm64 }}\` — Recommended for modern 64-bit Android devices (\`arm64-v8a\`, smallest size)."
+            echo "- \`${{ steps.meta.outputs.apk_arm32 }}\` — For older 32-bit Android devices (\`armeabi-v7a\`)."
+            echo "- \`${{ steps.meta.outputs.apk_universal }}\` — Universal APK compatible with all Android architectures (used by the in-app updater)."
+          } > RELEASE_NOTES.md
+
       - name: Publish GitHub Release
         if: ${{ inputs.release_tag != '' }}
         uses: softprops/action-gh-release@v2
@@ -149,6 +193,8 @@ jobs:
           tag_name: ${{ inputs.release_tag }}
           target_commitish: ${{ github.sha }}
           name: StyleMorph Android ${{ inputs.release_tag }}
+          body_path: RELEASE_NOTES.md
+          generate_release_notes: false
           files: |
             ${{ steps.meta.outputs.apk_arm64 }}
             ${{ steps.meta.outputs.apk_arm32 }}

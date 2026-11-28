@@ -267,7 +267,7 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
       onNotification: _handlePageScrollNotification,
       child: PageView.builder(
         controller: _pageController,
-        physics: const _DeliberateHorizontalPageScrollPhysics(),
+        physics: const PageScrollPhysics(),
         itemCount: _moduleTabs.length,
         onPageChanged: (index) {
           if (_isSyncingPageFromState) return;
@@ -407,30 +407,4 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
       ),
     );
   }
-}
-
-/// Requires a deliberate horizontal drag/fling before switching module pages,
-/// preventing accidental horizontal paging during vertical WebView scrolls.
-class _DeliberateHorizontalPageScrollPhysics extends PageScrollPhysics {
-  const _DeliberateHorizontalPageScrollPhysics({super.parent});
-
-  @override
-  _DeliberateHorizontalPageScrollPhysics applyTo(ScrollPhysics? ancestor) {
-    return _DeliberateHorizontalPageScrollPhysics(
-      parent: buildParent(ancestor),
-    );
-  }
-
-  @override
-  double get minFlingDistance => 64.0;
-
-  @override
-  double get minFlingVelocity => 320.0;
-
-  @override
-  SpringDescription get spring => const SpringDescription(
-    mass: 80.0,
-    stiffness: 140.0,
-    damping: 1.1 * 2 * 105.83, // slightly overdamped crisp snap-back
-  );
 }
