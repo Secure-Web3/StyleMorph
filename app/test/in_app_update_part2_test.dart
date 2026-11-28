@@ -112,7 +112,10 @@ void main() {
         final workflowSource = workflowFile.readAsStringSync();
         expect(workflowSource, contains('force_update:'));
         expect(workflowSource, contains('publish_release_update.mjs'));
-        expect(workflowSource, contains('StyleMorph-arm64.apk'));
+        expect(
+          workflowSource,
+          contains(r'StyleMorph-V${APP_VERSION}-B${BUILD_NUMBER}.apk'),
+        );
         expect(workflowSource, contains('--dart-define=BUILD_NUMBER'));
         expect(workflowSource, contains('--dart-define=APP_VERSION'));
 
