@@ -114,7 +114,17 @@ void main() {
         expect(workflowSource, contains('publish_release_update.mjs'));
         expect(
           workflowSource,
-          contains(r'StyleMorph-V${APP_VERSION}-B${BUILD_NUMBER}.apk'),
+          contains(r'StyleMorph-V${APP_VERSION}-B${BUILD_NUMBER}-arm64.apk'),
+        );
+        expect(
+          workflowSource,
+          contains(r'StyleMorph-V${APP_VERSION}-B${BUILD_NUMBER}-arm32.apk'),
+        );
+        expect(
+          workflowSource,
+          contains(
+            r'StyleMorph-V${APP_VERSION}-B${BUILD_NUMBER}-universal.apk',
+          ),
         );
         expect(workflowSource, contains('--dart-define=BUILD_NUMBER'));
         expect(workflowSource, contains('--dart-define=APP_VERSION'));

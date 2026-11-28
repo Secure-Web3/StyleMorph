@@ -70,15 +70,17 @@ jobs:
           fi
           BUILD_NUMBER="${{ github.run_number }}"
           RELEASE_DATE="$(date -u +%Y-%m-%d)"
-          APK_FILENAME="StyleMorph-V${APP_VERSION}-B${BUILD_NUMBER}.apk"
-          APK_ARM32_FILENAME="StyleMorph-V${APP_VERSION}-B${BUILD_NUMBER}-arm32.apk"
+          APK_ARM64="StyleMorph-V${APP_VERSION}-B${BUILD_NUMBER}-arm64.apk"
+          APK_ARM32="StyleMorph-V${APP_VERSION}-B${BUILD_NUMBER}-arm32.apk"
+          APK_UNIVERSAL="StyleMorph-V${APP_VERSION}-B${BUILD_NUMBER}-universal.apk"
           echo "APP_VERSION=${APP_VERSION}" >> "$GITHUB_ENV"
           echo "BUILD_NUMBER=${BUILD_NUMBER}" >> "$GITHUB_ENV"
           echo "RELEASE_DATE=${RELEASE_DATE}" >> "$GITHUB_ENV"
           echo "APP_ENV=preview" >> "$GITHUB_ENV"
           echo "GIT_SHA=${{ github.sha }}" >> "$GITHUB_ENV"
-          echo "apk_filename=${APK_FILENAME}" >> "$GITHUB_OUTPUT"
-          echo "apk_arm32_filename=${APK_ARM32_FILENAME}" >> "$GITHUB_OUTPUT"
+          echo "apk_arm64=${APK_ARM64}" >> "$GITHUB_OUTPUT"
+          echo "apk_arm32=${APK_ARM32}" >> "$GITHUB_OUTPUT"
+          echo "apk_universal=${APK_UNIVERSAL}" >> "$GITHUB_OUTPUT"
 
       - name: Build Split Release APKs (arm64-v8a & armeabi-v7a)
         working-directory: app
@@ -95,12 +97,27 @@ jobs:
             --dart-define=APP_ENV=preview \
             --dart-define=GIT_SHA="${{ github.sha }}"
 
+      - name: Build Universal Release APK
+        working-directory: app
+        run: |
+          flutter build apk --release \
+            --split-debug-info=build/app/outputs/symbols-universal \
+            --obfuscate \
+            --build-name="$APP_VERSION" \
+            --build-number="$BUILD_NUMBER" \
+            --dart-define=APP_VERSION="$APP_VERSION" \
+            --dart-define=BUILD_NUMBER="$BUILD_NUMBER" \
+            --dart-define=RELEASE_DATE="$RELEASE_DATE" \
+            --dart-define=APP_ENV=preview \
+            --dart-define=GIT_SHA="${{ github.sha }}"
+
       - name: Prepare APK Artifacts
         run: |
-          cp app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk "${{ steps.meta.outputs.apk_filename }}"
-          cp app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk "${{ steps.meta.outputs.apk_arm32_filename }}"
+          cp app/build/app/outputs/flutter-apk/app-arm64-v8a-release.apk "${{ steps.meta.outputs.apk_arm64 }}"
+          cp app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk "${{ steps.meta.outputs.apk_arm32 }}"
+          cp app/build/app/outputs/flutter-apk/app-release.apk "${{ steps.meta.outputs.apk_universal }}"
 
-      - name: Verify Signed APK (apksigner & aapt2)
+      - name: Verify Signed APKs (apksigner & aapt2)
         run: |
           set -euo pipefail
           BUILD_TOOLS_DIR="$(ls -d "$ANDROID_HOME"/build-tools/* | sort -V | tail -n 1)"
@@ -109,8 +126,10 @@ jobs:
             exit 1
           fi
           echo "Using Android build-tools: $BUILD_TOOLS_DIR"
-          "$BUILD_TOOLS_DIR/apksigner" verify --verbose --print-certs "${{ steps.meta.outputs.apk_filename }}"
-          BADGING="$("$BUILD_TOOLS_DIR/aapt2" dump badging "${{ steps.meta.outputs.apk_filename }}")"
+          for apk in "${{ steps.meta.outputs.apk_arm64 }}" "${{ steps.meta.outputs.apk_arm32 }}" "${{ steps.meta.outputs.apk_universal }}"; do
+            "$BUILD_TOOLS_DIR/apksigner" verify --verbose --print-certs "$apk"
+          done
+          BADGING="$("$BUILD_TOOLS_DIR/aapt2" dump badging "${{ steps.meta.outputs.apk_arm64 }}")"
           printf '%s\n' "$BADGING" | head -n 20
 
       - name: Upload APK Artifacts
@@ -118,8 +137,9 @@ jobs:
         with:
           name: StyleMorph-android-apks
           path: |
-            ${{ steps.meta.outputs.apk_filename }}
-            ${{ steps.meta.outputs.apk_arm32_filename }}
+            ${{ steps.meta.outputs.apk_arm64 }}
+            ${{ steps.meta.outputs.apk_arm32 }}
+            ${{ steps.meta.outputs.apk_universal }}
           retention-days: 14
 
       - name: Publish GitHub Release
@@ -130,8 +150,9 @@ jobs:
           target_commitish: ${{ github.sha }}
           name: StyleMorph Android ${{ inputs.release_tag }}
           files: |
-            ${{ steps.meta.outputs.apk_filename }}
-            ${{ steps.meta.outputs.apk_arm32_filename }}
+            ${{ steps.meta.outputs.apk_arm64 }}
+            ${{ steps.meta.outputs.apk_arm32 }}
+            ${{ steps.meta.outputs.apk_universal }}
 
       - name: Update Firestore app_config/version & Send FCM Push
         if: ${{ inputs.release_tag != '' }}
@@ -139,7 +160,7 @@ jobs:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           APP_VERSION: ${{ env.APP_VERSION }}
           BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
-          ANDROID_URL: https://github.com/${{ github.repository }}/releases/download/${{ inputs.release_tag }}/${{ steps.meta.outputs.apk_filename }}
+          ANDROID_URL: https://github.com/${{ github.repository }}/releases/download/${{ inputs.release_tag }}/${{ steps.meta.outputs.apk_universal }}
           RELEASE_NOTES: StyleMorph Android ${{ inputs.release_tag }}
           FORCE_UPDATE: ${{ inputs.force_update }}
         run: node .github/scripts/publish_release_update.mjs
