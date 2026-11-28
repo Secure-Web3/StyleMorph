@@ -8,12 +8,15 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_badge.dart';
 import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_chip.dart';
 import '../../../core/widgets/app_icon_button.dart';
 import '../../../core/widgets/app_modal.dart';
 import '../../../core/widgets/app_section_header.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/app_toast.dart';
+import '../domain/extracted_web_product.dart';
+import '../domain/shop_product.dart';
 import '../domain/shop_query_builder.dart';
 import 'shop_provider.dart';
 import 'widgets/shop_filter_sheet.dart';
@@ -26,7 +29,8 @@ class ShopTab extends ConsumerStatefulWidget {
   ConsumerState<ShopTab> createState() => _ShopTabState();
 }
 
-class _ShopTabState extends ConsumerState<ShopTab> {
+class _ShopTabState extends ConsumerState<ShopTab>
+    with AutomaticKeepAliveClientMixin {
   final _searchCtrl = TextEditingController();
 
   static const _categoryCodes = [
@@ -36,8 +40,10 @@ class _ShopTabState extends ConsumerState<ShopTab> {
     'bag',
     'acc',
     'beauty',
-    'fav',
   ];
+
+  @override
+  bool get wantKeepAlive => true;
 
   static const _sortCodes = ['rel', 'lo', 'hi', 'rt', 'dc'];
 
@@ -192,12 +198,15 @@ class _ShopTabState extends ConsumerState<ShopTab> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final colors = context.colors;
     final strings = context.strings;
     final shopState = ref.watch(shopProvider);
     final notifier = ref.read(shopProvider.notifier);
     final appCoins = ref.watch(appStateProvider).coins;
     final activeFilters = shopState.filter.activeFilterCount;
+    final isWishlistSelected = shopState.filter.category == 'fav';
+    final savedCount = shopState.totalWishlistCount;
     final searchQuery = ShopSearchQueryBuilder.buildQuery(
       filter: shopState.filter,
       localeCode: strings.localeCode,
@@ -322,49 +331,85 @@ class _ShopTabState extends ConsumerState<ShopTab> {
           ),
         ),
 
-        // --- Row 2: Fit For Me Toggle + Categories Horizontal Pills ---
+        // --- Row 2: Wishlist (1st), Fit For Me (2nd), Categories Horizontal Pills ---
         Container(
           height: 44,
           color: colors.sf,
-          child: ListView.builder(
+          child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsetsDirectional.symmetric(
               horizontal: AppSpacing.sm,
               vertical: 6,
             ),
-            itemCount: _categoryCodes.length + 1,
-            itemBuilder: (_, idx) {
-              if (idx == 0) {
-                final isFit = shopState.filter.fitFilter;
-                return AppChip(
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 6),
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      AppChip(
+                        label: strings.shopCatFav,
+                        isSelected: isWishlistSelected,
+                        leading: Icon(
+                          Icons.favorite_rounded,
+                          size: 13,
+                          color: isWishlistSelected
+                              ? colors.prt
+                              : colors.orColor,
+                        ),
+                        onTap: () => notifier.setCategory(
+                          isWishlistSelected ? 'all' : 'fav',
+                        ),
+                      ),
+                      if (savedCount > 0)
+                        PositionedDirectional(
+                          top: -4,
+                          end: -4,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 5,
+                              vertical: 1,
+                            ),
+                            decoration: BoxDecoration(
+                              color: colors.orColor,
+                              borderRadius: AppRadius.rFull,
+                              border: Border.all(color: colors.sf, width: 1.2),
+                            ),
+                            child: Text(
+                              strings.formatNumber(savedCount),
+                              style: AppTypography.caption(
+                                color: colors.prt,
+                              ).copyWith(fontSize: 9, height: 1.1),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                AppChip(
                   label: strings.shopFitMeChip,
-                  isSelected: isFit,
+                  isSelected: shopState.filter.fitFilter,
                   margin: const EdgeInsetsDirectional.only(end: 6),
                   leading: Icon(
                     Icons.auto_awesome_rounded,
                     size: 13,
-                    color: isFit ? colors.prt : colors.pr,
+                    color: shopState.filter.fitFilter ? colors.prt : colors.pr,
                   ),
                   onTap: notifier.toggleFitFilter,
-                );
-              }
-              final code = _categoryCodes[idx - 1];
-              final label = _categoryLabel(strings, code);
-              final isSel = shopState.filter.category == code;
-              return AppChip(
-                label: label,
-                isSelected: isSel,
-                margin: const EdgeInsetsDirectional.only(end: 6),
-                leading: code == 'fav'
-                    ? Icon(
-                        Icons.favorite_rounded,
-                        size: 12,
-                        color: isSel ? colors.prt : colors.orColor,
-                      )
-                    : null,
-                onTap: () => notifier.setCategory(code),
-              );
-            },
+                ),
+                ..._categoryCodes.map((code) {
+                  final label = _categoryLabel(strings, code);
+                  final isSel = shopState.filter.category == code;
+                  return AppChip(
+                    label: label,
+                    isSelected: isSel,
+                    margin: const EdgeInsetsDirectional.only(end: 6),
+                    onTap: () => notifier.setCategory(code),
+                  );
+                }),
+              ],
+            ),
           ),
         ),
 
@@ -440,12 +485,64 @@ class _ShopTabState extends ConsumerState<ShopTab> {
             ),
           ),
 
-        // --- Image-First Google Search WebView / Web Fallback ---
+        // --- Image-First Google Search WebView / Web Fallback & Wishlist ---
         Expanded(
-          child: ShopWebDiscoveryView(
-            searchUri: searchUri,
-            searchQuery: searchQuery,
-            activeFilterLabels: activeFilterLabels,
+          child: Stack(
+            children: [
+              Offstage(
+                offstage: isWishlistSelected,
+                child: ShopWebDiscoveryView(
+                  searchUri: searchUri,
+                  searchQuery: searchQuery,
+                  activeFilterLabels: activeFilterLabels,
+                ),
+              ),
+              if (isWishlistSelected)
+                Positioned.fill(
+                  child: _ShopWishlistView(
+                    webItems: shopState.webWishlist,
+                    catalogItems: shopState.products
+                        .where((p) => shopState.wishlist.contains(p.id))
+                        .toList(),
+                    onReopenUrl: (uri) => notifier.reopenInBrowser(uri),
+                    onReopenCatalog: (product) {
+                      _searchCtrl.text = product.name;
+                      notifier.updateFilter(
+                        shopState.filter.copyWith(
+                          category: 'all',
+                          searchQuery: product.name,
+                        ),
+                      );
+                    },
+                    onSendToStylist: (product) {
+                      ref
+                          .read(shopHandoffProvider.notifier)
+                          .sendToStylist(product);
+                      ref
+                          .read(appStateProvider.notifier)
+                          .switchTab(AppTab.stylist);
+                      AppToast.showSuccess(
+                        context,
+                        strings.shopWebSentToStylistMsg,
+                      );
+                    },
+                    onSendToAtelier: (product) {
+                      ref
+                          .read(shopHandoffProvider.notifier)
+                          .sendToAtelier(product);
+                      ref
+                          .read(appStateProvider.notifier)
+                          .switchTab(AppTab.atelier);
+                      AppToast.showSuccess(
+                        context,
+                        strings.shopWebSentToAtelierMsg,
+                      );
+                    },
+                    onRemoveWeb: notifier.removeWebProductFromWishlist,
+                    onRemoveCatalog: notifier.toggleWishlist,
+                  ),
+                ),
+            ],
           ),
         ),
 
@@ -489,6 +586,229 @@ class _ShopTabState extends ConsumerState<ShopTab> {
             ),
           ),
       ],
+    );
+  }
+}
+
+class _ShopWishlistView extends StatelessWidget {
+  const _ShopWishlistView({
+    required this.webItems,
+    required this.catalogItems,
+    required this.onReopenUrl,
+    required this.onReopenCatalog,
+    required this.onSendToStylist,
+    required this.onSendToAtelier,
+    required this.onRemoveWeb,
+    required this.onRemoveCatalog,
+  });
+
+  final List<ExtractedWebProduct> webItems;
+  final List<ShopProduct> catalogItems;
+  final ValueChanged<Uri> onReopenUrl;
+  final ValueChanged<ShopProduct> onReopenCatalog;
+  final ValueChanged<ExtractedWebProduct> onSendToStylist;
+  final ValueChanged<ExtractedWebProduct> onSendToAtelier;
+  final ValueChanged<String> onRemoveWeb;
+  final ValueChanged<int> onRemoveCatalog;
+
+  ExtractedWebProduct _catalogToWebProduct(ShopProduct p) {
+    return ExtractedWebProduct(
+      title: p.name,
+      imageUrl: '',
+      pageUrl: 'https://stylemorph.style/shop/${p.id}',
+      sourceHost: p.brand,
+      priceText: p.lowestPrice > 0 ? p.lowestPrice.toString() : null,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final strings = context.strings;
+
+    if (webItems.isEmpty && catalogItems.isEmpty) {
+      return Container(
+        color: colors.bg,
+        alignment: AlignmentDirectional.center,
+        padding: const EdgeInsetsDirectional.all(AppSpacing.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.favorite_border_rounded,
+              size: 40,
+              color: colors.mu.withValues(alpha: 0.7),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              strings.shopWishlistEmpty,
+              textAlign: TextAlign.center,
+              style: AppTypography.cardTitle(color: colors.mu),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      color: colors.bg,
+      child: ListView(
+        padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+        children: [
+          ...webItems.map((item) {
+            final uri = Uri.tryParse(item.pageUrl);
+            return Padding(
+              padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
+              child: _WishlistItemCard(
+                title: item.title,
+                subtitle: [
+                  item.sourceHost,
+                  if (item.priceText != null)
+                    '${item.priceText} ${item.currency ?? ''}'.trim(),
+                ].where((e) => e.isNotEmpty).join(' · '),
+                imageUrl: item.imageUrl,
+                onReopen: uri != null ? () => onReopenUrl(uri) : null,
+                onStylist: () => onSendToStylist(item),
+                onAtelier: () => onSendToAtelier(item),
+                onRemove: () => onRemoveWeb(item.wishlistKey),
+              ),
+            );
+          }),
+          ...catalogItems.map((p) {
+            final payload = _catalogToWebProduct(p);
+            return Padding(
+              padding: const EdgeInsetsDirectional.only(bottom: AppSpacing.sm),
+              child: _WishlistItemCard(
+                title: p.name,
+                subtitle:
+                    '${strings.tr(p.brand)} · ${strings.formatCurrency(p.lowestPrice)}',
+                imageUrl: '',
+                onReopen: () => onReopenCatalog(p),
+                onStylist: () => onSendToStylist(payload),
+                onAtelier: () => onSendToAtelier(payload),
+                onRemove: () => onRemoveCatalog(p.id),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class _WishlistItemCard extends StatelessWidget {
+  const _WishlistItemCard({
+    required this.title,
+    required this.subtitle,
+    required this.imageUrl,
+    required this.onReopen,
+    required this.onStylist,
+    required this.onAtelier,
+    required this.onRemove,
+  });
+
+  final String title;
+  final String subtitle;
+  final String imageUrl;
+  final VoidCallback? onReopen;
+  final VoidCallback onStylist;
+  final VoidCallback onAtelier;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final strings = context.strings;
+
+    return AppCard(
+      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              ClipRRect(
+                borderRadius: AppRadius.rMd,
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  color: colors.bg,
+                  child: imageUrl.isNotEmpty
+                      ? Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => Icon(
+                            Icons.shopping_bag_outlined,
+                            color: colors.pr,
+                          ),
+                        )
+                      : Icon(Icons.shopping_bag_outlined, color: colors.pr),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTypography.cardTitle(color: colors.tx),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    if (subtitle.isNotEmpty) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: AppTypography.caption(color: colors.mu),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              IconButton(
+                tooltip: strings.shopWishlistRemove,
+                onPressed: onRemove,
+                icon: Icon(
+                  Icons.delete_outline_rounded,
+                  size: 18,
+                  color: colors.orColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Wrap(
+            spacing: AppSpacing.xs,
+            runSpacing: AppSpacing.xs,
+            children: [
+              if (onReopen != null)
+                AppButton(
+                  variant: AppButtonVariant.outline,
+                  size: AppButtonSize.sm,
+                  icon: const Icon(Icons.open_in_browser_rounded, size: 14),
+                  text: strings.shopWishlistReopenBrowser,
+                  onPressed: onReopen,
+                ),
+              AppButton(
+                size: AppButtonSize.sm,
+                icon: const Icon(Icons.checkroom_rounded, size: 14),
+                text: strings.shopWebSendToStylistBtn,
+                onPressed: onStylist,
+              ),
+              AppButton(
+                variant: AppButtonVariant.secondary,
+                size: AppButtonSize.sm,
+                icon: const Icon(Icons.auto_awesome_rounded, size: 14),
+                text: strings.shopWebSendToAtelierBtn,
+                onPressed: onAtelier,
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

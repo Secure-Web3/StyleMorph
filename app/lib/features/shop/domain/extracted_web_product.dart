@@ -60,4 +60,19 @@ class ExtractedWebProduct {
           : null,
     );
   }
+
+  /// Unique key for deduplicating saved external WebView products.
+  String get wishlistKey => pageUrl.isNotEmpty ? pageUrl : imageUrl;
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is ExtractedWebProduct &&
+        other.pageUrl == pageUrl &&
+        other.imageUrl == imageUrl &&
+        other.title == title;
+  }
+
+  @override
+  int get hashCode => Object.hash(pageUrl, imageUrl, title);
 }

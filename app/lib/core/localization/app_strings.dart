@@ -922,6 +922,15 @@ class AppStrings {
   String get shopWebTryOnBtn => get('shopWebTryOnBtn');
   String get shopWebSaveWardrobeBtn => get('shopWebSaveWardrobeBtn');
   String get shopWebFeedbackBtn => get('shopWebFeedbackBtn');
+  String get shopWebSendToStylistBtn => get('shopWebSendToStylistBtn');
+  String get shopWebSendToAtelierBtn => get('shopWebSendToAtelierBtn');
+  String get shopWebSaveWishlistBtn => get('shopWebSaveWishlistBtn');
+  String get shopWebSavedWishlistSuccess => get('shopWebSavedWishlistSuccess');
+  String get shopWebSentToStylistMsg => get('shopWebSentToStylistMsg');
+  String get shopWebSentToAtelierMsg => get('shopWebSentToAtelierMsg');
+  String get shopWishlistReopenBrowser => get('shopWishlistReopenBrowser');
+  String get shopWishlistRemove => get('shopWishlistRemove');
+  String get shopWishlistEmpty => get('shopWishlistEmpty');
   String get shopWebTryOnConfirmTitle => get('shopWebTryOnConfirmTitle');
   String get shopWebTryOnContinue => get('shopWebTryOnContinue');
   String get shopWebSaveTitle => get('shopWebSaveTitle');

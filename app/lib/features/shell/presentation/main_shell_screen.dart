@@ -380,10 +380,15 @@ class _MainShellScreenState extends ConsumerState<MainShellScreen> {
                           return Stack(
                             children: [
                               Positioned.fill(
-                                child: isProfile
-                                    ? _buildProfileWithDrawerSwipe(context)
-                                    : _buildModulesPageView(),
+                                child: Offstage(
+                                  offstage: isProfile,
+                                  child: _buildModulesPageView(),
+                                ),
                               ),
+                              if (isProfile)
+                                Positioned.fill(
+                                  child: _buildProfileWithDrawerSwipe(context),
+                                ),
                               if (showSupport)
                                 Positioned.fill(
                                   child: SupportWidget(

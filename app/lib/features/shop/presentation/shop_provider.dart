@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/shop_repository.dart';
+import '../domain/extracted_web_product.dart';
 import '../domain/shop_product.dart';
 
 class ShopFilter {
@@ -85,6 +86,8 @@ class ShopState {
   final List<ShopProduct> products;
   final ShopFilter filter;
   final Set<int> wishlist;
+  final List<ExtractedWebProduct> webWishlist;
+  final Uri? browserReopenUri;
   final List<int> compareList;
   final Map<int, int> priceAlerts; // productId -> alert discount pct
   final List<int> recentlyViewed;
@@ -93,15 +96,22 @@ class ShopState {
     required this.products,
     required this.filter,
     this.wishlist = const {},
+    this.webWishlist = const [],
+    this.browserReopenUri,
     this.compareList = const [],
     this.priceAlerts = const {},
     this.recentlyViewed = const [2, 4],
   });
 
+  int get totalWishlistCount => wishlist.length + webWishlist.length;
+
   ShopState copyWith({
     List<ShopProduct>? products,
     ShopFilter? filter,
     Set<int>? wishlist,
+    List<ExtractedWebProduct>? webWishlist,
+    Uri? browserReopenUri,
+    bool clearBrowserReopenUri = false,
     List<int>? compareList,
     Map<int, int>? priceAlerts,
     List<int>? recentlyViewed,
@@ -110,6 +120,10 @@ class ShopState {
       products: products ?? this.products,
       filter: filter ?? this.filter,
       wishlist: wishlist ?? this.wishlist,
+      webWishlist: webWishlist ?? this.webWishlist,
+      browserReopenUri: clearBrowserReopenUri
+          ? null
+          : (browserReopenUri ?? this.browserReopenUri),
       compareList: compareList ?? this.compareList,
       priceAlerts: priceAlerts ?? this.priceAlerts,
       recentlyViewed: recentlyViewed ?? this.recentlyViewed,
@@ -205,11 +219,18 @@ class ShopNotifier extends StateNotifier<ShopState> {
 
   ShopNotifier(this._repo)
     : super(
-        ShopState(products: _repo.getProducts(), filter: const ShopFilter()),
+        ShopState(
+          products: _repo.getProducts(),
+          filter: const ShopFilter(),
+          webWishlist: _repo.getSavedWebWishlist(),
+        ),
       );
 
   void refresh() {
-    state = state.copyWith(products: _repo.getProducts());
+    state = state.copyWith(
+      products: _repo.getProducts(),
+      webWishlist: _repo.getSavedWebWishlist(),
+    );
   }
 
   void setCategory(String cat) {
@@ -246,6 +267,32 @@ class ShopNotifier extends StateNotifier<ShopState> {
       next.add(id);
     }
     state = state.copyWith(wishlist: next);
+  }
+
+  void saveWebProductToWishlist(ExtractedWebProduct product) {
+    if (!product.isValid) return;
+    _repo.saveWebWishlistItem(product);
+    state = state.copyWith(webWishlist: _repo.getSavedWebWishlist());
+  }
+
+  void removeWebProductFromWishlist(String wishlistKey) {
+    _repo.removeWebWishlistItem(wishlistKey);
+    state = state.copyWith(webWishlist: _repo.getSavedWebWishlist());
+  }
+
+  bool isWebProductSaved(ExtractedWebProduct product) {
+    return state.webWishlist.any((p) => p.wishlistKey == product.wishlistKey);
+  }
+
+  void reopenInBrowser(Uri uri) {
+    state = state.copyWith(
+      filter: state.filter.copyWith(category: 'all'),
+      browserReopenUri: uri,
+    );
+  }
+
+  void clearBrowserReopenUri() {
+    state = state.copyWith(clearBrowserReopenUri: true);
   }
 
   void toggleCompare(int id) {
@@ -292,3 +339,52 @@ final shopRepositoryProvider = Provider<ShopRepository>(
 final shopProvider = StateNotifierProvider<ShopNotifier, ShopState>(
   (ref) => ShopNotifier(ref.read(shopRepositoryProvider)),
 );
+
+/// Holds the latest Shop product payload handed off to Stylist or Atelier.
+class ShopHandoffState {
+  final ExtractedWebProduct? stylistProduct;
+  final ExtractedWebProduct? atelierProduct;
+
+  const ShopHandoffState({this.stylistProduct, this.atelierProduct});
+
+  ShopHandoffState copyWith({
+    ExtractedWebProduct? stylistProduct,
+    ExtractedWebProduct? atelierProduct,
+    bool clearStylist = false,
+    bool clearAtelier = false,
+  }) {
+    return ShopHandoffState(
+      stylistProduct: clearStylist
+          ? null
+          : (stylistProduct ?? this.stylistProduct),
+      atelierProduct: clearAtelier
+          ? null
+          : (atelierProduct ?? this.atelierProduct),
+    );
+  }
+}
+
+class ShopHandoffNotifier extends StateNotifier<ShopHandoffState> {
+  ShopHandoffNotifier() : super(const ShopHandoffState());
+
+  void sendToStylist(ExtractedWebProduct product) {
+    state = state.copyWith(stylistProduct: product);
+  }
+
+  void sendToAtelier(ExtractedWebProduct product) {
+    state = state.copyWith(atelierProduct: product);
+  }
+
+  void clearStylist() {
+    state = state.copyWith(clearStylist: true);
+  }
+
+  void clearAtelier() {
+    state = state.copyWith(clearAtelier: true);
+  }
+}
+
+final shopHandoffProvider =
+    StateNotifierProvider<ShopHandoffNotifier, ShopHandoffState>(
+      (_) => ShopHandoffNotifier(),
+    );

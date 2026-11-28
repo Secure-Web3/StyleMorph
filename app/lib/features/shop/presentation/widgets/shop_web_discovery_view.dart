@@ -6,14 +6,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../../../../core/localization/app_strings.dart';
+import '../../../../core/state/app_state.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_provider.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_modal.dart';
+import '../../../../core/widgets/app_toast.dart';
 import '../../domain/extracted_web_product.dart';
-import 'web_product_action_bar.dart';
+import '../shop_provider.dart';
 
 /// Displays an image-first Google Search WebView on mobile (`!kIsWeb`) with
 /// live [AppColors] theme synchronization and header masking, or a sleek
@@ -48,19 +52,120 @@ class ShopWebDiscoveryView extends ConsumerStatefulWidget {
 ''';
   }
 
+  /// Lightweight JS long-press bridge on `<img>` and product anchor cards
+  /// (`a img`) that suppresses the native context menu and posts product
+  /// metadata to `StyleMorphProductChannel`.
+  @visibleForTesting
+  static String buildImageLongPressBridgeJs() {
+    return '''
+(function() {
+  if (window.__styleMorphLongPressInstalled) return;
+  window.__styleMorphLongPressInstalled = true;
+
+  var holdTimer = null;
+  var startX = 0;
+  var startY = 0;
+
+  function findProductPayload(target) {
+    if (!target || !target.closest) return null;
+    var img = target.tagName === 'IMG' ? target : target.closest('img');
+    var anchor = target.closest('a');
+    if (!img && anchor) {
+      img = anchor.querySelector('img');
+    }
+    if (!img) return null;
+    var imageUrl = img.currentSrc || img.src || '';
+    if (!imageUrl || imageUrl.indexOf('data:') === 0) return null;
+    var pageUrl = (anchor && anchor.href) ? anchor.href : (window.location.href || '');
+    var rawTitle = (img.getAttribute('alt') || (anchor && anchor.getAttribute('aria-label')) || '').trim();
+    if (!rawTitle && anchor) {
+      var heading = anchor.querySelector('h1, h2, h3, h4, span, div');
+      if (heading && heading.textContent) {
+        rawTitle = heading.textContent.trim().slice(0, 120);
+      }
+    }
+    if (!rawTitle) {
+      rawTitle = (document.title || '').trim();
+    }
+    var host = '';
+    try { host = new URL(pageUrl).hostname || ''; } catch (e) { host = window.location.hostname || ''; }
+    return {
+      imageUrl: imageUrl,
+      title: rawTitle,
+      pageUrl: pageUrl,
+      sourceHost: host
+    };
+  }
+
+  function postPayload(payload) {
+    if (!payload) return;
+    if (window.StyleMorphProductChannel && window.StyleMorphProductChannel.postMessage) {
+      window.StyleMorphProductChannel.postMessage(JSON.stringify(payload));
+    }
+  }
+
+  document.addEventListener('contextmenu', function(e) {
+    var payload = findProductPayload(e.target);
+    if (payload) {
+      e.preventDefault();
+      e.stopPropagation();
+      postPayload(payload);
+    }
+  }, true);
+
+  document.addEventListener('touchstart', function(e) {
+    if (!e.touches || e.touches.length !== 1) return;
+    var payload = findProductPayload(e.target);
+    if (!payload) return;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(function() {
+      postPayload(payload);
+    }, 500);
+  }, { passive: true, capture: true });
+
+  document.addEventListener('touchmove', function(e) {
+    if (!holdTimer || !e.touches || e.touches.length !== 1) return;
+    var dx = Math.abs(e.touches[0].clientX - startX);
+    var dy = Math.abs(e.touches[0].clientY - startY);
+    if (dx > 12 || dy > 12) {
+      clearTimeout(holdTimer);
+      holdTimer = null;
+    }
+  }, { passive: true, capture: true });
+
+  document.addEventListener('touchend', function() {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+  }, { passive: true, capture: true });
+
+  document.addEventListener('touchcancel', function() {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+  }, { passive: true, capture: true });
+})();
+''';
+  }
+
   @override
   ConsumerState<ShopWebDiscoveryView> createState() =>
       _ShopWebDiscoveryViewState();
 }
 
-class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
+class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView>
+    with AutomaticKeepAliveClientMixin {
   WebViewController? _controller;
   bool _isLoading = true;
   bool _webViewSupported = false;
   bool _canGoBack = false;
   bool _isProductPage = false;
   ExtractedWebProduct? _extractedProduct;
+  ExtractedWebProduct? _longPressedProduct;
   AppColors? _lastColors;
+
+  @override
+  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -79,6 +184,10 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
     try {
       final controller = WebViewController()
         ..setJavaScriptMode(JavaScriptMode.unrestricted)
+        ..addJavaScriptChannel(
+          'StyleMorphProductChannel',
+          onMessageReceived: _handleProductChannelMessage,
+        )
         ..setNavigationDelegate(
           NavigationDelegate(
             onNavigationRequest: (request) => NavigationDecision.navigate,
@@ -98,16 +207,19 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
                   await (_controller?.canGoBack() ?? Future.value(false));
               final onProductPage = !_isGoogleSearchUrl(url);
               if (!mounted) return;
+              final colors = context.colors;
               setState(() {
                 _isLoading = false;
                 _canGoBack = canBack;
                 _isProductPage = onProductPage;
               });
+              await _injectLongPressBridge();
+              if (!mounted) return;
               if (onProductPage) {
                 await _injectCrispImages();
                 await _extractProductMetadata();
               } else {
-                await _injectHeaderMaskAndTheme(context.colors);
+                await _injectHeaderMaskAndTheme(colors);
               }
             },
             onWebResourceError: (_) {
@@ -169,6 +281,33 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
     if (!_webViewSupported || controller == null) return;
     try {
       await controller.runJavaScript(ShopWebDiscoveryView.buildCrispImagesJs());
+    } catch (_) {}
+  }
+
+  Future<void> _injectLongPressBridge() async {
+    final controller = _controller;
+    if (!_webViewSupported || controller == null) return;
+    try {
+      await controller.runJavaScript(
+        ShopWebDiscoveryView.buildImageLongPressBridgeJs(),
+      );
+    } catch (_) {}
+  }
+
+  void _handleProductChannelMessage(JavaScriptMessage message) {
+    if (!mounted) return;
+    try {
+      final decoded = jsonDecode(message.message);
+      if (decoded is! Map) return;
+      final product = ExtractedWebProduct.fromJson(
+        Map<String, dynamic>.from(decoded),
+      );
+      if (!product.isValid) return;
+      setState(() => _longPressedProduct = product);
+      AppModal.showSheet(
+        context: context,
+        child: DiscoveryProductActionSheet(product: product),
+      );
     } catch (_) {}
   }
 
@@ -344,6 +483,7 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     final colors = context.colors;
     final strings = context.strings;
 
@@ -352,6 +492,18 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
         _syncThemeToWebView(context.colors);
       }
     });
+
+    ref.listen<Uri?>(shopProvider.select((s) => s.browserReopenUri), (_, uri) {
+      if (uri != null && mounted) {
+        if (_webViewSupported && _controller != null) {
+          setState(() => _isLoading = true);
+          _controller!.loadRequest(uri);
+        }
+        ref.read(shopProvider.notifier).clearBrowserReopenUri();
+      }
+    });
+
+    final activeProduct = _longPressedProduct ?? _extractedProduct;
 
     if (kIsWeb || !_webViewSupported || _controller == null) {
       return _WebFallbackPreview(
@@ -415,14 +567,14 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
                 ),
               ),
             ),
-          if (_isProductPage &&
-              _extractedProduct != null &&
-              _extractedProduct!.isValid)
+          if ((_isProductPage || _longPressedProduct != null) &&
+              activeProduct != null &&
+              activeProduct.isValid)
             PositionedDirectional(
               bottom: AppSpacing.sm,
               start: AppSpacing.sm,
               end: AppSpacing.sm,
-              child: WebProductActionBar(product: _extractedProduct!),
+              child: DiscoveryProductActionBar(product: activeProduct),
             ),
           if (_isLoading)
             Positioned(
@@ -511,6 +663,278 @@ class _WebFallbackPreview extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+void _performSendToStylist(
+  BuildContext context,
+  WidgetRef ref,
+  ExtractedWebProduct product,
+) {
+  ref.read(shopHandoffProvider.notifier).sendToStylist(product);
+  ref.read(appStateProvider.notifier).switchTab(AppTab.stylist);
+  AppToast.showSuccess(context, context.strings.shopWebSentToStylistMsg);
+}
+
+void _performSendToAtelier(
+  BuildContext context,
+  WidgetRef ref,
+  ExtractedWebProduct product,
+) {
+  ref.read(shopHandoffProvider.notifier).sendToAtelier(product);
+  ref.read(appStateProvider.notifier).switchTab(AppTab.atelier);
+  AppToast.showSuccess(context, context.strings.shopWebSentToAtelierMsg);
+}
+
+void _performSaveToWishlist(
+  BuildContext context,
+  WidgetRef ref,
+  ExtractedWebProduct product,
+) {
+  ref.read(shopProvider.notifier).saveWebProductToWishlist(product);
+  AppToast.showSuccess(context, context.strings.shopWebSavedWishlistSuccess);
+}
+
+/// Sleek glassmorphic bottom action pill displaying strictly the 3 target
+/// product actions (`Send to Stylist`, `Send to Atelier`, `Save to Wishlist`).
+class DiscoveryProductActionBar extends ConsumerWidget {
+  const DiscoveryProductActionBar({super.key, required this.product});
+
+  final ExtractedWebProduct product;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final strings = context.strings;
+    final isSaved = ref.watch(
+      shopProvider.select(
+        (s) => s.webWishlist.any((p) => p.wishlistKey == product.wishlistKey),
+      ),
+    );
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colors.sf.withValues(alpha: 0.94),
+        borderRadius: AppRadius.rXl,
+        border: Border.all(color: colors.bd),
+        boxShadow: [
+          BoxShadow(
+            color: colors.tx.withValues(alpha: 0.12),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _DiscoveryProductHeader(product: product, thumbSize: 36),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  size: AppButtonSize.sm,
+                  isFullWidth: true,
+                  onPressed: () => _performSendToStylist(context, ref, product),
+                  child: _ActionPillLabel(
+                    icon: Icons.checkroom_rounded,
+                    label: strings.shopWebSendToStylistBtn,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: AppButton(
+                  variant: AppButtonVariant.secondary,
+                  size: AppButtonSize.sm,
+                  isFullWidth: true,
+                  onPressed: () => _performSendToAtelier(context, ref, product),
+                  child: _ActionPillLabel(
+                    icon: Icons.auto_awesome_rounded,
+                    label: strings.shopWebSendToAtelierBtn,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: AppButton(
+                  variant: AppButtonVariant.outline,
+                  size: AppButtonSize.sm,
+                  isFullWidth: true,
+                  onPressed: () =>
+                      _performSaveToWishlist(context, ref, product),
+                  child: _ActionPillLabel(
+                    icon: isSaved
+                        ? Icons.favorite_rounded
+                        : Icons.favorite_border_rounded,
+                    label: strings.shopWebSaveWishlistBtn,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Bottom sheet triggered when long-pressing any product image or card inside
+/// the Shop WebView, offering preview thumbnail + the 3 target actions.
+class DiscoveryProductActionSheet extends ConsumerWidget {
+  const DiscoveryProductActionSheet({super.key, required this.product});
+
+  final ExtractedWebProduct product;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = context.strings;
+    final isSaved = ref.watch(
+      shopProvider.select(
+        (s) => s.webWishlist.any((p) => p.wishlistKey == product.wishlistKey),
+      ),
+    );
+
+    return AppBottomSheetShell(
+      title: product.title,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          AppCard(
+            variant: AppCardVariant.subtle,
+            padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+            child: _DiscoveryProductHeader(product: product, thumbSize: 64),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          AppButton(
+            isFullWidth: true,
+            icon: const Icon(Icons.checkroom_rounded, size: 16),
+            text: strings.shopWebSendToStylistBtn,
+            onPressed: () {
+              Navigator.pop(context);
+              _performSendToStylist(context, ref, product);
+            },
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          AppButton(
+            variant: AppButtonVariant.secondary,
+            isFullWidth: true,
+            icon: const Icon(Icons.auto_awesome_rounded, size: 16),
+            text: strings.shopWebSendToAtelierBtn,
+            onPressed: () {
+              Navigator.pop(context);
+              _performSendToAtelier(context, ref, product);
+            },
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          AppButton(
+            variant: AppButtonVariant.outline,
+            isFullWidth: true,
+            icon: Icon(
+              isSaved ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+              size: 16,
+            ),
+            text: strings.shopWebSaveWishlistBtn,
+            onPressed: () {
+              Navigator.pop(context);
+              _performSaveToWishlist(context, ref, product);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DiscoveryProductHeader extends StatelessWidget {
+  const _DiscoveryProductHeader({
+    required this.product,
+    required this.thumbSize,
+  });
+
+  final ExtractedWebProduct product;
+  final double thumbSize;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final subtitle = [
+      product.sourceHost,
+      if (product.priceText != null)
+        '${product.priceText} ${product.currency ?? ''}'.trim(),
+    ].where((e) => e.isNotEmpty).join(' · ');
+
+    return Row(
+      children: [
+        ClipRRect(
+          borderRadius: AppRadius.rMd,
+          child: Container(
+            width: thumbSize,
+            height: thumbSize,
+            color: colors.bg,
+            child: product.imageUrl.isNotEmpty
+                ? Image.network(
+                    product.imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => Icon(
+                      Icons.shopping_bag_outlined,
+                      color: colors.pr,
+                      size: 18,
+                    ),
+                  )
+                : Icon(Icons.shopping_bag_outlined, color: colors.pr, size: 18),
+          ),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                product.title,
+                style: AppTypography.cardTitle(color: colors.tx),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              if (subtitle.isNotEmpty)
+                Text(
+                  subtitle,
+                  style: AppTypography.caption(color: colors.mu),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ActionPillLabel extends StatelessWidget {
+  const _ActionPillLabel({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14),
+          const SizedBox(width: 4),
+          Text(label, maxLines: 1),
+        ],
       ),
     );
   }

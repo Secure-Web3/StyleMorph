@@ -1,6 +1,23 @@
+import '../domain/extracted_web_product.dart';
 import '../domain/shop_product.dart';
 
 class ShopRepository {
+  final List<ExtractedWebProduct> _savedWebWishlist = [];
+
+  List<ExtractedWebProduct> getSavedWebWishlist() =>
+      List.unmodifiable(_savedWebWishlist);
+
+  void saveWebWishlistItem(ExtractedWebProduct product) {
+    _savedWebWishlist.removeWhere(
+      (item) => item.wishlistKey == product.wishlistKey,
+    );
+    _savedWebWishlist.insert(0, product);
+  }
+
+  void removeWebWishlistItem(String wishlistKey) {
+    _savedWebWishlist.removeWhere((item) => item.wishlistKey == wishlistKey);
+  }
+
   static final List<ShopProduct> _products = [
     const ShopProduct(
       id: 1,
