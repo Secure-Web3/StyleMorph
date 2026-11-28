@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,9 +11,7 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/theme/theme_provider.dart';
-import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
-import '../../../../core/widgets/app_card.dart';
 import '../../domain/extracted_web_product.dart';
 import 'web_product_action_bar.dart';
 
@@ -341,7 +340,15 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
       color: colors.bg,
       child: Stack(
         children: [
-          WebViewWidget(controller: _controller!),
+          WebViewWidget(
+            controller: _controller!,
+            gestureRecognizers: {
+              Factory<VerticalDragGestureRecognizer>(
+                () => VerticalDragGestureRecognizer(),
+              ),
+              Factory<TapGestureRecognizer>(() => TapGestureRecognizer()),
+            },
+          ),
           if (_canGoBack)
             PositionedDirectional(
               top: AppSpacing.sm,
@@ -443,95 +450,39 @@ class _WebFallbackPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: colors.bg,
-      alignment: AlignmentDirectional.topCenter,
-      child: SingleChildScrollView(
-        padding: const EdgeInsetsDirectional.all(AppSpacing.md),
-        child: AppCard(
-          padding: const EdgeInsetsDirectional.all(AppSpacing.lg),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      color: colors.pr.withValues(alpha: 0.12),
-                      borderRadius: AppRadius.rMd,
-                    ),
-                    child: Icon(
-                      Icons.image_search_rounded,
-                      color: colors.pr,
-                      size: 22,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      strings.shopWebPreviewTitle,
-                      style: AppTypography.cardTitle(color: colors.tx),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                strings.shopWebPreviewDesc,
-                style: AppTypography.caption(color: colors.mu),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Container(
-                padding: const EdgeInsetsDirectional.symmetric(
-                  horizontal: AppSpacing.md,
-                  vertical: AppSpacing.sm,
-                ),
-                decoration: BoxDecoration(
-                  color: colors.bg,
-                  borderRadius: AppRadius.rMd,
-                  border: Border.all(color: colors.bd),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.search_rounded, size: 16, color: colors.pr),
-                    const SizedBox(width: AppSpacing.xs),
-                    Expanded(
-                      child: Text(
-                        searchQuery,
-                        style: AppTypography.inputLabel(color: colors.tx),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (activeFilterLabels.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.sm),
-                Wrap(
-                  spacing: AppSpacing.xs,
-                  runSpacing: AppSpacing.xs,
-                  children: activeFilterLabels
-                      .map(
-                        (label) => AppBadge(
-                          variant: AppBadgeVariant.standard,
-                          size: AppBadgeSize.sm,
-                          child: Text(label),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ],
-              const SizedBox(height: AppSpacing.md),
-              AppButton(
-                isFullWidth: true,
-                text: strings.shopWebOpenExternal,
-                icon: const Icon(Icons.open_in_new_rounded, size: 16),
-                onPressed: onOpenExternal,
-              ),
-            ],
-          ),
+      alignment: AlignmentDirectional.center,
+      padding: const EdgeInsetsDirectional.all(AppSpacing.xl),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 320),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.travel_explore_rounded,
+              size: 40,
+              color: colors.pr.withValues(alpha: 0.8),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              strings.shopWebPreviewTitle,
+              textAlign: TextAlign.center,
+              style: AppTypography.cardTitle(color: colors.tx),
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text(
+              searchQuery,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.caption(color: colors.mu),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            AppButton(
+              size: AppButtonSize.md,
+              text: strings.shopSearchOnGoogle,
+              onPressed: onOpenExternal,
+            ),
+          ],
         ),
       ),
     );

@@ -103,7 +103,7 @@ void main() {
 
   group('ShopTab & ShopWebDiscoveryView', () {
     testWidgets(
-      'preserves all 4 top filter rows and updates generated query reactively',
+      'streamlines top filter rows and updates generated query reactively',
       (tester) async {
         final container = ProviderContainer();
         addTearDown(container.dispose);
@@ -120,19 +120,15 @@ void main() {
         expect(find.byIcon(Icons.tune_rounded), findsOneWidget);
         expect(find.byIcon(Icons.sort_rounded), findsOneWidget);
 
-        // Row 2: Category chips
+        // Row 2: Fit For Me chip + Category chips
+        expect(find.text(strings.shopFitMeChip), findsOneWidget);
         expect(find.text(strings.allText), findsOneWidget);
         expect(find.text(strings.shopCatCloth), findsOneWidget);
         expect(find.text(strings.wardCatSh), findsOneWidget);
 
-        // Row 3: Fit For Me toggle banner
-        expect(find.text(strings.shopFitMeBanner), findsOneWidget);
-
-        // Row 4: Status & active Sort bar
-        expect(
-          find.textContaining('${strings.shopSortPrefix}:'),
-          findsOneWidget,
-        );
+        // Bulky Fit For Me banner and 4th status row are removed
+        expect(find.text(strings.shopFitMeBanner), findsNothing);
+        expect(find.textContaining('${strings.shopSortPrefix}:'), findsNothing);
 
         // Discovery view is mounted
         expect(find.byType(ShopWebDiscoveryView), findsOneWidget);
@@ -140,7 +136,7 @@ void main() {
         // Reactively update search query, category, and Fit For Me
         await tester.enterText(find.byType(TextField), 'silk dress');
         await tester.tap(find.text(strings.shopCatCloth));
-        await tester.tap(find.text(strings.shopFitMeBanner));
+        await tester.tap(find.text(strings.shopFitMeChip).first);
         await tester.pumpAndSettle();
 
         final view = tester.widget<ShopWebDiscoveryView>(

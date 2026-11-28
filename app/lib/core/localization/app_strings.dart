@@ -906,7 +906,10 @@ class AppStrings {
   String get shopSortDc => get('shopSortDc');
   String get shopSortPrefix => get('shopSortPrefix');
   String get shopFitMeBanner => get('shopFitMeBanner');
+  String get shopFitMeChip => get('shopFitMeChip');
   String get shopFitMeSub => get('shopFitMeSub');
+  String get shopMembersOnly => get('shopMembersOnly');
+  String get shopSearchOnGoogle => get('shopSearchOnGoogle');
   String get shopProductUnit => get('shopProductUnit');
   String get shopEmpty => get('shopEmpty');
   String get shopClearAllFilters => get('shopClearAllFilters');

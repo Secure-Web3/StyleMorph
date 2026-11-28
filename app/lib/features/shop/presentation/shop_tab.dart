@@ -8,12 +8,10 @@ import '../../../core/theme/app_spacing.dart';
 import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/app_badge.dart';
 import '../../../core/widgets/app_button.dart';
-import '../../../core/widgets/app_card.dart';
 import '../../../core/widgets/app_chip.dart';
 import '../../../core/widgets/app_icon_button.dart';
 import '../../../core/widgets/app_modal.dart';
 import '../../../core/widgets/app_section_header.dart';
-import '../../../core/widgets/app_switch.dart';
 import '../../../core/widgets/app_text_field.dart';
 import '../../../core/widgets/app_toast.dart';
 import '../domain/shop_query_builder.dart';
@@ -102,49 +100,94 @@ class _ShopTabState extends ConsumerState<ShopTab> {
     );
   }
 
-  void _openSortSheet() {
-    final shopState = ref.read(shopProvider);
-    final notifier = ref.read(shopProvider.notifier);
-    final colors = context.colors;
-    final strings = context.strings;
-
-    AppModal.showSheet(
-      context: context,
-      child: AppBottomSheetShell(
-        title: strings.shopSortTitle,
-        contentPadding: const EdgeInsetsDirectional.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
+  List<({String label, VoidCallback onRemove})> _buildDismissibleFilterPills(
+    AppStrings strings,
+    ShopFilter filter,
+    ShopNotifier notifier,
+  ) {
+    final pills = <({String label, VoidCallback onRemove})>[];
+    if (filter.fitFilter) {
+      pills.add((
+        label: strings.shopFitMeChip,
+        onRemove: notifier.toggleFitFilter,
+      ));
+    }
+    if (filter.gender != 'all') {
+      final genderLabel = switch (filter.gender) {
+        'w' => strings.shopGenderW,
+        'm' => strings.shopGenderM,
+        _ => strings.shopGenderU,
+      };
+      pills.add((
+        label: genderLabel,
+        onRemove: () => notifier.updateFilter(filter.copyWith(gender: 'all')),
+      ));
+    }
+    for (final brand in filter.brands) {
+      pills.add((
+        label: strings.tr(brand),
+        onRemove: () => notifier.updateFilter(
+          filter.copyWith(
+            brands: filter.brands.where((b) => b != brand).toList(),
+          ),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: _sortCodes.map((code) {
-            final isSel = shopState.filter.sortOption == code;
-            return ListTile(
-              shape: const RoundedRectangleBorder(borderRadius: AppRadius.rLg),
-              title: Text(
-                _sortLabel(strings, code),
-                style: TextStyle(
-                  fontFamily: AppTypography.fontFamily,
-                  fontSize: 13,
-                  fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
-                  color: isSel ? colors.pr : colors.tx,
-                ),
-              ),
-              trailing: isSel
-                  ? Icon(Icons.check_circle_rounded, color: colors.pr, size: 18)
-                  : null,
-              dense: true,
-              onTap: () {
-                notifier.setSortOption(code);
-                Navigator.pop(context);
-              },
-            );
-          }).toList(),
+      ));
+    }
+    for (final color in filter.colors) {
+      pills.add((
+        label: strings.tr(color),
+        onRemove: () => notifier.updateFilter(
+          filter.copyWith(
+            colors: filter.colors.where((c) => c != color).toList(),
+          ),
         ),
-      ),
-    );
+      ));
+    }
+    for (final size in filter.sizes) {
+      pills.add((
+        label: strings.formatNumber(size),
+        onRemove: () => notifier.updateFilter(
+          filter.copyWith(sizes: filter.sizes.where((s) => s != size).toList()),
+        ),
+      ));
+    }
+    if (filter.maxPrice > 0) {
+      pills.add((
+        label:
+            '${strings.shopMaxPrice}: ${strings.formatCurrency(filter.maxPrice)}',
+        onRemove: () => notifier.updateFilter(filter.copyWith(maxPrice: 0)),
+      ));
+    }
+    if (filter.saleType != 'all') {
+      pills.add((
+        label: filter.saleType == 'app'
+            ? strings.shopSaleApp
+            : strings.shopSaleSite,
+        onRemove: () => notifier.updateFilter(filter.copyWith(saleType: 'all')),
+      ));
+    }
+    if (filter.availableOnly) {
+      pills.add((
+        label: strings.shopToggleAvail,
+        onRemove: () =>
+            notifier.updateFilter(filter.copyWith(availableOnly: false)),
+      ));
+    }
+    if (filter.discountOnly) {
+      pills.add((
+        label: strings.shopToggleDisc,
+        onRemove: () =>
+            notifier.updateFilter(filter.copyWith(discountOnly: false)),
+      ));
+    }
+    if (filter.verifiedOnly) {
+      pills.add((
+        label: strings.shopToggleVerified,
+        onRemove: () =>
+            notifier.updateFilter(filter.copyWith(verifiedOnly: false)),
+      ));
+    }
+    return pills;
   }
 
   @override
@@ -154,7 +197,6 @@ class _ShopTabState extends ConsumerState<ShopTab> {
     final shopState = ref.watch(shopProvider);
     final notifier = ref.read(shopProvider.notifier);
     final appCoins = ref.watch(appStateProvider).coins;
-    final products = shopState.filteredProducts;
     final activeFilters = shopState.filter.activeFilterCount;
     final searchQuery = ShopSearchQueryBuilder.buildQuery(
       filter: shopState.filter,
@@ -164,14 +206,12 @@ class _ShopTabState extends ConsumerState<ShopTab> {
       filter: shopState.filter,
       localeCode: strings.localeCode,
     );
-    final activeFilterLabels = <String>[
-      if (shopState.filter.category != 'all')
-        _categoryLabel(strings, shopState.filter.category),
-      ...shopState.filter.brands.map(strings.tr),
-      ...shopState.filter.colors.map(strings.tr),
-      ...shopState.filter.sizes.map(strings.formatNumber),
-      if (shopState.filter.fitFilter) strings.shopFitMeBanner,
-    ];
+    final dismissiblePills = _buildDismissibleFilterPills(
+      strings,
+      shopState.filter,
+      notifier,
+    );
+    final activeFilterLabels = dismissiblePills.map((p) => p.label).toList();
 
     return Column(
       children: [
@@ -194,7 +234,7 @@ class _ShopTabState extends ConsumerState<ShopTab> {
           ),
         ),
 
-        // --- Search & Filter Row ---
+        // --- Row 1: Search, Advanced Filter & Compact Sort Menu ---
         Container(
           padding: const EdgeInsetsDirectional.all(AppSpacing.sm),
           color: colors.sf,
@@ -215,12 +255,74 @@ class _ShopTabState extends ConsumerState<ShopTab> {
                 onTap: _openFilterSheet,
               ),
               const SizedBox(width: AppSpacing.xs),
-              AppIconButton(icon: Icons.sort_rounded, onTap: _openSortSheet),
+              PopupMenuButton<String>(
+                tooltip: strings.shopSortTitle,
+                initialValue: shopState.filter.sortOption,
+                onSelected: notifier.setSortOption,
+                color: colors.sf,
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: AppRadius.rLg,
+                  side: BorderSide(color: colors.bd),
+                ),
+                itemBuilder: (_) => _sortCodes.map((code) {
+                  final isSel = shopState.filter.sortOption == code;
+                  return PopupMenuItem<String>(
+                    value: code,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          isSel
+                              ? Icons.check_circle_rounded
+                              : Icons.circle_outlined,
+                          size: 16,
+                          color: isSel ? colors.pr : colors.mu,
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Text(
+                          _sortLabel(strings, code),
+                          style: TextStyle(
+                            fontFamily: AppTypography.fontFamily,
+                            fontSize: 13,
+                            fontWeight: isSel
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                            color: isSel ? colors.pr : colors.tx,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+                child: Container(
+                  width: 38,
+                  height: 38,
+                  decoration: BoxDecoration(
+                    color: shopState.filter.sortOption != 'rel'
+                        ? colors.pr.withValues(alpha: 0.12)
+                        : colors.bg,
+                    borderRadius: AppRadius.rMd,
+                    border: Border.all(
+                      color: shopState.filter.sortOption != 'rel'
+                          ? colors.pr
+                          : colors.bd,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.sort_rounded,
+                    size: 18,
+                    color: shopState.filter.sortOption != 'rel'
+                        ? colors.pr
+                        : colors.tx,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
 
-        // --- Categories Horizontal Pills ---
+        // --- Row 2: Fit For Me Toggle + Categories Horizontal Pills ---
         Container(
           height: 44,
           color: colors.sf,
@@ -230,9 +332,23 @@ class _ShopTabState extends ConsumerState<ShopTab> {
               horizontal: AppSpacing.sm,
               vertical: 6,
             ),
-            itemCount: _categoryCodes.length,
+            itemCount: _categoryCodes.length + 1,
             itemBuilder: (_, idx) {
-              final code = _categoryCodes[idx];
+              if (idx == 0) {
+                final isFit = shopState.filter.fitFilter;
+                return AppChip(
+                  label: strings.shopFitMeChip,
+                  isSelected: isFit,
+                  margin: const EdgeInsetsDirectional.only(end: 6),
+                  leading: Icon(
+                    Icons.auto_awesome_rounded,
+                    size: 13,
+                    color: isFit ? colors.prt : colors.pr,
+                  ),
+                  onTap: notifier.toggleFitFilter,
+                );
+              }
+              final code = _categoryCodes[idx - 1];
               final label = _categoryLabel(strings, code);
               final isSel = shopState.filter.category == code;
               return AppChip(
@@ -252,71 +368,77 @@ class _ShopTabState extends ConsumerState<ShopTab> {
           ),
         ),
 
-        // --- Row 3: "Fit For Me" Banner ---
-        Container(
-          color: colors.sf,
-          padding: const EdgeInsetsDirectional.fromSTEB(
-            AppSpacing.sm,
-            0,
-            AppSpacing.sm,
-            AppSpacing.xs,
-          ),
-          child: AppCard(
-            padding: const EdgeInsetsDirectional.symmetric(
-              horizontal: AppSpacing.md,
-              vertical: AppSpacing.sm,
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.person_pin_circle_rounded,
-                  size: 18,
-                  color: colors.pr,
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(
-                  child: AppSwitchTile(
-                    padding: EdgeInsetsDirectional.zero,
-                    label: strings.shopFitMeBanner,
-                    subtitle: strings.shopFitMeSub,
-                    value: shopState.filter.fitFilter,
-                    onChanged: (_) => notifier.toggleFitFilter(),
+        // --- Active Filter Pills Strip (only when filters are active) ---
+        if (dismissiblePills.isNotEmpty)
+          Container(
+            height: 36,
+            color: colors.sf,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AppSpacing.sm,
+                0,
+                AppSpacing.sm,
+                AppSpacing.xs,
+              ),
+              itemCount: dismissiblePills.length + 1,
+              separatorBuilder: (_, _) => const SizedBox(width: 6),
+              itemBuilder: (_, idx) {
+                if (idx == dismissiblePills.length) {
+                  return InkWell(
+                    borderRadius: AppRadius.rFull,
+                    onTap: notifier.resetFilters,
+                    child: Container(
+                      padding: const EdgeInsetsDirectional.symmetric(
+                        horizontal: AppSpacing.sm,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: AppRadius.rFull,
+                        border: Border.all(
+                          color: colors.orColor.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      alignment: AlignmentDirectional.center,
+                      child: Text(
+                        strings.shopClearAllFilters,
+                        style: AppTypography.caption(color: colors.orColor),
+                      ),
+                    ),
+                  );
+                }
+                final pill = dismissiblePills[idx];
+                return InkWell(
+                  borderRadius: AppRadius.rFull,
+                  onTap: pill.onRemove,
+                  child: Container(
+                    padding: const EdgeInsetsDirectional.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: colors.pr.withValues(alpha: 0.1),
+                      borderRadius: AppRadius.rFull,
+                      border: Border.all(
+                        color: colors.pr.withValues(alpha: 0.3),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          pill.label,
+                          style: AppTypography.caption(color: colors.pr),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(Icons.close_rounded, size: 12, color: colors.pr),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                );
+              },
             ),
           ),
-        ),
-
-        // --- Row 4: Status & Active Sort Bar ---
-        Container(
-          color: colors.sf,
-          padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: 6,
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                strings.countWithUnit(products.length, strings.shopProductUnit),
-                style: TextStyle(
-                  fontFamily: 'Vazirmatn',
-                  fontSize: 10,
-                  color: colors.mu,
-                ),
-              ),
-              Text(
-                '${strings.shopSortPrefix}: ${_sortLabel(strings, shopState.filter.sortOption)}',
-                style: TextStyle(
-                  fontFamily: 'Vazirmatn',
-                  fontSize: 10,
-                  color: colors.mu,
-                ),
-              ),
-            ],
-          ),
-        ),
 
         // --- Image-First Google Search WebView / Web Fallback ---
         Expanded(

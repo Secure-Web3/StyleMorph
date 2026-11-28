@@ -30,6 +30,7 @@ class ShopFilterSheet extends StatefulWidget {
 
 class _ShopFilterSheetState extends State<ShopFilterSheet> {
   late ShopFilter _f;
+  bool _membersExpanded = false;
 
   static const _brands = [
     'زارا',
@@ -47,20 +48,23 @@ class _ShopFilterSheetState extends State<ShopFilterSheet> {
     'آدیداس',
   ];
 
-  static const _sizes = [
-    'S',
-    'M',
-    'L',
-    'XL',
-    '36',
-    '37',
-    '38',
-    '39',
-    '40',
-    '41',
-    '42',
-    '43',
-  ];
+  static const _apparelSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  static const _shoeSizes = ['36', '37', '38', '39', '40', '41', '42', '43'];
+
+  List<String>? _contextualSizes() {
+    switch (_f.category) {
+      case 'shoe':
+        return _shoeSizes;
+      case 'cloth':
+        return _apparelSizes;
+      case 'bag':
+      case 'acc':
+      case 'beauty':
+        return null;
+      default:
+        return [..._apparelSizes, ..._shoeSizes];
+    }
+  }
 
   static const _colors = [
     ('سفید', Color(0xFFF4F4F2)),
@@ -129,27 +133,6 @@ class _ShopFilterSheetState extends State<ShopFilterSheet> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Sale Type
-          _SectionTitle(title: strings.shopSaleType, colors: colors),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children:
-                [
-                  ('all', strings.allText),
-                  ('app', strings.shopSaleApp),
-                  ('site', strings.shopSaleSite),
-                ].map((opt) {
-                  return AppChip(
-                    label: opt.$2,
-                    isSelected: _f.saleType == opt.$1,
-                    onTap: () =>
-                        setState(() => _f = _f.copyWith(saleType: opt.$1)),
-                  );
-                }).toList(),
-          ),
-          const SizedBox(height: AppSpacing.md),
-
           // Gender
           _SectionTitle(title: strings.shopGender, colors: colors),
           Wrap(
@@ -172,113 +155,193 @@ class _ShopFilterSheetState extends State<ShopFilterSheet> {
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // Max price
-          _SectionTitle(
-            title: _f.maxPrice > 0
-                ? '${strings.shopMaxPrice}: ${strings.formatCurrency(_f.maxPrice)}'
-                : strings.shopMaxPriceNoLimit,
-            colors: colors,
-          ),
-          Slider(
-            value: _f.maxPrice > 0 ? _f.maxPrice.toDouble() : 3000000,
-            min: 100000,
-            max: 3000000,
-            divisions: 29,
-            activeColor: colors.pr,
-            inactiveColor: colors.bd,
-            onChanged: (v) {
-              setState(() {
-                _f = _f.copyWith(
-                  maxPrice: v.toInt() >= 3000000 ? 0 : v.toInt(),
-                );
-              });
-            },
-          ),
-          const SizedBox(height: AppSpacing.md),
-
-          // Brands
-          _SectionTitle(title: strings.shopBrands, colors: colors),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: _brands.map((b) {
-              return AppChip(
-                label: strings.tr(b),
-                isSelected: _f.brands.contains(b),
-                onTap: () => _toggleInList(
-                  _f.brands,
-                  b,
-                  (l) => setState(() => _f = _f.copyWith(brands: l)),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: AppSpacing.md),
-
-          // Sizes
-          _SectionTitle(title: strings.wardSpecSize, colors: colors),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: _sizes.map((s) {
-              return AppChip(
-                label: strings.formatNumber(s),
-                isSelected: _f.sizes.contains(s),
-                onTap: () => _toggleInList(
-                  _f.sizes,
-                  s,
-                  (l) => setState(() => _f = _f.copyWith(sizes: l)),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: AppSpacing.md),
-
-          // Colors
+          // Colors (single-line horizontal 26px circular swatches)
           _SectionTitle(title: strings.wardFilterColor, colors: colors),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: _colors.map((c) {
-              return AppChip(
-                label: strings.tr(c.$1),
-                isSelected: _f.colors.contains(c.$1),
-                leading: Container(
-                  width: 10,
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: c.$2,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: colors.bd, width: 0.5),
+          SizedBox(
+            height: 34,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: _colors.length,
+              separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.sm),
+              itemBuilder: (_, idx) {
+                final c = _colors[idx];
+                final isSelected = _f.colors.contains(c.$1);
+                final isLight = c.$2.computeLuminance() > 0.6;
+                return Semantics(
+                  label: strings.tr(c.$1),
+                  button: true,
+                  selected: isSelected,
+                  child: GestureDetector(
+                    onTap: () => _toggleInList(
+                      _f.colors,
+                      c.$1,
+                      (l) => setState(() => _f = _f.copyWith(colors: l)),
+                    ),
+                    child: Center(
+                      child: Container(
+                        width: 26,
+                        height: 26,
+                        decoration: BoxDecoration(
+                          color: c.$2,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isSelected ? colors.pr : colors.bd,
+                            width: isSelected ? 2.5 : 1,
+                          ),
+                        ),
+                        child: isSelected
+                            ? Icon(
+                                Icons.check_rounded,
+                                size: 14,
+                                color: isLight ? Colors.black87 : Colors.white,
+                              )
+                            : null,
+                      ),
+                    ),
                   ),
-                ),
-                onTap: () => _toggleInList(
-                  _f.colors,
-                  c.$1,
-                  (l) => setState(() => _f = _f.copyWith(colors: l)),
-                ),
-              );
-            }).toList(),
+                );
+              },
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
 
-          // Toggles
-          AppSwitchTile(
-            label: strings.shopToggleAvail,
-            value: _f.availableOnly,
-            onChanged: (v) =>
-                setState(() => _f = _f.copyWith(availableOnly: v)),
+          // Brands (single-line horizontal chip strip)
+          _SectionTitle(title: strings.shopBrands, colors: colors),
+          SizedBox(
+            height: 36,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: _brands.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 6),
+              itemBuilder: (_, idx) {
+                final b = _brands[idx];
+                return AppChip(
+                  label: strings.tr(b),
+                  isSelected: _f.brands.contains(b),
+                  onTap: () => _toggleInList(
+                    _f.brands,
+                    b,
+                    (l) => setState(() => _f = _f.copyWith(brands: l)),
+                  ),
+                );
+              },
+            ),
           ),
-          AppSwitchTile(
-            label: strings.shopToggleDisc,
-            value: _f.discountOnly,
-            onChanged: (v) => setState(() => _f = _f.copyWith(discountOnly: v)),
+          const SizedBox(height: AppSpacing.md),
+
+          // Context-aware Sizes (hidden for bags/accessories/beauty)
+          if (_contextualSizes() case final sizes?) ...[
+            _SectionTitle(title: strings.wardSpecSize, colors: colors),
+            SizedBox(
+              height: 36,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: sizes.length,
+                separatorBuilder: (_, _) => const SizedBox(width: 6),
+                itemBuilder: (_, idx) {
+                  final s = sizes[idx];
+                  return AppChip(
+                    label: strings.formatNumber(s),
+                    isSelected: _f.sizes.contains(s),
+                    onTap: () => _toggleInList(
+                      _f.sizes,
+                      s,
+                      (l) => setState(() => _f = _f.copyWith(sizes: l)),
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
+
+          // Member-store-only controls inside collapsed-by-default accordion
+          InkWell(
+            onTap: () => setState(() => _membersExpanded = !_membersExpanded),
+            child: Padding(
+              padding: const EdgeInsetsDirectional.symmetric(
+                vertical: AppSpacing.xs,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      strings.shopMembersOnly,
+                      style: AppTypography.inputLabel(color: colors.tx),
+                    ),
+                  ),
+                  Icon(
+                    _membersExpanded
+                        ? Icons.keyboard_arrow_up_rounded
+                        : Icons.keyboard_arrow_down_rounded,
+                    color: colors.mu,
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
           ),
-          AppSwitchTile(
-            label: strings.shopToggleVerified,
-            value: _f.verifiedOnly,
-            onChanged: (v) => setState(() => _f = _f.copyWith(verifiedOnly: v)),
-          ),
+          if (_membersExpanded) ...[
+            const SizedBox(height: AppSpacing.sm),
+            _SectionTitle(title: strings.shopSaleType, colors: colors),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children:
+                  [
+                    ('all', strings.allText),
+                    ('app', strings.shopSaleApp),
+                    ('site', strings.shopSaleSite),
+                  ].map((opt) {
+                    return AppChip(
+                      label: opt.$2,
+                      isSelected: _f.saleType == opt.$1,
+                      onTap: () =>
+                          setState(() => _f = _f.copyWith(saleType: opt.$1)),
+                    );
+                  }).toList(),
+            ),
+            const SizedBox(height: AppSpacing.md),
+            _SectionTitle(
+              title: _f.maxPrice > 0
+                  ? '${strings.shopMaxPrice}: ${strings.formatCurrency(_f.maxPrice)}'
+                  : strings.shopMaxPriceNoLimit,
+              colors: colors,
+            ),
+            Slider(
+              value: _f.maxPrice > 0 ? _f.maxPrice.toDouble() : 3000000,
+              min: 100000,
+              max: 3000000,
+              divisions: 29,
+              activeColor: colors.pr,
+              inactiveColor: colors.bd,
+              onChanged: (v) {
+                setState(() {
+                  _f = _f.copyWith(
+                    maxPrice: v.toInt() >= 3000000 ? 0 : v.toInt(),
+                  );
+                });
+              },
+            ),
+            AppSwitchTile(
+              label: strings.shopToggleAvail,
+              value: _f.availableOnly,
+              onChanged: (v) =>
+                  setState(() => _f = _f.copyWith(availableOnly: v)),
+            ),
+            AppSwitchTile(
+              label: strings.shopToggleDisc,
+              value: _f.discountOnly,
+              onChanged: (v) =>
+                  setState(() => _f = _f.copyWith(discountOnly: v)),
+            ),
+            AppSwitchTile(
+              label: strings.shopToggleVerified,
+              value: _f.verifiedOnly,
+              onChanged: (v) =>
+                  setState(() => _f = _f.copyWith(verifiedOnly: v)),
+            ),
+          ],
         ],
       ),
     );
