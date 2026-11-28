@@ -36,7 +36,7 @@ class ConnectionHealthState {
 }
 
 /// Lightweight Riverpod notifier monitoring reachability of Firebase and
-/// GitHub Releases endpoints (4-second timeout) to surface VPN/connectivity alerts.
+/// GitHub endpoints (4-second timeout) to surface generic connectivity alerts.
 class ConnectionHealthNotifier extends StateNotifier<ConnectionHealthState> {
   final Future<bool> Function() _probeFn;
 

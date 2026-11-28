@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
-/// Probes Firebase/Firestore and GitHub Releases endpoints to detect
-/// regional filtering or missing VPN when a local network interface is active.
+/// Probes Firebase/Firestore and GitHub endpoints over HTTPS to detect
+/// server reachability issues when a local network interface is active.
 Future<bool> probeServerReachabilityImpl({
   Duration timeout = const Duration(seconds: 4),
 }) async {
@@ -23,7 +23,7 @@ Future<bool> probeServerReachabilityImpl({
 
   final endpoints = <Uri>[
     Uri.parse('https://firestore.googleapis.com/'),
-    Uri.parse('https://api.github.com/'),
+    Uri.parse('https://api.github.com/zen'),
   ];
 
   final results = await Future.wait(
@@ -34,7 +34,9 @@ Future<bool> probeServerReachabilityImpl({
 }
 
 Future<bool> _probeEndpoint(Uri uri, Duration timeout) async {
-  final client = HttpClient()..connectionTimeout = timeout;
+  final client = HttpClient()
+    ..connectionTimeout = timeout
+    ..autoUncompress = false;
   try {
     final request = await client.headUrl(uri).timeout(timeout);
     request.headers.set(HttpHeaders.userAgentHeader, 'StyleMorph-HealthCheck');

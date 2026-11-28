@@ -218,6 +218,11 @@ jobs:
           APP_VERSION: ${{ env.APP_VERSION }}
           BUILD_NUMBER: ${{ env.BUILD_NUMBER }}
           ANDROID_URL: https://github.com/${{ github.repository }}/releases/download/${{ inputs.release_tag }}/${{ steps.meta.outputs.apk_universal }}
-          RELEASE_NOTES: StyleMorph Android ${{ inputs.release_tag }}
           FORCE_UPDATE: ${{ inputs.force_update }}
-        run: node .github/scripts/publish_release_update.mjs
+        run: |
+          if [ -f RELEASE_NOTES.md ]; then
+            export RELEASE_NOTES="$(cat RELEASE_NOTES.md)"
+          else
+            export RELEASE_NOTES="StyleMorph Android ${{ inputs.release_tag }}"
+          fi
+          node .github/scripts/publish_release_update.mjs

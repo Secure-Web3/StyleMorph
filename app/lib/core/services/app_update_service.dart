@@ -253,7 +253,14 @@ class AppUpdateService {
   Future<void> downloadAndInstallApk(
     String url, {
     required void Function(double progress) onProgress,
+    String? version,
+    int? build,
   }) {
-    return installer.downloadAndInstallApkImpl(url, onProgress: onProgress);
+    return installer.downloadAndInstallApkImpl(
+      url,
+      onProgress: onProgress,
+      version: version,
+      build: build,
+    );
   }
 }

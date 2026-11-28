@@ -1209,10 +1209,10 @@ final Map<String, String> stringsFa = {
   'updateDialogError': 'دانلود ناموفق بود. لطفاً دوباره تلاش کنید.',
   'updateDialogRetryBtn': 'تلاش مجدد',
   'connServerUnreachableBanner':
-      'دسترسی به سرورهای همگام‌سازی و بررسی بروزرسانی برقرار نیست. لطفاً اتصال اینترنت یا VPN خود را بررسی کنید.',
+      'ارتباط با سرور برقرار نشد. لطفاً اتصال اینترنت خود را بررسی کرده و دوباره تلاش کنید.',
   'connRetryBtn': 'تلاش مجدد',
   'aboutUpdateServerUnreachable':
-      'سرور بروزرسانی در دسترس نیست. لطفاً اتصال اینترنت یا VPN خود را بررسی کرده و دوباره تلاش کنید.',
+      'ارتباط با سرور بروزرسانی برقرار نشد. لطفاً اتصال اینترنت خود را بررسی کرده و دوباره تلاش کنید.',
   'loyaltyYourEarnedPointsTitle': 'جزئیات امتیازات شما',
   'loyaltyBreakdownProfile': 'تکمیل پروفایل ({percent})',
   'loyaltyBreakdownEmail': 'تایید ایمیل',

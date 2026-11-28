@@ -239,8 +239,9 @@ void main() {
       final js = ShopWebDiscoveryView.buildImageLongPressBridgeJs();
       expect(js, contains('StyleMorphProductChannel'));
       expect(js, contains('contextmenu'));
+      expect(js, contains('pointerdown'));
       expect(js, contains('touchstart'));
-      expect(js, contains('500'));
+      expect(js, contains('320'));
     });
   });
 }

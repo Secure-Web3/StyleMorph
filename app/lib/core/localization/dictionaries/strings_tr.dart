@@ -1220,10 +1220,10 @@ final Map<String, String> stringsTr = {
   'updateDialogError': 'İndirme başarısız oldu. Lütfen tekrar deneyin.',
   'updateDialogRetryBtn': 'Tekrar Dene',
   'connServerUnreachableBanner':
-      'Senkronizasyon ve güncelleme sunucularına ulaşılamıyor. Lütfen internet bağlantınızı veya VPN’inizi kontrol edin.',
+      'Sunucuya bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.',
   'connRetryBtn': 'Tekrar Dene',
   'aboutUpdateServerUnreachable':
-      'Güncelleme sunucusuna ulaşılamadı. Lütfen internet bağlantınızı veya VPN’inizi kontrol edip tekrar deneyin.',
+      'Güncelleme sunucusuna bağlanılamadı. Lütfen internet bağlantınızı kontrol edip tekrar deneyin.',
   'loyaltyYourEarnedPointsTitle': 'Kazandığınız Puanlar',
   'loyaltyBreakdownProfile': 'Profil Tamamlama ({percent})',
   'loyaltyBreakdownEmail': 'Doğrulanmış E-posta',

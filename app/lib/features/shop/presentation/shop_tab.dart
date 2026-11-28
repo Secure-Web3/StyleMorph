@@ -496,7 +496,9 @@ class _ShopTabState extends ConsumerState<ShopTab>
 
         // --- Image-First Google Search WebView / Web Fallback & Wishlist ---
         Expanded(
-          child: Stack(
+          child: IndexedStack(
+            index: isWishlistSelected ? 1 : 0,
+            sizing: StackFit.expand,
             children: [
               Offstage(
                 offstage: isWishlistSelected,
@@ -506,51 +508,40 @@ class _ShopTabState extends ConsumerState<ShopTab>
                   activeFilterLabels: activeFilterLabels,
                 ),
               ),
-              if (isWishlistSelected)
-                Positioned.fill(
-                  child: _ShopWishlistView(
-                    webItems: shopState.webWishlist,
-                    catalogItems: shopState.products
-                        .where((p) => shopState.wishlist.contains(p.id))
-                        .toList(),
-                    onReopenUrl: (uri) => notifier.reopenInBrowser(uri),
-                    onReopenCatalog: (product) {
-                      _searchCtrl.text = product.name;
-                      notifier.updateFilter(
-                        shopState.filter.copyWith(
-                          category: 'all',
-                          searchQuery: product.name,
-                        ),
-                      );
-                    },
-                    onSendToStylist: (product) {
-                      ref
-                          .read(shopHandoffProvider.notifier)
-                          .sendToStylist(product);
-                      ref
-                          .read(appStateProvider.notifier)
-                          .switchTab(AppTab.stylist);
-                      AppToast.showSuccess(
-                        context,
-                        strings.shopWebSentToStylistMsg,
-                      );
-                    },
-                    onSendToAtelier: (product) {
-                      ref
-                          .read(shopHandoffProvider.notifier)
-                          .sendToAtelier(product);
-                      ref
-                          .read(appStateProvider.notifier)
-                          .switchTab(AppTab.atelier);
-                      AppToast.showSuccess(
-                        context,
-                        strings.shopWebSentToAtelierMsg,
-                      );
-                    },
-                    onRemoveWeb: notifier.removeWebProductFromWishlist,
-                    onRemoveCatalog: notifier.toggleWishlist,
-                  ),
-                ),
+              _ShopWishlistView(
+                webItems: shopState.webWishlist,
+                catalogItems: shopState.products
+                    .where((p) => shopState.wishlist.contains(p.id))
+                    .toList(),
+                onReopenUrl: (uri) => notifier.reopenInBrowser(uri),
+                onReopenCatalog: (product) {
+                  _searchCtrl.text = product.name;
+                  notifier.updateFilter(
+                    shopState.filter.copyWith(
+                      category: 'all',
+                      searchQuery: product.name,
+                    ),
+                  );
+                },
+                onSendToStylist: (product) {
+                  ref.read(shopHandoffProvider.notifier).sendToStylist(product);
+                  ref.read(appStateProvider.notifier).switchTab(AppTab.stylist);
+                  AppToast.showSuccess(
+                    context,
+                    strings.shopWebSentToStylistMsg,
+                  );
+                },
+                onSendToAtelier: (product) {
+                  ref.read(shopHandoffProvider.notifier).sendToAtelier(product);
+                  ref.read(appStateProvider.notifier).switchTab(AppTab.atelier);
+                  AppToast.showSuccess(
+                    context,
+                    strings.shopWebSentToAtelierMsg,
+                  );
+                },
+                onRemoveWeb: notifier.removeWebProductFromWishlist,
+                onRemoveCatalog: notifier.toggleWishlist,
+              ),
             ],
           ),
         ),

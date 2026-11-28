@@ -1498,7 +1498,7 @@ class AppStrings {
     return get('timeDaysAgo').replaceAll('{n}', d);
   }
 
-  // Connectivity / VPN & Earned Points Breakdown getters
+  // Connectivity & Earned Points Breakdown getters
   String get connServerUnreachableBanner => get('connServerUnreachableBanner');
   String get connRetryBtn => get('connRetryBtn');
   String get aboutUpdateServerUnreachable =>

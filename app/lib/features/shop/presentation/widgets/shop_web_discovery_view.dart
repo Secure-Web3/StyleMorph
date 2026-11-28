@@ -74,6 +74,76 @@ class ShopWebDiscoveryView extends ConsumerStatefulWidget {
   var startX = 0;
   var startY = 0;
   var longPressFired = false;
+  var gestureActive = false;
+  var prevUserSelect = '';
+  var prevTouchCallout = '';
+
+  function applyTouchSuppression() {
+    var root = document.documentElement;
+    if (!root) return;
+    prevUserSelect = root.style.userSelect || '';
+    prevTouchCallout = root.style.webkitTouchCallout || '';
+    root.style.userSelect = 'none';
+    root.style.webkitUserSelect = 'none';
+    root.style.webkitTouchCallout = 'none';
+  }
+
+  function restoreTouchSuppression() {
+    var root = document.documentElement;
+    if (!root) return;
+    root.style.userSelect = prevUserSelect;
+    root.style.webkitUserSelect = prevUserSelect;
+    root.style.webkitTouchCallout = prevTouchCallout;
+  }
+
+  function startHold(target, x, y) {
+    if (gestureActive) return;
+    gestureActive = true;
+    longPressFired = false;
+    startX = x;
+    startY = y;
+    applyTouchSuppression();
+    clearTimeout(holdTimer);
+    holdTimer = setTimeout(function() {
+      var payload = findProductPayload(target, startX, startY);
+      if (payload) {
+        longPressFired = true;
+        postPayload(payload);
+      }
+    }, 320);
+  }
+
+  function moveHold(x, y) {
+    if (!holdTimer) return;
+    var dx = Math.abs(x - startX);
+    var dy = Math.abs(y - startY);
+    if (dx > 12 || dy > 12) {
+      clearTimeout(holdTimer);
+      holdTimer = null;
+      gestureActive = false;
+      restoreTouchSuppression();
+    }
+  }
+
+  function endHold(e) {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+    gestureActive = false;
+    restoreTouchSuppression();
+    if (longPressFired) {
+      e.preventDefault();
+      e.stopPropagation();
+      longPressFired = false;
+    }
+  }
+
+  function cancelHold() {
+    clearTimeout(holdTimer);
+    holdTimer = null;
+    gestureActive = false;
+    longPressFired = false;
+    restoreTouchSuppression();
+  }
 
   function extractBgImageUrl(el) {
     if (!el || !window.getComputedStyle) return '';
@@ -148,47 +218,31 @@ class ShopWebDiscoveryView extends ConsumerStatefulWidget {
     }
   }, { capture: true, passive: false });
 
+  document.addEventListener('pointerdown', function(e) {
+    if (e.isPrimary === false) return;
+    startHold(e.target, e.clientX, e.clientY);
+  }, { capture: true, passive: false });
+
+  document.addEventListener('pointermove', function(e) {
+    if (e.isPrimary === false) return;
+    moveHold(e.clientX, e.clientY);
+  }, { capture: true, passive: false });
+
+  document.addEventListener('pointerup', endHold, { capture: true, passive: false });
+  document.addEventListener('pointercancel', cancelHold, { capture: true, passive: false });
+
   document.addEventListener('touchstart', function(e) {
     if (!e.touches || e.touches.length !== 1) return;
-    longPressFired = false;
-    startX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-    var target = e.target;
-    clearTimeout(holdTimer);
-    holdTimer = setTimeout(function() {
-      var payload = findProductPayload(target, startX, startY);
-      if (payload) {
-        longPressFired = true;
-        postPayload(payload);
-      }
-    }, 500);
+    startHold(e.target, e.touches[0].clientX, e.touches[0].clientY);
   }, { capture: true, passive: false });
 
   document.addEventListener('touchmove', function(e) {
-    if (!holdTimer || !e.touches || e.touches.length !== 1) return;
-    var dx = Math.abs(e.touches[0].clientX - startX);
-    var dy = Math.abs(e.touches[0].clientY - startY);
-    if (dx > 12 || dy > 12) {
-      clearTimeout(holdTimer);
-      holdTimer = null;
-    }
+    if (!e.touches || e.touches.length !== 1) return;
+    moveHold(e.touches[0].clientX, e.touches[0].clientY);
   }, { capture: true, passive: false });
 
-  document.addEventListener('touchend', function(e) {
-    clearTimeout(holdTimer);
-    holdTimer = null;
-    if (longPressFired) {
-      e.preventDefault();
-      e.stopPropagation();
-      longPressFired = false;
-    }
-  }, { capture: true, passive: false });
-
-  document.addEventListener('touchcancel', function() {
-    clearTimeout(holdTimer);
-    holdTimer = null;
-    longPressFired = false;
-  }, { capture: true, passive: false });
+  document.addEventListener('touchend', endHold, { capture: true, passive: false });
+  document.addEventListener('touchcancel', cancelHold, { capture: true, passive: false });
 })();
 ''';
   }

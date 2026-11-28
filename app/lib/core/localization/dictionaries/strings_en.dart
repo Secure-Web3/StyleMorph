@@ -1213,10 +1213,10 @@ final Map<String, String> stringsEn = {
   'updateDialogError': 'Download failed. Please try again.',
   'updateDialogRetryBtn': 'Retry',
   'connServerUnreachableBanner':
-      'Unable to reach sync and update servers. Please check your internet connection or VPN.',
+      'Unable to connect to the server. Please check your internet connection and try again.',
   'connRetryBtn': 'Retry',
   'aboutUpdateServerUnreachable':
-      'Update server could not be reached. Please check your internet connection or VPN and try again.',
+      'Unable to connect to the update server. Please check your internet connection and try again.',
   'loyaltyYourEarnedPointsTitle': 'Your Earned Points',
   'loyaltyBreakdownProfile': 'Profile Completion ({percent})',
   'loyaltyBreakdownEmail': 'Verified Email',

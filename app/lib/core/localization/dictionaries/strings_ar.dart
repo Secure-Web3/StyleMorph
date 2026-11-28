@@ -1181,10 +1181,10 @@ final Map<String, String> stringsAr = {
   'updateDialogError': 'فشل التنزيل. يُرجى المحاولة مرة أخرى.',
   'updateDialogRetryBtn': 'إعادة المحاولة',
   'connServerUnreachableBanner':
-      'تعذر الوصول إلى خوادم المزامنة والتحديثات. يُرجى التحقق من اتصالك بالإنترنت أو VPN.',
+      'تعذر الاتصال بالخادم. يُرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.',
   'connRetryBtn': 'إعادة المحاولة',
   'aboutUpdateServerUnreachable':
-      'تعذر الوصول إلى خادم التحديثات. يُرجى التحقق من اتصالك بالإنترنت أو VPN والمحاولة مجدداً.',
+      'تعذر الاتصال بخادم التحديثات. يُرجى التحقق من اتصالك بالإنترنت والمحاولة مرة أخرى.',
   'loyaltyYourEarnedPointsTitle': 'تفاصيل نقاطك المكتسبة',
   'loyaltyBreakdownProfile': 'اكتمال الملف ({percent})',
   'loyaltyBreakdownEmail': 'تأكيد البريد الإلكتروني',

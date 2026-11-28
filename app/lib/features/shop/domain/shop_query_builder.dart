@@ -284,9 +284,11 @@ class ShopSearchQueryBuilder {
         if (fitPreference != null && fitPreference.trim().isNotEmpty) {
           parts.add('${fitPreference.trim()} fit');
         }
-      } else {
+      } else if (filter.category == 'all') {
+        if (trimmedSearch.isEmpty) {
+          parts.add('fashion outfits clothing');
+        }
         parts.add('Size $clothingSize');
-        parts.add('Shoe $shoeSize');
         if (fitPreference != null && fitPreference.trim().isNotEmpty) {
           parts.add('${fitPreference.trim()} fit');
         }

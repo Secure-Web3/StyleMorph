@@ -68,16 +68,28 @@ class _AppUpdateDialogState extends ConsumerState<AppUpdateDialog> {
     });
 
     try {
-      final downloader =
-          widget.onDownloadAndInstall ??
-          ref.read(appUpdateServiceProvider).downloadAndInstallApk;
-      await downloader(
-        url,
-        onProgress: (p) {
-          if (!mounted) return;
-          setState(() => _progress = p);
-        },
-      );
+      final customDownloader = widget.onDownloadAndInstall;
+      if (customDownloader != null) {
+        await customDownloader(
+          url,
+          onProgress: (p) {
+            if (!mounted) return;
+            setState(() => _progress = p);
+          },
+        );
+      } else {
+        await ref
+            .read(appUpdateServiceProvider)
+            .downloadAndInstallApk(
+              url,
+              version: widget.remoteInfo.resolvedVersion,
+              build: widget.remoteInfo.build,
+              onProgress: (p) {
+                if (!mounted) return;
+                setState(() => _progress = p);
+              },
+            );
+      }
       if (mounted) {
         setState(() => _isDownloading = false);
       }
@@ -210,7 +222,7 @@ class _AppUpdateDialogState extends ConsumerState<AppUpdateDialog> {
                         ),
                         const SizedBox(height: AppSpacing.xs),
                         ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 140),
+                          constraints: const BoxConstraints(maxHeight: 160),
                           child: SingleChildScrollView(
                             child: Text(
                               releaseNotes,
