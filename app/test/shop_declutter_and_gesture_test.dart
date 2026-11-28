@@ -236,4 +236,13 @@ void main() {
       });
     }
   });
+
+  test('ShopWebDiscoveryView injected CSS enforces crisp unblurred images', () {
+    final js = ShopWebDiscoveryView.buildCrispImagesJs();
+    expect(js, contains('filter: none !important'));
+    expect(js, contains('-webkit-filter: none !important'));
+    expect(js, contains('backdrop-filter: none !important'));
+    expect(js, contains('opacity: 1 !important'));
+    expect(js.toLowerCase(), isNot(contains('blur(')));
+  });
 }

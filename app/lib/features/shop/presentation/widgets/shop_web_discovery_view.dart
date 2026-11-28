@@ -30,6 +30,24 @@ class ShopWebDiscoveryView extends ConsumerStatefulWidget {
   final String searchQuery;
   final List<String> activeFilterLabels;
 
+  /// Injected CSS/JS rule that guarantees sharp, unblurred, full-opacity
+  /// rendering for search-grid thumbnails and opened product images.
+  @visibleForTesting
+  static String buildCrispImagesJs() {
+    return '''
+(function() {
+  var id = 'stylemorph-crisp-images';
+  var style = document.getElementById(id);
+  if (!style) {
+    style = document.createElement('style');
+    style.id = id;
+    document.head && document.head.appendChild(style);
+  }
+  style.textContent = 'img, picture, video, [style*="background-image"] { filter: none !important; -webkit-filter: none !important; backdrop-filter: none !important; -webkit-backdrop-filter: none !important; opacity: 1 !important; }';
+})();
+''';
+  }
+
   @override
   ConsumerState<ShopWebDiscoveryView> createState() =>
       _ShopWebDiscoveryViewState();
@@ -86,6 +104,7 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
                 _isProductPage = onProductPage;
               });
               if (onProductPage) {
+                await _injectCrispImages();
                 await _extractProductMetadata();
               } else {
                 await _injectHeaderMaskAndTheme(context.colors);
@@ -145,13 +164,21 @@ class _ShopWebDiscoveryViewState extends ConsumerState<ShopWebDiscoveryView> {
     } catch (_) {}
   }
 
+  Future<void> _injectCrispImages() async {
+    final controller = _controller;
+    if (!_webViewSupported || controller == null) return;
+    try {
+      await controller.runJavaScript(ShopWebDiscoveryView.buildCrispImagesJs());
+    } catch (_) {}
+  }
+
   Future<void> _injectHeaderMaskAndTheme(AppColors colors) async {
     final controller = _controller;
     if (!_webViewSupported || controller == null) return;
     try {
       await controller.setBackgroundColor(colors.bg);
       await controller.runJavaScript(
-        '${_buildHeaderMaskJs()}\n${_buildThemeSyncJs(colors)}',
+        '${_buildHeaderMaskJs()}\n${_buildThemeSyncJs(colors)}\n${ShopWebDiscoveryView.buildCrispImagesJs()}',
       );
     } catch (_) {}
   }
