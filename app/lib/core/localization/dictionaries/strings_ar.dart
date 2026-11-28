@@ -1094,7 +1094,7 @@ final Map<String, String> stringsAr = {
   'aboutAgreementDesc':
       'يلزم مراجعة وقبول شروط الخدمة وسياسة الخصوصية لاستخدام خدمات المنصة.',
   'aboutAgreementCheckbox':
-      'أقر بأن عمري لا يقل عن ١٨ عاماً. لقد قرأت ووافقت على شروط الخدمة وسياسة الخصوصية لـ StyleMorph (الإصدار ٢.٠).',
+      'أقر بأن عمري لا يقل عن ١٣ عاماً. لقد قرأت ووافقت على شروط الخدمة وسياسة الخصوصية لـ StyleMorph (الإصدار ٢.٠).',
   'aboutAgreementSignBtn': 'تأكيد وتوقيع إلكترونياً',
   'aboutOpenContractBtn': 'مراجعة نص الاتفاقية والتوقيع الإلكتروني',
   'aboutContractModalTitle': 'شروط الخدمة وسياسة الخصوصية',
@@ -1191,4 +1191,16 @@ final Map<String, String> stringsAr = {
   'loyaltyBreakdownReferrals': 'دعوة الأصدقاء ({count})',
   'loyaltyBreakdownAiUsage': 'استخدام الذكاء الاصطناعي ({count})',
   'loyaltyBreakdownWallet': 'نشاط المحفظة ({count} عملة)',
+  'refUplineTitle': 'تمت دعوتك بواسطة',
+  'refUplineEmptyNotice': 'هل لديك رابط أو رمز دعوة؟',
+  'refUplineInputHint': 'الصق رابط الدعوة أو الرمز',
+  'refEnterCodeBtn': 'إدخال رمز الدعوة',
+  'refUplineConfirmTitle': 'تأكيد المُحيل',
+  'refUplineConfirmDesc':
+      'هل تريد ربط حسابك بـ {name} ({code})؟ يمكن تعيين هذا مرة واحدة فقط ولا يمكن تغييره لاحقاً.',
+  'refUplineInvalidCode': 'رمز الدعوة غير موجود أو غير صالح.',
+  'refUplineSelfReferral': 'لا يمكنك استخدام رمز الدعوة الخاص بك.',
+  'refUplineBoundSuccess': 'تم ربط المُحيل بنجاح.',
+  'refUplineLockedBadge': 'مقفول',
+  'refCopyLinkTooltip': 'نسخ الرابط',
 };

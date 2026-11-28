@@ -12,8 +12,11 @@ import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
 import '../../../../core/widgets/app_badge.dart';
+import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
+import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_section_header.dart';
+import '../../../../core/widgets/app_text_field.dart';
 import '../../../../core/widgets/app_toast.dart';
 import '../../../auth/presentation/auth_provider.dart';
 import 'share_actions.dart' as share_actions;
@@ -25,7 +28,14 @@ final referralsStreamProvider = StreamProvider.autoDispose
     });
 
 class ReferralSubTab extends ConsumerStatefulWidget {
-  const ReferralSubTab({super.key});
+  const ReferralSubTab({
+    super.key,
+    @visibleForTesting this.onShareLinkOverride,
+    @visibleForTesting this.uidOverride,
+  });
+
+  final Future<bool> Function(String link, String title)? onShareLinkOverride;
+  final String? uidOverride;
 
   @override
   ConsumerState<ReferralSubTab> createState() => _ReferralSubTabState();
@@ -78,7 +88,8 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
     AppStrings strings,
   ) async {
     if (link.isEmpty) return;
-    final shared = await share_actions.shareLink(link, 'StyleMorph');
+    final shareFn = widget.onShareLinkOverride ?? share_actions.shareLink;
+    final shared = await shareFn(link, 'StyleMorph');
 
     if (!shared) {
       Clipboard.setData(ClipboardData(text: link));
@@ -87,12 +98,11 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final colors = context.colors;
-    final strings = context.strings;
-    final appState = ref.watch(appStateProvider);
-    String uid = ref.watch(currentUidProvider) ?? '';
+  String _resolveEffectiveUid() {
+    if (widget.uidOverride != null && widget.uidOverride!.isNotEmpty) {
+      return widget.uidOverride!;
+    }
+    String uid = ref.read(currentUidProvider) ?? '';
     if (uid.isEmpty) {
       try {
         if (Firebase.apps.isNotEmpty) {
@@ -102,6 +112,286 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
         uid = '';
       }
     }
+    return uid;
+  }
+
+  Future<void> _openEnterReferralDialog(
+    BuildContext context,
+    AppStrings strings,
+    String uid,
+  ) async {
+    final inputCtrl = TextEditingController();
+    String? errorText;
+    bool isSubmitting = false;
+
+    final resolvedReferrer = await AppModal.showAppDialog<UplineReferrerInfo>(
+      context: context,
+      barrierDismissible: true,
+      child: StatefulBuilder(
+        builder: (dialogCtx, setDialogState) {
+          final colors = dialogCtx.colors;
+          return Column(
+            key: const Key('ref_upline_input_dialog'),
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  FaIcon(
+                    FontAwesomeIcons.userCheck,
+                    size: 16,
+                    color: colors.pr,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: Text(
+                      strings.refEnterCodeBtn,
+                      style: AppTypography.cardTitle(color: colors.tx),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              AppTextField(
+                key: const Key('ref_upline_input_field'),
+                controller: inputCtrl,
+                placeholder: strings.refUplineInputHint,
+                errorText: errorText,
+                textDirection: TextDirection.ltr,
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Row(
+                children: [
+                  Expanded(
+                    child: AppButton(
+                      variant: AppButtonVariant.outline,
+                      text: strings.dialogCancel,
+                      onPressed: isSubmitting
+                          ? null
+                          : () => Navigator.of(dialogCtx).pop(),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(
+                    child: AppButton(
+                      key: const Key('ref_upline_lookup_btn'),
+                      variant: AppButtonVariant.primary,
+                      text: strings.dialogConfirm,
+                      onPressed: isSubmitting
+                          ? null
+                          : () async {
+                              setDialogState(() {
+                                isSubmitting = true;
+                                errorText = null;
+                              });
+                              final result = await ref
+                                  .read(referralServiceProvider)
+                                  .lookupReferrerByInput(
+                                    rawInput: inputCtrl.text,
+                                    currentUid: uid,
+                                  );
+                              if (!dialogCtx.mounted) return;
+                              if (result.status == ReferrerLookupStatus.found &&
+                                  result.referrer != null) {
+                                Navigator.of(dialogCtx).pop(result.referrer);
+                              } else {
+                                setDialogState(() {
+                                  isSubmitting = false;
+                                  errorText =
+                                      result.status ==
+                                          ReferrerLookupStatus.selfReferral
+                                      ? strings.refUplineSelfReferral
+                                      : strings.refUplineInvalidCode;
+                                });
+                              }
+                            },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      inputCtrl.dispose();
+    });
+    if (resolvedReferrer == null || !mounted || !context.mounted) return;
+
+    final confirmed = await AppModal.showAppDialog<bool>(
+      context: context,
+      barrierDismissible: true,
+      child: Column(
+        key: const Key('ref_upline_confirm_dialog'),
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            strings.refUplineConfirmTitle,
+            style: AppTypography.cardTitle(color: context.colors.tx),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            strings.refUplineConfirmDesc
+                .replaceAll('{name}', resolvedReferrer.displayName)
+                .replaceAll('{code}', resolvedReferrer.code),
+            style: AppTypography.bodySmall(color: context.colors.mu),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Row(
+            children: [
+              Expanded(
+                child: AppButton(
+                  variant: AppButtonVariant.outline,
+                  text: strings.dialogCancel,
+                  onPressed: () => Navigator.of(context).pop(false),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: AppButton(
+                  key: const Key('ref_upline_confirm_btn'),
+                  variant: AppButtonVariant.primary,
+                  text: strings.dialogConfirm,
+                  onPressed: () => Navigator.of(context).pop(true),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted || !context.mounted) return;
+
+    final appState = ref.read(appStateProvider);
+    final email = appState.identityValues['email'] ?? '';
+    final name =
+        appState.identityValues['nick'] ??
+        appState.identityValues['firstName'] ??
+        '';
+    final ok = await ref
+        .read(referralServiceProvider)
+        .bindUplineReferrer(
+          currentUid: uid,
+          currentEmail: email,
+          currentDisplayName: name.isNotEmpty ? name : null,
+          referralCode: resolvedReferrer.code,
+        );
+    if (!mounted || !context.mounted) return;
+    if (ok) {
+      ref.invalidate(uplineReferrerProvider(uid));
+      AppToast.showSuccess(context, strings.refUplineBoundSuccess);
+    } else {
+      AppToast.showError(context, strings.refUplineInvalidCode);
+    }
+  }
+
+  Widget _buildUplineSection({
+    required BuildContext context,
+    required AppColors colors,
+    required AppStrings strings,
+    required String uid,
+    required UplineReferrerInfo? upline,
+  }) {
+    if (upline != null) {
+      return AppCard(
+        key: const Key('ref_upline_locked_card'),
+        padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+        child: Row(
+          children: [
+            FaIcon(FontAwesomeIcons.userShield, size: 15, color: colors.ok),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    strings.refUplineTitle,
+                    style: AppTypography.caption(color: colors.mu),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    upline.code.isNotEmpty && upline.displayName != upline.code
+                        ? '${upline.displayName} (${upline.code})'
+                        : upline.displayName,
+                    style: AppTypography.cardTitle(color: colors.tx),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            AppBadge(
+              variant: AppBadgeVariant.success,
+              size: AppBadgeSize.sm,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(Icons.lock_rounded, size: 11, color: colors.ok),
+                  const SizedBox(width: 4),
+                  Text(strings.refUplineLockedBadge),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return AppCard(
+      key: const Key('ref_upline_empty_card'),
+      padding: const EdgeInsetsDirectional.all(AppSpacing.md),
+      child: Row(
+        children: [
+          FaIcon(FontAwesomeIcons.userPlus, size: 14, color: colors.pr),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  strings.refUplineTitle,
+                  style: AppTypography.cardTitle(color: colors.tx),
+                ),
+                Text(
+                  strings.refUplineEmptyNotice,
+                  style: AppTypography.caption(color: colors.mu),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          AppButton(
+            key: const Key('ref_enter_code_btn'),
+            variant: AppButtonVariant.outline,
+            size: AppButtonSize.sm,
+            text: strings.refEnterCodeBtn,
+            onPressed: uid.isNotEmpty
+                ? () => _openEnterReferralDialog(context, strings, uid)
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final strings = context.strings;
+    final appState = ref.watch(appStateProvider);
+    final uid = widget.uidOverride?.isNotEmpty == true
+        ? widget.uidOverride!
+        : _resolveEffectiveUid();
+    final upline = uid.isNotEmpty
+        ? ref.watch(uplineReferrerProvider(uid)).valueOrNull
+        : null;
 
     final refCode = appState.referralCode.isNotEmpty
         ? appState.referralCode
@@ -148,6 +438,16 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
           AppSectionHeader(
             faIcon: FontAwesomeIcons.gift,
             title: strings.refHeader,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+
+          // Upline Referrer Card (Locked if set, or Enter Referral Code button)
+          _buildUplineSection(
+            context: context,
+            colors: colors,
+            strings: strings,
+            uid: uid,
+            upline: upline,
           ),
           const SizedBox(height: AppSpacing.md),
 
@@ -252,6 +552,7 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
           ),
           const SizedBox(height: AppSpacing.xs),
           Material(
+            key: const Key('ref_invite_link_tile'),
             color: Colors.transparent,
             child: InkWell(
               onTap: referralLink.isNotEmpty
@@ -261,8 +562,9 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
               child: Container(
                 height: 44,
                 alignment: AlignmentDirectional.centerStart,
-                padding: const EdgeInsetsDirectional.symmetric(
-                  horizontal: AppSpacing.md,
+                padding: const EdgeInsetsDirectional.only(
+                  start: AppSpacing.md,
+                  end: AppSpacing.xs,
                 ),
                 decoration: BoxDecoration(
                   color: colors.bg,
@@ -284,11 +586,37 @@ class _ReferralSubTabState extends ConsumerState<ReferralSubTab> {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(width: AppSpacing.xs),
                     FaIcon(
                       FontAwesomeIcons.shareNodes,
                       size: 13,
                       color: colors.pr,
+                    ),
+                    IconButton(
+                      key: const Key('ref_copy_link_btn'),
+                      tooltip: strings.refCopyLinkTooltip,
+                      icon: Icon(
+                        Icons.copy_rounded,
+                        size: 15,
+                        color: colors.mu,
+                      ),
+                      padding: const EdgeInsets.all(6),
+                      constraints: const BoxConstraints(
+                        minWidth: 32,
+                        minHeight: 32,
+                      ),
+                      visualDensity: VisualDensity.compact,
+                      onPressed: referralLink.isNotEmpty
+                          ? () {
+                              Clipboard.setData(
+                                ClipboardData(text: referralLink),
+                              );
+                              AppToast.showSuccess(
+                                context,
+                                strings.refCopiedToast,
+                              );
+                            }
+                          : null,
                     ),
                   ],
                 ),

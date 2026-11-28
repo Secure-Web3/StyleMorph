@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,10 +12,12 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_radius.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/app_typography.dart';
+import '../../../../core/utils/digit_formatter.dart';
 import '../../../../core/widgets/app_badge.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_card.dart';
 import '../../../../core/widgets/app_feedback.dart';
+import '../../../../core/widgets/app_modal.dart';
 import '../../../../core/widgets/app_section_header.dart';
 import '../../../../core/widgets/app_text_field.dart';
 import '../../../auth/presentation/email_verification_provider.dart';
@@ -630,7 +633,7 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
     final strings = context.strings;
     final now = DateTime.now();
     final lastDate = DateTime(now.year - 13, now.month, now.day);
-    final firstDate = DateTime(now.year - 120, 1, 1);
+    final firstDate = DateTime(1930, 1, 1);
 
     DateTime initialDate = DateTime(now.year - 20, now.month, now.day);
     final currentText = _dobController.text.trim();
@@ -643,37 +646,16 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
       }
     }
 
-    final picked = await showDatePicker(
+    final picked = await AppModal.showSheet<DateTime>(
       context: context,
-      initialDate: initialDate,
-      firstDate: firstDate,
-      lastDate: lastDate,
-      builder: (context, child) {
-        final colors = context.colors;
-        final isDark = Theme.of(context).brightness == Brightness.dark;
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: isDark
-                ? ColorScheme.dark(
-                    primary: colors.pr,
-                    onPrimary: colors.prt,
-                    surface: colors.sf,
-                    onSurface: colors.tx,
-                  )
-                : ColorScheme.light(
-                    primary: colors.pr,
-                    onPrimary: colors.prt,
-                    surface: colors.sf,
-                    onSurface: colors.tx,
-                  ),
-            dialogTheme: DialogThemeData(backgroundColor: colors.sf),
-          ),
-          child: child ?? const SizedBox.shrink(),
-        );
-      },
+      child: _WheelDobPickerSheet(
+        initialDate: initialDate,
+        firstDate: firstDate,
+        lastDate: lastDate,
+      ),
     );
 
-    if (picked != null) {
+    if (picked != null && mounted) {
       final isoString =
           '${picked.year.toString().padLeft(4, '0')}-${picked.month.toString().padLeft(2, '0')}-${picked.day.toString().padLeft(2, '0')}';
       _dobController.text = isoString;
@@ -1569,6 +1551,262 @@ class _IdentitySubTabState extends ConsumerState<IdentitySubTab> {
           ),
         );
       },
+    );
+  }
+}
+
+/// Sleek `shadcn`-styled 3-column wheel date picker (Day · Month · Year)
+/// enforcing the 13+ minimum age constraint.
+class _WheelDobPickerSheet extends StatefulWidget {
+  final DateTime initialDate;
+  final DateTime firstDate;
+  final DateTime lastDate;
+
+  const _WheelDobPickerSheet({
+    required this.initialDate,
+    required this.firstDate,
+    required this.lastDate,
+  });
+
+  @override
+  State<_WheelDobPickerSheet> createState() => _WheelDobPickerSheetState();
+}
+
+class _WheelDobPickerSheetState extends State<_WheelDobPickerSheet> {
+  late int _selectedYear;
+  late int _selectedMonth;
+  late int _selectedDay;
+
+  late final FixedExtentScrollController _dayCtrl;
+  late final FixedExtentScrollController _monthCtrl;
+  late final FixedExtentScrollController _yearCtrl;
+
+  List<int> get _years {
+    final count = widget.lastDate.year - widget.firstDate.year + 1;
+    return List.generate(count, (i) => widget.firstDate.year + i);
+  }
+
+  int _daysInMonth(int year, int month) {
+    return DateTime(year, month + 1, 0).day;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedYear = widget.initialDate.year.clamp(
+      widget.firstDate.year,
+      widget.lastDate.year,
+    );
+    _selectedMonth = widget.initialDate.month.clamp(1, 12);
+    _selectedDay = widget.initialDate.day.clamp(
+      1,
+      _daysInMonth(_selectedYear, _selectedMonth),
+    );
+
+    _dayCtrl = FixedExtentScrollController(initialItem: _selectedDay - 1);
+    _monthCtrl = FixedExtentScrollController(initialItem: _selectedMonth - 1);
+    _yearCtrl = FixedExtentScrollController(
+      initialItem: _selectedYear - widget.firstDate.year,
+    );
+  }
+
+  @override
+  void dispose() {
+    _dayCtrl.dispose();
+    _monthCtrl.dispose();
+    _yearCtrl.dispose();
+    super.dispose();
+  }
+
+  void _clampDayIfNeeded() {
+    final maxDay = _daysInMonth(_selectedYear, _selectedMonth);
+    if (_selectedDay > maxDay) {
+      _selectedDay = maxDay;
+      if (_dayCtrl.hasClients) {
+        _dayCtrl.jumpToItem(_selectedDay - 1);
+      }
+    }
+  }
+
+  DateTime _resolvedDate() {
+    final maxDay = _daysInMonth(_selectedYear, _selectedMonth);
+    var candidate = DateTime(
+      _selectedYear,
+      _selectedMonth,
+      _selectedDay.clamp(1, maxDay),
+    );
+    if (candidate.isAfter(widget.lastDate)) {
+      candidate = widget.lastDate;
+    } else if (candidate.isBefore(widget.firstDate)) {
+      candidate = widget.firstDate;
+    }
+    return candidate;
+  }
+
+  String _monthName(int month, String localeCode) {
+    try {
+      return DateFormat.MMMM(localeCode).format(DateTime(2024, month, 1));
+    } catch (_) {
+      return month.toString().padLeft(2, '0');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final strings = context.strings;
+    final years = _years;
+    final maxDay = _daysInMonth(_selectedYear, _selectedMonth);
+    final previewDate = _resolvedDate();
+    final previewIso =
+        '${previewDate.year.toString().padLeft(4, '0')}-${previewDate.month.toString().padLeft(2, '0')}-${previewDate.day.toString().padLeft(2, '0')}';
+
+    final selectionOverlay = Container(
+      margin: const EdgeInsets.symmetric(horizontal: 4),
+      decoration: BoxDecoration(
+        color: colors.pr.withValues(alpha: 0.08),
+        borderRadius: AppRadius.rMd,
+        border: Border.all(color: colors.pr.withValues(alpha: 0.35)),
+      ),
+    );
+
+    return AppBottomSheetShell(
+      key: const Key('wheel_dob_picker_sheet'),
+      title: strings.idDob,
+      titleLeading: FaIcon(
+        FontAwesomeIcons.calendar,
+        size: 16,
+        color: colors.pr,
+      ),
+      headerActions: [
+        AppBadge(
+          variant: AppBadgeVariant.active,
+          child: Text(
+            DigitFormatter.localizeDigits(previewIso, strings.localeCode),
+          ),
+        ),
+      ],
+      scrollable: false,
+      bottomBar: Row(
+        children: [
+          Expanded(
+            child: AppButton(
+              key: const Key('wheel_dob_cancel_btn'),
+              variant: AppButtonVariant.outline,
+              text: strings.dialogCancel,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: AppButton(
+              key: const Key('wheel_dob_confirm_btn'),
+              variant: AppButtonVariant.primary,
+              text: strings.dialogConfirm,
+              onPressed: () => Navigator.of(context).pop(_resolvedDate()),
+            ),
+          ),
+        ],
+      ),
+      child: SizedBox(
+        height: 210,
+        child: Directionality(
+          textDirection: TextDirection.ltr,
+          child: Row(
+            children: [
+              // Day column
+              Expanded(
+                flex: 2,
+                child: CupertinoPicker(
+                  key: const Key('wheel_dob_day_picker'),
+                  scrollController: _dayCtrl,
+                  itemExtent: 40,
+                  magnification: 1.06,
+                  useMagnifier: true,
+                  selectionOverlay: selectionOverlay,
+                  onSelectedItemChanged: (idx) {
+                    setState(() {
+                      _selectedDay = idx + 1;
+                    });
+                  },
+                  children: List.generate(
+                    maxDay,
+                    (i) => Center(
+                      child: Text(
+                        DigitFormatter.localizeDigits(
+                          (i + 1).toString().padLeft(2, '0'),
+                          strings.localeCode,
+                        ),
+                        style: AppTypography.cardTitle(color: colors.tx),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Month column
+              Expanded(
+                flex: 4,
+                child: CupertinoPicker(
+                  key: const Key('wheel_dob_month_picker'),
+                  scrollController: _monthCtrl,
+                  itemExtent: 40,
+                  magnification: 1.06,
+                  useMagnifier: true,
+                  selectionOverlay: selectionOverlay,
+                  onSelectedItemChanged: (idx) {
+                    setState(() {
+                      _selectedMonth = idx + 1;
+                      _clampDayIfNeeded();
+                    });
+                  },
+                  children: List.generate(
+                    12,
+                    (i) => Center(
+                      child: Text(
+                        _monthName(i + 1, strings.localeCode),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.cardTitle(color: colors.tx),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Year column
+              Expanded(
+                flex: 3,
+                child: CupertinoPicker(
+                  key: const Key('wheel_dob_year_picker'),
+                  scrollController: _yearCtrl,
+                  itemExtent: 40,
+                  magnification: 1.06,
+                  useMagnifier: true,
+                  selectionOverlay: selectionOverlay,
+                  onSelectedItemChanged: (idx) {
+                    setState(() {
+                      _selectedYear = years[idx];
+                      _clampDayIfNeeded();
+                    });
+                  },
+                  children: years
+                      .map(
+                        (y) => Center(
+                          child: Text(
+                            DigitFormatter.localizeDigits(
+                              y.toString(),
+                              strings.localeCode,
+                            ),
+                            style: AppTypography.cardTitle(color: colors.tx),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

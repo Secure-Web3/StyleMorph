@@ -638,6 +638,17 @@ class AppStrings {
   String get refTierAmbassador => get('refTierAmbassador');
   String get authReferralCodeLabel => get('authReferralCodeLabel');
   String get authReferralCodeHint => get('authReferralCodeHint');
+  String get refUplineTitle => get('refUplineTitle');
+  String get refUplineEmptyNotice => get('refUplineEmptyNotice');
+  String get refEnterCodeBtn => get('refEnterCodeBtn');
+  String get refUplineInputHint => get('refUplineInputHint');
+  String get refUplineConfirmTitle => get('refUplineConfirmTitle');
+  String get refUplineConfirmDesc => get('refUplineConfirmDesc');
+  String get refUplineInvalidCode => get('refUplineInvalidCode');
+  String get refUplineSelfReferral => get('refUplineSelfReferral');
+  String get refUplineBoundSuccess => get('refUplineBoundSuccess');
+  String get refUplineLockedBadge => get('refUplineLockedBadge');
+  String get refCopyLinkTooltip => get('refCopyLinkTooltip');
   String get authReferralSelfError => get('authReferralSelfError');
   String get authReferralInvalidError => get('authReferralInvalidError');
 

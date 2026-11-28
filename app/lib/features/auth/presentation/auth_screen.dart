@@ -287,7 +287,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
             // ── 1. Universal Top Header (Pinned at top) ─────────────
             const AuthTopBar(isTransparent: false),
 
-            // ── 2. Responsive Body (Zero-scroll in Sign In when keyboard closed) ──
+            // ── 2. Responsive Body (Stable layout during One UI keyboard animation) ──
             Expanded(
               child: LayoutBuilder(
                 builder: (context, constraints) {
@@ -295,8 +295,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                     context,
                   ).bottom;
                   final availableHeight = constraints.maxHeight;
-                  final isCompact = availableHeight < 700;
-                  final isUltraCompact = availableHeight < 610;
+                  final screenHeight = MediaQuery.sizeOf(context).height;
+                  final isCompact = screenHeight < 760;
+                  final isUltraCompact = screenHeight < 640;
                   final useZeroScroll =
                       formState.mode == AuthMode.login &&
                       viewInsetsBottom == 0 &&
@@ -313,7 +314,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                       ? AppSpacing.sm
                       : (isCompact ? AppSpacing.md : AppSpacing.xl);
 
-                  Widget bodyColumn = SizedBox(
+                  final bodyColumn = SizedBox(
                     width: contentWidth,
                     child: Padding(
                       padding: EdgeInsetsDirectional.symmetric(
@@ -368,7 +369,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxWidth: 480),
                       child: SingleChildScrollView(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.xl),
+                        padding: const EdgeInsets.only(bottom: AppSpacing.md),
                         keyboardDismissBehavior:
                             ScrollViewKeyboardDismissBehavior.onDrag,
                         child: bodyColumn,

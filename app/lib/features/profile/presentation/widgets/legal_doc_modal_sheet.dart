@@ -975,7 +975,7 @@ class _FullContractModalSheetState extends State<FullContractModalSheet> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      // Control 1: Electronic Signature Consent Checkbox (18+ & v2.0)
+                      // Control 1: Electronic Signature Consent Checkbox (13+ & v2.0)
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../../core/localization/app_strings.dart';
 import '../../../../core/services/totp_helper.dart';
 import '../../../../core/services/two_factor_service.dart';
@@ -26,12 +27,14 @@ class TwoFactorSetupDialog extends ConsumerStatefulWidget {
   final TwoFactorConfig currentConfig;
   final String? initialTotpSecret;
   final String? uidOverride;
+  final Future<bool> Function(Uri uri)? onLaunchStoreUrl;
 
   const TwoFactorSetupDialog({
     super.key,
     required this.currentConfig,
     this.initialTotpSecret,
     this.uidOverride,
+    this.onLaunchStoreUrl,
   });
 
   static Future<void> show(
@@ -205,6 +208,27 @@ class _TwoFactorSetupDialogState extends ConsumerState<TwoFactorSetupDialog> {
   static const String _appStoreAuthUrl =
       'https://apps.apple.com/app/google-authenticator/id388497605';
 
+  Future<void> _launchStoreUrl(String url) async {
+    final uri = Uri.tryParse(url);
+    if (uri == null) return;
+    try {
+      final customLauncher = widget.onLaunchStoreUrl;
+      if (customLauncher != null) {
+        await customLauncher(uri);
+        return;
+      }
+      final launched = await launchUrl(
+        uri,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!launched) {
+        openExternalUrl(url);
+      }
+    } catch (_) {
+      openExternalUrl(url);
+    }
+  }
+
   Widget _buildActiveStatusCard(AppColors colors, AppStrings strings) {
     return Container(
       padding: const EdgeInsetsDirectional.all(AppSpacing.md),
@@ -275,15 +299,17 @@ class _TwoFactorSetupDialogState extends ConsumerState<TwoFactorSetupDialog> {
           children: [
             if (showAndroid)
               _StoreLinkChip(
+                key: const Key('two_fa_google_play_btn'),
                 icon: FontAwesomeIcons.googlePlay,
                 label: strings.twoFaGetOnGooglePlay,
-                onTap: () => openExternalUrl(_playStoreAuthUrl),
+                onTap: () => _launchStoreUrl(_playStoreAuthUrl),
               ),
             if (showIos)
               _StoreLinkChip(
+                key: const Key('two_fa_app_store_btn'),
                 icon: FontAwesomeIcons.appStoreIos,
                 label: strings.twoFaGetOnAppStore,
-                onTap: () => openExternalUrl(_appStoreAuthUrl),
+                onTap: () => _launchStoreUrl(_appStoreAuthUrl),
               ),
           ],
         ),
@@ -605,6 +631,7 @@ class _StoreLinkChip extends StatelessWidget {
   final VoidCallback onTap;
 
   const _StoreLinkChip({
+    super.key,
     required this.icon,
     required this.label,
     required this.onTap,

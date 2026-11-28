@@ -111,13 +111,13 @@ void main() {
         await tester.tap(calendarIconFinder);
         await tester.pumpAndSettle();
 
-        // The Flutter DatePicker dialog should now be open
-        expect(find.byType(DatePickerDialog), findsOneWidget);
+        // The custom 3-column wheel DOB picker sheet should now be open
+        expect(find.byKey(const Key('wheel_dob_picker_sheet')), findsOneWidget);
 
-        // Dismiss dialog
-        await tester.tap(find.text('Cancel'));
+        // Dismiss sheet
+        await tester.tap(find.byKey(const Key('wheel_dob_cancel_btn')));
         await tester.pumpAndSettle();
-        expect(find.byType(DatePickerDialog), findsNothing);
+        expect(find.byKey(const Key('wheel_dob_picker_sheet')), findsNothing);
 
         // Test manual typing digits with auto-hyphen and Live Age pill
         await tester.enterText(dobFieldFinder, '19900520');

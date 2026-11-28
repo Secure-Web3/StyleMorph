@@ -1121,7 +1121,7 @@ final Map<String, String> stringsFa = {
   'aboutAgreementDesc':
       'جهت استفاده از خدمات، مطالعه و پذیرش قوانین و سیاست حفظ حریم خصوصی الزامی است.',
   'aboutAgreementCheckbox':
-      'من حداقل ۱۸ سال تمام دارم. شرایط استفاده و سیاست حریم خصوصی StyleMorph (نسخه ۲.۰) را خوانده و می‌پذیرم.',
+      'من حداقل ۱۳ سال تمام دارم. شرایط استفاده و سیاست حریم خصوصی StyleMorph (نسخه ۲.۰) را خوانده و می‌پذیرم.',
   'aboutAgreementSignBtn': 'تأیید و امضای الکترونیکی',
   'aboutOpenContractBtn': 'مشاهده متن کامل شرایط و امضای قرارداد',
   'aboutContractModalTitle': 'شرایط خدمات و توافق‌نامه حریم خصوصی',
@@ -1219,4 +1219,16 @@ final Map<String, String> stringsFa = {
   'loyaltyBreakdownReferrals': 'دعوت از دوستان ({count})',
   'loyaltyBreakdownAiUsage': 'استفاده از هوش مصنوعی ({count})',
   'loyaltyBreakdownWallet': 'فعالیت کیف‌پول ({count} سکه)',
+  'refUplineTitle': 'معرف شما',
+  'refUplineEmptyNotice': 'لینک یا کد دعوت دارید؟',
+  'refEnterCodeBtn': 'ثبت کد معرف',
+  'refUplineInputHint': 'لینک دعوت یا کد معرف را وارد کنید',
+  'refUplineConfirmTitle': 'تایید معرف',
+  'refUplineConfirmDesc':
+      'آیا حساب شما به {name} ({code}) متصل شود؟ این مورد فقط یک بار قابل ثبت است و بعداً قابل تغییر نیست.',
+  'refUplineInvalidCode': 'کد معرف یافت نشد یا نامعتبر است.',
+  'refUplineSelfReferral': 'امکان استفاده از کد معرف خودتان وجود ندارد.',
+  'refUplineBoundSuccess': 'کد معرف با موفقیت ثبت شد.',
+  'refUplineLockedBadge': 'ثبت‌شده',
+  'refCopyLinkTooltip': 'کپی لینک',
 };

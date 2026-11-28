@@ -1123,7 +1123,7 @@ final Map<String, String> stringsEn = {
   'aboutAgreementDesc':
       'Reviewing and accepting the Terms of Service and Privacy Policy is required to use services.',
   'aboutAgreementCheckbox':
-      'I am at least 18 years old. I have read and accept the StyleMorph Terms of Service and Privacy Policy (Version 2.0).',
+      'I am at least 13 years old. I have read and accept the StyleMorph Terms of Service and Privacy Policy (Version 2.0).',
   'aboutAgreementSignBtn': 'Confirm & Sign Electronically',
   'aboutOpenContractBtn': 'Review Full Agreement & Sign Electronically',
   'aboutContractModalTitle': 'Terms of Service & Privacy Policy',
@@ -1223,4 +1223,16 @@ final Map<String, String> stringsEn = {
   'loyaltyBreakdownReferrals': 'Friend Referrals ({count})',
   'loyaltyBreakdownAiUsage': 'AI Usage ({count})',
   'loyaltyBreakdownWallet': 'Wallet Activity ({count} coins)',
+  'refUplineTitle': 'Invited By',
+  'refUplineEmptyNotice': 'Have an invite link or referral code?',
+  'refEnterCodeBtn': 'Enter Referral Code',
+  'refUplineInputHint': 'Paste invite URL or code (e.g. SM-XXXX)',
+  'refUplineConfirmTitle': 'Confirm Referrer',
+  'refUplineConfirmDesc':
+      'Bind your account to {name} ({code})? This can only be set once and cannot be changed later.',
+  'refUplineInvalidCode': 'Referral code not found or invalid.',
+  'refUplineSelfReferral': 'You cannot use your own referral code.',
+  'refUplineBoundSuccess': 'Referrer bound successfully.',
+  'refUplineLockedBadge': 'Locked',
+  'refCopyLinkTooltip': 'Copy link',
 };

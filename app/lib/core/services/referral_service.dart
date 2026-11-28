@@ -57,9 +57,38 @@ class ReferralEntry {
   }
 }
 
+@immutable
+class UplineReferrerInfo {
+  final String uid;
+  final String code;
+  final String displayName;
+
+  const UplineReferrerInfo({
+    required this.uid,
+    required this.code,
+    required this.displayName,
+  });
+}
+
+enum ReferrerLookupStatus { found, invalidFormat, notFound, selfReferral }
+
+@immutable
+class ReferrerLookupResult {
+  final ReferrerLookupStatus status;
+  final UplineReferrerInfo? referrer;
+
+  const ReferrerLookupResult({required this.status, this.referrer});
+}
+
 final referralServiceProvider = Provider<ReferralService>((ref) {
   return ReferralService();
 });
+
+final uplineReferrerProvider = FutureProvider.autoDispose
+    .family<UplineReferrerInfo?, String>((ref, uid) {
+      if (uid.isEmpty) return Future.value(null);
+      return ref.watch(referralServiceProvider).getUplineReferrer(uid);
+    });
 
 class ReferralService {
   final FirebaseFirestore? _customFirestore;
@@ -454,5 +483,194 @@ class ReferralService {
     } catch (e) {
       debugPrint('[ReferralService] clearPendingReferralCode notice: $e');
     }
+  }
+
+  /// Extracts a normalized referral code from either a full invite URL
+  /// (e.g. `https://stylemorph.app/invite?ref=SM-XXXX` or `?code=...`)
+  /// or a raw referral code (`SM-XXXX`). Returns `null` if invalid.
+  static String? extractReferralCode(String rawInput) {
+    final trimmed = rawInput.trim();
+    if (trimmed.isEmpty) return null;
+
+    String? candidate;
+    final parsed = Uri.tryParse(trimmed);
+    if (parsed != null &&
+        (parsed.hasScheme ||
+            trimmed.contains('?') ||
+            trimmed.contains('/r/') ||
+            trimmed.contains('/ref/'))) {
+      candidate =
+          parsed.queryParameters['ref'] ??
+          parsed.queryParameters['refCode'] ??
+          parsed.queryParameters['code'];
+      if (candidate == null || candidate.trim().isEmpty) {
+        final segments = parsed.pathSegments;
+        final idx = segments.indexWhere(
+          (s) => s.toLowerCase() == 'r' || s.toLowerCase() == 'ref',
+        );
+        if (idx != -1 && idx + 1 < segments.length) {
+          candidate = segments[idx + 1];
+        }
+      }
+      if ((candidate == null || candidate.trim().isEmpty) &&
+          parsed.fragment.isNotEmpty) {
+        final fragUri = Uri.tryParse(parsed.fragment);
+        if (fragUri != null) {
+          candidate =
+              fragUri.queryParameters['ref'] ??
+              fragUri.queryParameters['refCode'] ??
+              fragUri.queryParameters['code'];
+        }
+      }
+    } else {
+      candidate = trimmed;
+    }
+
+    final normalized = (candidate ?? '').trim().toUpperCase();
+    if (!RegExp(r'^[A-Z0-9_-]{4,24}$').hasMatch(normalized)) {
+      return null;
+    }
+    return normalized;
+  }
+
+  String _resolveUserDisplayName(Map<String, dynamic>? data, String fallback) {
+    if (data == null) return fallback;
+    final first = (data['firstName'] ?? '').toString().trim();
+    final last = (data['lastName'] ?? '').toString().trim();
+    final full = '$first $last'.trim();
+    if (full.isNotEmpty) return full;
+    final nick = (data['nickname'] ?? '').toString().trim();
+    if (nick.isNotEmpty) return nick;
+    final display = (data['displayName'] ?? '').toString().trim();
+    if (display.isNotEmpty) return display;
+    final email = (data['email'] ?? '').toString().trim();
+    if (email.isNotEmpty) return email.split('@').first;
+    return fallback;
+  }
+
+  /// Fetches the locked one-time upline referrer info for [uid], if already set.
+  Future<UplineReferrerInfo?> getUplineReferrer(String uid) async {
+    if (uid.isEmpty) return null;
+    final firestore = _firestore;
+    if (firestore == null) return null;
+
+    try {
+      final userDoc = await firestore.collection('users').doc(uid).get();
+      final data = userDoc.data();
+      if (data == null) return null;
+      final inviterUid = (data['referredBy'] ?? '').toString().trim();
+      final code = (data['referredByCode'] ?? '').toString().trim();
+      if (inviterUid.isEmpty && code.isEmpty) return null;
+
+      String displayName = code.isNotEmpty ? code : inviterUid;
+      if (inviterUid.isNotEmpty) {
+        try {
+          final inviterDoc = await firestore
+              .collection('users')
+              .doc(inviterUid)
+              .get();
+          displayName = _resolveUserDisplayName(
+            inviterDoc.data(),
+            code.isNotEmpty ? code : inviterUid,
+          );
+        } catch (_) {}
+      }
+      return UplineReferrerInfo(
+        uid: inviterUid,
+        code: code,
+        displayName: displayName,
+      );
+    } catch (e) {
+      debugPrint('[ReferralService] getUplineReferrer notice: $e');
+      return null;
+    }
+  }
+
+  /// Validates an invite link or raw referral code against Firestore and
+  /// ensures it does not belong to [currentUid].
+  Future<ReferrerLookupResult> lookupReferrerByInput({
+    required String rawInput,
+    required String currentUid,
+  }) async {
+    final code = extractReferralCode(rawInput);
+    if (code == null) {
+      return const ReferrerLookupResult(
+        status: ReferrerLookupStatus.invalidFormat,
+      );
+    }
+
+    final firestore = _firestore;
+    if (firestore == null) {
+      return const ReferrerLookupResult(status: ReferrerLookupStatus.notFound);
+    }
+
+    try {
+      String inviterUid = '';
+      final codeDoc = await firestore
+          .collection('referral_codes')
+          .doc(code)
+          .get();
+      if (codeDoc.exists) {
+        inviterUid = (codeDoc.data()?['uid'] ?? '').toString().trim();
+      }
+
+      if (inviterUid.isEmpty) {
+        final querySnap = await firestore
+            .collection('users')
+            .where('referralCode', isEqualTo: code)
+            .limit(1)
+            .get();
+        if (querySnap.docs.isNotEmpty) {
+          inviterUid = querySnap.docs.first.id;
+        }
+      }
+
+      if (inviterUid.isEmpty) {
+        return const ReferrerLookupResult(
+          status: ReferrerLookupStatus.notFound,
+        );
+      }
+      if (inviterUid == currentUid) {
+        return const ReferrerLookupResult(
+          status: ReferrerLookupStatus.selfReferral,
+        );
+      }
+
+      String displayName = code;
+      try {
+        final inviterSnap = await firestore
+            .collection('users')
+            .doc(inviterUid)
+            .get();
+        displayName = _resolveUserDisplayName(inviterSnap.data(), code);
+      } catch (_) {}
+
+      return ReferrerLookupResult(
+        status: ReferrerLookupStatus.found,
+        referrer: UplineReferrerInfo(
+          uid: inviterUid,
+          code: code,
+          displayName: displayName,
+        ),
+      );
+    } catch (e) {
+      debugPrint('[ReferralService] lookupReferrerByInput error: $e');
+      return const ReferrerLookupResult(status: ReferrerLookupStatus.notFound);
+    }
+  }
+
+  /// Permanently binds [currentUid] to [referralCode] (one-time only).
+  Future<bool> bindUplineReferrer({
+    required String currentUid,
+    required String currentEmail,
+    String? currentDisplayName,
+    required String referralCode,
+  }) {
+    return applyReferralOnSignUp(
+      newUserUid: currentUid,
+      newEmail: currentEmail,
+      displayName: currentDisplayName,
+      referralCode: referralCode,
+    );
   }
 }

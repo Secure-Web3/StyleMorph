@@ -323,7 +323,7 @@ void main() {
         expect(find.byType(FullContractModalSheet), findsOneWidget);
         expect(
           find.text(
-            'I am at least 18 years old. I have read and accept the StyleMorph Terms of Service and Privacy Policy (Version 2.0).',
+            'I am at least 13 years old. I have read and accept the StyleMorph Terms of Service and Privacy Policy (Version 2.0).',
           ),
           findsOneWidget,
         );
@@ -478,7 +478,7 @@ void main() {
 
         expect(
           find.textContaining(
-            'strictly intended for adult individuals who are at least 18 years of age',
+            'intended for individuals who are at least 13 years of age',
           ),
           findsWidgets,
         );

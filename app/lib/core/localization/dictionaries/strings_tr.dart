@@ -1131,7 +1131,7 @@ final Map<String, String> stringsTr = {
   'aboutAgreementDesc':
       'Hizmetleri kullanmak için Hizmet Şartları ve Gizlilik Politikasının onaylanması gereklidir.',
   'aboutAgreementCheckbox':
-      'En az 18 yaşındayım. StyleMorph Kullanım Koşulları ve Gizlilik Politikasını (Sürüm 2.0) okudum ve kabul ediyorum.',
+      'En az 13 yaşındayım. StyleMorph Kullanım Koşulları ve Gizlilik Politikasını (Sürüm 2.0) okudum ve kabul ediyorum.',
   'aboutAgreementSignBtn': 'Onayla ve Elektronik Olarak İmzala',
   'aboutOpenContractBtn': 'Tam Sözleşmeyi İncele ve Elektronik Olarak İmzala',
   'aboutContractModalTitle': 'Hizmet Şartları ve Gizlilik Politikası',
@@ -1230,4 +1230,16 @@ final Map<String, String> stringsTr = {
   'loyaltyBreakdownReferrals': 'Arkadaş Davetleri ({count})',
   'loyaltyBreakdownAiUsage': 'Yapay Zeka Kullanımı ({count})',
   'loyaltyBreakdownWallet': 'Cüzdan Etkinliği ({count} jeton)',
+  'refUplineTitle': 'Davet Eden',
+  'refUplineEmptyNotice': 'Davet bağlantınız veya kodunuz var mı?',
+  'refEnterCodeBtn': 'Referans Kodu Gir',
+  'refUplineInputHint': 'Davet bağlantısını veya kodu yapıştırın',
+  'refUplineConfirmTitle': 'Davet Edeni Onayla',
+  'refUplineConfirmDesc':
+      'Hesabınız {name} ({code}) ile bağlansın mı? Bu işlem yalnızca bir kez yapılabilir ve sonradan değiştirilemez.',
+  'refUplineInvalidCode': 'Referans kodu bulunamadı veya geçersiz.',
+  'refUplineSelfReferral': 'Kendi referans kodunuzu kullanamazsınız.',
+  'refUplineBoundSuccess': 'Davet eden başarıyla kaydedildi.',
+  'refUplineLockedBadge': 'Kilitli',
+  'refCopyLinkTooltip': 'Bağlantıyı kopyala',
 };

@@ -91,9 +91,9 @@ class LegalDocumentV2 {
 
   static const List<LegalKeyPoint> englishKeyPoints = [
     LegalKeyPoint(
-      headline: '18+ only',
+      headline: '13+ only',
       detail:
-          'Must be at least 18 years old; AI image and video features work only with your own face and body.',
+          'Must be at least 13 years old; AI image and video features work only with your own face and body.',
     ),
     LegalKeyPoint(
       headline: 'Your photos are yours',
@@ -129,9 +129,9 @@ class LegalDocumentV2 {
 
   static const List<LegalKeyPoint> faKeyPoints = [
     LegalKeyPoint(
-      headline: 'فقط ۱۸ سال به بالا',
+      headline: 'فقط ۱۳ سال به بالا',
       detail:
-          'استفاده از اپلیکیشن منوط به داشتن حداقل ۱۸ سال است؛ قابلیت‌های هوش مصنوعی منحصراً با چهره و اندام خود کاربر مجاز است.',
+          'استفاده از اپلیکیشن منوط به داشتن حداقل ۱۳ سال است؛ قابلیت‌های هوش مصنوعی منحصراً با چهره و اندام خود کاربر مجاز است.',
     ),
     LegalKeyPoint(
       headline: 'تصاویر متعلق به شماست',
@@ -167,9 +167,9 @@ class LegalDocumentV2 {
 
   static const List<LegalKeyPoint> arKeyPoints = [
     LegalKeyPoint(
-      headline: 'للبالغين فقط (+١٨)',
+      headline: 'للمستخدمين بعمر +١٣ فقط',
       detail:
-          'يجب ألا يقل عمر المستخدم عن ١٨ عاماً؛ استخدام ميزات الذكاء الاصطناعي مسموح به فقط لوجه المستخدم وهيئته الشخصية.',
+          'يجب ألا يقل عمر المستخدم عن ١٣ عاماً؛ استخدام ميزات الذكاء الاصطناعي مسموح به فقط لوجه المستخدم وهيئته الشخصية.',
     ),
     LegalKeyPoint(
       headline: 'صورك ملك خالص لك',
@@ -205,9 +205,9 @@ class LegalDocumentV2 {
 
   static const List<LegalKeyPoint> trKeyPoints = [
     LegalKeyPoint(
-      headline: 'Yalnızca 18+ Yaş',
+      headline: 'Yalnızca 13+ Yaş',
       detail:
-          'Kullanıcılar en az 18 yaşında olmalıdır; yapay zeka görsel özellikleri yalnızca kendi yüzünüz ve bedeninizle kullanılabilir.',
+          'Kullanıcılar en az 13 yaşında olmalıdır; yapay zeka görsel özellikleri yalnızca kendi yüzünüz ve bedeninizle kullanılabilir.',
     ),
     LegalKeyPoint(
       headline: 'Fotoğraflarınız Size Aittir',
@@ -269,11 +269,11 @@ class LegalDocumentV2 {
     ),
     LegalClause(
       number: 2,
-      title: 'Age Eligibility (Strictly 18+)',
+      title: 'Age Eligibility (Strictly 13+)',
       shortSummary:
-          'Platform use is restricted exclusively to individuals aged 18 years or older.',
+          'Platform use is restricted to individuals aged 13 years or older.',
       body:
-          'StyleMorph is strictly intended for adult individuals who are at least 18 years of age (or the legal age of majority in your jurisdiction). Minors under 18 years of age are strictly prohibited from creating accounts, uploading photographs, or utilizing generative AI features, even with parental or guardian consent. Accounts found to belong to minors will be terminated immediately and associated biometric and photo records purged.',
+          'StyleMorph is intended for individuals who are at least 13 years of age (or the minimum digital consent age in your jurisdiction). Individuals under 13 years of age are strictly prohibited from creating accounts, uploading photographs, or utilizing generative AI features, even with parental or guardian consent. Accounts found to belong to users under 13 will be terminated immediately and associated biometric and photo records purged.',
     ),
     LegalClause(
       number: 3,
@@ -448,11 +448,11 @@ class LegalDocumentV2 {
     ),
     LegalClause(
       number: 2,
-      title: 'شرایط سنی (اکیداً بالای ۱۸ سال)',
+      title: 'شرایط سنی (حداقل ۱۳ سال)',
       shortSummary:
-          'استفاده از سامانه منحصراً برای افراد دارای ۱۸ سال تمام یا بیشتر مجاز است.',
+          'استفاده از سامانه برای افراد دارای ۱۳ سال تمام یا بیشتر مجاز است.',
       body:
-          'استفاده از کلیه امکانات StyleMorph منحصراً برای بزرگسالان با حداقل سن ۱۸ سال تمام مجاز است. عضویت و بارگذاری تصویر توسط افراد زیر ۱۸ سال حتی با رضایت والدین اکیداً ممنوع بوده و در صورت مشاهده، حساب کاربری و تصاویر فوراً پاکسازی خواهند شد.',
+          'استفاده از کلیه امکانات StyleMorph منحصراً برای کاربران با حداقل سن ۱۳ سال تمام مجاز است. عضویت و بارگذاری تصویر توسط افراد زیر ۱۳ سال حتی با رضایت والدین اکیداً ممنوع بوده و در صورت مشاهده، حساب کاربری و تصاویر فوراً پاکسازی خواهند شد.',
     ),
     LegalClause(
       number: 3,
@@ -627,11 +627,11 @@ class LegalDocumentV2 {
     ),
     LegalClause(
       number: 2,
-      title: 'الأهلية القانونية (١٨+ عاماً فقط)',
+      title: 'الأهلية القانونية (١٣+ عاماً)',
       shortSummary:
-          'يقتصر استخدام الخدمة حصرياً على الأشخاص البالغين من عمر ١٨ عاماً فما فوق.',
+          'يقتصر استخدام الخدمة على الأشخاص البالغين من عمر ١٣ عاماً فما فوق.',
       body:
-          'الخدمة مخصصة حصرياً لمن بلغوا ١٨ عاماً. يُحظر تماماً على القاصرين إنشاء حسابات أو رفع صور، حتى بموافقة ولي الأمر، وسيتم مسح الحسابات والصور المخالفة فوراً.',
+          'الخدمة مخصصة لمن بلغوا ١٣ عاماً على الأقل. يُحظر تماماً على من هم دون ١٣ عاماً إنشاء حسابات أو رفع صور، حتى بموافقة ولي الأمر، وسيتم مسح الحسابات والصور المخالفة فوراً.',
     ),
     LegalClause(
       number: 3,
@@ -806,11 +806,11 @@ class LegalDocumentV2 {
     ),
     LegalClause(
       number: 2,
-      title: 'Yaş Uygunluğu (Kesinlikle 18+)',
+      title: 'Yaş Uygunluğu (13+ Yaş)',
       shortSummary:
-          'Platform yalnızca 18 yaş ve üzerindeki yetişkin kullanıcılar için geçerlidir.',
+          'Platform yalnızca 13 yaş ve üzerindeki kullanıcılar için geçerlidir.',
       body:
-          'StyleMorph yalnızca en az 18 yaşını doldurmuş bireyler içindir. 18 yaşından küçüklerin ebeveyn onayı olsa dahi hesap açması ve görsel yüklemesi yasaktır; tespit edilen hesaplar derhal silinir.',
+          'StyleMorph en az 13 yaşını doldurmuş bireyler içindir. 13 yaşından küçüklerin ebeveyn onayı olsa dahi hesap açması ve görsel yüklemesi yasaktır; tespit edilen hesaplar derhal silinir.',
     ),
     LegalClause(
       number: 3,
@@ -1122,11 +1122,11 @@ class LegalDocumentV2 {
     ),
     LegalClause(
       number: 17,
-      title: 'Children’s Privacy (18+ Strict Enforcement)',
+      title: 'Children’s Privacy (13+ Enforcement)',
       shortSummary:
-          'Zero intentional collection of minor data; accounts of minors are immediately purged.',
+          'Zero intentional collection of data from users under 13; accounts under 13 are immediately purged.',
       body:
-          'Our service is strictly restricted to adults aged 18 and older. We do not knowingly collect personal or biometric information from minors under 18. If we discover that a minor has submitted personal photos, the account and all related files are immediately and irrevocably deleted.',
+          'Our service is restricted to users aged 13 and older. We do not knowingly collect personal or biometric information from children under 13. If we discover that a user under 13 has submitted personal photos, the account and all related files are immediately and irrevocably deleted.',
     ),
     LegalClause(
       number: 18,
@@ -1301,11 +1301,11 @@ class LegalDocumentV2 {
     ),
     LegalClause(
       number: 17,
-      title: 'حریم خصوصی کودکان (الزام قطعی ۱۸+)',
+      title: 'حریم خصوصی کودکان (الزام ۱۳+)',
       shortSummary:
-          'عدم گردآوری آگاهانه اطلاعات افراد زیر ۱۸ سال و پاکسازی فوری حساب‌های خاطی.',
+          'عدم گردآوری آگاهانه اطلاعات افراد زیر ۱۳ سال و پاکسازی فوری حساب‌های خاطی.',
       body:
-          'خدمات ما صرفاً برای افراد بالای ۱۸ سال طراحی شده است. هیچ‌گونه اطلاعاتی از افراد زیر ۱۸ سال آگاهانه جمع‌آوری نشده و در صورت کشف، حساب و فایل‌های مربوطه فوراً امحا می‌شوند.',
+          'خدمات ما صرفاً برای افراد ۱۳ سال و بالاتر طراحی شده است. هیچ‌گونه اطلاعاتی از افراد زیر ۱۳ سال آگاهانه جمع‌آوری نشده و در صورت کشف، حساب و فایل‌های مربوطه فوراً امحا می‌شوند.',
     ),
     LegalClause(
       number: 18,
@@ -1480,11 +1480,11 @@ class LegalDocumentV2 {
     ),
     LegalClause(
       number: 17,
-      title: 'خصوصية القاصرين (التزام صارم بـ ١٨+)',
+      title: 'خصوصية الأطفال (الزام ١٣+)',
       shortSummary:
-          'عدم جمع بيانات من هم دون ١٨ عاماً ومسح أي حسابات مخالفة على الفور.',
+          'عدم جمع بيانات من هم دون ١٣ عاماً ومسح أي حسابات مخالفة على الفور.',
       body:
-          'الخدمة مقصورة تماماً على البالغين من عمر ١٨ عاماً فما فوق. لا نجمع بيانات القاصرين عن قصد، وفي حال اكتشاف ذلك يتم مسح الحساب وملفاته فوراً.',
+          'الخدمة مخصصة للمستخدمين بعمر ١٣ عاماً فما فوق. لا نجمع بيانات الأطفال دون ١٣ عاماً عن قصد، وفي حال اكتشاف ذلك يتم مسح الحساب وملفاته فوراً.',
     ),
     LegalClause(
       number: 18,
@@ -1659,11 +1659,11 @@ class LegalDocumentV2 {
     ),
     LegalClause(
       number: 17,
-      title: 'Çocukların Gizliliği (18+ Yaş Sınırı)',
+      title: 'Çocukların Gizliliği (13+ Yaş Sınırı)',
       shortSummary:
-          '18 yaş altındaki bireylerin verileri toplanmaz; tespit edilenler derhal silinir.',
+          '13 yaş altındaki bireylerin verileri toplanmaz; tespit edilenler derhal silinir.',
       body:
-          'Hizmetlerimiz yalnızca 18 yaş ve üzeri yetişkinler içindir. 18 yaşından küçüklerin kişisel verileri bilerek toplanmaz ve tespit edildiğinde derhal imha edilir.',
+          'Hizmetlerimiz 13 yaş ve üzeri kullanıcılar içindir. 13 yaşından küçüklerin kişisel verileri bilerek toplanmaz ve tespit edildiğinde derhal imha edilir.',
     ),
     LegalClause(
       number: 18,

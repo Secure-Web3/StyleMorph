@@ -161,8 +161,8 @@ void main() {
           findsOneWidget,
         );
 
-        // Tap referral link box -> should copy to clipboard and show toast
-        await tester.tap(linkFinder);
+        // Tap copy icon button -> should copy to clipboard and show toast
+        await tester.tap(find.byKey(const Key('ref_copy_link_btn')));
         await tester.pump();
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 100));
